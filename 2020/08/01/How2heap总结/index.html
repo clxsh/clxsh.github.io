@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+  <head><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+<meta name="description" content="How2heap总结"/><meta name="keywords" content="CTF, how2heap, hhdx's blog" /><link rel="alternate" href="/atom.xml" title="hhdx's blog" type="application/atom+xml"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=2.11.0" />
+<link rel="canonical" href="http://hhdx.xyz/2020/08/01/How2heap总结/"/>
+
+<link rel="stylesheet" type="text/css" href="/lib/fancybox/jquery.fancybox.css" />
+<link rel="stylesheet" type="text/css" href="/css/style.css?v=2.11.0" />
+
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-177325662-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-177325662-1');
+</script><script id="baidu_push">
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+</script>
+<script>
+  window.config = {"leancloud":{"app_id":null,"app_key":null},"toc":true,"fancybox":true,"pjax":true,"latex":false};
+</script>
+
+    <title>How2heap总结 - hhdx's blog</title>
+  <meta name="generator" content="Hexo 5.2.0"></head>
+
+  <body><div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/." class="logo">hhdx's blog</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list"><a href="/">
+        <li class="mobile-menu-item">Home
+          </li>
+      </a><a href="/archives/">
+        <li class="mobile-menu-item">Archives
+          </li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">Tags
+          </li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About
+          </li>
+      </a></ul>
+</nav>
+<div class="container" id="mobile-panel">
+      <header id="header" class="header"><div class="logo-wrapper">
+  <a href="/." class="logo">hhdx's blog</a>
+</div>
+
+<nav class="site-navbar"><ul id="menu" class="menu"><li class="menu-item">
+          <a class="menu-item-link" href="/">
+            Home
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/archives/">
+            Archives
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/tags/">
+            Tags
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/about/">
+            About
+            </a>
+        </li>
+      </ul></nav>
+</header>
+
+      <main id="main" class="main">
+        <div class="content-wrapper">
+          <div id="content" class="content"><article class="post">
+    <header class="post-header">
+      <h1 class="post-title">How2heap总结
+        </h1>
+
+      <div class="post-meta">
+        <span class="post-time">
+          2020-08-01
+        </span></div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+    <h2 class="post-toc-title">Contents</h2>
+    <div class="post-toc-content">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#first-fit"><span class="toc-text">first-fit</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#calc-tcache-idx"><span class="toc-text">calc_tcache_idx</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#fastbin-dup"><span class="toc-text">fastbin_dup</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#fastbin-dup-into-stack-c"><span class="toc-text">fastbin_dup_into_stack.c</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#0ctf2017-babyheap"><span class="toc-text">0ctf2017-babyheap</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#ref"><span class="toc-text">ref</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#fastbin-dup-consolidate"><span class="toc-text">fastbin_dup_consolidate</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Hitcon-2016-SleepyHolder"><span class="toc-text">Hitcon 2016 SleepyHolder</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#ref-1"><span class="toc-text">ref</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#unsafe-unlink"><span class="toc-text">unsafe unlink</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Hitcon2014-stkof"><span class="toc-text">Hitcon2014 stkof</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#House-of-spirit"><span class="toc-text">House of spirit</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#hack-lu2014-oreo"><span class="toc-text">hack.lu2014 oreo</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#poison-null-byte"><span class="toc-text">poison null byte</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Plaidctf2015-plaiddb"><span class="toc-text">Plaidctf2015 plaiddb</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#ref-2"><span class="toc-text">ref</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#house-of-lore"><span class="toc-text">house of lore</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#overlapping-chunks"><span class="toc-text">overlapping chunks</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#hack-lu2015-bookstore"><span class="toc-text">hack.lu2015 bookstore</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#overlapping-chunks-2"><span class="toc-text">overlapping chunks 2</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#house-of-force"><span class="toc-text">house of force</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#bctf2016-bcloud"><span class="toc-text">bctf2016 bcloud</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#unsorted-bin-into-stack"><span class="toc-text">unsorted bin into stack</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#unsorted-bin-attack"><span class="toc-text">unsorted bin attack</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#0ctf2016-zerostorage"><span class="toc-text">0ctf2016 zerostorage</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#large-bin-attack"><span class="toc-text">large bin attack</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#0ctf2018-heapstorm2"><span class="toc-text">0ctf2018 heapstorm2</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#house-of-einherjar"><span class="toc-text">house of einherjar</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Secon2016-tinypad"><span class="toc-text">Secon2016 tinypad</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#house-of-orange"><span class="toc-text">house of orange</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Hitcon2016-houseoforange"><span class="toc-text">Hitcon2016 houseoforange</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#house-of-roman"><span class="toc-text">house of roman</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#tcache-dup"><span class="toc-text">tcache dup</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#tcache-poisoning"><span class="toc-text">tcache poisoning</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#tcache-house-of-spirit"><span class="toc-text">tcache house of spirit</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#house-of-botcake"><span class="toc-text">house of botcake</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#tcache-stashing-unlink-attack"><span class="toc-text">tcache stashing unlink attack</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#variation"><span class="toc-text">variation</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#tips"><span class="toc-text">tips</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Hitcon2019-one-punch"><span class="toc-text">Hitcon2019 one punch</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#fastbin-reverse-into-tcache"><span class="toc-text">fastbin reverse into tcache</span></a></li></ol>
+    </div>
+  </div><div class="post-content"><h2 id="first-fit"><a href="#first-fit" class="headerlink" title="first-fit"></a>first-fit</h2><p>如果一个chunk可用且足够大，那么就会使用这个chunk。</p>
+<h2 id="calc-tcache-idx"><a href="#calc-tcache-idx" class="headerlink" title="calc_tcache_idx"></a>calc_tcache_idx</h2><p>tcache(thread local caching)</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* We want 64 entries.  This is an arbitrary limit, which tunables can reduce.  */</span></span><br><span class="line"><span class="meta"># <span class="meta-keyword">define</span> TCACHE_MAX_BINS		64</span></span><br><span class="line"><span class="meta"># <span class="meta-keyword">define</span> MAX_TCACHE_SIZE	tidx2usize (TCACHE_MAX_BINS-1)</span></span><br><span class="line"></span><br><span class="line"><span class="comment">/* Only used to pre-fill the tunables.  */</span></span><br><span class="line"><span class="meta"># <span class="meta-keyword">define</span> tidx2usize(idx)	(((size_t) idx) * MALLOC_ALIGNMENT + MINSIZE - SIZE_SZ)</span></span><br><span class="line"></span><br><span class="line"><span class="comment">/* When &quot;x&quot; is from chunksize().  */</span></span><br><span class="line"><span class="meta"># <span class="meta-keyword">define</span> csize2tidx(x) (((x) - MINSIZE + MALLOC_ALIGNMENT - 1) / MALLOC_ALIGNMENT)</span></span><br><span class="line"><span class="comment">/* When &quot;x&quot; is a user-provided size.  */</span></span><br><span class="line"><span class="meta"># <span class="meta-keyword">define</span> usize2tidx(x) csize2tidx (request2size (x))</span></span><br><span class="line"></span><br><span class="line"><span class="comment">/* With rounding and alignment, the bins are...</span></span><br><span class="line"><span class="comment">   idx 0   bytes 0..24 (64-bit) or 0..12 (32-bit)</span></span><br><span class="line"><span class="comment">   idx 1   bytes 25..40 or 13..20</span></span><br><span class="line"><span class="comment">   idx 2   bytes 41..56 or 21..28</span></span><br><span class="line"><span class="comment">   etc.  */</span></span><br></pre></td></tr></table></figure>
+
+<p>tcache拥有和fastbin差不多的结构。默认情况下，64个bin，每个bin最多7个chunk</p>
+<p>64bit: <code>IDX = (CHUNKSIZE - 0x11) / 0x10</code></p>
+<a id="more"></a>
+
+<h2 id="fastbin-dup"><a href="#fastbin-dup" class="headerlink" title="fastbin_dup"></a>fastbin_dup</h2><p>free(fastbin)过程中，只检查了链表头部是否和将要free的指针一样。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> *a = <span class="built_in">malloc</span>(<span class="number">8</span>);</span><br><span class="line"><span class="keyword">int</span> *b = <span class="built_in">malloc</span>(<span class="number">8</span>);</span><br><span class="line"><span class="keyword">int</span> *c = <span class="built_in">malloc</span>(<span class="number">8</span>);</span><br><span class="line"></span><br><span class="line"><span class="built_in">free</span>(a);</span><br><span class="line"><span class="built_in">free</span>(b);</span><br><span class="line"><span class="built_in">free</span>(a);</span><br></pre></td></tr></table></figure>
+
+<p>此时fastbin 0x20: <code>a-&gt;b-&gt;a</code></p>
+<p><strong>附注：</strong></p>
+<p>tcache可以检测到double free。在本机glibc2.31中发现，tcache_entry中使用key指向了tcache_perthread_struct。<a target="_blank" rel="noopener" href="https://sourceware.org/git/?p=glibc.git;a=blob;f=malloc/malloc.c;h=f7cd29bc2f93e1082ee77800bd64a4b2a2897055;hb=9ea3686266dca3f004ba874745a4087a89682617#l4186">malloc.c:4186</a></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">tcache_entry</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">tcache_entry</span> *<span class="title">next</span>;</span></span><br><span class="line">  <span class="comment">/* This field exists to detect double frees.  */</span></span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">tcache_perthread_struct</span> *<span class="title">key</span>;</span></span><br><span class="line">&#125; tcache_entry;</span><br></pre></td></tr></table></figure>
+
+<p>tcache检测double free代码：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* Check to see if it&#x27;s already in the tcache.  */</span></span><br><span class="line">tcache_entry *e = (tcache_entry *) chunk2mem (p);</span><br><span class="line"></span><br><span class="line"><span class="comment">/* This test succeeds on double free.  However, we don&#x27;t 100%</span></span><br><span class="line"><span class="comment">	   trust it (it also matches random payload data at a 1 in</span></span><br><span class="line"><span class="comment">	   2^&lt;size_t&gt; chance), so verify it&#x27;s not an unlikely</span></span><br><span class="line"><span class="comment">	   coincidence before aborting.  */</span></span><br><span class="line"><span class="keyword">if</span> (__glibc_unlikely (e-&gt;key == tcache))</span><br><span class="line">&#123;</span><br><span class="line">    tcache_entry *tmp;</span><br><span class="line">    LIBC_PROBE (memory_tcache_double_free, <span class="number">2</span>, e, tc_idx);</span><br><span class="line">    <span class="keyword">for</span> (tmp = tcache-&gt;entries[tc_idx];</span><br><span class="line">         tmp;</span><br><span class="line">         tmp = tmp-&gt;next)</span><br><span class="line">        <span class="keyword">if</span> (tmp == e)</span><br><span class="line">            malloc_printerr (<span class="string">&quot;free(): double free detected in tcache 2&quot;</span>);</span><br><span class="line">    <span class="comment">/* If we get here, it was a coincidence.  We&#x27;ve wasted a</span></span><br><span class="line"><span class="comment">	       few cycles, but don&#x27;t abort.  */</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="fastbin-dup-into-stack-c"><a href="#fastbin-dup-into-stack-c" class="headerlink" title="fastbin_dup_into_stack.c"></a>fastbin_dup_into_stack.c</h2><p>假设fastbin中通过double free得到以下序列。</p>
+<p>fastbin: <code>a-&gt;b-&gt;a</code></p>
+<p>第一次malloc得到a后，修改数据，使得第二个a-&gt;fd指向栈地址。</p>
+<h3 id="0ctf2017-babyheap"><a href="#0ctf2017-babyheap" class="headerlink" title="0ctf2017-babyheap"></a>0ctf2017-babyheap</h3><p>fill函数中存在对chunk的任意长度溢出。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">allocate(<span class="number">0x20</span>)</span><br><span class="line">allocate(<span class="number">0x20</span>)</span><br><span class="line">allocate(<span class="number">0x20</span>)</span><br><span class="line">allocate(<span class="number">0x20</span>)</span><br><span class="line">allocate(<span class="number">0x80</span>)		<span class="comment"># smallbin</span></span><br></pre></td></tr></table></figure>
+
+<p>mmap分配空间那块没看懂，怎么就获得了随机空间。。如果有人看懂，麻烦告诉我一下</p>
+<p><strong>泄露</strong>：通过<strong>partial overwrite</strong>修改fd，指向smallbin。溢出修改smallbin-&gt;size为0x31，两次分配后得到另一指针指向该smallbin。而后重新修改smallbin-&gt;size为0x91，free该smallbin，smallbin-&gt;fd和smallbin-&gt;bk就会指向main_arena中的区域。使用另一指针打印内容就可以得到libc_base。</p>
+<p><strong>攻击</strong>：0x70 fastbin attack，复写<code>__malloc_hook</code>为one_gadget地址。</p>
+<h3 id="ref"><a href="#ref" class="headerlink" title="ref"></a>ref</h3><p><a target="_blank" rel="noopener" href="https://uaf.io/exploitation/2017/03/19/0ctf-Quals-2017-BabyHeap2017.html">https://uaf.io/exploitation/2017/03/19/0ctf-Quals-2017-BabyHeap2017.html</a></p>
+<h2 id="fastbin-dup-consolidate"><a href="#fastbin-dup-consolidate" class="headerlink" title="fastbin_dup_consolidate"></a>fastbin_dup_consolidate</h2><p>double free fastbin到unsorted bin和fastbin。通过分配large bin触发malloc_consolidate，清空fastbin到unsorted bin。<a target="_blank" rel="noopener" href="https://raw.githubusercontent.com/cloudburst/libheap/master/heap.png">图源</a></p>
+<p><img src="https://raw.githubusercontent.com/cloudburst/libheap/master/heap.png"></p>
+<h3 id="Hitcon-2016-SleepyHolder"><a href="#Hitcon-2016-SleepyHolder" class="headerlink" title="Hitcon 2016 SleepyHolder"></a>Hitcon 2016 SleepyHolder</h3><p>fastbin dup consolidate double free</p>
+<p>unsafe unlink</p>
+<h3 id="ref-1"><a href="#ref-1" class="headerlink" title="ref"></a>ref</h3><p><a target="_blank" rel="noopener" href="https://github.com/mehQQ/public_writeup/tree/master/hitcon2016/SleepyHolder">https://github.com/mehQQ/public_writeup/tree/master/hitcon2016/SleepyHolder</a></p>
+<h2 id="unsafe-unlink"><a href="#unsafe-unlink" class="headerlink" title="unsafe unlink"></a>unsafe unlink</h2><p>在前块中构造fake_chunk，用一些方法将后块的pre_in_use位清掉，释放后块向前合并。</p>
+<p>伪造fake_chunk需要绕过检查，一般用某个指针变量前后的地址当做fd、bk。之后就会将该指针变量就会被覆盖。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> unlink(AV, P, BK, FD) &#123;                                            \</span></span><br><span class="line">    FD = P-&gt;fd;								      \</span><br><span class="line">    BK = P-&gt;bk;								      \</span><br><span class="line">    <span class="keyword">if</span> (__builtin_expect (FD-&gt;bk != P || BK-&gt;fd != P, <span class="number">0</span>))		      \</span><br><span class="line">      malloc_printerr (check_action, <span class="string">&quot;corrupted double-linked list&quot;</span>, P, AV);  \</span><br></pre></td></tr></table></figure>
+
+<p>how2heap对glibc的版本要求<code>&lt;2.26</code>似乎有误？据我测试，<strong>glibc2.31 without tcache也可以运行成功</strong>，只要添加<code>chunk0_ptr[1] = (uint64_t)malloc_size;</code>，glibc2.31中看起来只是增加了size的验证。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* consolidate backward */</span></span><br><span class="line"><span class="keyword">if</span> (!prev_inuse(p)) &#123;</span><br><span class="line">    prevsize = prev_size (p);</span><br><span class="line">    size += prevsize;</span><br><span class="line">    p = chunk_at_offset(p, -((<span class="keyword">long</span>) prevsize));</span><br><span class="line">    <span class="keyword">if</span> (__glibc_unlikely (chunksize(p) != prevsize))</span><br><span class="line">        malloc_printerr (<span class="string">&quot;corrupted size vs. prev_size while consolidating&quot;</span>);</span><br><span class="line">    unlink_chunk (av, p);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>非fastbin size才会进行前后consolidate。</strong></p>
+<h3 id="Hitcon2014-stkof"><a href="#Hitcon2014-stkof" class="headerlink" title="Hitcon2014 stkof"></a>Hitcon2014 stkof</h3><p>p1分配0x80，p2分配0x80。</p>
+<p>p1内伪造fake_chunk，溢出修改p2的pre_size,pre_in_use。free(p2)</p>
+<p>覆盖free_got泄露地址，再任意写到atoi_got</p>
+<h2 id="House-of-spirit"><a href="#House-of-spirit" class="headerlink" title="House of spirit"></a>House of spirit</h2><p>在不可控区域周围构造fakechunk，覆盖某指针，释放再分配，以控制不可控区域。</p>
+<h3 id="hack-lu2014-oreo"><a href="#hack-lu2014-oreo" class="headerlink" title="hack.lu2014 oreo"></a>hack.lu2014 oreo</h3><p>在message_ptr周围构造。</p>
+<h2 id="poison-null-byte"><a href="#poison-null-byte" class="headerlink" title="poison null byte"></a>poison null byte</h2><p>溢出，覆盖已经释放的chunk的size，使其大小变小。free后块使其合并。</p>
+<h3 id="Plaidctf2015-plaiddb"><a href="#Plaidctf2015-plaiddb" class="headerlink" title="Plaidctf2015 plaiddb"></a>Plaidctf2015 plaiddb</h3><p>null byte溢出，堆块重叠，libc泄露和fastbin attack</p>
+<h3 id="ref-2"><a href="#ref-2" class="headerlink" title="ref"></a>ref</h3><ol>
+<li><a target="_blank" rel="noopener" href="https://4ngelboy.blogspot.com/2016/10/span-display-block-overflow-hidden_10.html">https://4ngelboy.blogspot.com/2016/10/span-display-block-overflow-hidden_10.html</a></li>
+<li><a target="_blank" rel="noopener" href="https://ctf-wiki.github.io/ctf-wiki/pwn/linux/glibc-heap/off_by_one-zh/#2-plaidctf-2015-plaiddb">https://ctf-wiki.github.io/ctf-wiki/pwn/linux/glibc-heap/off_by_one-zh/#2-plaidctf-2015-plaiddb</a></li>
+</ol>
+<h2 id="house-of-lore"><a href="#house-of-lore" class="headerlink" title="house of lore"></a>house of lore</h2><p><strong>glibc2.31 without tcache可以运行成功。</strong></p>
+<p>smallbin链表的特点是头插尾取的FIFO。</p>
+<p>关键的漏洞点在，攻击者可以控制已经释放的smallbin的bk指针。取出smallbin过程中，双向链表尾部被修改为fake_chunk。</p>
+<p>程序中的描述对于64位有些问题，但没有影响效果。64位过程如下：</p>
+<p><code>free((void*)victim)</code>后，该chunk被放入fastbin，后<code>void *p2 = malloc(1200);</code>申请largebin触发malloc_consolidate，将fastbin放入unsortedbin，然后遍历unsortedbin查找chunk导致victim chunk被放入smallbin。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">victim_chunk-&gt;bk   = stack_buffer_1;</span><br><span class="line">stack_buffer_1-&gt;fd = vimtim_chunk;</span><br><span class="line">stack_buffer_1-&gt;bk = stack_buffer_2;</span><br><span class="line">stack_buffer_2-&gt;fd = stack_buffer_1;</span><br></pre></td></tr></table></figure>
+
+<h2 id="overlapping-chunks"><a href="#overlapping-chunks" class="headerlink" title="overlapping chunks"></a>overlapping chunks</h2><p>溢出，对unsortedbin中的chunk的size进行更改，造成重叠。可以添加<code>prev_size(nextchunk) == chunk-&gt;size</code>检查修补。</p>
+<h3 id="hack-lu2015-bookstore"><a href="#hack-lu2015-bookstore" class="headerlink" title="hack.lu2015 bookstore"></a>hack.lu2015 bookstore</h3><p>overlapping</p>
+<p>format string vulnerability：泄露libc，修改fini_array和返回地址</p>
+<h2 id="overlapping-chunks-2"><a href="#overlapping-chunks-2" class="headerlink" title="overlapping chunks 2"></a>overlapping chunks 2</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">p1 = <span class="built_in">malloc</span>(<span class="number">1000</span>);</span><br><span class="line">p2 = <span class="built_in">malloc</span>(<span class="number">1000</span>);</span><br><span class="line">p3 = <span class="built_in">malloc</span>(<span class="number">1000</span>);</span><br><span class="line">p4 = <span class="built_in">malloc</span>(<span class="number">1000</span>);</span><br><span class="line">p5 = <span class="built_in">malloc</span>(<span class="number">1000</span>);</span><br></pre></td></tr></table></figure>
+
+<p>首先free(p4)，溢出，对使用中的chunk p2的size进行更改，free掉p2，与p4合并，造成重叠。</p>
+<h2 id="house-of-force"><a href="#house-of-force" class="headerlink" title="house of force"></a>house of force</h2><p>覆盖topchun-size为0xffffffff，分配一个能够溢出size_t的evil_size，到目的地址，再分配一次，对其进行修改。</p>
+<h3 id="bctf2016-bcloud"><a href="#bctf2016-bcloud" class="headerlink" title="bctf2016 bcloud"></a>bctf2016 bcloud</h3><p>null byte overflow，strcpy溢出。修改free_got为put_plt，泄露libc base，后修改atoi_got。</p>
+<h2 id="unsorted-bin-into-stack"><a href="#unsorted-bin-into-stack" class="headerlink" title="unsorted bin into stack"></a>unsorted bin into stack</h2><p>和house of lore差不多，只不过这里是对于unsorted bin。</p>
+<p>在栈上伪造chunk，修改unsorted bin尾部chunk的size和bk，使其size不符合下一次分配的要求，使其bk指向栈上伪造的chunk，造成下一次分配落到栈上。</p>
+<h2 id="unsorted-bin-attack"><a href="#unsorted-bin-attack" class="headerlink" title="unsorted bin attack"></a>unsorted bin attack</h2><p>修改unsorted bin中某一chunk的bk指向某位置p，接下来该chunk分配后，<code>p+2*SIZE_ZE</code>处会被覆盖为unsorted bin头结点的地址，也就是unsortedbin地址。</p>
+<p>该攻击通常为进一步攻击做准备，比如覆盖global_max_fast</p>
+<h3 id="0ctf2016-zerostorage"><a href="#0ctf2016-zerostorage" class="headerlink" title="0ctf2016 zerostorage"></a>0ctf2016 zerostorage</h3><p>UAF，realloc with topchunk</p>
+<h2 id="large-bin-attack"><a href="#large-bin-attack" class="headerlink" title="large bin attack"></a>large bin attack</h2><p>对已存在于large bin中的chunk的bk、bk_nextsize字段进行更改，在unsorted bin中取出插入该large bin时，会将bk-&gt;fd、bk_nextsize-&gt;fd_nextsize的位置覆盖成堆的地址。和先前的unsorted bin attack类似，通常为进一步攻击做准备，如修改global_max_fast。</p>
+<p><img src="https://raw.githubusercontent.com/lc1838228782/pics/master/img/large_bin2.png" alt="large bin"></p>
+<h3 id="0ctf2018-heapstorm2"><a href="#0ctf2018-heapstorm2" class="headerlink" title="0ctf2018 heapstorm2"></a>0ctf2018 heapstorm2</h3><p>poison null byte, large  bin attack，fake unsorted bin</p>
+<h2 id="house-of-einherjar"><a href="#house-of-einherjar" class="headerlink" title="house of einherjar"></a>house of einherjar</h2><p>泄露堆地址，计算fake size。</p>
+<p>off-by-one覆盖victim-&gt;pre_in_use，修改victim-&gt;prev_size。</p>
+<p>释放victim，与fake chunk合并。</p>
+<p><strong>victim需要与top chunk临近。</strong></p>
+<h3 id="Secon2016-tinypad"><a href="#Secon2016-tinypad" class="headerlink" title="Secon2016 tinypad"></a>Secon2016 tinypad</h3><h2 id="house-of-orange"><a href="#house-of-orange" class="headerlink" title="house of orange"></a>house of orange</h2><p>将<code>topchunk-&gt;size</code>缩小并对齐页，malloc一个大于size，就会将old top chunk释放到unsorted bin中。</p>
+<h3 id="Hitcon2016-houseoforange"><a href="#Hitcon2016-houseoforange" class="headerlink" title="Hitcon2016 houseoforange"></a>Hitcon2016 houseoforange</h3><h2 id="house-of-roman"><a href="#house-of-roman" class="headerlink" title="house of roman"></a>house of roman</h2><p>最主要的思想就是partial overwrite，所以能够在不泄露地址的情况下getshell。</p>
+<p>需要溢出或者UAF</p>
+<p>fast bin attack，partial overwrite fd或者bk指向main_arena的块（从small large unsorted bin中malloc），使其指向<code>malloc_hook-0x23</code></p>
+<p>unsorted bin attack，将bk指向malloc_hook-0x10，使得malloc_hook被写入main_arena地址，从而partial overwrite成为system、onegadget等。</p>
+<h2 id="tcache-dup"><a href="#tcache-dup" class="headerlink" title="tcache dup"></a>tcache dup</h2><p>glibc 2.26~2.28</p>
+<p>没有任何检查，简单的double free</p>
+<h2 id="tcache-poisoning"><a href="#tcache-poisoning" class="headerlink" title="tcache poisoning"></a>tcache poisoning</h2><p>修改tcache中已释放块的next(fd)到任意位置，然后进行分配得到</p>
+<h2 id="tcache-house-of-spirit"><a href="#tcache-house-of-spirit" class="headerlink" title="tcache house of spirit"></a>tcache house of spirit</h2><p>伪造堆块释放到tcahe。和普通house of spirit不同的是，tcache并没有对后块检查</p>
+<p>prev_inuse没有影响，IS_MMAPPED、NON_MAIN_ARENA有影响</p>
+<h2 id="house-of-botcake"><a href="#house-of-botcake" class="headerlink" title="house of botcake"></a>house of botcake</h2><p>double free</p>
+<p><a target="_blank" rel="noopener" href="https://sourceware.org/git/?p=glibc.git;a=commit;h=bcdaad21d4635931d1bd3b54a7894276925d081d">commit</a>在<code>struct tcache_entry</code>结构中添加了key变量指向tcache_perthread_struct，所以简单的向tcache中double free两次会被检测到。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"> <span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">tcache_entry</span></span></span><br><span class="line"><span class="class"> &#123;</span></span><br><span class="line">   <span class="class"><span class="keyword">struct</span> <span class="title">tcache_entry</span> *<span class="title">next</span>;</span></span><br><span class="line">+  <span class="comment">/* This field exists to detect double frees.  */</span></span><br><span class="line">+  <span class="class"><span class="keyword">struct</span> <span class="title">tcache_perthread_struct</span> *<span class="title">key</span>;</span></span><br><span class="line"> &#125; tcache_entry;</span><br></pre></td></tr></table></figure>
+
+<p>使用把某个大小tcache填满的方式，将victim同时double free到tcache和unsorted bin，并在victim前面准备了了prev块，以使得size不一样，便于分配。</p>
+<h2 id="tcache-stashing-unlink-attack"><a href="#tcache-stashing-unlink-attack" class="headerlink" title="tcache stashing unlink attack"></a>tcache stashing unlink attack</h2><p>在tcache中布置5个chunk，对应大小的small bin中布置2个chunk。修改倒数第二个small chunk的bk指向target，target-&gt;bk写入一个可写的位置。使用calloc触发，因为calloc调用<code>_int_malloc</code>不会使用tcache进行分配（除了遍历unsorted bin的尾部），只会往tcache中填充。</p>
+<p>可以造成target-&gt;bk-&gt;fd位置写入大数字，并且target成为tcache中第一个，再次malloc就可以获得。</p>
+<p>有点像fastbin reverse into tcache。</p>
+<h3 id="variation"><a href="#variation" class="headerlink" title="variation"></a>variation</h3><p>在tcache中布置6个chunk，对应大小的small bin中布置2个chunk。（可以用unsorted bin切割的方式布置2个small bin）</p>
+<p>修改倒数第二个small chunk的bk，calloc触发，只修改bk-&gt;fd。</p>
+<h3 id="tips"><a href="#tips" class="headerlink" title="tips"></a>tips</h3><p>可以使用分割unsorted bin的方法，得到对应大小small bin，在不必填满tcache的情况下。</p>
+<h3 id="Hitcon2019-one-punch"><a href="#Hitcon2019-one-punch" class="headerlink" title="Hitcon2019 one punch"></a>Hitcon2019 one punch</h3><h2 id="fastbin-reverse-into-tcache"><a href="#fastbin-reverse-into-tcache" class="headerlink" title="fastbin reverse into tcache"></a>fastbin reverse into tcache</h2><p>UAF or overflow</p>
+<p>可以达成类似unsorted bin attack的效果，写入一个大的数字到指定地址。（但也可以获得指定地址的chunk。。</p>
+<p>chunk size = 0x50</p>
+<ol>
+<li><p>填满tcache。除了victim外，再往fastbin释放1或6个chunk。如果要写入位置存储的数值为0，则1个就可以。如果数值不为0，则需要6个。结构如下</p>
+<p>fast bin 0x50: p1-&gt;p2-&gt;p3-&gt;p4-&gt;p5-&gt;p6-&gt;victim</p>
+</li>
+<li><p>分配清空tcache</p>
+</li>
+<li><p>修改victim-&gt;fd为”指定地址-0x10”</p>
+<p>fast bin 0x50: p1-&gt;p2-&gt;p3-&gt;p4-&gt;p5-&gt;p6-&gt;victim-&gt;target</p>
+</li>
+<li><p>malloc触发，target-&gt;fd被覆盖为堆地址。tcache中的结构如下</p>
+<p>tcache 0x50: target-&gt;victim-&gt;p6-&gt;p5-&gt;p4-&gt;p3-&gt;p2</p>
+</li>
+<li><p>再malloc一次，获得target</p>
+</li>
+</ol>
+
+      </div>
+      <div class="post-copyright">
+    <p class="copyright-item">
+      <span>Author: </span>
+      <a href="http://hhdx.xyz">hhdx</a>
+    </p>
+    <p class="copyright-item">
+      <span>Link: </span>
+      <a href="http://hhdx.xyz/2020/08/01/How2heap%E6%80%BB%E7%BB%93/">http://hhdx.xyz/2020/08/01/How2heap%E6%80%BB%E7%BB%93/</a>
+    </p>
+    <p class="copyright-item">
+      <span>License: </span><a rel="license" href="http://creativecommons.org/licenses/by-nc/4.0/" target="_blank">知识共享署名-非商业性使用 4.0 国际许可协议</a>
+    </p>
+  </div>
+      <footer class="post-footer">
+        <div class="post-tags">
+            <a href="/tags/CTF/">CTF</a>
+            <a href="/tags/how2heap/">how2heap</a>
+            </div>
+        
+        <nav class="post-nav"><a class="prev" href="/2020/08/07/pwnable-tw-re-alloc/">
+        <i class="iconfont icon-left"></i>
+        <span class="prev-text nav-default">pwnable.tw re-alloc</span>
+        <span class="prev-text nav-mobile">Prev</span>
+      </a>
+    <a class="next" href="/2020/07/31/How2heap-tcache-stashing-unlink-attack-Hitcon2019-one-punch/">
+        <span class="next-text nav-default">How2heap--tcache_stashing_unlink_attack Hitcon2019--one_punch</span>
+        <span class="prev-text nav-mobile">Next</span>
+        <i class="iconfont icon-right"></i>
+      </a>
+    </nav></footer>
+    </article></div><div class="comments" id="comments"><div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a target="_blank" rel="noopener" href="//disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    </div></div>
+      </main>
+
+      <footer id="footer" class="footer"><div class="social-links"><a target="_blank" rel="noopener" href="https://github.com/lc1838228782" class="iconfont icon-github" title="github"></a>
+        <a target="_blank" rel="noopener" href="https://www.douban.com/people/57285004/" class="iconfont icon-douban" title="douban"></a>
+        <a href="/atom.xml" class="iconfont icon-rss" title="rss"></a>
+    </div><div class="copyright">
+  <span class="power-by">
+    Powered by <a class="hexo-link" target="_blank" rel="noopener" href="https://hexo.io/">Hexo</a>
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    Theme - 
+    <a class="theme-link" target="_blank" rel="noopener" href="https://github.com/ahonn/hexo-theme-even">Even</a>
+  </span>
+
+  <span class="copyright-year">&copy;2016 - 2020<span class="heart">
+      <i class="iconfont icon-heart"></i>
+    </span>
+    <span class="author">hhdx</span>
+  </span>
+</div>
+</footer>
+
+      <div class="back-to-top" id="back-to-top">
+        <i class="iconfont icon-up"></i>
+      </div>
+    </div><script type="text/javascript">
+    var disqus_config = function () {
+        this.page.url = 'http://hhdx.xyz/2020/08/01/How2heap%E6%80%BB%E7%BB%93/';
+        this.page.identifier = '2020/08/01/How2heap总结/';
+        this.page.title = 'How2heap总结';
+    };
+    (function() {
+    var d = document, s = d.createElement('script');
+
+    s.src = '//lyliuchao.disqus.com/embed.js';
+
+    s.setAttribute('data-timestamp', +new Date());
+    (d.head || d.body).appendChild(s);
+    })();  
+  </script><script type="text/javascript" src="/lib/jquery/jquery.min.js"></script>
+  <script type="text/javascript" src="/lib/slideout/slideout.js"></script>
+  <script type="text/javascript" src="/lib/fancybox/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/src/even.js?v=2.11.0"></script>
+</body>
+</html>

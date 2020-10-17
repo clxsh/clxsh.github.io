@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+  <head><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+<link rel="alternate" href="/atom.xml" title="hhdx's blog" type="application/atom+xml"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=2.11.0" />
+<link rel="canonical" href="http://hhdx.xyz/page/4/"/>
+
+<link rel="stylesheet" type="text/css" href="/lib/fancybox/jquery.fancybox.css" />
+<link rel="stylesheet" type="text/css" href="/css/style.css?v=2.11.0" />
+
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-177325662-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-177325662-1');
+</script><script id="baidu_push">
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+</script>
+<script>
+  window.config = {"leancloud":{"app_id":null,"app_key":null},"toc":true,"fancybox":true,"pjax":true,"latex":false};
+</script>
+
+    <title>hhdx's blog</title>
+  <meta name="generator" content="Hexo 5.2.0"></head>
+
+  <body><div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/." class="logo">hhdx's blog</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list"><a href="/">
+        <li class="mobile-menu-item">Home
+          </li>
+      </a><a href="/archives/">
+        <li class="mobile-menu-item">Archives
+          </li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">Tags
+          </li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About
+          </li>
+      </a></ul>
+</nav>
+<div class="container" id="mobile-panel">
+      <header id="header" class="header"><div class="logo-wrapper">
+  <a href="/." class="logo">hhdx's blog</a>
+</div>
+
+<nav class="site-navbar"><ul id="menu" class="menu"><li class="menu-item">
+          <a class="menu-item-link" href="/">
+            Home
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/archives/">
+            Archives
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/tags/">
+            Tags
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/about/">
+            About
+            </a>
+        </li>
+      </ul></nav>
+</header>
+
+      <main id="main" class="main">
+        <div class="content-wrapper">
+          <div id="content" class="content"><section id="posts" class="posts"><article class="post">
+    <header class="post-header">
+      <h1 class="post-title"><a class="post-link" href="/2020/07/01/How2heap-house-of-spirit-hacklu2014-oreo/">how2heap--House_of_Spirit Hack.lu2014--oreo</a>
+        </h1>
+
+      <div class="post-meta">
+        <span class="post-time">
+          2020-07-01
+        </span></div>
+    </header>
+
+    <div class="post-content"><h2 id="House-of-Spirit"><a href="#House-of-Spirit" class="headerlink" title="House of Spirit"></a>House of Spirit</h2><p>该攻击手法的主要是思想是，在不可控区域的前后伪造chunk信息，覆盖某指针指向<code>chunk2mem(fake_chunk)</code>，释放该指针后再次申请，对不可控区域的进行改写。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">+---------------+</span><br><span class="line">|   可 控 区 域   |</span><br><span class="line">+---------------+</span><br><span class="line">|               |</span><br><span class="line">| 不 可 控 区 域  |</span><br><span class="line">|               |</span><br><span class="line">| 一 般 为 某 些  |</span><br><span class="line">|  指 针         |</span><br><span class="line">+---------------+</span><br><span class="line">| 可 控 区 域     |</span><br><span class="line">+---------------+</span><br></pre></td></tr></table></figure>
+
+<p>伪造的chunk也通常是fastbin，因为检查容易绕过。</p>
+          <div class="read-more">
+            <a href="/2020/07/01/How2heap-house-of-spirit-hacklu2014-oreo/" class="read-more-link">Read more..</a>
+          </div>
+        </div></article>
+      <article class="post">
+    <header class="post-header">
+      <h1 class="post-title"><a class="post-link" href="/2020/06/28/How2heap-fastbin-dup-consolidate-Hitcon2016-SleepyHolder/">How2heap--fastbin_dup_consolidate Hitcon2016--SleepyHolder</a>
+        </h1>
+
+      <div class="post-meta">
+        <span class="post-time">
+          2020-06-28
+        </span></div>
+    </header>
+
+    <div class="post-content"><h2 id="前置"><a href="#前置" class="headerlink" title="前置"></a>前置</h2><p>Ubuntu 16.04</p>
+<p>使用how2heap脚本编译glibc2.25，其中的4是编译线程数。脚本中<code>git clone</code>慢，可以替换成<a target="_blank" rel="noopener" href="https://mirrors.tuna.tsinghua.edu.cn/">tsinghua mirrors</a>，把第83行的<code>git clone git://sourceware.org/git/glibc.git &quot;$SRC&quot;</code> 替换成<code> git clone https://mirrors.tuna.tsinghua.edu.cn/git/glibc.git &quot;$SRC&quot;</code>。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> ./glibc_build.sh 2.25 -j 4 -disable-tcache</span></span><br></pre></td></tr></table></figure>
+
+<p>做这道题目使用了glibc2.25，<code>patchelf --set-interpreter /path/to/ld-2.25.so /path/to/exe</code>，patch之后再运行程序就自动使用同目录下libc-2.25.so。</p>
+          <div class="read-more">
+            <a href="/2020/06/28/How2heap-fastbin-dup-consolidate-Hitcon2016-SleepyHolder/" class="read-more-link">Read more..</a>
+          </div>
+        </div></article>
+      <article class="post">
+    <header class="post-header">
+      <h1 class="post-title"><a class="post-link" href="/2020/03/24/ucore-os-lab7%E7%AC%94%E8%AE%B0/">ucore os lab7笔记</a>
+        </h1>
+
+      <div class="post-meta">
+        <span class="post-time">
+          2020-03-24
+        </span></div>
+    </header>
+
+    <div class="post-content"><h1 id="同步互斥"><a href="#同步互斥" class="headerlink" title="同步互斥"></a>同步互斥</h1><h2 id="理论"><a href="#理论" class="headerlink" title="理论"></a>理论</h2><p>互斥、死锁、饥饿</p>
+<p><strong>互斥</strong>是指某一资源同时只允许一个进程对其进行访问，具有唯一性和排它性，但互斥不用限制进程对资源的访问顺序，即访问可以是无序的。</p>
+<p><strong>同步</strong>是指在进程间的执行必须严格按照规定的某种先后次序来运行，即访问是有序的，这种先后次序取决于要系统完成的任务需求。</p>
+<h3 id="17-临界区"><a href="#17-临界区" class="headerlink" title="17 临界区"></a>17 临界区</h3><p>空闲则入、忙则等待、有限等待、让权等待（可选）</p>
+<p><strong>实现的三种办法</strong>：禁用中断、软件方法、更高级的抽象方法</p>
+<p>方法比较主要考虑性能：并发级别</p>
+<h4 id="禁用中断"><a href="#禁用中断" class="headerlink" title="禁用中断"></a>禁用中断</h4>
+          <div class="read-more">
+            <a href="/2020/03/24/ucore-os-lab7%E7%AC%94%E8%AE%B0/" class="read-more-link">Read more..</a>
+          </div>
+        </div></article>
+      <article class="post">
+    <header class="post-header">
+      <h1 class="post-title"><a class="post-link" href="/2020/03/17/ucore-os-lab4%E7%AC%94%E8%AE%B0/">ucore os lab4笔记</a>
+        </h1>
+
+      <div class="post-meta">
+        <span class="post-time">
+          2020-03-17
+        </span></div>
+    </header>
+
+    <div class="post-content"><h1 id="内核线程管理"><a href="#内核线程管理" class="headerlink" title="内核线程管理"></a>内核线程管理</h1><h2 id="实验执行流程综述"><a href="#实验执行流程综述" class="headerlink" title="实验执行流程综述"></a>实验执行流程综述</h2><p>内核线程是一种特殊的进程，内核线程与用户进程的区别有两个：</p>
+<ul>
+<li>内核线程只运行在内核态而用户进程会在在用户态和内核态交替运行；</li>
+<li>所有内核线程直接使用共同的ucore内核内存空间，不需为每个内核线程维护单独的内存空间而用户进程需要维护各自的用户内存空间。</li>
+</ul>
+<h2 id="进程的属性与特征解析"><a href="#进程的属性与特征解析" class="headerlink" title="进程的属性与特征解析"></a>进程的属性与特征解析</h2>
+          <div class="read-more">
+            <a href="/2020/03/17/ucore-os-lab4%E7%AC%94%E8%AE%B0/" class="read-more-link">Read more..</a>
+          </div>
+        </div></article>
+      <article class="post">
+    <header class="post-header">
+      <h1 class="post-title"><a class="post-link" href="/2019/02/05/%E4%BA%8C%E7%BA%A7%E6%8C%87%E9%92%88%E4%B8%8E%E4%BA%8C%E7%BB%B4%E6%95%B0%E7%BB%84%EF%BC%8C%E6%95%B0%E7%BB%84%E6%8C%87%E9%92%88%E4%B8%8E%E6%8C%87%E9%92%88%E6%95%B0%E7%BB%84/">二级指针与二维数组，数组指针与指针数组</a>
+        </h1>
+
+      <div class="post-meta">
+        <span class="post-time">
+          2019-02-05
+        </span></div>
+    </header>
+
+    <div class="post-content"><p>昨天写一个程序的时候直接将二级指针指向二维数组，发生段错误，发现了自己的一个认识误区。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> a[<span class="number">5</span>][<span class="number">4</span>];</span><br><span class="line"><span class="keyword">int</span> **p;</span><br><span class="line">p = a;</span><br><span class="line"><span class="built_in">printf</span>(<span class="string">&quot;%d&quot;</span>, p[<span class="number">2</span>][<span class="number">0</span>]);   <span class="comment">//访问引起段错误</span></span><br></pre></td></tr></table></figure>
+          <div class="read-more">
+            <a href="/2019/02/05/%E4%BA%8C%E7%BA%A7%E6%8C%87%E9%92%88%E4%B8%8E%E4%BA%8C%E7%BB%B4%E6%95%B0%E7%BB%84%EF%BC%8C%E6%95%B0%E7%BB%84%E6%8C%87%E9%92%88%E4%B8%8E%E6%8C%87%E9%92%88%E6%95%B0%E7%BB%84/" class="read-more-link">Read more..</a>
+          </div>
+        </div></article>
+      <nav class="pagination"><a class="prev" href="/page/3/">
+        <i class="iconfont icon-left"></i>
+        <span class="prev-text">Prev</span>
+      </a>
+    <a class="next" href="/page/5/">
+        <span class="next-text">Next</span>
+        <i class="iconfont icon-right"></i>
+      </a>
+    </nav></section></div></div>
+      </main>
+
+      <footer id="footer" class="footer"><div class="social-links"><a target="_blank" rel="noopener" href="https://github.com/lc1838228782" class="iconfont icon-github" title="github"></a>
+        <a target="_blank" rel="noopener" href="https://www.douban.com/people/57285004/" class="iconfont icon-douban" title="douban"></a>
+        <a href="/atom.xml" class="iconfont icon-rss" title="rss"></a>
+    </div><div class="copyright">
+  <span class="power-by">
+    Powered by <a class="hexo-link" target="_blank" rel="noopener" href="https://hexo.io/">Hexo</a>
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    Theme - 
+    <a class="theme-link" target="_blank" rel="noopener" href="https://github.com/ahonn/hexo-theme-even">Even</a>
+  </span>
+
+  <span class="copyright-year">&copy;2016 - 2020<span class="heart">
+      <i class="iconfont icon-heart"></i>
+    </span>
+    <span class="author">hhdx</span>
+  </span>
+</div>
+</footer>
+
+      <div class="back-to-top" id="back-to-top">
+        <i class="iconfont icon-up"></i>
+      </div>
+    </div><script type="text/javascript" src="/lib/jquery/jquery.min.js"></script>
+  <script type="text/javascript" src="/lib/slideout/slideout.js"></script>
+  <script type="text/javascript" src="/lib/fancybox/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/src/even.js?v=2.11.0"></script>
+</body>
+</html>

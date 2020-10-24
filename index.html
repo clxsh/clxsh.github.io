@@ -172,7 +172,7 @@
 <p>需要开启固件的telnet或者ssh。</p>
 <p>/koolshare/ssserver/目录下存放的其启动脚本ssserver.sh。</p>
 <p>修改服务器地址为<code>::</code>，并添加允许外部访问的两条规则。重新启动插件就可以了。</p>
-<p><img src="https://raw.githubusercontent.com/lc1838228782/pics/master/img/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202020-09-01%20091624.jpg"></p>
+<p><img src="https://raw.githubusercontent.com/clxsh/pics/master/img/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202020-09-01%20091624.jpg"></p>
 <p>客户端windows可以使用<a target="_blank" rel="noopener" href="https://github.com/shadowsocks/shadowsocks-windows">shadowsocks-windows</a>，mac可以用<a target="_blank" rel="noopener" href="https://github.com/shadowsocks/ShadowsocksX-NG">ShadowsocksX-NG</a></p>
 <p>实测延迟183，受限于家庭宽带上传，30Mbps下载，5Mbps上传…..</p>
 <h2 id="ref"><a href="#ref" class="headerlink" title="ref"></a>ref</h2><ol>
@@ -219,7 +219,7 @@
 
     <div class="post-content"><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>CTF题目中经常会给出libc的文件，首先需要做的就是确定libc的版本，对程序进行针对性的攻击。最直接的确定方法就是直接运行该libc<code>./libc.so.6</code>，但通常由于本机ld版本与libc版本不匹配，发生段错误。</p>
 <p>确定完大版本号还不够，因为就算是同一版本的libc也会有较大的变动。比方说，与最开始的2.29版本相比，gnu libc库的release/2.29/master分支的<code>tcache_perthread_struct-&gt;counts</code>的变量类型都变了；<code>__libc_malloc</code>中取用tcache的判定，也由判断指针是否为空变成了判断counts是否大于0。这些细节很大程度上影响了exploit的书写。</p>
-<p>下面以pwnable.tw re-alloc的<a target="_blank" rel="noopener" href="https://github.com/lc1838228782/ctf_wps/blob/master/pwnable.tw/Re-alloc/libc.so.6">libc</a>为例，写一写我的经验。</p>
+<p>下面以pwnable.tw re-alloc的<a target="_blank" rel="noopener" href="https://github.com/clxsh/ctf_wps/blob/master/pwnable.tw/Re-alloc/libc.so.6">libc</a>为例，写一写我的经验。</p>
           <div class="read-more">
             <a href="/2020/08/08/%E4%BB%A5%E6%8C%87%E5%AE%9Alibc%E8%BF%90%E8%A1%8C%E7%A8%8B%E5%BA%8F/" class="read-more-link">Read more..</a>
           </div>
@@ -231,7 +231,7 @@
     </nav></section></div></div>
       </main>
 
-      <footer id="footer" class="footer"><div class="social-links"><a target="_blank" rel="noopener" href="https://github.com/lc1838228782" class="iconfont icon-github" title="github"></a>
+      <footer id="footer" class="footer"><div class="social-links"><a target="_blank" rel="noopener" href="https://github.com/clxsh" class="iconfont icon-github" title="github"></a>
         <a target="_blank" rel="noopener" href="https://www.douban.com/people/57285004/" class="iconfont icon-douban" title="douban"></a>
         <a href="/atom.xml" class="iconfont icon-rss" title="rss"></a>
     </div><div class="copyright">

@@ -124,8 +124,8 @@
     </header>
 
     <div class="post-content"><h2 id="large-bin-attack"><a href="#large-bin-attack" class="headerlink" title="large bin attack"></a>large bin attack</h2><p>对已存在于large bin中的chunk的bk、bk_nextsize字段进行更改，在unsorted bin中取出插入该large bin时，会将bk-&gt;fd、bk_nextsize-&gt;fd_nextsize的位置覆盖成chunk的地址。涉及的代码就是unsorted bin遍历取出插入那块。和先前的unsorted bin attack类似，通常为进一步攻击做准备，如修改global_max_fast。</p>
-<p>这里比较难理解就是large bin的结构，特别是先前我被一个<a target="_blank" rel="noopener" href="https://raw.githubusercontent.com/lc1838228782/pics/master/img/largebin.png">large bin结构图</a>所误导，下面给出我画的结构图（如果有错误o((⊙﹏⊙))o，请帮忙指出）。</p>
-<p><img src="https://raw.githubusercontent.com/lc1838228782/pics/master/img/large_bin2.png" alt="glibc large bin"></p>
+<p>这里比较难理解就是large bin的结构，特别是先前我被一个<a target="_blank" rel="noopener" href="https://raw.githubusercontent.com/clxsh/pics/master/img/largebin.png">large bin结构图</a>所误导，下面给出我画的结构图（如果有错误o((⊙﹏⊙))o，请帮忙指出）。</p>
+<p><img src="https://raw.githubusercontent.com/clxsh/pics/master/img/large_bin2.png" alt="glibc large bin"></p>
 <h2 id="0ctf2018-heapstorm2"><a href="#0ctf2018-heapstorm2" class="headerlink" title="0ctf2018 heapstorm2"></a>0ctf2018 heapstorm2</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Arch:     amd64-64-little</span><br><span class="line">RELRO:    Full RELRO</span><br><span class="line">Stack:    Canary found</span><br><span class="line">NX:       NX enabled</span><br><span class="line">PIE:      PIE enabled</span><br></pre></td></tr></table></figure>
 
 <h3 id="功能分析"><a href="#功能分析" class="headerlink" title="功能分析"></a>功能分析</h3><p>程序首先使用mallopt函数将global_max_fast设置为0，也就是不使用fastbin。</p>
@@ -154,7 +154,7 @@
 <h2 id="0ctf2016-zerostorage"><a href="#0ctf2016-zerostorage" class="headerlink" title="0ctf2016 zerostorage"></a>0ctf2016 zerostorage</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">Arch:     amd64-64-little</span><br><span class="line">RELRO:    Full RELRO</span><br><span class="line">Stack:    Canary found</span><br><span class="line">NX:       NX enabled</span><br><span class="line">PIE:      PIE enabled</span><br><span class="line">FORTIFY:  Enabled</span><br></pre></td></tr></table></figure>
 
 <p>关键数据结构</p>
-<p><img src="https://raw.githubusercontent.com/lc1838228782/pics/master/img/image-20200712102723178.png" alt="image-20200712102723178"></p>
+<p><img src="https://raw.githubusercontent.com/clxsh/pics/master/img/image-20200712102723178.png" alt="image-20200712102723178"></p>
 <p>flag：标识该节点是否存在</p>
 <p>size：记录大小</p>
 <p>content：数据块指针</p>
@@ -250,7 +250,7 @@
     </nav></section></div></div>
       </main>
 
-      <footer id="footer" class="footer"><div class="social-links"><a target="_blank" rel="noopener" href="https://github.com/lc1838228782" class="iconfont icon-github" title="github"></a>
+      <footer id="footer" class="footer"><div class="social-links"><a target="_blank" rel="noopener" href="https://github.com/clxsh" class="iconfont icon-github" title="github"></a>
         <a target="_blank" rel="noopener" href="https://www.douban.com/people/57285004/" class="iconfont icon-douban" title="douban"></a>
         <a href="/atom.xml" class="iconfont icon-rss" title="rss"></a>
     </div><div class="copyright">

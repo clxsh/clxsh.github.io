@@ -130,14 +130,14 @@
     </div>
   </div><div class="post-content"><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>CTF题目中经常会给出libc的文件，首先需要做的就是确定libc的版本，对程序进行针对性的攻击。最直接的确定方法就是直接运行该libc<code>./libc.so.6</code>，但通常由于本机ld版本与libc版本不匹配，发生段错误。</p>
 <p>确定完大版本号还不够，因为就算是同一版本的libc也会有较大的变动。比方说，与最开始的2.29版本相比，gnu libc库的release/2.29/master分支的<code>tcache_perthread_struct-&gt;counts</code>的变量类型都变了；<code>__libc_malloc</code>中取用tcache的判定，也由判断指针是否为空变成了判断counts是否大于0。这些细节很大程度上影响了exploit的书写。</p>
-<p>下面以pwnable.tw re-alloc的<a target="_blank" rel="noopener" href="https://github.com/lc1838228782/ctf_wps/blob/master/pwnable.tw/Re-alloc/libc.so.6">libc</a>为例，写一写我的经验。</p>
+<p>下面以pwnable.tw re-alloc的<a target="_blank" rel="noopener" href="https://github.com/clxsh/ctf_wps/blob/master/pwnable.tw/Re-alloc/libc.so.6">libc</a>为例，写一写我的经验。</p>
 <a id="more"></a>
 
 <h2 id="确定版本号"><a href="#确定版本号" class="headerlink" title="确定版本号"></a>确定版本号</h2><h3 id="有libc"><a href="#有libc" class="headerlink" title="有libc"></a>有libc</h3><p>从libc的字符串确定大版本<code>strings libc.so.6 | grep libc-</code></p>
-<p><img src="https://raw.githubusercontent.com/lc1838228782/pics/master/img/image-20200808100344272.png" alt="image-20200808100344272"></p>
+<p><img src="https://raw.githubusercontent.com/clxsh/pics/master/img/image-20200808100344272.png" alt="image-20200808100344272"></p>
 <p>自编译对应版本的glibc使用其ld程序，可以使用how2heap的<a target="_blank" rel="noopener" href="https://github.com/shellphish/how2heap/blob/master/glibc_build.sh">编译脚本</a>，<a href="https://hhdx.xyz/2020/06/28/How2heap-fastbin-dup-consolidate-Hitcon2016-SleepyHolder/#%E5%89%8D%E7%BD%AE">使用方法</a>。拷贝ld到libc.so.6的目录。</p>
 <p>使用ld运行libc.so.6得到小版本号，<code>./ld-2.29.so --library-path . ./libc.so.6</code></p>
-<p><img src="https://raw.githubusercontent.com/lc1838228782/pics/master/img/image-20200808100856947.png" alt="image-20200808100856947"></p>
+<p><img src="https://raw.githubusercontent.com/clxsh/pics/master/img/image-20200808100856947.png" alt="image-20200808100856947"></p>
 <p>最后，google搜索<code>GLIBC 2.29-0ubuntu2 source</code>就能够得到该libc版本的源码。</p>
 <p>也可以搜索<code>libc6-dbg GLIBC 2.29-0ubuntu</code>获取调试符号信息。</p>
 <h3 id="无libc"><a href="#无libc" class="headerlink" title="无libc"></a>无libc</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> objdump -s --section .comment /path/to/binary</span></span><br></pre></td></tr></table></figure>
@@ -194,7 +194,7 @@
     </div></div>
       </main>
 
-      <footer id="footer" class="footer"><div class="social-links"><a target="_blank" rel="noopener" href="https://github.com/lc1838228782" class="iconfont icon-github" title="github"></a>
+      <footer id="footer" class="footer"><div class="social-links"><a target="_blank" rel="noopener" href="https://github.com/clxsh" class="iconfont icon-github" title="github"></a>
         <a target="_blank" rel="noopener" href="https://www.douban.com/people/57285004/" class="iconfont icon-douban" title="douban"></a>
         <a href="/atom.xml" class="iconfont icon-rss" title="rss"></a>
     </div><div class="copyright">

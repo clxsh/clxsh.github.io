@@ -151,7 +151,7 @@
 <p>使用input_orghost函数覆盖topchunk-&gt;size为0xffffffff，接下来就是计算evil_size了。</p>
 <p>泄露的heap地址为分配的第一个0x40地址，称之为leak_heap。leak_heap+0x40就是此时的topchunk，后来又分配了两个0x40，此时<code>topchunk = leak_heap + 0x40 + 0x48*2</code>。到目标地址，还需要分配两个chunk，也就有两个8字节的头，new note中又加了4字节，所以<code>evil_size = dest_addr - topchunk - 8*2 - 4</code>。</p>
 <p>exp中，直接发送这个负值就可以，int到size_t，其中所存的数字没有变化，只是两种类型的解读不一样。原来我想发送unsigned值(evil_size&amp;0xffffffff)，结果发现32位程序中atoi只会将其解析为4字节int最大的正数，即0x7fffffff。</p>
-<p><a target="_blank" rel="noopener" href="https://github.com/lc1838228782/ctf_wps/blob/master/others/bctf2016%20bcloud/exp.py">exploit</a></p>
+<p><a target="_blank" rel="noopener" href="https://github.com/clxsh/ctf_wps/blob/master/others/bctf2016%20bcloud/exp.py">exploit</a></p>
 <h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><ol>
 <li>how2heap house_of_force.c</li>
 <li><a target="_blank" rel="noopener" href="https://uaf.io/exploitation/2016/03/20/BCTF-bcloud.html">https://uaf.io/exploitation/2016/03/20/BCTF-bcloud.html</a></li>
@@ -197,7 +197,7 @@
     </div></div>
       </main>
 
-      <footer id="footer" class="footer"><div class="social-links"><a target="_blank" rel="noopener" href="https://github.com/lc1838228782" class="iconfont icon-github" title="github"></a>
+      <footer id="footer" class="footer"><div class="social-links"><a target="_blank" rel="noopener" href="https://github.com/clxsh" class="iconfont icon-github" title="github"></a>
         <a target="_blank" rel="noopener" href="https://www.douban.com/people/57285004/" class="iconfont icon-douban" title="douban"></a>
         <a href="/atom.xml" class="iconfont icon-rss" title="rss"></a>
     </div><div class="copyright">

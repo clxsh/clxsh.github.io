@@ -114,6 +114,25 @@
         <div class="content-wrapper">
           <div id="content" class="content"><section id="posts" class="posts"><article class="post">
     <header class="post-header">
+      <h1 class="post-title"><a class="post-link" href="/2020/07/23/How2heap-house-of-einherjar-SECON2016-tinypad/">How2heap--house_of_einherjar SECON2016--tinypad</a>
+        </h1>
+
+      <div class="post-meta">
+        <span class="post-time">
+          2020-07-23
+        </span></div>
+    </header>
+
+    <div class="post-content"><h2 id="house-of-einherjar"><a href="#house-of-einherjar" class="headerlink" title="house of einherjar"></a>house of einherjar</h2><p>和house of force很像，都是篡改top chunk。</p>
+<p>off-by-one覆盖victim chunk的<code>pre_in_use</code>位，并修改<code>victim-&gt;pre_size</code>为距离目标地址的大小，在目标地址处伪造chunk，释放victim时，发生backward consolidate，合并到目标地址。</p>
+<p><strong>victim需要临近top chunk</strong>，backward consolidate结束，接着与top chunk进行forward consolidate。如果不这样，这个块被放入unsorted bin，而在unsorted bin中分配会过不了以下检查。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (__builtin_expect (chunksize_nomask (victim) &lt;= <span class="number">2</span> * SIZE_SZ, <span class="number">0</span>)</span><br><span class="line">              || __builtin_expect (chunksize_nomask (victim)</span><br><span class="line">				   &gt; av-&gt;system_mem, <span class="number">0</span>))</span><br><span class="line">		malloc_printerr (<span class="string">&quot;malloc(): memory corruption&quot;</span>);</span><br></pre></td></tr></table></figure>
+          <div class="read-more">
+            <a href="/2020/07/23/How2heap-house-of-einherjar-SECON2016-tinypad/" class="read-more-link">Read more..</a>
+          </div>
+        </div></article>
+      <article class="post">
+    <header class="post-header">
       <h1 class="post-title"><a class="post-link" href="/2020/07/18/How2heap-large-bin-attack-0ctf2018-heapstorm2/">How2heap--large_bin_attack 0ctf2018--heapstorm2</a>
         </h1>
 
@@ -217,26 +236,6 @@
 <h3 id="overlapping-chunks-amp-amp-format-string-vulnerability"><a href="#overlapping-chunks-amp-amp-format-string-vulnerability" class="headerlink" title="overlapping chunks &amp;&amp; format string vulnerability"></a>overlapping chunks &amp;&amp; format string vulnerability</h3>
           <div class="read-more">
             <a href="/2020/07/05/How2heap-overlapping-chunks-Hack-lu2015-bookstore/" class="read-more-link">Read more..</a>
-          </div>
-        </div></article>
-      <article class="post">
-    <header class="post-header">
-      <h1 class="post-title"><a class="post-link" href="/2020/07/03/How2heap-poison-null-byte-plaidctf2015-plaiddb/">How2heap--poison_null_byte Plaidctf2015--plaiddb</a>
-        </h1>
-
-      <div class="post-meta">
-        <span class="post-time">
-          2020-07-03
-        </span></div>
-    </header>
-
-    <div class="post-content"><h2 id="Poison-null-byte"><a href="#Poison-null-byte" class="headerlink" title="Poison null byte"></a>Poison null byte</h2><p>关于堆块重叠，可以看这篇<a target="_blank" rel="noopener" href="https://4ngelboy.blogspot.com/2016/10/span-display-block-overflow-hidden_10.html">文章</a>，图文并茂。</p>
-<p>glibc2.26中，在unlink宏中加入了<code>size==prev_size(next_chunk)</code>的检查，与下一chunk所存储的pre_size进行了比对，在<code>poison_null_byte.c</code>中相应的添加了<code>*(size_t*)(b+0x1f0) = 0x200</code>，可以绕过这个检查，所以how2heap的README中对glibc的要求是<code>&lt;2.26</code>应该是忘了改。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">chunk b +------&gt; +----------+</span><br><span class="line">                 |          |</span><br><span class="line">                 +----------+ &lt;---------+ size</span><br><span class="line">                 |  0X200   |</span><br><span class="line">                 +----------+ &lt;---------+ b</span><br><span class="line">                 |          |</span><br><span class="line">                 |          |</span><br><span class="line">                 |          |</span><br><span class="line">                 |          |</span><br><span class="line">                 |          |</span><br><span class="line">                 |          |</span><br><span class="line">                 |          |</span><br><span class="line">                 |          |</span><br><span class="line">                 |          |</span><br><span class="line">                 +----------+  &lt;--------+ fake pre_size</span><br><span class="line">                 |  0X200   |</span><br><span class="line">                 +----------+</span><br><span class="line">                 |          |</span><br><span class="line">chunk c +------&gt; +----------+  &lt;--------+ pre_size</span><br><span class="line">                 |  0X210   |</span><br><span class="line">                 +----------+</span><br><span class="line">                 |          |</span><br><span class="line">                 |          |</span><br><span class="line">                 |          |</span><br></pre></td></tr></table></figure>
-
-<p><strong>触发unlink的流程</strong>：通过null byte溢出伪造完0x200的chunk后，此时该chunk存在于unsortedbin。再次分配0x100的b1时，遍历unsortedbin，该chunk被放入到smallbin中，unsortedbin里的chunk也就这一个，遍历结束无法分配。又通过查找binmap找到0x200的smallbin，这时触发的unlink，将该chunk从smallbin中取出。</p>
-          <div class="read-more">
-            <a href="/2020/07/03/How2heap-poison-null-byte-plaidctf2015-plaiddb/" class="read-more-link">Read more..</a>
           </div>
         </div></article>
       <nav class="pagination"><a class="prev" href="/page/2/">

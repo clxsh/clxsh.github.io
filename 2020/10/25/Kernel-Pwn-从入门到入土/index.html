@@ -311,7 +311,7 @@
 </details>
 
 <p>可以看到<code>tty_struct</code>结构偏移24的地方存放了一个<code>tty_operations</code>结构的指针，这个<code>tty_operations</code>结构都是对tty进行操作的函数指针，可以控制<code>ops</code>指针指向我们可以控制的区域。显然一次函数调用，我们能干的事情很少，所以就使用这一次调用执行stack pivot，ROP来获得持续的控制。</p>
-<p>这里使用write函数调用，在执行到write时，可以发现此时rax指向<code>tty_operations</code>的首地址，所以先在operations中构造rop。（在V1NKe师傅的<a target="_blank" rel="noopener" href="https://xz.aliyun.com/t/4529#toc-4">文章</a>中可以发现write是通过<code>call [rax+0x38]</code>调用的。如果一开始，应该怎样找到这个断点地址？[todolist1]）</p>
+<p>这里使用write函数调用，在执行到write时，可以发现此时rax指向<code>tty_operations</code>的首地址，所以先在operations中构造rop。（在V1NKe师傅的<a target="_blank" rel="noopener" href="https://xz.aliyun.com/t/4529#toc-4">文章</a>中可以发现write是通过<code>call [rax+0x38]</code>调用的。如果一开始，应该怎样找到这个断点地址？[todolist1] &lt;已解决&gt;）</p>
 <p>使用<a target="_blank" rel="noopener" href="https://github.com/torvalds/linux/blob/master/scripts/extract-vmlinux">extract-vmlinux</a>脚本解压得到内核镜像，再通过ROPgadget或者Ropper获得gadgets。</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> ./extract-vmlinux bzImage &gt; vmlinux</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> ROPgadget --binary vmlinux &gt; gadgets</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> ROPgadget --binary vmlinux --opcode 48cf  <span class="comment"># search for iretq</span></span></span><br></pre></td></tr></table></figure>
 
@@ -363,10 +363,13 @@
 <p>执行boot.sh就可以看到输出的大小了。</p>
 <p><img src="https://raw.githubusercontent.com/clxsh/pics/master/imgmodule_test.png"></p>
 <h2 id="to-do-list"><a href="#to-do-list" class="headerlink" title="to do list"></a>to do list</h2><ol>
-<li>如何定位call rax/call [rax+0x38]（tty_operation)</li>
-<li><del>struct size 计算。编译简单module <a target="_blank" rel="noopener" href="http://myhackerworld.top/2019/01/06/%E5%86%85%E6%A0%B8pwn-%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/">ref1</a> <a target="_blank" rel="noopener" href="https://www.anquanke.com/post/id/203399#h2-10">ref2</a></del></li>
+<li><p><del>如何定位call rax/call [rax+0x38]（tty_operation)</del></p>
+<p>智熄了。。直接看call backtrace。从某个地址向前查看指令，可能会遇到指令不对齐的问题，多试几个数字，直到当前地址的指令显示正确。如地址<code>0xffffffff814dc0c6</code>：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">pwndbg&gt;</span><span class="bash"> x/10i 0xffffffff814dc0c6-1</span></span><br><span class="line">   0xffffffff814dc0c5:  cmp    BYTE PTR [rcx+rcx*4-0x9],cl</span><br><span class="line">   0xffffffff814dc0c9:  mov    r15d,eax    # 未对齐</span><br><span class="line">...</span><br><span class="line"></span><br><span class="line"><span class="meta">pwndbg&gt;</span><span class="bash"> x/10i 0xffffffff814dc0c6-2</span></span><br><span class="line">   0xffffffff814dc0c4:  push   rax</span><br><span class="line">   0xffffffff814dc0c5:  cmp    BYTE PTR [rcx+rcx*4-0x9],cl</span><br><span class="line">   0xffffffff814dc0c9:  mov    r15d,eax    # 未对齐</span><br><span class="line">...</span><br><span class="line"></span><br><span class="line"><span class="meta">pwndbg&gt;</span><span class="bash"> x/10i 0xffffffff814dc0c6-3</span></span><br><span class="line">   0xffffffff814dc0c3:  call   QWORD PTR [rax+0x38]</span><br><span class="line">   0xffffffff814dc0c6:  mov    rdi,r14    # 对齐成功</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><del>struct size 计算。编译简单module <a target="_blank" rel="noopener" href="http://myhackerworld.top/2019/01/06/%E5%86%85%E6%A0%B8pwn-%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/">ref1</a> <a target="_blank" rel="noopener" href="https://www.anquanke.com/post/id/203399#h2-10">ref2</a></del></p>
+</li>
 </ol>
-<p><strong>to be continued…</strong></p>
 <h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><ol>
 <li><a target="_blank" rel="noopener" href="https://www.cyberciti.biz/tips/compiling-linux-kernel-26.html">How to compile and install linux kernel 5.6.9 from souce code?</a></li>
 <li><a target="_blank" rel="noopener" href="http://mgalgs.github.io/2012/03/23/how-to-build-a-custom-linux-kernel-for-qemu.html">How to Build A Custom Linux Kernel For Qemu?</a></li>

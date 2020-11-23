@@ -114,6 +114,32 @@
         <div class="content-wrapper">
           <div id="content" class="content"><section id="posts" class="posts"><article class="post">
     <header class="post-header">
+      <h1 class="post-title"><a class="post-link" href="/2020/07/05/How2heap-overlapping-chunks-Hack-lu2015-bookstore/">How2heap--overlapping_chunks Hack.lu2015--bookstore</a>
+        </h1>
+
+      <div class="post-meta">
+        <span class="post-time">
+          2020-07-05
+        </span></div>
+    </header>
+
+    <div class="post-content"><h2 id="overlapping-chunks"><a href="#overlapping-chunks" class="headerlink" title="overlapping chunks"></a>overlapping chunks</h2><p>溢出对unsortedbin中的<code>chunk-&gt;size</code>进行修改，造成堆块重叠。</p>
+<h2 id="hack-lu2015-bookstore"><a href="#hack-lu2015-bookstore" class="headerlink" title="hack.lu2015 bookstore"></a>hack.lu2015 bookstore</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Arch:     amd64-64-little</span><br><span class="line">RELRO:    No RELRO</span><br><span class="line">Stack:    Canary found</span><br><span class="line">NX:       NX enabled</span><br><span class="line">PIE:      No PIE (0x3ff000)</span><br></pre></td></tr></table></figure>
+
+<p>程序是一个订书系统，在main函数开始处，连续分配3个0x80的空间，一个存储订单1——order1，一个存储订单2——order2，一个存储提示信息——info。有以下功能菜单</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">1: Edit order 1</span><br><span class="line">2: Edit order 2</span><br><span class="line">3: Delete order 1</span><br><span class="line">4: Delete order 2</span><br><span class="line">5: Submit</span><br></pre></td></tr></table></figure>
+
+<p>Edit order 1/2：order1/order2使用fgetc读取字符串，读到<code>\n</code>终止，所以这里存在溢出</p>
+<p>Delete order 1/2：free掉order1/order2。这里存在指针悬空</p>
+<p>Submit： 分配0x140的空间（称为orderlist）将order1和order2拼接。这里存在溢出</p>
+<p>程序末尾<code>printf(info)</code>存在可能的格式化字符串漏洞。</p>
+<h3 id="overlapping-chunks-amp-amp-format-string-vulnerability"><a href="#overlapping-chunks-amp-amp-format-string-vulnerability" class="headerlink" title="overlapping chunks &amp;&amp; format string vulnerability"></a>overlapping chunks &amp;&amp; format string vulnerability</h3>
+          <div class="read-more">
+            <a href="/2020/07/05/How2heap-overlapping-chunks-Hack-lu2015-bookstore/" class="read-more-link">Read more..</a>
+          </div>
+        </div></article>
+      <article class="post">
+    <header class="post-header">
       <h1 class="post-title"><a class="post-link" href="/2020/07/03/How2heap-poison-null-byte-plaidctf2015-plaiddb/">How2heap--poison_null_byte Plaidctf2015--plaiddb</a>
         </h1>
 
@@ -191,27 +217,6 @@
 <h4 id="禁用中断"><a href="#禁用中断" class="headerlink" title="禁用中断"></a>禁用中断</h4>
           <div class="read-more">
             <a href="/2020/03/24/ucore-os-lab7%E7%AC%94%E8%AE%B0/" class="read-more-link">Read more..</a>
-          </div>
-        </div></article>
-      <article class="post">
-    <header class="post-header">
-      <h1 class="post-title"><a class="post-link" href="/2020/03/17/ucore-os-lab4%E7%AC%94%E8%AE%B0/">ucore os lab4笔记</a>
-        </h1>
-
-      <div class="post-meta">
-        <span class="post-time">
-          2020-03-17
-        </span></div>
-    </header>
-
-    <div class="post-content"><h1 id="内核线程管理"><a href="#内核线程管理" class="headerlink" title="内核线程管理"></a>内核线程管理</h1><h2 id="实验执行流程综述"><a href="#实验执行流程综述" class="headerlink" title="实验执行流程综述"></a>实验执行流程综述</h2><p>内核线程是一种特殊的进程，内核线程与用户进程的区别有两个：</p>
-<ul>
-<li>内核线程只运行在内核态而用户进程会在在用户态和内核态交替运行；</li>
-<li>所有内核线程直接使用共同的ucore内核内存空间，不需为每个内核线程维护单独的内存空间而用户进程需要维护各自的用户内存空间。</li>
-</ul>
-<h2 id="进程的属性与特征解析"><a href="#进程的属性与特征解析" class="headerlink" title="进程的属性与特征解析"></a>进程的属性与特征解析</h2>
-          <div class="read-more">
-            <a href="/2020/03/17/ucore-os-lab4%E7%AC%94%E8%AE%B0/" class="read-more-link">Read more..</a>
           </div>
         </div></article>
       <nav class="pagination"><a class="prev" href="/page/3/">

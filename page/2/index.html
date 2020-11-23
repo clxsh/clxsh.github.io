@@ -114,6 +114,32 @@
         <div class="content-wrapper">
           <div id="content" class="content"><section id="posts" class="posts"><article class="post">
     <header class="post-header">
+      <h1 class="post-title"><a class="post-link" href="/2020/08/19/pwnable-tw-tcache-tear-seethefile/">pwnable.tw tcache_tear seethefile</a>
+        </h1>
+
+      <div class="post-meta">
+        <span class="post-time">
+          2020-08-19
+        </span></div>
+    </header>
+
+    <div class="post-content"><h1 id="tcache-tear"><a href="#tcache-tear" class="headerlink" title="tcache_tear"></a>tcache_tear</h1><h2 id="分析"><a href="#分析" class="headerlink" title="分析"></a>分析</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">Arch:     amd64-64-little</span><br><span class="line">RELRO:    Full RELRO</span><br><span class="line">Stack:    Canary found</span><br><span class="line">NX:       NX enabled</span><br><span class="line">PIE:      No PIE (0x400000)</span><br><span class="line">FORTIFY:  Enabled</span><br><span class="line"></span><br><span class="line">libc_version: Ubuntu GLIBC 2.27-3ubuntu1</span><br></pre></td></tr></table></figure>
+
+<p>程序开始在bss段上读入了一个0x20的名字</p>
+<p>malloc: 输入指定size，分配，指针ptr同样存储在bss，读入size-16的字符，这里字符个数可以溢出</p>
+<p>free: 释放ptr空间，指针悬空，可以double free，程序使用了tcache，且在这个版本释放没有任何的检查</p>
+<p>info: 打印姓名</p>
+<h2 id="总体思路"><a href="#总体思路" class="headerlink" title="总体思路"></a>总体思路</h2><p>利用tcache double free，可以对任意地址进行改写。在name处伪造一个chunk释放到unsorted bin，进行libc base的泄露。将<code>__free_hook</code>改写为system地址。</p>
+<p>伪造chunk注意绕过free的所有检查。伪造完成的结构如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">+----------+</span><br><span class="line">|          |</span><br><span class="line">|          |</span><br><span class="line">|  0x421   |</span><br><span class="line">|          |</span><br><span class="line">+----------+</span><br><span class="line">|  0x21    |</span><br><span class="line">+----------+</span><br><span class="line">|  0x21    |</span><br><span class="line">+----------+</span><br></pre></td></tr></table></figure>
+
+<p>tcache默认最多有64个，第1个是0x20大小，递推第64个也就是0x410。所以将name处伪造为0x420大小。第一个chunk的<code>chunk-&gt;size=0x420|pre_in_use</code>，避免backward consolidate，第三个chunk的<code>chunk-&gt;size=0x20|pre_in_use</code>，避免forward consolidate。</p>
+          <div class="read-more">
+            <a href="/2020/08/19/pwnable-tw-tcache-tear-seethefile/" class="read-more-link">Read more..</a>
+          </div>
+        </div></article>
+      <article class="post">
+    <header class="post-header">
       <h1 class="post-title"><a class="post-link" href="/2020/08/08/%E4%BB%A5%E6%8C%87%E5%AE%9Alibc%E8%BF%90%E8%A1%8C%E7%A8%8B%E5%BA%8F/">确定glibc版本,以指定glibc运行程序</a>
         </h1>
 
@@ -202,24 +228,6 @@
 <p>修改倒数第二个small chunk的bk，calloc触发，只在bk-&gt;fd写入大数字。</p>
           <div class="read-more">
             <a href="/2020/07/31/How2heap-tcache-stashing-unlink-attack-Hitcon2019-one-punch/" class="read-more-link">Read more..</a>
-          </div>
-        </div></article>
-      <article class="post">
-    <header class="post-header">
-      <h1 class="post-title"><a class="post-link" href="/2020/07/25/How2heap-house-of-orange-Hitcon2016-houseoforange/">How2heap--house_of_orange Hitcon2016--houseoforange</a>
-        </h1>
-
-      <div class="post-meta">
-        <span class="post-time">
-          2020-07-25
-        </span></div>
-    </header>
-
-    <div class="post-content"><h2 id="house-of-orange"><a href="#house-of-orange" class="headerlink" title="house of orange"></a>house of orange</h2><p>修改<code>topchunk-&gt;size</code>为一个缩小的并且满足页对齐的大小，malloc一个大于size的块（但也不要大于mmap threshold），会导致原来topchunk被放入unsorted bin。</p>
-<p>当topchunk不足以分配所需空间时，会调用sysmalloc分配额外空间。一般情况下，main_arena中old top chunk和新分配的top chunk首尾相邻，从而会进行合并。当我们将<code>topchunk-&gt;size</code>减小后，会检测不到相邻，也就不会合并了。设置好fencepost chunk，会执行<code>_int_free (av, old_top, 1)</code>将其放入unsorted bin。</p>
-<p>代码涉及<code>_int_malloc</code>后边和<code>sysmalloc</code>。</p>
-          <div class="read-more">
-            <a href="/2020/07/25/How2heap-house-of-orange-Hitcon2016-houseoforange/" class="read-more-link">Read more..</a>
           </div>
         </div></article>
       <nav class="pagination"><a class="prev" href="/">

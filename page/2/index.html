@@ -114,6 +114,30 @@
         <div class="content-wrapper">
           <div id="content" class="content"><section id="posts" class="posts"><article class="post">
     <header class="post-header">
+      <h1 class="post-title"><a class="post-link" href="/2020/09/01/R7000%E6%A2%85%E6%9E%97%E6%90%AD%E5%BB%BAipv6%E4%BB%A3%E7%90%86/">R7000梅林搭建ipv6代理</a>
+        </h1>
+
+      <div class="post-meta">
+        <span class="post-time">
+          2020-09-01
+        </span></div>
+    </header>
+
+    <div class="post-content"><p>目前宽带基本都支持了ipv6(可能需要自己在光猫开启)，为了在学校省流量，利用家庭宽带的ipv6环境搭一个代理。</p>
+<p>R7000固件版本是koolshare X7.9.1，使用软件中心ss server 3.1。默认情况下，该插件不支持ipv6代理。通过查看该<a target="_blank" rel="noopener" href="https://github.com/koolshare/merlin-ssserver">插件的代码</a>，发现了可以修改启动脚本使其支持ipv6。</p>
+<p>需要开启固件的telnet或者ssh。</p>
+<p>/koolshare/ssserver/目录下存放的其启动脚本ssserver.sh。</p>
+<p>修改服务器地址为<code>::</code>，并添加允许外部访问的两条规则。重新启动插件就可以了。</p>
+<p><img src="https://raw.githubusercontent.com/clxsh/pics/master/img/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202020-09-01%20091624.jpg"></p>
+<p>客户端windows可以使用<a target="_blank" rel="noopener" href="https://github.com/shadowsocks/shadowsocks-windows">shadowsocks-windows</a>，mac可以用<a target="_blank" rel="noopener" href="https://github.com/shadowsocks/ShadowsocksX-NG">ShadowsocksX-NG</a></p>
+<p>实测延迟183，受限于家庭宽带上传，30Mbps下载，5Mbps上传…..</p>
+<h2 id="ref"><a href="#ref" class="headerlink" title="ref"></a>ref</h2><ol>
+<li><a target="_blank" rel="noopener" href="https://www.polarxiong.com/archives/%E6%90%AD%E5%BB%BAipv6-VPN-%E8%AE%A9ipv4%E4%B8%8Aipv6-%E4%B8%8B%E8%BD%BD%E9%80%9F%E5%BA%A6%E6%8F%90%E5%8D%87%E5%88%B0100M.html">https://www.polarxiong.com/archives/%E6%90%AD%E5%BB%BAipv6-VPN-%E8%AE%A9ipv4%E4%B8%8Aipv6-%E4%B8%8B%E8%BD%BD%E9%80%9F%E5%BA%A6%E6%8F%90%E5%8D%87%E5%88%B0100M.html</a></li>
+</ol>
+
+        </div></article>
+      <article class="post">
+    <header class="post-header">
       <h1 class="post-title"><a class="post-link" href="/2020/08/19/pwnable-tw-tcache-tear-seethefile/">pwnable.tw tcache_tear seethefile</a>
         </h1>
 
@@ -191,43 +215,31 @@
         </div></article>
       <article class="post">
     <header class="post-header">
-      <h1 class="post-title"><a class="post-link" href="/2020/08/01/How2heap%E6%80%BB%E7%BB%93/">How2heap总结</a>
+      <h1 class="post-title"><a class="post-link" href="/2020/08/02/glibcheap/">glibc heap 整理</a>
         </h1>
 
       <div class="post-meta">
         <span class="post-time">
-          2020-08-01
+          2020-08-02
         </span></div>
     </header>
 
-    <div class="post-content"><h2 id="first-fit"><a href="#first-fit" class="headerlink" title="first-fit"></a>first-fit</h2><p>如果一个chunk可用且足够大，那么就会使用这个chunk。</p>
-<h2 id="calc-tcache-idx"><a href="#calc-tcache-idx" class="headerlink" title="calc_tcache_idx"></a>calc_tcache_idx</h2><p>tcache(thread local caching)</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* We want 64 entries.  This is an arbitrary limit, which tunables can reduce.  */</span></span><br><span class="line"><span class="meta"># <span class="meta-keyword">define</span> TCACHE_MAX_BINS		64</span></span><br><span class="line"><span class="meta"># <span class="meta-keyword">define</span> MAX_TCACHE_SIZE	tidx2usize (TCACHE_MAX_BINS-1)</span></span><br><span class="line"></span><br><span class="line"><span class="comment">/* Only used to pre-fill the tunables.  */</span></span><br><span class="line"><span class="meta"># <span class="meta-keyword">define</span> tidx2usize(idx)	(((size_t) idx) * MALLOC_ALIGNMENT + MINSIZE - SIZE_SZ)</span></span><br><span class="line"></span><br><span class="line"><span class="comment">/* When &quot;x&quot; is from chunksize().  */</span></span><br><span class="line"><span class="meta"># <span class="meta-keyword">define</span> csize2tidx(x) (((x) - MINSIZE + MALLOC_ALIGNMENT - 1) / MALLOC_ALIGNMENT)</span></span><br><span class="line"><span class="comment">/* When &quot;x&quot; is a user-provided size.  */</span></span><br><span class="line"><span class="meta"># <span class="meta-keyword">define</span> usize2tidx(x) csize2tidx (request2size (x))</span></span><br><span class="line"></span><br><span class="line"><span class="comment">/* With rounding and alignment, the bins are...</span></span><br><span class="line"><span class="comment">   idx 0   bytes 0..24 (64-bit) or 0..12 (32-bit)</span></span><br><span class="line"><span class="comment">   idx 1   bytes 25..40 or 13..20</span></span><br><span class="line"><span class="comment">   idx 2   bytes 41..56 or 21..28</span></span><br><span class="line"><span class="comment">   etc.  */</span></span><br></pre></td></tr></table></figure>
-
-<p>tcache拥有和fastbin差不多的结构。默认情况下，64个bin，每个bin最多7个chunk</p>
-<p>64bit: <code>IDX = (CHUNKSIZE - 0x11) / 0x10</code></p>
+    <div class="post-content"><p>目前 Linux 标准发行版中使用的堆分配器是 glibc 中的堆分配器：ptmalloc2。ptmalloc2 主要是通过 malloc/free 函数来分配和释放内存块。</p>
+<p>需要注意的是，在内存分配与使用的过程中，Linux 有这样的一个基本内存管理思想，<strong>只有当真正访问一个地址的时候，系统才会建立虚拟页面与物理页面的映射关系</strong>。</p>
+<h2 id="基本操作"><a href="#基本操作" class="headerlink" title="基本操作"></a>基本操作</h2><h3 id="malloc"><a href="#malloc" class="headerlink" title="malloc"></a>malloc</h3><p><code>malloc(size_t n)</code></p>
+<ul>
+<li>当 n=0 时，返回当前系统允许的堆的最小内存块。</li>
+<li>当 n 为负数时，由于在大多数系统上，<strong>size_t 是无符号数（这一点非常重要）</strong>，所以程序就会申请很大的内存空间，但通常来说都会失败，因为系统没有那么多的内存可以分配。</li>
+</ul>
+<h3 id="free"><a href="#free" class="headerlink" title="free"></a>free</h3><p><code>free(void *p)</code></p>
+<ul>
+<li><strong>当 p 为空指针时，函数不执行任何操作。</strong></li>
+<li>当 p 已经被释放之后，再次释放会出现乱七八糟的效果，这其实就是 <code>double free</code>。</li>
+<li>除了被禁用 (mallopt) 的情况下，当释放很大的内存空间时，程序会将这些内存空间还给系统，以便于减小程序所使用的内存空间。</li>
+</ul>
+<h2 id="背后的系统调用"><a href="#背后的系统调用" class="headerlink" title="背后的系统调用"></a>背后的系统调用</h2><p>这些函数背后的系统调用主要是 <a target="_blank" rel="noopener" href="http://man7.org/linux/man-pages/man2/sbrk.2.html">(s)brk</a> 函数以及 <a target="_blank" rel="noopener" href="http://man7.org/linux/man-pages/man2/mmap.2.html">mmap, munmap</a> 函数。</p>
           <div class="read-more">
-            <a href="/2020/08/01/How2heap%E6%80%BB%E7%BB%93/" class="read-more-link">Read more..</a>
-          </div>
-        </div></article>
-      <article class="post">
-    <header class="post-header">
-      <h1 class="post-title"><a class="post-link" href="/2020/07/31/How2heap-tcache-stashing-unlink-attack-Hitcon2019-one-punch/">How2heap--tcache_stashing_unlink_attack Hitcon2019--one_punch</a>
-        </h1>
-
-      <div class="post-meta">
-        <span class="post-time">
-          2020-07-31
-        </span></div>
-    </header>
-
-    <div class="post-content"><h2 id="tcache-stashing-unlink-attack"><a href="#tcache-stashing-unlink-attack" class="headerlink" title="tcache stashing unlink attack"></a>tcache stashing unlink attack</h2><p>在tcache中布置5个chunk，对应大小的small bin中布置2个chunk。修改倒数第二个small chunk的bk指向target，target-&gt;bk写入一个可写的位置。使用calloc触发，因为calloc调用<code>_int_malloc</code>不会使用tcache进行分配（除了<code>_int_malloc</code>遍历unsorted bin的尾部），只会往tcache中填充。</p>
-<p>可以造成target-&gt;bk-&gt;fd位置写入大数字，并且target成为tcache中第一个，再次malloc就可以获得。</p>
-<p>有点像fastbin reverse into tcache。</p>
-<h3 id="variation"><a href="#variation" class="headerlink" title="variation"></a>variation</h3><p>在tcache中布置6个chunk，对应大小的small bin中布置2个chunk。（可以用unsorted bin切割的方式布置2个small bin）</p>
-<p>修改倒数第二个small chunk的bk，calloc触发，只在bk-&gt;fd写入大数字。</p>
-          <div class="read-more">
-            <a href="/2020/07/31/How2heap-tcache-stashing-unlink-attack-Hitcon2019-one-punch/" class="read-more-link">Read more..</a>
+            <a href="/2020/08/02/glibcheap/" class="read-more-link">Read more..</a>
           </div>
         </div></article>
       <nav class="pagination"><a class="prev" href="/">

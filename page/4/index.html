@@ -114,6 +114,66 @@
         <div class="content-wrapper">
           <div id="content" class="content"><section id="posts" class="posts"><article class="post">
     <header class="post-header">
+      <h1 class="post-title"><a class="post-link" href="/2020/07/12/How2heap-unsorted-bin-attack-0ctf2016-zerostorage/">How2heap--unsorted_bin_attack 0ctf2016--zerostorage</a>
+        </h1>
+
+      <div class="post-meta">
+        <span class="post-time">
+          2020-07-12
+        </span></div>
+    </header>
+
+    <div class="post-content"><h2 id="unsorted-bin-attack"><a href="#unsorted-bin-attack" class="headerlink" title="unsorted bin attack"></a>unsorted bin attack</h2><p>对unsorted bin中的<code>chunk-&gt;bk</code>进行修改，接下来该chunk分配出去时，<code>chunk-&gt;bk-&gt;fd</code>就被赋值为unsortedbin头结点地址。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">bck = victim-&gt;bk;</span><br><span class="line"><span class="comment">/* remove from unsorted list */</span></span><br><span class="line">unsorted_chunks (av)-&gt;bk = bck;</span><br><span class="line">bck-&gt;fd = unsorted_chunks (av);</span><br></pre></td></tr></table></figure>
+
+<p>在glibc2.28中增加了以下检查，使得此攻击失效。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (__glibc_unlikely (bck-&gt;fd != victim))</span><br><span class="line">	malloc_printerr (<span class="string">&quot;malloc(): corrupted unsorted chunks 3&quot;</span>);</span><br></pre></td></tr></table></figure>
+
+<p>unsorted bin attack通常为进一步的攻击做准备，比如覆写global_max_fast。</p>
+<h2 id="0ctf2016-zerostorage"><a href="#0ctf2016-zerostorage" class="headerlink" title="0ctf2016 zerostorage"></a>0ctf2016 zerostorage</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">Arch:     amd64-64-little</span><br><span class="line">RELRO:    Full RELRO</span><br><span class="line">Stack:    Canary found</span><br><span class="line">NX:       NX enabled</span><br><span class="line">PIE:      PIE enabled</span><br><span class="line">FORTIFY:  Enabled</span><br></pre></td></tr></table></figure>
+
+<p>关键数据结构</p>
+<p><img src="https://raw.githubusercontent.com/clxsh/pics/master/img/image-20200712102723178.png" alt="image-20200712102723178"></p>
+<p>flag：标识该节点是否存在</p>
+<p>size：记录大小</p>
+<p>content：数据块指针</p>
+<p>程序有以下功能</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">1. Insert</span><br><span class="line">2. Update</span><br><span class="line">3. Merge</span><br><span class="line">4. Delete</span><br><span class="line">5. View</span><br><span class="line">6. List</span><br><span class="line">7. Exit</span><br></pre></td></tr></table></figure>
+
+<p>insert：获取数据块大小，并读入数据。数据块大小在128~4096这个范围内</p>
+<p>update：对数据块进行大小内容进行更新</p>
+<p>merge：将两节点合并。这里存在漏洞，输入两次相同的id，导致UAF。这个漏洞我没发现，思维还不够猥琐啊</p>
+<p>delete：释放数据块，清空节点</p>
+<h3 id="总体思路"><a href="#总体思路" class="headerlink" title="总体思路"></a>总体思路</h3><p>通过UAF，首先泄露libc基址，然后修改其bk指针，使用unsorted bin attack修改global_max_fast变量；fastbin bin attack覆写<code>__free_hook</code>为system函数地址。</p>
+          <div class="read-more">
+            <a href="/2020/07/12/How2heap-unsorted-bin-attack-0ctf2016-zerostorage/" class="read-more-link">Read more..</a>
+          </div>
+        </div></article>
+      <article class="post">
+    <header class="post-header">
+      <h1 class="post-title"><a class="post-link" href="/2020/07/07/How2heap-house-of-force-Bctf2016-bcloud/">How2heap--house_of_force Bctf2016--bcloud</a>
+        </h1>
+
+      <div class="post-meta">
+        <span class="post-time">
+          2020-07-07
+        </span></div>
+    </header>
+
+    <div class="post-content"><h2 id="House-of-force"><a href="#House-of-force" class="headerlink" title="House of force"></a>House of force</h2><p>溢出修改topchunk的size，分配一个使size_t溢出的evil_size，使下一次分配在目标位置，进行修改。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment">* The evil_size is calulcated as (nb is the number of bytes requested + space for metadata):</span></span><br><span class="line"><span class="comment">* new_top = old_top + nb</span></span><br><span class="line"><span class="comment">* nb = new_top - old_top</span></span><br><span class="line"><span class="comment">* req + 2sizeof(long) = new_top - old_top</span></span><br><span class="line"><span class="comment">* req = new_top - old_top - 2sizeof(long)</span></span><br><span class="line"><span class="comment">* req = dest - 2sizeof(long) - old_top - 2sizeof(long)</span></span><br><span class="line"><span class="comment">* req = dest - old_top - 4*sizeof(long)</span></span><br><span class="line"><span class="comment">*/</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="Bctf2016-bcloud"><a href="#Bctf2016-bcloud" class="headerlink" title="Bctf2016 bcloud"></a>Bctf2016 bcloud</h2><h3 id="分析"><a href="#分析" class="headerlink" title="分析"></a>分析</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Arch:     i386-32-little</span><br><span class="line">RELRO:    Partial RELRO</span><br><span class="line">Stack:    Canary found</span><br><span class="line">NX:       NX enabled</span><br><span class="line">PIE:      No PIE (0x8047000)</span><br></pre></td></tr></table></figure>
+
+<p>程序一开始让输入name、org、hostname，输入字符串函数存在null byte overflow。</p>
+<p>输入name函数中，字符串数组在栈中后部紧邻指针变量，所以strcpy会将该指针一并拷贝入0x40的空间（实际可用0x44），并且null byte覆盖topchunk的最低字节。可以泄露堆的地址</p>
+<p>输入org、hostname函数中，存在同样问题，可覆盖的更多的字节。可以覆盖topchunk的size</p>
+          <div class="read-more">
+            <a href="/2020/07/07/How2heap-house-of-force-Bctf2016-bcloud/" class="read-more-link">Read more..</a>
+          </div>
+        </div></article>
+      <article class="post">
+    <header class="post-header">
       <h1 class="post-title"><a class="post-link" href="/2020/07/05/How2heap-overlapping-chunks-Hack-lu2015-bookstore/">How2heap--overlapping_chunks Hack.lu2015--bookstore</a>
         </h1>
 
@@ -175,48 +235,6 @@
 <p>伪造的chunk也通常是fastbin，因为检查容易绕过。</p>
           <div class="read-more">
             <a href="/2020/07/01/How2heap-house-of-spirit-hacklu2014-oreo/" class="read-more-link">Read more..</a>
-          </div>
-        </div></article>
-      <article class="post">
-    <header class="post-header">
-      <h1 class="post-title"><a class="post-link" href="/2020/06/28/How2heap-fastbin-dup-consolidate-Hitcon2016-SleepyHolder/">How2heap--fastbin_dup_consolidate Hitcon2016--SleepyHolder</a>
-        </h1>
-
-      <div class="post-meta">
-        <span class="post-time">
-          2020-06-28
-        </span></div>
-    </header>
-
-    <div class="post-content"><h2 id="前置"><a href="#前置" class="headerlink" title="前置"></a>前置</h2><p>Ubuntu 16.04</p>
-<p>使用how2heap脚本编译glibc2.25，其中的4是编译线程数。脚本中<code>git clone</code>慢，可以替换成<a target="_blank" rel="noopener" href="https://mirrors.tuna.tsinghua.edu.cn/">tsinghua mirrors</a>，把第83行的<code>git clone git://sourceware.org/git/glibc.git &quot;$SRC&quot;</code> 替换成<code> git clone https://mirrors.tuna.tsinghua.edu.cn/git/glibc.git &quot;$SRC&quot;</code>。</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> ./glibc_build.sh 2.25 -j 4 -disable-tcache</span></span><br></pre></td></tr></table></figure>
-
-<p>做这道题目使用了glibc2.25，<code>patchelf --set-interpreter /path/to/ld-2.25.so /path/to/exe</code>，patch之后再运行程序就自动使用同目录下libc-2.25.so。</p>
-          <div class="read-more">
-            <a href="/2020/06/28/How2heap-fastbin-dup-consolidate-Hitcon2016-SleepyHolder/" class="read-more-link">Read more..</a>
-          </div>
-        </div></article>
-      <article class="post">
-    <header class="post-header">
-      <h1 class="post-title"><a class="post-link" href="/2020/03/24/ucore-os-lab7%E7%AC%94%E8%AE%B0/">ucore os lab7笔记</a>
-        </h1>
-
-      <div class="post-meta">
-        <span class="post-time">
-          2020-03-24
-        </span></div>
-    </header>
-
-    <div class="post-content"><h1 id="同步互斥"><a href="#同步互斥" class="headerlink" title="同步互斥"></a>同步互斥</h1><h2 id="理论"><a href="#理论" class="headerlink" title="理论"></a>理论</h2><p>互斥、死锁、饥饿</p>
-<p><strong>互斥</strong>是指某一资源同时只允许一个进程对其进行访问，具有唯一性和排它性，但互斥不用限制进程对资源的访问顺序，即访问可以是无序的。</p>
-<p><strong>同步</strong>是指在进程间的执行必须严格按照规定的某种先后次序来运行，即访问是有序的，这种先后次序取决于要系统完成的任务需求。</p>
-<h3 id="17-临界区"><a href="#17-临界区" class="headerlink" title="17 临界区"></a>17 临界区</h3><p>空闲则入、忙则等待、有限等待、让权等待（可选）</p>
-<p><strong>实现的三种办法</strong>：禁用中断、软件方法、更高级的抽象方法</p>
-<p>方法比较主要考虑性能：并发级别</p>
-<h4 id="禁用中断"><a href="#禁用中断" class="headerlink" title="禁用中断"></a>禁用中断</h4>
-          <div class="read-more">
-            <a href="/2020/03/24/ucore-os-lab7%E7%AC%94%E8%AE%B0/" class="read-more-link">Read more..</a>
           </div>
         </div></article>
       <nav class="pagination"><a class="prev" href="/page/3/">

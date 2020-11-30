@@ -114,6 +114,47 @@
         <div class="content-wrapper">
           <div id="content" class="content"><section id="posts" class="posts"><article class="post">
     <header class="post-header">
+      <h1 class="post-title"><a class="post-link" href="/2020/08/01/How2heap%E6%80%BB%E7%BB%93/">How2heap总结</a>
+        </h1>
+
+      <div class="post-meta">
+        <span class="post-time">
+          2020-08-01
+        </span></div>
+    </header>
+
+    <div class="post-content"><h2 id="first-fit"><a href="#first-fit" class="headerlink" title="first-fit"></a>first-fit</h2><p>如果一个chunk可用且足够大，那么就会使用这个chunk。</p>
+<h2 id="calc-tcache-idx"><a href="#calc-tcache-idx" class="headerlink" title="calc_tcache_idx"></a>calc_tcache_idx</h2><p>tcache(thread local caching)</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* We want 64 entries.  This is an arbitrary limit, which tunables can reduce.  */</span></span><br><span class="line"><span class="meta"># <span class="meta-keyword">define</span> TCACHE_MAX_BINS		64</span></span><br><span class="line"><span class="meta"># <span class="meta-keyword">define</span> MAX_TCACHE_SIZE	tidx2usize (TCACHE_MAX_BINS-1)</span></span><br><span class="line"></span><br><span class="line"><span class="comment">/* Only used to pre-fill the tunables.  */</span></span><br><span class="line"><span class="meta"># <span class="meta-keyword">define</span> tidx2usize(idx)	(((size_t) idx) * MALLOC_ALIGNMENT + MINSIZE - SIZE_SZ)</span></span><br><span class="line"></span><br><span class="line"><span class="comment">/* When &quot;x&quot; is from chunksize().  */</span></span><br><span class="line"><span class="meta"># <span class="meta-keyword">define</span> csize2tidx(x) (((x) - MINSIZE + MALLOC_ALIGNMENT - 1) / MALLOC_ALIGNMENT)</span></span><br><span class="line"><span class="comment">/* When &quot;x&quot; is a user-provided size.  */</span></span><br><span class="line"><span class="meta"># <span class="meta-keyword">define</span> usize2tidx(x) csize2tidx (request2size (x))</span></span><br><span class="line"></span><br><span class="line"><span class="comment">/* With rounding and alignment, the bins are...</span></span><br><span class="line"><span class="comment">   idx 0   bytes 0..24 (64-bit) or 0..12 (32-bit)</span></span><br><span class="line"><span class="comment">   idx 1   bytes 25..40 or 13..20</span></span><br><span class="line"><span class="comment">   idx 2   bytes 41..56 or 21..28</span></span><br><span class="line"><span class="comment">   etc.  */</span></span><br></pre></td></tr></table></figure>
+
+<p>tcache拥有和fastbin差不多的结构。默认情况下，64个bin，每个bin最多7个chunk</p>
+<p>64bit: <code>IDX = (CHUNKSIZE - 0x11) / 0x10</code></p>
+          <div class="read-more">
+            <a href="/2020/08/01/How2heap%E6%80%BB%E7%BB%93/" class="read-more-link">Read more..</a>
+          </div>
+        </div></article>
+      <article class="post">
+    <header class="post-header">
+      <h1 class="post-title"><a class="post-link" href="/2020/07/31/How2heap-tcache-stashing-unlink-attack-Hitcon2019-one-punch/">How2heap--tcache_stashing_unlink_attack Hitcon2019--one_punch</a>
+        </h1>
+
+      <div class="post-meta">
+        <span class="post-time">
+          2020-07-31
+        </span></div>
+    </header>
+
+    <div class="post-content"><h2 id="tcache-stashing-unlink-attack"><a href="#tcache-stashing-unlink-attack" class="headerlink" title="tcache stashing unlink attack"></a>tcache stashing unlink attack</h2><p>在tcache中布置5个chunk，对应大小的small bin中布置2个chunk。修改倒数第二个small chunk的bk指向target，target-&gt;bk写入一个可写的位置。使用calloc触发，因为calloc调用<code>_int_malloc</code>不会使用tcache进行分配（除了<code>_int_malloc</code>遍历unsorted bin的尾部），只会往tcache中填充。</p>
+<p>可以造成target-&gt;bk-&gt;fd位置写入大数字，并且target成为tcache中第一个，再次malloc就可以获得。</p>
+<p>有点像fastbin reverse into tcache。</p>
+<h3 id="variation"><a href="#variation" class="headerlink" title="variation"></a>variation</h3><p>在tcache中布置6个chunk，对应大小的small bin中布置2个chunk。（可以用unsorted bin切割的方式布置2个small bin）</p>
+<p>修改倒数第二个small chunk的bk，calloc触发，只在bk-&gt;fd写入大数字。</p>
+          <div class="read-more">
+            <a href="/2020/07/31/How2heap-tcache-stashing-unlink-attack-Hitcon2019-one-punch/" class="read-more-link">Read more..</a>
+          </div>
+        </div></article>
+      <article class="post">
+    <header class="post-header">
       <h1 class="post-title"><a class="post-link" href="/2020/07/25/How2heap-house-of-orange-Hitcon2016-houseoforange/">How2heap--house_of_orange Hitcon2016--houseoforange</a>
         </h1>
 
@@ -168,66 +209,6 @@
 <h3 id="功能分析"><a href="#功能分析" class="headerlink" title="功能分析"></a>功能分析</h3><p>程序首先使用mallopt函数将global_max_fast设置为0，也就是不使用fastbin。</p>
           <div class="read-more">
             <a href="/2020/07/18/How2heap-large-bin-attack-0ctf2018-heapstorm2/" class="read-more-link">Read more..</a>
-          </div>
-        </div></article>
-      <article class="post">
-    <header class="post-header">
-      <h1 class="post-title"><a class="post-link" href="/2020/07/12/How2heap-unsorted-bin-attack-0ctf2016-zerostorage/">How2heap--unsorted_bin_attack 0ctf2016--zerostorage</a>
-        </h1>
-
-      <div class="post-meta">
-        <span class="post-time">
-          2020-07-12
-        </span></div>
-    </header>
-
-    <div class="post-content"><h2 id="unsorted-bin-attack"><a href="#unsorted-bin-attack" class="headerlink" title="unsorted bin attack"></a>unsorted bin attack</h2><p>对unsorted bin中的<code>chunk-&gt;bk</code>进行修改，接下来该chunk分配出去时，<code>chunk-&gt;bk-&gt;fd</code>就被赋值为unsortedbin头结点地址。</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">bck = victim-&gt;bk;</span><br><span class="line"><span class="comment">/* remove from unsorted list */</span></span><br><span class="line">unsorted_chunks (av)-&gt;bk = bck;</span><br><span class="line">bck-&gt;fd = unsorted_chunks (av);</span><br></pre></td></tr></table></figure>
-
-<p>在glibc2.28中增加了以下检查，使得此攻击失效。</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (__glibc_unlikely (bck-&gt;fd != victim))</span><br><span class="line">	malloc_printerr (<span class="string">&quot;malloc(): corrupted unsorted chunks 3&quot;</span>);</span><br></pre></td></tr></table></figure>
-
-<p>unsorted bin attack通常为进一步的攻击做准备，比如覆写global_max_fast。</p>
-<h2 id="0ctf2016-zerostorage"><a href="#0ctf2016-zerostorage" class="headerlink" title="0ctf2016 zerostorage"></a>0ctf2016 zerostorage</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">Arch:     amd64-64-little</span><br><span class="line">RELRO:    Full RELRO</span><br><span class="line">Stack:    Canary found</span><br><span class="line">NX:       NX enabled</span><br><span class="line">PIE:      PIE enabled</span><br><span class="line">FORTIFY:  Enabled</span><br></pre></td></tr></table></figure>
-
-<p>关键数据结构</p>
-<p><img src="https://raw.githubusercontent.com/clxsh/pics/master/img/image-20200712102723178.png" alt="image-20200712102723178"></p>
-<p>flag：标识该节点是否存在</p>
-<p>size：记录大小</p>
-<p>content：数据块指针</p>
-<p>程序有以下功能</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">1. Insert</span><br><span class="line">2. Update</span><br><span class="line">3. Merge</span><br><span class="line">4. Delete</span><br><span class="line">5. View</span><br><span class="line">6. List</span><br><span class="line">7. Exit</span><br></pre></td></tr></table></figure>
-
-<p>insert：获取数据块大小，并读入数据。数据块大小在128~4096这个范围内</p>
-<p>update：对数据块进行大小内容进行更新</p>
-<p>merge：将两节点合并。这里存在漏洞，输入两次相同的id，导致UAF。这个漏洞我没发现，思维还不够猥琐啊</p>
-<p>delete：释放数据块，清空节点</p>
-<h3 id="总体思路"><a href="#总体思路" class="headerlink" title="总体思路"></a>总体思路</h3><p>通过UAF，首先泄露libc基址，然后修改其bk指针，使用unsorted bin attack修改global_max_fast变量；fastbin bin attack覆写<code>__free_hook</code>为system函数地址。</p>
-          <div class="read-more">
-            <a href="/2020/07/12/How2heap-unsorted-bin-attack-0ctf2016-zerostorage/" class="read-more-link">Read more..</a>
-          </div>
-        </div></article>
-      <article class="post">
-    <header class="post-header">
-      <h1 class="post-title"><a class="post-link" href="/2020/07/07/How2heap-house-of-force-Bctf2016-bcloud/">How2heap--house_of_force Bctf2016--bcloud</a>
-        </h1>
-
-      <div class="post-meta">
-        <span class="post-time">
-          2020-07-07
-        </span></div>
-    </header>
-
-    <div class="post-content"><h2 id="House-of-force"><a href="#House-of-force" class="headerlink" title="House of force"></a>House of force</h2><p>溢出修改topchunk的size，分配一个使size_t溢出的evil_size，使下一次分配在目标位置，进行修改。</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment">* The evil_size is calulcated as (nb is the number of bytes requested + space for metadata):</span></span><br><span class="line"><span class="comment">* new_top = old_top + nb</span></span><br><span class="line"><span class="comment">* nb = new_top - old_top</span></span><br><span class="line"><span class="comment">* req + 2sizeof(long) = new_top - old_top</span></span><br><span class="line"><span class="comment">* req = new_top - old_top - 2sizeof(long)</span></span><br><span class="line"><span class="comment">* req = dest - 2sizeof(long) - old_top - 2sizeof(long)</span></span><br><span class="line"><span class="comment">* req = dest - old_top - 4*sizeof(long)</span></span><br><span class="line"><span class="comment">*/</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="Bctf2016-bcloud"><a href="#Bctf2016-bcloud" class="headerlink" title="Bctf2016 bcloud"></a>Bctf2016 bcloud</h2><h3 id="分析"><a href="#分析" class="headerlink" title="分析"></a>分析</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Arch:     i386-32-little</span><br><span class="line">RELRO:    Partial RELRO</span><br><span class="line">Stack:    Canary found</span><br><span class="line">NX:       NX enabled</span><br><span class="line">PIE:      No PIE (0x8047000)</span><br></pre></td></tr></table></figure>
-
-<p>程序一开始让输入name、org、hostname，输入字符串函数存在null byte overflow。</p>
-<p>输入name函数中，字符串数组在栈中后部紧邻指针变量，所以strcpy会将该指针一并拷贝入0x40的空间（实际可用0x44），并且null byte覆盖topchunk的最低字节。可以泄露堆的地址</p>
-<p>输入org、hostname函数中，存在同样问题，可覆盖的更多的字节。可以覆盖topchunk的size</p>
-          <div class="read-more">
-            <a href="/2020/07/07/How2heap-house-of-force-Bctf2016-bcloud/" class="read-more-link">Read more..</a>
           </div>
         </div></article>
       <nav class="pagination"><a class="prev" href="/page/2/">

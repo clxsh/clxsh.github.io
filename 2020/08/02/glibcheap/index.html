@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+  <head><meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+<meta name="theme-color" content="#f8f5ec" />
+<meta name="msapplication-navbutton-color" content="#f8f5ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
+
+<meta name="description" content="glibc heap 整理"/><meta name="keywords" content="CTF, hhdx's blog" /><link rel="alternate" href="/atom.xml" title="hhdx's blog" type="application/atom+xml"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=2.11.0" />
+<link rel="canonical" href="http://hhdx.xyz/2020/08/02/glibcheap/"/>
+
+<link rel="stylesheet" type="text/css" href="/lib/fancybox/jquery.fancybox.css" />
+<link rel="stylesheet" type="text/css" href="/css/style.css?v=2.11.0" />
+
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-177325662-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-177325662-1');
+</script><script id="baidu_push">
+(function(){
+    var bp = document.createElement('script');
+    var curProtocol = window.location.protocol.split(':')[0];
+    if (curProtocol === 'https') {
+        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+    }
+    else {
+        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+    }
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(bp, s);
+})();
+</script>
+<script>
+  window.config = {"leancloud":{"app_id":null,"app_key":null},"toc":true,"fancybox":true,"pjax":true,"latex":false};
+</script>
+
+    <title>glibc heap 整理 - hhdx's blog</title>
+  <meta name="generator" content="Hexo 5.2.0"></head>
+
+  <body><div id="mobile-navbar" class="mobile-navbar">
+  <div class="mobile-header-logo">
+    <a href="/." class="logo">hhdx's blog</a>
+  </div>
+  <div class="mobile-navbar-icon">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+
+<nav id="mobile-menu" class="mobile-menu slideout-menu">
+  <ul class="mobile-menu-list"><a href="/">
+        <li class="mobile-menu-item">Home
+          </li>
+      </a><a href="/archives/">
+        <li class="mobile-menu-item">Archives
+          </li>
+      </a><a href="/tags/">
+        <li class="mobile-menu-item">Tags
+          </li>
+      </a><a href="/links/">
+        <li class="mobile-menu-item">Links
+          </li>
+      </a><a href="/about/">
+        <li class="mobile-menu-item">About
+          </li>
+      </a></ul>
+</nav>
+<div class="container" id="mobile-panel">
+      <header id="header" class="header"><div class="logo-wrapper">
+  <a href="/." class="logo">hhdx's blog</a>
+</div>
+
+<nav class="site-navbar"><ul id="menu" class="menu"><li class="menu-item">
+          <a class="menu-item-link" href="/">
+            Home
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/archives/">
+            Archives
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/tags/">
+            Tags
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/links/">
+            Links
+            </a>
+        </li>
+      <li class="menu-item">
+          <a class="menu-item-link" href="/about/">
+            About
+            </a>
+        </li>
+      </ul></nav>
+</header>
+
+      <main id="main" class="main">
+        <div class="content-wrapper">
+          <div id="content" class="content"><article class="post">
+    <header class="post-header">
+      <h1 class="post-title">glibc heap 整理
+        </h1>
+
+      <div class="post-meta">
+        <span class="post-time">
+          2020-08-02
+        </span></div>
+    </header>
+
+    <div class="post-toc" id="post-toc">
+    <h2 class="post-toc-title">Contents</h2>
+    <div class="post-toc-content">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9F%BA%E6%9C%AC%E6%93%8D%E4%BD%9C"><span class="toc-text">基本操作</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#malloc"><span class="toc-text">malloc</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#free"><span class="toc-text">free</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%83%8C%E5%90%8E%E7%9A%84%E7%B3%BB%E7%BB%9F%E8%B0%83%E7%94%A8"><span class="toc-text">背后的系统调用</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#brk-sbrk"><span class="toc-text">brk,sbrk</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#mmap-munmap"><span class="toc-text">mmap,munmap</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Glibc-malloc"><span class="toc-text">Glibc malloc</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Arena"><span class="toc-text">Arena</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Multiple-heaps"><span class="toc-text">Multiple heaps</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Chunk"><span class="toc-text">Chunk</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Allocated-chunk"><span class="toc-text">Allocated chunk</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Free-chunk"><span class="toc-text">Free chunk</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Chunk%E7%9B%B8%E5%85%B3%E7%9A%84%E5%AE%8F"><span class="toc-text">Chunk相关的宏</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Bins"><span class="toc-text">Bins</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#Fast-bin"><span class="toc-text">Fast bin</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Unsorted-bin"><span class="toc-text">Unsorted bin</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Small-bin"><span class="toc-text">Small bin</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Large-bin"><span class="toc-text">Large bin</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Top-bin"><span class="toc-text">Top bin</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#Last-remainder-chunk"><span class="toc-text">Last remainder chunk</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#TCache"><span class="toc-text">TCache</span></a></li></ol></li></ol>
+    </div>
+  </div><div class="post-content"><p>目前 Linux 标准发行版中使用的堆分配器是 glibc 中的堆分配器：ptmalloc2。ptmalloc2 主要是通过 malloc/free 函数来分配和释放内存块。</p>
+<p>需要注意的是，在内存分配与使用的过程中，Linux 有这样的一个基本内存管理思想，<strong>只有当真正访问一个地址的时候，系统才会建立虚拟页面与物理页面的映射关系</strong>。</p>
+<h2 id="基本操作"><a href="#基本操作" class="headerlink" title="基本操作"></a>基本操作</h2><h3 id="malloc"><a href="#malloc" class="headerlink" title="malloc"></a>malloc</h3><p><code>malloc(size_t n)</code></p>
+<ul>
+<li>当 n=0 时，返回当前系统允许的堆的最小内存块。</li>
+<li>当 n 为负数时，由于在大多数系统上，<strong>size_t 是无符号数（这一点非常重要）</strong>，所以程序就会申请很大的内存空间，但通常来说都会失败，因为系统没有那么多的内存可以分配。</li>
+</ul>
+<h3 id="free"><a href="#free" class="headerlink" title="free"></a>free</h3><p><code>free(void *p)</code></p>
+<ul>
+<li><strong>当 p 为空指针时，函数不执行任何操作。</strong></li>
+<li>当 p 已经被释放之后，再次释放会出现乱七八糟的效果，这其实就是 <code>double free</code>。</li>
+<li>除了被禁用 (mallopt) 的情况下，当释放很大的内存空间时，程序会将这些内存空间还给系统，以便于减小程序所使用的内存空间。</li>
+</ul>
+<h2 id="背后的系统调用"><a href="#背后的系统调用" class="headerlink" title="背后的系统调用"></a>背后的系统调用</h2><p>这些函数背后的系统调用主要是 <a target="_blank" rel="noopener" href="http://man7.org/linux/man-pages/man2/sbrk.2.html">(s)brk</a> 函数以及 <a target="_blank" rel="noopener" href="http://man7.org/linux/man-pages/man2/mmap.2.html">mmap, munmap</a> 函数。</p>
+<a id="more"></a>
+
+<p><img src="https://raw.githubusercontent.com/lc1838228782/pics/master/img/brk%26mmap.png"></p>
+<p>初始时，堆的起始地址 <a target="_blank" rel="noopener" href="http://elixir.free-electrons.com/linux/v3.8/source/include/linux/mm_types.h#L365">start_brk</a> 以及堆的当前末尾 <a target="_blank" rel="noopener" href="http://elixir.free-electrons.com/linux/v3.8/source/include/linux/mm_types.h#L365">brk</a> 指向同一地址。根据是否开启 ASLR，两者的具体位置会有所不同</p>
+<ul>
+<li>不开启 ASLR 保护时，start_brk 以及 brk 会指向 data/bss 段的结尾。</li>
+<li>开启 ASLR 保护时，start_brk 以及 brk 也会指向同一位置，只是这个位置是在 data/bss 段结尾后的随机偏移处。</li>
+</ul>
+<p>具体效果如下图</p>
+<p><img src="https://raw.githubusercontent.com/lc1838228782/pics/master/img/program_virtual_address_memory_space.png"></p>
+<h3 id="brk-sbrk"><a href="#brk-sbrk" class="headerlink" title="brk,sbrk"></a>brk,sbrk</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;unistd.h&gt;</span></span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">brk</span><span class="params">(<span class="keyword">void</span> * addr)</span></span>; </span><br><span class="line"><span class="comment">/* brk调整program break位置，参数为break的新地址。</span></span><br><span class="line"><span class="comment">brk成功返回0，失败返回-1</span></span><br><span class="line"><span class="comment">并设置errno值为ENOMEM */</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> * <span class="title">sbrk</span><span class="params">(<span class="keyword">intptr_t</span> increment)</span></span>;</span><br><span class="line"><span class="comment">/* sbrk通过increment的正负调整break位置，</span></span><br><span class="line"><span class="comment">sbrk成功返回原brk的地址，也就是新分配内存的起始位置，失败返回(void *)-1,</span></span><br><span class="line"><span class="comment">并设置errno全局变量的值为ENOMEM */</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="mmap-munmap"><a href="#mmap-munmap" class="headerlink" title="mmap,munmap"></a>mmap,munmap</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#incldue<span class="meta-string">&lt;sys/mman.h&gt;</span></span></span><br><span class="line"><span class="function"><span class="keyword">void</span> * <span class="title">mmap</span><span class="params">(<span class="keyword">void</span> * addr, <span class="keyword">size_t</span> length,<span class="keyword">int</span> prot,<span class="keyword">int</span> flags,<span class="keyword">int</span> fd,<span class="keyword">off_t</span> offset)</span></span>;</span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">munmap</span><span class="params">(<span class="keyword">void</span> * addr, <span class="keyword">size_t</span> length)</span></span>;<span class="comment">//addr为mmap函数返回接收的地址，length为请求分配的长度。</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">参数：</span><br><span class="line"></span><br><span class="line">（1）、addr:</span><br><span class="line">起始地址，置零让系统自行选择并返回即可.</span><br><span class="line">（2）、length:</span><br><span class="line">长度，不够一页会自动凑够一页的整数倍，我们可以宏定义#define MIN_LENGTH_MMAP 4096为一页大小</span><br><span class="line">（3）、prot:</span><br><span class="line">读写操作权限，PROT_READ可读、PROT_WRITE可写、PROT_EXEC可执行、PROT_NONE映射区域不能读取。（注意PROT_XXXXX与文件本身的权限不冲突，如果在程序中不设定任何权限，即使本身存在读写权限，该进程也不能对其操作）</span><br><span class="line">（4）、flags常用标志:</span><br><span class="line">①MAP_SHARED【share this mapping】、MAP_PRIVATE【Create a private copy-on-write mapping】</span><br><span class="line">MAP_SHARED只能设置文件共享，不能地址共享，即使设置了共享，对于两个进程来说，也不会生效。而MAP_PRIVATE则对于文件与内存都可以设置为私有。</span><br><span class="line">②MAP_ANON【Deprecated】、MAP_ANONYMOUS：匿名映射，如果映射地址需要加该参数，如果不加默认映射文件。MAP_ANON已经过时，只需使用MAP_ANONYMOUS即可</span><br><span class="line">（5）、文件描述符：fd</span><br><span class="line">（6）、文件描述符偏移量：offset</span><br><span class="line">（fd和offset对于一般性内存分配来说设置为0即可）</span><br><span class="line"></span><br><span class="line">返回值：</span><br><span class="line"></span><br><span class="line">失败返回MAP_FAILED，即(void * (-1))并设置errno全局变量。</span><br><span class="line">成功返回指向mmap area的指针pointer。</span><br><span class="line"></span><br><span class="line">常见errno错误：</span><br><span class="line"></span><br><span class="line">①ENOMEM：内存不足；</span><br><span class="line">②EAGAIN：文件被锁住或有太多内存被锁住；</span><br><span class="line">③EBADF：参数fd不是有效的文件描述符；</span><br><span class="line">④EACCES：存在权限错误，。如果是MAP_PRIVATE情况下文件必须可读；使用MAP_SHARED则文件必须能写入，且设置prot权限必须为PROT_WRITE。</span><br><span class="line">⑤EINVAL：参数addr、length或者offset中有不合法参数存在。</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://raw.githubusercontent.com/lc1838228782/pics/master/img/mmap.png" alt="mmap"></p>
+<h2 id="Glibc-malloc"><a href="#Glibc-malloc" class="headerlink" title="Glibc malloc"></a>Glibc malloc</h2><p>GNU C标准库的malloc实现源自于ptmalloc(pthreads malloc)，ptmalloc源于dlmalloc(Doug Lea malloc)。</p>
+<p>glibc malloc通常使用两种方式分配内存，具体使用哪种方式由请求的大小和某些参数决定。一种是使用连续大段区域进行管理以提高分配效率减少浪费，通常堆区域只有一个，但glibc实现使用了多个堆区域，用来优化多线程的性能，每个区域内部称为一个arena；另一种是使用mmap，通过在请求大量内存时使用，大量指远大于一个页的大小<a target="_blank" rel="noopener" href="https://www.gnu.org/software/libc/manual/html_node/The-GNU-Allocator.html">^1</a>。</p>
+<p><code>INTERNAL_SIZE_T</code>，<code>SIZE_SZ</code>，<code>MALLOC_ALIGN_MASK</code></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">ifndef</span> INTERNAL_SIZE_T</span></span><br><span class="line"><span class="meta"># <span class="meta-keyword">define</span> INTERNAL_SIZE_T size_t</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">/* The corresponding word size.  */</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> SIZE_SZ (sizeof (INTERNAL_SIZE_T))</span></span><br><span class="line"></span><br><span class="line"><span class="comment">/* The corresponding bit mask value.  */</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> MALLOC_ALIGN_MASK (MALLOC_ALIGNMENT - 1)</span></span><br></pre></td></tr></table></figure>
+
+<p>一般来说，size_t 在 64 位中是 64 位无符号整数，32 位中是 32 位无符号整数。</p>
+<h3 id="Arena"><a href="#Arena" class="headerlink" title="Arena"></a>Arena</h3><p>Arena分为main arena和thread arena。</p>
+<p>glibc中通过增加arena来优化对线程的支持，但并非每个线程都有一个arena，因为代价高意义不大。arena的个数由cpu核心个数所限制，限制如下。这个限制是对于thread arena。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">For 32 bit systems:</span><br><span class="line">     Number of arena &#x3D; 2 * number of cores.</span><br><span class="line">For 64 bit systems:</span><br><span class="line">     Number of arena &#x3D; 8 * number of cores.</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>例子：如果一个多线程应用(4 threads—1 main thread + 3 user thread)运行在一个单核的32位系统上。thread arena的限制即为2 * number of cores(1) = 2。在这种情况下，glibc malloc将会确保arenas在几个线程中共享使用。</p>
+<ul>
+<li><p>对于主线程调用malloc时，使用main arena分配空间</p>
+</li>
+<li><p>当线程1,2调用malloc时，创建两个新的arena分别供其使用。</p>
+</li>
+<li><p>当线程3调用malloc时，由于已经达到了arena的个数限制，将会复用已有的arenas(main arena，arena 1，arena 2)</p>
+<ul>
+<li>遍历可用的arena，一旦存在可用arena，申请该arena的锁</li>
+<li>如果锁定成功，返回该arena</li>
+<li>如果没有找到可用的arena，阻塞直到有可用的arena。</li>
+</ul>
+</li>
+<li><p>当thread 3 调用 malloc 时(第二次了)，分配器会尝试使用其上一次使用的 arena（也即，main arena），从而尽量提高缓存命中率。当 main arena 可用时就用，否则 thread 3 就一直阻塞，直至 main arena 空闲。因此现在 main arena 实际上是被 main thread 和 thread 3 所共享。</p>
+</li>
+</ul>
+</blockquote>
+<h3 id="Multiple-heaps"><a href="#Multiple-heaps" class="headerlink" title="Multiple heaps"></a>Multiple heaps</h3><p>在「glibc malloc」中主要有 3 种数据结构：</p>
+<ul>
+<li><p><a target="_blank" rel="noopener" href="https://github.com/sploitfun/lsploits/blob/master/glibc/malloc/malloc.c#L1671">malloc_state</a> ——Arena header—— 一个 thread arena 可以维护多个堆，这些堆另外共享同一个 arena header。Arena header 描述的信息包括：bins、top chunk、last remainder chunk 等；由于 thread 的 arena 可能有多个，malloc state 结构会在最新申请的 arena 中。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">malloc_state</span> &#123;</span></span><br><span class="line">    <span class="comment">/* Serialize access.  */</span></span><br><span class="line">    __libc_lock_define(, mutex);</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* Flags (formerly in max_fast).  */</span></span><br><span class="line">    <span class="keyword">int</span> flags;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* Fastbins */</span></span><br><span class="line">    mfastbinptr fastbinsY[ NFASTBINS ];</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* Base of the topmost chunk -- not otherwise kept in a bin */</span></span><br><span class="line">    mchunkptr top;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* The remainder from the most recent split of a small request */</span></span><br><span class="line">    mchunkptr last_remainder;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* Normal bins packed as described above */</span></span><br><span class="line">    mchunkptr bins[ NBINS * <span class="number">2</span> - <span class="number">2</span> ];</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* Bitmap of bins, help to speed up the process of determinating if a given bin is definitely empty.*/</span></span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">int</span> binmap[ BINMAPSIZE ];</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* Linked list, points to the next arena */</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">malloc_state</span> *<span class="title">next</span>;</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">/* Linked list for free arenas.  Access to this field is serialized</span></span><br><span class="line"><span class="comment">       by free_list_lock in arena.c.  */</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">malloc_state</span> *<span class="title">next_free</span>;</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">/* Number of threads attached to this arena.  0 if the arena is on</span></span><br><span class="line"><span class="comment">       the free list.  Access to this field is serialized by</span></span><br><span class="line"><span class="comment">       free_list_lock in arena.c.  */</span></span><br><span class="line">    INTERNAL_SIZE_T attached_threads;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* Memory allocated from the system in this arena.  */</span></span><br><span class="line">    INTERNAL_SIZE_T system_mem;</span><br><span class="line">    INTERNAL_SIZE_T max_system_mem;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>__libc_lock_define(, mutex);</p>
+<p>该变量用于控制程序串行访问同一个分配区，当一个线程获取了分配区之后，其它线程要想访问该分配区，就必须等待该线程分配完成后才能够使用。</p>
+</li>
+<li><p>flags</p>
+<p>flags 记录了分配区的一些标志，比如 bit0 记录了分配区是否有 fast bin chunk ，bit1 标识分配区是否能返回连续的虚拟地址空间。具体如下</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment">   FASTCHUNKS_BIT held in max_fast indicates that there are probably</span></span><br><span class="line"><span class="comment">   some fastbin chunks. It is set true on entering a chunk into any</span></span><br><span class="line"><span class="comment">   fastbin, and cleared only in malloc_consolidate.</span></span><br><span class="line"><span class="comment">   The truth value is inverted so that have_fastchunks will be true</span></span><br><span class="line"><span class="comment">   upon startup (since statics are zero-filled), simplifying</span></span><br><span class="line"><span class="comment">   initialization checks.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> FASTCHUNKS_BIT (1U)</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> have_fastchunks(M) (((M)-&gt;flags &amp; FASTCHUNKS_BIT) == 0)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> clear_fastchunks(M) catomic_or(&amp;(M)-&gt;flags, FASTCHUNKS_BIT)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> set_fastchunks(M) catomic_and(&amp;(M)-&gt;flags, ~FASTCHUNKS_BIT)</span></span><br><span class="line"></span><br><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment">   NONCONTIGUOUS_BIT indicates that MORECORE does not return contiguous</span></span><br><span class="line"><span class="comment">   regions.  Otherwise, contiguity is exploited in merging together,</span></span><br><span class="line"><span class="comment">   when possible, results from consecutive MORECORE calls.</span></span><br><span class="line"><span class="comment">   The initial value comes from MORECORE_CONTIGUOUS, but is</span></span><br><span class="line"><span class="comment">   changed dynamically if mmap is ever used as an sbrk substitute.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> NONCONTIGUOUS_BIT (2U)</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> contiguous(M) (((M)-&gt;flags &amp; NONCONTIGUOUS_BIT) == 0)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> noncontiguous(M) (((M)-&gt;flags &amp; NONCONTIGUOUS_BIT) != 0)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> set_noncontiguous(M) ((M)-&gt;flags |= NONCONTIGUOUS_BIT)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> set_contiguous(M) ((M)-&gt;flags &amp;= ~NONCONTIGUOUS_BIT)</span></span><br><span class="line"></span><br><span class="line"><span class="comment">/* ARENA_CORRUPTION_BIT is set if a memory corruption was detected on the</span></span><br><span class="line"><span class="comment">   arena.  Such an arena is no longer used to allocate chunks.  Chunks</span></span><br><span class="line"><span class="comment">   allocated in that arena before detecting corruption are not freed.  */</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> ARENA_CORRUPTION_BIT (4U)</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> arena_is_corrupt(A) (((A)-&gt;flags &amp; ARENA_CORRUPTION_BIT))</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> set_arena_corrupt(A) ((A)-&gt;flags |= ARENA_CORRUPTION_BIT)</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>binmap</p>
+<p>ptmalloc 用一个 bit 来标识某一个 bin 中是否包含空闲 chunk 。</p>
+</li>
+</ul>
+</li>
+<li><p><a target="_blank" rel="noopener" href="https://github.com/sploitfun/lsploits/blob/master/glibc/malloc/arena.c#L59">heap_info</a> ——Heap Header—— 一个 thread arena 可以维护多个堆。每个堆都有自己的堆 Header（注：也即头部元数据）。什么时候 Thread Arena 会维护多个堆呢？ 一般情况下，每个 thread arena 都只维护一个堆，但是当这个堆的空间耗尽时，新的堆（而非连续内存区域）就会被 <code>mmap</code> 到这个 aerna 里；</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> HEAP_MIN_SIZE (32 * 1024)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">ifndef</span> HEAP_MAX_SIZE</span></span><br><span class="line"><span class="meta"># <span class="meta-keyword">ifdef</span> DEFAULT_MMAP_THRESHOLD_MAX</span></span><br><span class="line"><span class="meta">#  <span class="meta-keyword">define</span> HEAP_MAX_SIZE (2 * DEFAULT_MMAP_THRESHOLD_MAX)</span></span><br><span class="line"><span class="meta"># <span class="meta-keyword">else</span></span></span><br><span class="line"><span class="meta">#  <span class="meta-keyword">define</span> HEAP_MAX_SIZE (1024 * 1024) <span class="comment">/* must be a power of two */</span></span></span><br><span class="line"><span class="meta"># <span class="meta-keyword">endif</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">/* HEAP_MIN_SIZE and HEAP_MAX_SIZE limit the size of mmap()ed heaps</span></span><br><span class="line"><span class="comment">   that are dynamically created for multi-threaded programs.  The</span></span><br><span class="line"><span class="comment">   maximum size must be a power of two, for fast determination of</span></span><br><span class="line"><span class="comment">   which heap belongs to a chunk.  It should be much larger than the</span></span><br><span class="line"><span class="comment">   mmap threshold, so that requests with a size just below that</span></span><br><span class="line"><span class="comment">   threshold can be fulfilled without creating too many heaps.  */</span></span><br><span class="line"></span><br><span class="line"><span class="comment">/***************************************************************************/</span></span><br><span class="line"></span><br><span class="line"><span class="comment">/* A heap is a single contiguous memory region holding (coalesceable)</span></span><br><span class="line"><span class="comment">   malloc_chunks.  It is allocated with mmap() and always starts at an</span></span><br><span class="line"><span class="comment">   address aligned to HEAP_MAX_SIZE.  */</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> _<span class="title">heap_info</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">  mstate ar_ptr; <span class="comment">/* Arena for this heap. */</span></span><br><span class="line">  <span class="class"><span class="keyword">struct</span> _<span class="title">heap_info</span> *<span class="title">prev</span>;</span> <span class="comment">/* Previous heap. */</span></span><br><span class="line">  <span class="keyword">size_t</span> size;   <span class="comment">/* Current size in bytes. */</span></span><br><span class="line">  <span class="keyword">size_t</span> mprotect_size; <span class="comment">/* Size in bytes that has been mprotected</span></span><br><span class="line"><span class="comment">                           PROT_READ|PROT_WRITE.  */</span></span><br><span class="line">  <span class="comment">/* Make sure the following data is properly aligned, particularly</span></span><br><span class="line"><span class="comment">     that sizeof (heap_info) + 2 * SIZE_SZ is a multiple of</span></span><br><span class="line"><span class="comment">     MALLOC_ALIGNMENT. */</span></span><br><span class="line">  <span class="keyword">char</span> pad[<span class="number">-6</span> * SIZE_SZ &amp; MALLOC_ALIGN_MASK];</span><br><span class="line">&#125; heap_info;</span><br></pre></td></tr></table></figure>
+
+<p><strong>疑问</strong> 负数</p>
+</li>
+<li><p><a target="_blank" rel="noopener" href="https://github.com/sploitfun/lsploits/blob/master/glibc/malloc/malloc.c#L1108">malloc_chunk</a> ——Chunk header—— 根据用户请求，每个堆被分为若干 chunk。每个 chunk 都有自己的 chunk header。</p>
+</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment">  This struct declaration is misleading (but accurate and necessary).</span></span><br><span class="line"><span class="comment">  It declares a &quot;view&quot; into memory allowing access to necessary</span></span><br><span class="line"><span class="comment">  fields at known offsets from a given base. See explanation below.</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">malloc_chunk</span> &#123;</span></span><br><span class="line"></span><br><span class="line">  INTERNAL_SIZE_T      mchunk_prev_size;  <span class="comment">/* Size of previous chunk (if free).  */</span></span><br><span class="line">  INTERNAL_SIZE_T      mchunk_size;       <span class="comment">/* Size in bytes, including overhead. */</span></span><br><span class="line"></span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">malloc_chunk</span>* <span class="title">fd</span>;</span>         <span class="comment">/* double links -- used only if free. */</span></span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">malloc_chunk</span>* <span class="title">bk</span>;</span></span><br><span class="line"></span><br><span class="line">  <span class="comment">/* Only used for large blocks: pointer to next larger size.  */</span></span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">malloc_chunk</span>* <span class="title">fd_nextsize</span>;</span> <span class="comment">/* double links -- used only if free. */</span></span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">malloc_chunk</span>* <span class="title">bk_nextsize</span>;</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p><strong>注意</strong>：</p>
+<ul>
+<li>Main arena 无需维护多个堆，因此也无需 heap_info。当空间耗尽时，与 thread arena 不同，main arena 可以通过 <code>sbrk</code> 拓展<strong>堆</strong>段，直至堆段「碰」到内存映射段；</li>
+<li>与 thread arena 不同，main arena 的 arena header 不是保存在通过 <code>sbrk</code> 申请的堆段里，而是作为一个全局变量，可以在 libc.so 的数据段中找到</li>
+</ul>
+</blockquote>
+<p>main arena和thread arena的图示（单堆）</p>
+<p><img src="https://raw.githubusercontent.com/lc1838228782/pics/master/img/mainthreadarena.png"></p>
+<p>thread arena图示(多堆)</p>
+<p><img src="https://raw.githubusercontent.com/lc1838228782/pics/master/img/thread%20arena.png"></p>
+<h3 id="Chunk"><a href="#Chunk" class="headerlink" title="Chunk"></a>Chunk</h3><p>堆段中存在的 chunk 类型如下：</p>
+<ul>
+<li>Allocated chunk;</li>
+<li>Free chunk;</li>
+<li>Top chunk;</li>
+<li>Last Remainder chunk.</li>
+</ul>
+<h4 id="Allocated-chunk"><a href="#Allocated-chunk" class="headerlink" title="Allocated chunk"></a>Allocated chunk</h4><p><img src="https://raw.githubusercontent.com/lc1838228782/pics/master/img/Allocated%20chunk.png"></p>
+<p>图中结构体内部各字段的含义依次为：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://github.com/sploitfun/lsploits/blob/master/glibc/malloc/malloc.c#L1110">prev_size</a>：若前一个 chunk 可用，则此字段赋值为前一个 chunk 的大小；否则，此字段被用来存储前一个 chunk 的用户数据；</li>
+<li>size：此字段赋值本 chunk 的大小，*<em>大小必须是 2 * SIZE_SZ 的整数倍*</em>，其最后三位包含标志信息：<ul>
+<li>PREV_INUSE (P) – 置「1」表示前个 chunk 被分配；</li>
+<li>IS_MMAPPED (M) – 置「1」表示这个 chunk 是通过 <code>mmap</code> 申请的（较大的内存）；</li>
+<li>NON_MAIN_ARENA (N) – 置「1」表示这个 chunk 属于一个 thread arena(mmapd’d memory)。</li>
+</ul>
+</li>
+</ul>
+<blockquote>
+<p><strong>注意</strong>：</p>
+<ul>
+<li>malloc_chunk 中的其余结构成员，如 fd、 bk，如果该块已分配，则不会使用，用来存储用户数据；</li>
+<li>用户请求的大小被转换为内部实际大小，因为需要额外空间存储 malloc_chunk，此外还需要考虑对齐。</li>
+</ul>
+</blockquote>
+<h4 id="Free-chunk"><a href="#Free-chunk" class="headerlink" title="Free chunk"></a>Free chunk</h4><p><img src="https://raw.githubusercontent.com/lc1838228782/pics/master/img/freechunk.png"></p>
+<p>图中结构体内部各字段的含义依次为：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://github.com/sploitfun/lsploits/blob/master/glibc/malloc/malloc.c#L1110">prev_size</a>: 两个相邻 free chunk 会被合并成一个，因此该字段总是保存前一个 allocated chunk 的用户数据；</li>
+<li><a target="_blank" rel="noopener" href="https://github.com/sploitfun/lsploits/blob/master/glibc/malloc/malloc.c#L1111">size</a>: 该字段保存本 free chunk 的大小；</li>
+<li><a target="_blank" rel="noopener" href="https://github.com/sploitfun/lsploits/blob/master/glibc/malloc/malloc.c#L1113">fd</a>: Forward pointer —— 本字段指向同一 bin 中的下个 free chunk；</li>
+<li><a target="_blank" rel="noopener" href="https://github.com/sploitfun/lsploits/blob/master/glibc/malloc/malloc.c#L1114">bk</a>: Backward pointer —— 本字段指向同一 bin 中的上个 free chunk</li>
+<li><strong>fd_nextsize， bk_nextsize</strong>，也是只有 chunk 空闲的时候才使用，按照由大到小的顺序排列，不过其用于较大的 chunk（large chunk）。</li>
+</ul>
+<h4 id="Chunk相关的宏"><a href="#Chunk相关的宏" class="headerlink" title="Chunk相关的宏"></a><a target="_blank" rel="noopener" href="https://ctf-wiki.github.io/ctf-wiki/pwn/linux/glibc-heap/heap_structure-zh/#chunk">Chunk相关的宏</a></h4><p><strong>chunk 与 mem 指针头部的转换</strong></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* conversion from malloc headers to user pointers, and back */</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> chunk2mem(p) ((void *) ((char *) (p) + 2 * SIZE_SZ))</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> mem2chunk(mem) ((mchunkptr)((char *) (mem) -2 * SIZE_SZ))</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>最小的 chunk 大小</strong></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* The smallest possible chunk */</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> MIN_CHUNK_SIZE (offsetof(struct malloc_chunk, fd_nextsize))</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>最小申请的堆内存大小</strong></p>
+<p>用户最小申请的内存大小必须是 2 * SIZE_SZ 的最小整数倍。</p>
+<p><em>注：就目前而看 MIN_CHUNK_SIZE 和 MINSIZE 大小是一致的，个人认为之所以要添加两个宏是为了方便以后修改 malloc_chunk 时方便一些。</em></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* The smallest size we can malloc is an aligned minimal chunk */</span></span><br><span class="line"><span class="comment">//MALLOC_ALIGN_MASK = 2 * SIZE_SZ -1</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> MINSIZE                                                                \</span></span><br><span class="line">    (<span class="keyword">unsigned</span> <span class="keyword">long</span>) (((MIN_CHUNK_SIZE + MALLOC_ALIGN_MASK) &amp;                   \</span><br><span class="line">                      ~MALLOC_ALIGN_MASK))</span><br></pre></td></tr></table></figure>
+
+<p><strong>检查分配给用户的内存是否对齐</strong></p>
+<p>2 * SIZE_SZ 大小对齐。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* Check if m has acceptable alignment */</span></span><br><span class="line"><span class="comment">// MALLOC_ALIGN_MASK = 2 * SIZE_SZ -1</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> aligned_OK(m) (((unsigned long) (m) &amp; MALLOC_ALIGN_MASK) == 0)</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> misaligned_chunk(p)                                                    \</span></span><br><span class="line">    ((<span class="keyword">uintptr_t</span>)(MALLOC_ALIGNMENT == <span class="number">2</span> * SIZE_SZ ? (p) : chunk2mem(p)) &amp;       \</span><br><span class="line">     MALLOC_ALIGN_MASK)</span><br></pre></td></tr></table></figure>
+
+<p><strong>请求字节数判断</strong></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment">   Check if a request is so large that it would wrap around zero when</span></span><br><span class="line"><span class="comment">   padded and aligned. To simplify some other code, the bound is made</span></span><br><span class="line"><span class="comment">   low enough so that adding MINSIZE will also not wrap around zero.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> REQUEST_OUT_OF_RANGE(req)                                              \</span></span><br><span class="line">    ((<span class="keyword">unsigned</span> <span class="keyword">long</span>) (req) &gt;= (<span class="keyword">unsigned</span> <span class="keyword">long</span>) (INTERNAL_SIZE_T)(<span class="number">-2</span> * MINSIZE))</span><br></pre></td></tr></table></figure>
+
+<p><strong>将用户请求内存大小转为实际分配内存大小</strong></p>
+<p>由于 chunk 间复用，所以可以使用下一个 chunk 的 prev_size 字段。因此，这里只需要再添加 SIZE_SZ 大小即可以完全存储内容。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* pad request bytes into a usable size -- internal version */</span></span><br><span class="line"><span class="comment">//MALLOC_ALIGN_MASK = 2 * SIZE_SZ -1</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> request2size(req)                                                      \</span></span><br><span class="line">    (((req) + SIZE_SZ + MALLOC_ALIGN_MASK &lt; MINSIZE)                           \</span><br><span class="line">         ? MINSIZE                                                             \</span><br><span class="line">         : ((req) + SIZE_SZ + MALLOC_ALIGN_MASK) &amp; ~MALLOC_ALIGN_MASK)</span><br><span class="line"></span><br><span class="line"><span class="comment">/*  Same, except also perform argument check */</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> checked_request2size(req, sz)                                          \</span></span><br><span class="line">    <span class="keyword">if</span> (REQUEST_OUT_OF_RANGE(req)) &#123;                                           \</span><br><span class="line">        __set_errno(ENOMEM);                                                   \</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span>;                                                              \</span><br><span class="line">    &#125;                                                                          \</span><br><span class="line">    (sz) = request2size(req);</span><br></pre></td></tr></table></figure>
+
+<h3 id="Bins"><a href="#Bins" class="headerlink" title="Bins"></a>Bins</h3><p>「<strong>bins</strong>」 就是空闲列表数据结构。它们用以保存 free chunks。根据其中 chunk 的大小，bins 被分为如下几种类型：</p>
+<ul>
+<li>Fast bin;</li>
+<li>Unsorted bin;</li>
+<li>Small bin;</li>
+<li>Large bin.</li>
+</ul>
+<p>保存这些 bins 的字段为：</p>
+<p><a target="_blank" rel="noopener" href="https://github.com/sploitfun/lsploits/blob/master/glibc/malloc/malloc.c#L1680">fastbinsY</a>: 这个数组用以保存 fast bins；</p>
+<p>bins: 这个数组用于保存 unsorted bin、small bins 以及 large bins，共计可容纳 126 个，其中：</p>
+<ul>
+<li>Bin 1: unsorted bin;</li>
+<li>Bin 2 - 63: small bins;</li>
+<li>Bin 64 - 126: large bins.</li>
+</ul>
+<p><code>malloc_state</code>中的定义</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> NBINS 128</span></span><br><span class="line"><span class="comment">/* Normal bins packed as described above */</span></span><br><span class="line">mchunkptr bins[ NBINS * <span class="number">2</span> - <span class="number">2</span> ];</span><br></pre></td></tr></table></figure>
+
+
+
+<table>
+<thead>
+<tr>
+<th>含义</th>
+<th>bin1 的 fd/bin2 的 prev_size</th>
+<th>bin1 的 bk/bin2 的 size</th>
+<th>bin2 的 fd/bin3 的 prev_size</th>
+<th>bin2 的 bk/bin3 的 size</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>bin下标</td>
+<td>0</td>
+<td>1</td>
+<td>2</td>
+<td>3</td>
+</tr>
+</tbody></table>
+<p>bin的通用宏定义</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">malloc_chunk</span> *<span class="title">mbinptr</span>;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">/* addressing -- note that bin_at(0) does not exist */</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> bin_at(m, i)                                                           \</span></span><br><span class="line">    (mbinptr)(((<span class="keyword">char</span> *) &amp;((m)-&gt;bins[ ((i) <span class="number">-1</span>) * <span class="number">2</span> ])) -                        \</span><br><span class="line">              offsetof(struct malloc_chunk, fd))</span><br><span class="line"></span><br><span class="line"><span class="comment">/* analog of ++bin */</span></span><br><span class="line"><span class="comment">//获取下一个bin的地址</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> next_bin(b) ((mbinptr)((char *) (b) + (sizeof(mchunkptr) &lt;&lt; 1)))</span></span><br><span class="line"></span><br><span class="line"><span class="comment">/* Reminders about list directionality within bins */</span></span><br><span class="line"><span class="comment">// 这两个宏可以用来遍历bin</span></span><br><span class="line"><span class="comment">// 获取 bin 的位于链表头的 chunk</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> first(b) ((b)-&gt;fd)</span></span><br><span class="line"><span class="comment">// 获取 bin 的位于链表尾的 chunk</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> last(b) ((b)-&gt;bk)</span></span><br><span class="line"></span><br><span class="line"><span class="comment">/* 根据 chunk 的大小统一地获得 chunk 所在的索引 */</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> bin_index(sz)                                                          \</span></span><br><span class="line">    ((in_smallbin_range(sz)) ? smallbin_index(sz) : largebin_index(sz))</span><br></pre></td></tr></table></figure>
+
+<h4 id="Fast-bin"><a href="#Fast-bin" class="headerlink" title="Fast bin"></a>Fast bin</h4><p>在所有的 bins 中，fast bins 路径享有最快的内存分配及释放速度。</p>
+<p>默认情况下（<strong>32 位系统为例</strong>）， fastbin 中默认支持最大的 chunk 的数据空间大小为 64 字节。但是其可以支持的 chunk 的数据空间最大为 80 字节。除此之外， fastbin 最多可以支持的 bin 的个数为 10 个，从数据空间为 8 字节开始一直到 80 字节（注意这里说的是<strong>数据空间</strong>大小，也即除去 prev_size 和 size 字段部分的大小）</p>
+<blockquote>
+<p>fastbin的数量和CPU位数有关，但本质都是从小到大递增8或16字节(<code>SIZE_SZ * 2</code>)，直至其最大的大小<code>80 * SIZE_SZ / 4</code>。 最大size为<code>80 * SIZE_SZ / 4</code>，32位下是80字节，64位为160字节。[^ 4]</p>
+</blockquote>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> NFASTBINS (fastbin_index(request2size(MAX_FAST_SIZE)) + 1)</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">ifndef</span> DEFAULT_MXFAST</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> DEFAULT_MXFAST (64 * SIZE_SZ / 4)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">/* The maximum fastbin request size we support */</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> MAX_FAST_SIZE (80 * SIZE_SZ / 4)</span></span><br><span class="line"></span><br><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment">   Since the lowest 2 bits in max_fast don&#x27;t matter in size comparisons,</span></span><br><span class="line"><span class="comment">   they are used as flags.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"></span><br><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment">   FASTCHUNKS_BIT held in max_fast indicates that there are probably</span></span><br><span class="line"><span class="comment">   some fastbin chunks. It is set true on entering a chunk into any</span></span><br><span class="line"><span class="comment">   fastbin, and cleared only in malloc_consolidate.</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment">   The truth value is inverted so that have_fastchunks will be true</span></span><br><span class="line"><span class="comment">   upon startup (since statics are zero-filled), simplifying</span></span><br><span class="line"><span class="comment">   initialization checks.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="comment">//判断分配区是否有 fast bin chunk，1表示没有</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> FASTCHUNKS_BIT (1U)</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> have_fastchunks(M) (((M)-&gt;flags &amp; FASTCHUNKS_BIT) == 0)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> clear_fastchunks(M) catomic_or(&amp;(M)-&gt;flags, FASTCHUNKS_BIT)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> set_fastchunks(M) catomic_and(&amp;(M)-&gt;flags, ~FASTCHUNKS_BIT)</span></span><br><span class="line"></span><br><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment">   NONCONTIGUOUS_BIT indicates that MORECORE does not return contiguous</span></span><br><span class="line"><span class="comment">   regions.  Otherwise, contiguity is exploited in merging together,</span></span><br><span class="line"><span class="comment">   when possible, results from consecutive MORECORE calls.</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment">   The initial value comes from MORECORE_CONTIGUOUS, but is</span></span><br><span class="line"><span class="comment">   changed dynamically if mmap is ever used as an sbrk substitute.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="comment">// MORECORE是否返回连续的内存区域。</span></span><br><span class="line"><span class="comment">// 主分配区中的MORECORE其实为sbr()，默认返回连续虚拟地址空间</span></span><br><span class="line"><span class="comment">// 非主分配区使用mmap()分配大块虚拟内存，然后进行切分来模拟主分配区的行为</span></span><br><span class="line"><span class="comment">// 而默认情况下mmap映射区域是不保证虚拟地址空间连续的，所以非主分配区默认分配非连续虚拟地址空间。</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> NONCONTIGUOUS_BIT (2U)</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> contiguous(M) (((M)-&gt;flags &amp; NONCONTIGUOUS_BIT) == 0)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> noncontiguous(M) (((M)-&gt;flags &amp; NONCONTIGUOUS_BIT) != 0)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> set_noncontiguous(M) ((M)-&gt;flags |= NONCONTIGUOUS_BIT)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> set_contiguous(M) ((M)-&gt;flags &amp;= ~NONCONTIGUOUS_BIT)</span></span><br><span class="line"></span><br><span class="line"><span class="comment">/* ARENA_CORRUPTION_BIT is set if a memory corruption was detected on the</span></span><br><span class="line"><span class="comment">   arena.  Such an arena is no longer used to allocate chunks.  Chunks</span></span><br><span class="line"><span class="comment">   allocated in that arena before detecting corruption are not freed.  */</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> ARENA_CORRUPTION_BIT (4U)</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> arena_is_corrupt(A) (((A)-&gt;flags &amp; ARENA_CORRUPTION_BIT))</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> set_arena_corrupt(A) ((A)-&gt;flags |= ARENA_CORRUPTION_BIT)</span></span><br><span class="line"></span><br><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment">   Set value of max_fast.</span></span><br><span class="line"><span class="comment">   Use impossibly small value if 0.</span></span><br><span class="line"><span class="comment">   Precondition: there are no existing fastbin chunks.</span></span><br><span class="line"><span class="comment">   Setting the value clears fastchunk bit but preserves noncontiguous bit.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> set_max_fast(s)                                                        \</span></span><br><span class="line">    global_max_fast =                                                          \</span><br><span class="line">        (((s) == <span class="number">0</span>) ? SMALLBIN_WIDTH : ((s + SIZE_SZ) &amp; ~MALLOC_ALIGN_MASK))</span><br><span class="line">#define get_max_fast() global_max_fast</span><br></pre></td></tr></table></figure>
+
+<p>ptmalloc 默认情况下会调用 set_max_fast(s) 将全局变量 global_max_fast 设置为 DEFAULT_MXFAST，也就是设置 fast bins 中 chunk 的最大值。当 MAX_FAST_SIZE 被设置为 0 时，系统就不会支持 fastbin 。</p>
+<ul>
+<li><p><strong>数量</strong>：10</p>
+<ul>
+<li>每个 fast bin 都维护着一条 free chunk 的<strong>单链表</strong>，采用单链表是因为链表中所有 chunk 的大小相等，增删 chunk 发生在链表头部即可；—— <strong>LIFO</strong></li>
+</ul>
+</li>
+<li><p><strong>chunk 大小</strong>：8 字节递增</p>
+<ul>
+<li>fast bins 由一系列所维护 chunk 大小以 8 字节递增的 bins 组成。也即，<code>fast bin[0]</code> 维护大小为 16 字节的 chunk、<code>fast bin[1]</code> 维护大小为 24 字节的 chunk。依此类推……</li>
+<li>指定 fast bin 中所有 chunk 大小相同；</li>
+</ul>
+</li>
+<li><p>fastbin 索引</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> fastbin(ar_ptr, idx) ((ar_ptr)-&gt;fastbinsY[ idx ])</span></span><br><span class="line"></span><br><span class="line"><span class="comment">/* offset 2 to use otherwise unindexable first 2 bins */</span></span><br><span class="line"><span class="comment">// chunk size=2*size_sz*(2+idx)</span></span><br><span class="line"><span class="comment">// 这里要减2，否则的话，前两个bin没有办法索引到。</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> fastbin_index(sz)                                                      \</span></span><br><span class="line">    ((((<span class="keyword">unsigned</span> <span class="keyword">int</span>) (sz)) &gt;&gt; (SIZE_SZ == <span class="number">8</span> ? <span class="number">4</span> : <span class="number">3</span>)) - <span class="number">2</span>)</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>在 malloc 初始化过程中，最大的 fast bin 的大小被设置为 <a target="_blank" rel="noopener" href="https://github.com/sploitfun/lsploits/blob/master/glibc/malloc/malloc.c#L794">64</a> 而非 80 字节。因为默认情况下只有大小 16 ~ 64 的 chunk 被归为 fast chunk 。</p>
+</li>
+<li><p><strong>无需合并</strong> —— 两个相邻 chunk 不会被合并(<strong>in_use 位一直设置</strong>)。虽然这可能会加剧内存碎片化，但也大大加速了内存释放的速度！</p>
+</li>
+<li><p><code>malloc(fast chunk)</code></p>
+<ul>
+<li>初始情况下 fast chunck 最大尺寸以及 fast bin 相应数据结构均未初始化，因此即使用户请求内存大小落在 fast chunk 相应区间，服务用户请求的也将是 small bin 路径而非 fast bin 路径；</li>
+<li>初始化后，将在计算 fast bin 索引后检索相应 bin；</li>
+<li>相应 bin 中被检索的第一个 chunk 将被摘除并返回给用户。</li>
+</ul>
+</li>
+<li><p><code>free(fast chunk)</code></p>
+<ul>
+<li>计算 fast bin 索引以索引相应 bin；</li>
+<li><code>free</code> 掉的 chunk 将被添加到上述 bin 的头部。</li>
+</ul>
+</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/lc1838228782/pics/master/img/fastbin.png"></p>
+<p>当释放的 chunk 与该 chunk 相邻的空闲 chunk 合并后的大小大于<code>FASTBIN_CONSOLIDATION_THRESHOLD</code>时，内存碎片可能比较多了，我们就需要把 fast bins 中的 chunk 都进行合并，以减少内存碎片对系统的影响。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment">   FASTBIN_CONSOLIDATION_THRESHOLD is the size of a chunk in free()</span></span><br><span class="line"><span class="comment">   that triggers automatic consolidation of possibly-surrounding</span></span><br><span class="line"><span class="comment">   fastbin chunks. This is a heuristic, so the exact value should not</span></span><br><span class="line"><span class="comment">   matter too much. It is defined at half the default trim threshold as a</span></span><br><span class="line"><span class="comment">   compromise heuristic to only attempt consolidation if it is likely</span></span><br><span class="line"><span class="comment">   to lead to trimming. However, it is not dynamically tunable, since</span></span><br><span class="line"><span class="comment">   consolidation reduces fragmentation surrounding large chunks even</span></span><br><span class="line"><span class="comment">   if trimming is not used.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> FASTBIN_CONSOLIDATION_THRESHOLD (65536UL)</span></span><br><span class="line"><span class="comment">/* malloc_consolidate 函数可以将 fastbin 中所有能和其它 chunk 合并的 chunk 合并在一起。具体地参见后续的详细函数的分析。 */</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment">    Chunks in fastbins keep their inuse bit set, so they cannot</span></span><br><span class="line"><span class="comment">    be consolidated with other free chunks. malloc_consolidate</span></span><br><span class="line"><span class="comment">    releases all chunks in fastbins and consolidates them with</span></span><br><span class="line"><span class="comment">    other free chunks.</span></span><br><span class="line"><span class="comment"> */</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="Unsorted-bin"><a href="#Unsorted-bin" class="headerlink" title="Unsorted bin"></a>Unsorted bin</h4><p>当 small chunk 和 large chunk 被 <code>free</code> 掉时，它们并非被添加到各自的 bin 中，而是被添加在 「<strong>unsorted bin</strong>」 中。这使得分配器可以重新使用最近 <code>free</code> 掉的 chunk，从而消除了寻找合适 bin 的时间开销，进而加速了内存分配及释放的效率。</p>
+<p>unsorted bin 可以视为空闲 chunk 回归其所属 bin 之前的缓冲区。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment">   Unsorted chunks</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment">    All remainders from chunk splits, as well as all returned chunks,</span></span><br><span class="line"><span class="comment">    are first placed in the &quot;unsorted&quot; bin. They are then placed</span></span><br><span class="line"><span class="comment">    in regular bins after malloc gives them ONE chance to be used before</span></span><br><span class="line"><span class="comment">    binning. So, basically, the unsorted_chunks list acts as a queue,</span></span><br><span class="line"><span class="comment">    with chunks being placed on it in free (and malloc_consolidate),</span></span><br><span class="line"><span class="comment">    and taken off (to be either used or placed in bins) in malloc.</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment">    The NON_MAIN_ARENA flag is never set for unsorted chunks, so it</span></span><br><span class="line"><span class="comment">    does not have to be taken into account in size comparisons.</span></span><br><span class="line"><span class="comment"> */</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>存疑</strong>  unsorted bin中的chunk<code>NON_MAIN_ARENA </code>总是为0。<a target="_blank" rel="noopener" href="https://evilpan.com/2020/04/12/glibc-heap-exp/">^4</a></p>
+<ul>
+<li><p><strong>数量</strong>：1</p>
+</li>
+<li><p>unsorted bin 包括一个用于保存 free chunk 的双向循环链表（又名 binlist）；</p>
+</li>
+<li><p><strong>chunk 大小</strong>：无限制，任何大小的 chunk 均可添加到这里。</p>
+</li>
+<li><p>来源</p>
+<ul>
+<li>当一个较大的 chunk 被分割成两半后，如果剩下的部分大于 MINSIZE，就会被放到 unsorted bin 中。</li>
+<li>释放一个不属于 fast bin 的 chunk，并且该 chunk 不和 top chunk 紧邻时，该 chunk 会被首先放到 unsorted bin 中。关于 top chunk 的解释，请参考下面的介绍。</li>
+</ul>
+<p>此外，Unsorted Bin 在使用的过程中，采用的遍历顺序是 <strong>FIFO</strong>，<strong>头插尾取</strong> 。</p>
+</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/lc1838228782/pics/master/img/unsortedsmalllarge.png"></p>
+<p><strong>unsorted bin位置</strong></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* The otherwise unindexable 1-bin is used to hold unsorted chunks. */</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> unsorted_chunks(M) (bin_at(M, 1))</span></span><br></pre></td></tr></table></figure>
+
+
+
+<h4 id="Small-bin"><a href="#Small-bin" class="headerlink" title="Small bin"></a>Small bin</h4><p>在内存分配回收的速度上，small bin 比 large bin 更快。small bins 中每个 chunk 的大小与其所在的 bin 的 index 的关系为：chunk_size = 2 * SIZE_SZ *index，具体如下</p>
+<table>
+<thead>
+<tr>
+<th>下标(from 1)</th>
+<th>SIZE_SZ=4(32 bit)</th>
+<th>SIZE_SZ=8(64 bit)</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>2</td>
+<td>16</td>
+<td>32</td>
+</tr>
+<tr>
+<td>3</td>
+<td>24</td>
+<td>48</td>
+</tr>
+<tr>
+<td>4</td>
+<td>32</td>
+<td>64</td>
+</tr>
+<tr>
+<td>5</td>
+<td>40</td>
+<td>80</td>
+</tr>
+<tr>
+<td>x</td>
+<td>2*4*x</td>
+<td>2*8*x</td>
+</tr>
+<tr>
+<td>63</td>
+<td>504</td>
+<td>1008</td>
+</tr>
+</tbody></table>
+<ul>
+<li><p><strong>数量</strong>：62</p>
+<p>每个 small bin 都维护着一条 free chunk 的双向循环链表。采用双向链表的原因是，small bins 中的 chunk 可能会从链表中部摘除。这里新增项放在链表的头部位置，而从链表的尾部位置移除项。—— <strong>FIFO</strong></p>
+</li>
+<li><p><strong>chunk 大小</strong>：</p>
+<ul>
+<li><p>small bin 链表中的 chunk 大小相差的字节数为 <strong>2 个机器字长</strong>，即 32 位相差 8 字节，64 位相差 16 字节。</p>
+<p>举例而言(32bit)，<code>small bin[0]</code> （Bin 2）维护着大小为 16 字节的 chunks、<code>small bin[1]</code>（Bin 3）维护着大小为 24 字节的 chunks ，依此类推……</p>
+</li>
+<li><p>指定 small bin 中所有 chunk 大小均相同，因此无需排序；</p>
+</li>
+</ul>
+</li>
+<li><p>合并 —— 相邻的 free chunk 将被合并，这减缓了内存碎片化，但是减慢了 <code>free</code> 的速度；</p>
+</li>
+<li><p><code>malloc(small chunk)</code></p>
+<ul>
+<li>初始情况下，small bins 都是 NULL，因此尽管用户请求 small chunk ，提供服务的将是 unsorted bin 路径而不是 small bin 路径；</li>
+<li>第一次调用 <code>malloc</code> 时，维护在 malloc_state 中的 small bins 和 large bins 将被初始化，它们都会指向自身以表示其为空；</li>
+<li>此后当 small bin 非空，相应的 bin 会摘除其中最后一个 chunk 并返回给用户；</li>
+</ul>
+</li>
+<li><p><code>free(small chunk)</code></p>
+<ul>
+<li><code>free</code> chunk 的时候，检查其前后的 chunk 是否空闲，若是则合并，也即把它们从所属的链表中摘除并合并成一个新的 chunk，新 chunk 会添加在 unsorted bin 的前端。</li>
+</ul>
+</li>
+</ul>
+<p>smallbin相关宏</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> NSMALLBINS 64</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> SMALLBIN_WIDTH MALLOC_ALIGNMENT</span></span><br><span class="line"><span class="comment">// 是否需要对small bin的下标进行纠正</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> SMALLBIN_CORRECTION (MALLOC_ALIGNMENT &gt; 2 * SIZE_SZ)</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> MIN_LARGE_SIZE ((NSMALLBINS - SMALLBIN_CORRECTION) * SMALLBIN_WIDTH)</span></span><br><span class="line"><span class="comment">//判断chunk的大小是否在small bin范围内</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> in_smallbin_range(sz)                                                  \</span></span><br><span class="line">    ((<span class="keyword">unsigned</span> <span class="keyword">long</span>) (sz) &lt; (<span class="keyword">unsigned</span> <span class="keyword">long</span>) MIN_LARGE_SIZE)</span><br><span class="line"><span class="comment">// 根据chunk的大小得到small bin对应的索引。</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> smallbin_index(sz)                                                     \</span></span><br><span class="line">    ((SMALLBIN_WIDTH == <span class="number">16</span> ? (((<span class="keyword">unsigned</span>) (sz)) &gt;&gt; <span class="number">4</span>)                          \</span><br><span class="line">                           : (((<span class="keyword">unsigned</span>) (sz)) &gt;&gt; <span class="number">3</span>)) +                       \</span><br><span class="line">     SMALLBIN_CORRECTION)</span><br></pre></td></tr></table></figure>
+
+<h4 id="Large-bin"><a href="#Large-bin" class="headerlink" title="Large bin"></a>Large bin</h4><p>大小大于等于<code>MIN_LARGE_SIZE</code> 字节的 chunk 被称为「<strong>large chunk</strong>」，而保存 large chunks 的 bin 被称为 「<strong>large bin</strong>」。在内存分配回收的速度上，large bin 比 small bin 慢。</p>
+<p>large bins 中的每一个 bin 都包含一定范围内的 chunk，其中的 chunk 按 fd_nextsize 指针的顺序<strong>从大到小排列</strong>。相同大小的 chunk 同样按照最近使用顺序排列。</p>
+<p><img src="https://raw.githubusercontent.com/lc1838228782/pics/master/img/large_bin2.png" alt="large bin"></p>
+<ul>
+<li>数量：63<ul>
+<li>每个 large bin 都维护着一条 free chunk 的双向循环链表。采用双向链表的原因是，large bins 中的 chunk 可能会从链表中的任意位置插入及删除。</li>
+<li>这 63 个 bins<ul>
+<li>32 个 bins 所维护的 chunk 大小以 64B 递增，也即 <code>large chunk[0]</code>(Bin 65) 维护着大小为 512B ~ 568B 的 chunk 、<code>large chunk[1]</code>(Bin 66) 维护着大小为 576B ~ 632B 的 chunk，依此类推……</li>
+<li>16 个 bins 所维护的 chunk 大小以 512 字节递增；</li>
+<li>8 个 bins 所维护的 chunk 大小以 4096 字节递增；</li>
+<li>4 个 bins 所维护的 chunk 大小以 32768 字节递增；</li>
+<li>2 个 bins 所维护的 chunk 大小以 262144 字节递增；</li>
+<li>1 个 bin 维护所有剩余 chunk 大小；</li>
+</ul>
+</li>
+<li>不像 small bin ，large bin 中所有 chunk 大小不一定相同，各 chunk 大小递减保存。最大的 chunk 保存头端，而最小的 chunk 保存在尾端；</li>
+</ul>
+</li>
+<li>合并 —— 两个相邻的空闲 chunk 会被合并；</li>
+<li><code>malloc(large chunk)</code><ul>
+<li>初始情况下，large bin 都会是 NULL，因此尽管用户请求 large chunk ，提供服务的将是 next largetst bin 路径而不是 large bin 路径 。</li>
+<li>第一次调用 <code>malloc</code> 时，维护在 malloc_state 中的 small bin 和 large bin 将被初始化，它们都会指向自身以表示其为空；</li>
+<li>此后当 large bin 非空，如果相应 bin 中的最大 chunk 大小大于用户请求大小，分配器就从该 bin 顶端遍历到尾端，以找到一个大小最接近用户请求的 chunk。一旦找到，相应 chunk 就会被切分成两块：<ul>
+<li>User chunk（用户请求大小）—— 返回给用户；</li>
+<li>Remainder chunk （剩余大小）—— 添加到 unsorted bin。</li>
+</ul>
+</li>
+<li>如果相应 bin 中的最大 chunk 大小小于用户请求大小，分配器就会扫描 binmaps，从而查找最小非空 bin。如果找到了这样的 bin，就从中选择合适的 chunk 并切割给用户；反之就使用 top chunk 响应用户请求。</li>
+</ul>
+</li>
+<li><code>free(large chunk)</code> —— 类似于 small chunk 。</li>
+</ul>
+<p><strong>largebin相关宏</strong></p>
+<p>这里我们以 32 位平台下，第一个 large bin 的起始 chunk 大小为例，为 512 字节，那么 512&gt;&gt;6 = 8，所以其下标为 56+8=64。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> largebin_index_32(sz)                                                  \</span></span><br><span class="line">    (((((<span class="keyword">unsigned</span> <span class="keyword">long</span>) (sz)) &gt;&gt; <span class="number">6</span>) &lt;= <span class="number">38</span>)                                     \</span><br><span class="line">         ? <span class="number">56</span> + (((<span class="keyword">unsigned</span> <span class="keyword">long</span>) (sz)) &gt;&gt; <span class="number">6</span>)                                  \</span><br><span class="line">         : ((((<span class="keyword">unsigned</span> <span class="keyword">long</span>) (sz)) &gt;&gt; <span class="number">9</span>) &lt;= <span class="number">20</span>)                               \</span><br><span class="line">               ? <span class="number">91</span> + (((<span class="keyword">unsigned</span> <span class="keyword">long</span>) (sz)) &gt;&gt; <span class="number">9</span>)                            \</span><br><span class="line">               : ((((<span class="keyword">unsigned</span> <span class="keyword">long</span>) (sz)) &gt;&gt; <span class="number">12</span>) &lt;= <span class="number">10</span>)                        \</span><br><span class="line">                     ? <span class="number">110</span> + (((<span class="keyword">unsigned</span> <span class="keyword">long</span>) (sz)) &gt;&gt; <span class="number">12</span>)                    \</span><br><span class="line">                     : ((((<span class="keyword">unsigned</span> <span class="keyword">long</span>) (sz)) &gt;&gt; <span class="number">15</span>) &lt;= <span class="number">4</span>)                   \</span><br><span class="line">                           ? <span class="number">119</span> + (((<span class="keyword">unsigned</span> <span class="keyword">long</span>) (sz)) &gt;&gt; <span class="number">15</span>)              \</span><br><span class="line">                           : ((((<span class="keyword">unsigned</span> <span class="keyword">long</span>) (sz)) &gt;&gt; <span class="number">18</span>) &lt;= <span class="number">2</span>)             \</span><br><span class="line">                                 ? <span class="number">124</span> + (((<span class="keyword">unsigned</span> <span class="keyword">long</span>) (sz)) &gt;&gt; <span class="number">18</span>)        \</span><br><span class="line">                                 : <span class="number">126</span>)</span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> largebin_index_32_big(sz)                                              \</span></span><br><span class="line">    (((((<span class="keyword">unsigned</span> <span class="keyword">long</span>) (sz)) &gt;&gt; <span class="number">6</span>) &lt;= <span class="number">45</span>)                                     \</span><br><span class="line">         ? <span class="number">49</span> + (((<span class="keyword">unsigned</span> <span class="keyword">long</span>) (sz)) &gt;&gt; <span class="number">6</span>)                                  \</span><br><span class="line">         : ((((<span class="keyword">unsigned</span> <span class="keyword">long</span>) (sz)) &gt;&gt; <span class="number">9</span>) &lt;= <span class="number">20</span>)                               \</span><br><span class="line">               ? <span class="number">91</span> + (((<span class="keyword">unsigned</span> <span class="keyword">long</span>) (sz)) &gt;&gt; <span class="number">9</span>)                            \</span><br><span class="line">               : ((((<span class="keyword">unsigned</span> <span class="keyword">long</span>) (sz)) &gt;&gt; <span class="number">12</span>) &lt;= <span class="number">10</span>)                        \</span><br><span class="line">                     ? <span class="number">110</span> + (((<span class="keyword">unsigned</span> <span class="keyword">long</span>) (sz)) &gt;&gt; <span class="number">12</span>)                    \</span><br><span class="line">                     : ((((<span class="keyword">unsigned</span> <span class="keyword">long</span>) (sz)) &gt;&gt; <span class="number">15</span>) &lt;= <span class="number">4</span>)                   \</span><br><span class="line">                           ? <span class="number">119</span> + (((<span class="keyword">unsigned</span> <span class="keyword">long</span>) (sz)) &gt;&gt; <span class="number">15</span>)              \</span><br><span class="line">                           : ((((<span class="keyword">unsigned</span> <span class="keyword">long</span>) (sz)) &gt;&gt; <span class="number">18</span>) &lt;= <span class="number">2</span>)             \</span><br><span class="line">                                 ? <span class="number">124</span> + (((<span class="keyword">unsigned</span> <span class="keyword">long</span>) (sz)) &gt;&gt; <span class="number">18</span>)        \</span><br><span class="line">                                 : <span class="number">126</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">// XXX It remains to be seen whether it is good to keep the widths of</span></span><br><span class="line"><span class="comment">// XXX the buckets the same or whether it should be scaled by a factor</span></span><br><span class="line"><span class="comment">// XXX of two as well.</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> largebin_index_64(sz)                                                  \</span></span><br><span class="line">    (((((<span class="keyword">unsigned</span> <span class="keyword">long</span>) (sz)) &gt;&gt; <span class="number">6</span>) &lt;= <span class="number">48</span>)                                     \</span><br><span class="line">         ? <span class="number">48</span> + (((<span class="keyword">unsigned</span> <span class="keyword">long</span>) (sz)) &gt;&gt; <span class="number">6</span>)                                  \</span><br><span class="line">         : ((((<span class="keyword">unsigned</span> <span class="keyword">long</span>) (sz)) &gt;&gt; <span class="number">9</span>) &lt;= <span class="number">20</span>)                               \</span><br><span class="line">               ? <span class="number">91</span> + (((<span class="keyword">unsigned</span> <span class="keyword">long</span>) (sz)) &gt;&gt; <span class="number">9</span>)                            \</span><br><span class="line">               : ((((<span class="keyword">unsigned</span> <span class="keyword">long</span>) (sz)) &gt;&gt; <span class="number">12</span>) &lt;= <span class="number">10</span>)                        \</span><br><span class="line">                     ? <span class="number">110</span> + (((<span class="keyword">unsigned</span> <span class="keyword">long</span>) (sz)) &gt;&gt; <span class="number">12</span>)                    \</span><br><span class="line">                     : ((((<span class="keyword">unsigned</span> <span class="keyword">long</span>) (sz)) &gt;&gt; <span class="number">15</span>) &lt;= <span class="number">4</span>)                   \</span><br><span class="line">                           ? <span class="number">119</span> + (((<span class="keyword">unsigned</span> <span class="keyword">long</span>) (sz)) &gt;&gt; <span class="number">15</span>)              \</span><br><span class="line">                           : ((((<span class="keyword">unsigned</span> <span class="keyword">long</span>) (sz)) &gt;&gt; <span class="number">18</span>) &lt;= <span class="number">2</span>)             \</span><br><span class="line">                                 ? <span class="number">124</span> + (((<span class="keyword">unsigned</span> <span class="keyword">long</span>) (sz)) &gt;&gt; <span class="number">18</span>)        \</span><br><span class="line">                                 : <span class="number">126</span>)</span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> largebin_index(sz)                                                     \</span></span><br><span class="line">    (SIZE_SZ == <span class="number">8</span> ? largebin_index_64(sz) : MALLOC_ALIGNMENT == <span class="number">16</span>             \</span><br><span class="line">                                                ? largebin_index_32_big(sz)    \</span><br><span class="line">                                                : largebin_index_32(sz))</span><br></pre></td></tr></table></figure>
+
+
+
+<h4 id="Top-bin"><a href="#Top-bin" class="headerlink" title="Top bin"></a>Top bin</h4><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment">   Top</span></span><br><span class="line"><span class="comment"></span></span><br><span class="line"><span class="comment">    The top-most available chunk (i.e., the one bordering the end of</span></span><br><span class="line"><span class="comment">    available memory) is treated specially. It is never included in</span></span><br><span class="line"><span class="comment">    any bin, is used only if no other chunk is available, and is</span></span><br><span class="line"><span class="comment">    released back to the system if it is very large (see</span></span><br><span class="line"><span class="comment">    M_TRIM_THRESHOLD).  Because top initially</span></span><br><span class="line"><span class="comment">    points to its own bin with initial zero size, thus forcing</span></span><br><span class="line"><span class="comment">    extension on the first malloc request, we avoid having any special</span></span><br><span class="line"><span class="comment">    code in malloc to check whether it even exists yet. But we still</span></span><br><span class="line"><span class="comment">    need to do so when getting memory from system, so we make</span></span><br><span class="line"><span class="comment">    initial_top treat the bin as a legal but unusable chunk during the</span></span><br><span class="line"><span class="comment">    interval between initialization and the first call to</span></span><br><span class="line"><span class="comment">    sysmalloc. (This is somewhat delicate, since it relies on</span></span><br><span class="line"><span class="comment">    the 2 preceding words to be zero during this interval as well.)</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"></span><br><span class="line"><span class="comment">/* Conveniently, the unsorted bin can be used as dummy top on first call */</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> initial_top(M) (unsorted_chunks(M))</span></span><br></pre></td></tr></table></figure>
+
+<p>一个 arena 中最顶部的 chunk 被称为「<strong>top chunk</strong>」。它不属于任何 bin 。当所有 bin 中都没有合适空闲内存时，就会使用 top chunk 来响应用户请求。</p>
+<p>当 top chunk 的大小比用户请求的大小大的时候，top chunk 会分割为两个部分：</p>
+<ul>
+<li>User chunk，返回给用户；</li>
+<li>Remainder chunk，剩余部分，将成为新的 top chunk。</li>
+</ul>
+<p>当 top chunk 的大小比用户请求的大小小的时候，top chunk 就通过 <code>sbrk</code>（main arena）或 <code>mmap</code>（ thread arena）系统调用扩容。</p>
+<p>需要注意的是，top chunk 的 prev_inuse 比特位始终为 1，否则其前面的 chunk 就会被合并到 top chunk 中。</p>
+<h4 id="Last-remainder-chunk"><a href="#Last-remainder-chunk" class="headerlink" title="Last remainder chunk"></a>Last remainder chunk</h4><p>「<strong>last remainder chunk</strong>」即最后一次 small request 中因分割而得到的剩余部分，它有利于改进引用局部性，也即后续对 small chunk 的 <code>malloc</code> 请求可能最终被分配得彼此靠近。</p>
+<p>那么 arena 中的若干 chunks，哪个有资格成为 last remainder chunk 呢？</p>
+<p>当用户请求 small chunk 而无法从 small bin 和 unsorted bin 得到服务时，分配器就会通过扫描 binmaps 找到最小非空 bin。正如前文所提及的，如果这样的 bin 找到了，其中最合适的 chunk 就会分割为两部分：返回给用户的 User chunk 、添加到 unsorted bin 中的 Remainder chunk。这一 Remainder chunk 就将成为 last remainder chunk。</p>
+<p>那么引用局部性是如何达成的呢？</p>
+<p>当用户的后续请求 small chunk，并且 last remainder chunk 是 unsorted bin 中唯一的 chunk，该 last remainder chunk 就将分割成两部分：返回给用户的 User chunk、添加到 unsorted bin 中的 Remainder chunk（<strong>也是 last remainder chunk</strong>）。因此后续的请求的 chunk 最终将被分配得彼此靠近。</p>
+<h3 id="TCache"><a href="#TCache" class="headerlink" title="TCache"></a>TCache</h3><p>tcache(per-thread cache)在<a target="_blank" rel="noopener" href="https://sourceware.org/git/?p=glibc.git;a=commitdiff;h=d5c3fafc4307c9b7a4c7d5cb381fcdbfad340bcc">glibc2.26</a>中引入，进一步提升堆管理性能。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* We overlay this structure on the user-data portion of a chunk when</span></span><br><span class="line"><span class="comment">   the chunk is stored in the per-thread cache.  */</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">tcache_entry</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">tcache_entry</span> *<span class="title">next</span>;</span></span><br><span class="line">&#125; tcache_entry;</span><br><span class="line"></span><br><span class="line"><span class="comment">/* There is one of these for each thread, which contains the</span></span><br><span class="line"><span class="comment">   per-thread cache (hence &quot;tcache_perthread_struct&quot;).  Keeping</span></span><br><span class="line"><span class="comment">   overall size low is mildly important.  Note that COUNTS and ENTRIES</span></span><br><span class="line"><span class="comment">   are redundant (we could have just counted the linked list each</span></span><br><span class="line"><span class="comment">   time), this is for performance reasons.  */</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> <span class="title">tcache_perthread_struct</span></span></span><br><span class="line"><span class="class">&#123;</span></span><br><span class="line">  <span class="keyword">char</span> counts[TCACHE_MAX_BINS];</span><br><span class="line">  tcache_entry *entries[TCACHE_MAX_BINS];</span><br><span class="line">&#125; tcache_perthread_struct;</span><br></pre></td></tr></table></figure>
+
+<p>tcache_entry用于链接空闲的chunk，指针直接<strong>指向chunk的userdata</strong>部分，也就是说复用了指针的含义。</p>
+<p>每个arena都会维护一个tcache_prethread_struct，它是整个tcache机制的管理结构，其中包含TCACHE_MAX_BINS个tcache_entry链表。链入其中的chunk大小相同，所以通常也叫做<code>tcache bin</code>。其特性如下：</p>
+<ul>
+<li>每个tcache bin最多只能有7个(<code>TCACHE_FILL_COUNT </code>)chunk</li>
+<li>tcache bin中chunk的inuse位不会置零，也就是说不会进行合并</li>
+<li>LIFO</li>
+</ul>
+<p>可以看到其特性和fastbin是非常类似的。释放时在填满tcache之后才进入传统的释放过程，分配时也先从tcache中搜索。</p>
+<p>tcache bin一共有64个(<code>TCACHE_MAX_BINS</code>)，其大小范围为：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;* With rounding and alignment, the bins are...</span><br><span class="line">   idx 0   bytes 0..24 (64-bit) or 0..12 (32-bit)</span><br><span class="line">   idx 1   bytes 25..40 or 13..20</span><br><span class="line">   idx 2   bytes 41..56 or 21..28</span><br><span class="line">   etc.  *&#x2F;</span><br></pre></td></tr></table></figure>
+
+<p>由于tcache的增加和删除非常简洁，因此速度很快，但另一方面这也意味着缺乏各种安全检查和mitigation，在利用时候也格外方便。</p>
+<p><a target="_blank" rel="noopener" href="https://sourceware.org/git/?p=glibc.git;a=commit;h=bcdaad21d4635931d1bd3b54a7894276925d081d">commit</a>添加了double free检测。</p>
+
+      </div>
+      <div class="post-copyright">
+    <p class="copyright-item">
+      <span>Author: </span>
+      <a href="http://hhdx.xyz">hhdx</a>
+    </p>
+    <p class="copyright-item">
+      <span>Link: </span>
+      <a href="http://hhdx.xyz/2020/08/02/glibcheap/">http://hhdx.xyz/2020/08/02/glibcheap/</a>
+    </p>
+    <p class="copyright-item">
+      <span>License: </span><a rel="license" href="http://creativecommons.org/licenses/by-nc/4.0/" target="_blank">知识共享署名-非商业性使用 4.0 国际许可协议</a>
+    </p>
+  </div>
+      <footer class="post-footer">
+        <div class="post-tags">
+            <a href="/tags/CTF/">CTF</a>
+            </div>
+        
+        <nav class="post-nav"><a class="prev" href="/2020/08/07/pwnable-tw-re-alloc/">
+        <i class="iconfont icon-left"></i>
+        <span class="prev-text nav-default">pwnable.tw re-alloc</span>
+        <span class="prev-text nav-mobile">Prev</span>
+      </a>
+    <a class="next" href="/2020/08/01/How2heap%E6%80%BB%E7%BB%93/">
+        <span class="next-text nav-default">How2heap总结</span>
+        <span class="prev-text nav-mobile">Next</span>
+        <i class="iconfont icon-right"></i>
+      </a>
+    </nav></footer>
+    </article></div><div class="comments" id="comments"><div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a target="_blank" rel="noopener" href="//disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    </div></div>
+      </main>
+
+      <footer id="footer" class="footer"><div class="social-links"><a target="_blank" rel="noopener" href="https://github.com/clxsh" class="iconfont icon-github" title="github"></a>
+        <a target="_blank" rel="noopener" href="https://www.douban.com/people/57285004/" class="iconfont icon-douban" title="douban"></a>
+        <a href="/atom.xml" class="iconfont icon-rss" title="rss"></a>
+    </div><div class="copyright">
+  <span class="power-by">
+    Powered by <a class="hexo-link" target="_blank" rel="noopener" href="https://hexo.io/">Hexo</a>
+  </span>
+  <span class="division">|</span>
+  <span class="theme-info">
+    Theme - 
+    <a class="theme-link" target="_blank" rel="noopener" href="https://github.com/ahonn/hexo-theme-even">Even</a>
+  </span>
+
+  <span class="copyright-year">&copy;2016 - 2020<span class="heart">
+      <i class="iconfont icon-heart"></i>
+    </span>
+    <span class="author">hhdx</span>
+  </span>
+</div>
+</footer>
+
+      <div class="back-to-top" id="back-to-top">
+        <i class="iconfont icon-up"></i>
+      </div>
+    </div><script type="text/javascript">
+    var disqus_config = function () {
+        this.page.url = 'http://hhdx.xyz/2020/08/02/glibcheap/';
+        this.page.identifier = '2020/08/02/glibcheap/';
+        this.page.title = 'glibc heap 整理';
+    };
+    (function() {
+    var d = document, s = d.createElement('script');
+
+    s.src = '//lyliuchao.disqus.com/embed.js';
+
+    s.setAttribute('data-timestamp', +new Date());
+    (d.head || d.body).appendChild(s);
+    })();  
+  </script><script type="text/javascript" src="/lib/jquery/jquery.min.js"></script>
+  <script type="text/javascript" src="/lib/slideout/slideout.js"></script>
+  <script type="text/javascript" src="/lib/fancybox/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/src/even.js?v=2.11.0"></script>
+</body>
+</html>

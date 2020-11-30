@@ -114,6 +114,48 @@
         <div class="content-wrapper">
           <div id="content" class="content"><section id="posts" class="posts"><article class="post">
     <header class="post-header">
+      <h1 class="post-title"><a class="post-link" href="/2020/06/28/How2heap-fastbin-dup-consolidate-Hitcon2016-SleepyHolder/">How2heap--fastbin_dup_consolidate Hitcon2016--SleepyHolder</a>
+        </h1>
+
+      <div class="post-meta">
+        <span class="post-time">
+          2020-06-28
+        </span></div>
+    </header>
+
+    <div class="post-content"><h2 id="前置"><a href="#前置" class="headerlink" title="前置"></a>前置</h2><p>Ubuntu 16.04</p>
+<p>使用how2heap脚本编译glibc2.25，其中的4是编译线程数。脚本中<code>git clone</code>慢，可以替换成<a target="_blank" rel="noopener" href="https://mirrors.tuna.tsinghua.edu.cn/">tsinghua mirrors</a>，把第83行的<code>git clone git://sourceware.org/git/glibc.git &quot;$SRC&quot;</code> 替换成<code> git clone https://mirrors.tuna.tsinghua.edu.cn/git/glibc.git &quot;$SRC&quot;</code>。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> ./glibc_build.sh 2.25 -j 4 -disable-tcache</span></span><br></pre></td></tr></table></figure>
+
+<p>做这道题目使用了glibc2.25，<code>patchelf --set-interpreter /path/to/ld-2.25.so /path/to/exe</code>，patch之后再运行程序就自动使用同目录下libc-2.25.so。</p>
+          <div class="read-more">
+            <a href="/2020/06/28/How2heap-fastbin-dup-consolidate-Hitcon2016-SleepyHolder/" class="read-more-link">Read more..</a>
+          </div>
+        </div></article>
+      <article class="post">
+    <header class="post-header">
+      <h1 class="post-title"><a class="post-link" href="/2020/03/24/ucore-os-lab7%E7%AC%94%E8%AE%B0/">ucore os lab7笔记</a>
+        </h1>
+
+      <div class="post-meta">
+        <span class="post-time">
+          2020-03-24
+        </span></div>
+    </header>
+
+    <div class="post-content"><h1 id="同步互斥"><a href="#同步互斥" class="headerlink" title="同步互斥"></a>同步互斥</h1><h2 id="理论"><a href="#理论" class="headerlink" title="理论"></a>理论</h2><p>互斥、死锁、饥饿</p>
+<p><strong>互斥</strong>是指某一资源同时只允许一个进程对其进行访问，具有唯一性和排它性，但互斥不用限制进程对资源的访问顺序，即访问可以是无序的。</p>
+<p><strong>同步</strong>是指在进程间的执行必须严格按照规定的某种先后次序来运行，即访问是有序的，这种先后次序取决于要系统完成的任务需求。</p>
+<h3 id="17-临界区"><a href="#17-临界区" class="headerlink" title="17 临界区"></a>17 临界区</h3><p>空闲则入、忙则等待、有限等待、让权等待（可选）</p>
+<p><strong>实现的三种办法</strong>：禁用中断、软件方法、更高级的抽象方法</p>
+<p>方法比较主要考虑性能：并发级别</p>
+<h4 id="禁用中断"><a href="#禁用中断" class="headerlink" title="禁用中断"></a>禁用中断</h4>
+          <div class="read-more">
+            <a href="/2020/03/24/ucore-os-lab7%E7%AC%94%E8%AE%B0/" class="read-more-link">Read more..</a>
+          </div>
+        </div></article>
+      <article class="post">
+    <header class="post-header">
       <h1 class="post-title"><a class="post-link" href="/2020/03/17/ucore-os-lab4%E7%AC%94%E8%AE%B0/">ucore os lab4笔记</a>
         </h1>
 
@@ -167,46 +209,6 @@
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">00 00 00 00 00 00 00 00</span><br><span class="line">00 00 00 00 00 00 00 00</span><br><span class="line">00 00 00 00 00 00 00 00</span><br><span class="line">00 00 00 00 00 00 00 00</span><br><span class="line">00 00 00 00 00 00 00 00</span><br><span class="line">c0 17 40 00 00 00 00 00    &#x2F;* 0x4017c0 即为touch1()起始地址*&#x2F;</span><br></pre></td></tr></table></figure>
           <div class="read-more">
             <a href="/2018/03/22/CSAPP3e-Attacklab/" class="read-more-link">Read more..</a>
-          </div>
-        </div></article>
-      <article class="post">
-    <header class="post-header">
-      <h1 class="post-title"><a class="post-link" href="/2018/02/15/linux-windows%E5%85%B1%E4%BA%AB%E8%93%9D%E7%89%99%E8%AE%BE%E5%A4%87/">linux,windows共享蓝牙设备</a>
-        </h1>
-
-      <div class="post-meta">
-        <span class="post-time">
-          2018-02-15
-        </span></div>
-    </header>
-
-    <div class="post-content"><p>同一个蓝牙设备在装有linux，windows双系统的电脑上使用，每次重新连接都会出现连接失败的问题，都需要移除蓝牙设备再次添加，比较麻烦。导致这个问题的原因是蓝牙设备第一次连接电脑的蓝牙时会随机生成连接秘钥，储存在电脑和蓝牙设备中，以后每次连接都会校验这个秘钥。问题就是linux，windows蓝牙地址一样，在linux下连接过这个蓝牙设备存储了秘钥，在windows下又会重新连接又会生成新的秘钥，蓝牙设备记录下这个蓝牙地址的新秘钥，所以交替使用两个系统连接这个设备总会不成功。</p>
-<h4 id="解决办法："><a href="#解决办法：" class="headerlink" title="解决办法："></a>解决办法：</h4><ol>
-<li>更改电脑蓝牙设备地址使两个系统下的不一样（这个没找到方法…）</li>
-<li>更改蓝牙设备连接秘钥使两个系统下的一样</li>
-</ol>
-          <div class="read-more">
-            <a href="/2018/02/15/linux-windows%E5%85%B1%E4%BA%AB%E8%93%9D%E7%89%99%E8%AE%BE%E5%A4%87/" class="read-more-link">Read more..</a>
-          </div>
-        </div></article>
-      <article class="post">
-    <header class="post-header">
-      <h1 class="post-title"><a class="post-link" href="/2017/01/26/%E6%9E%9A%E4%B8%BE%E7%AE%97%E6%B3%95/">枚举算法</a>
-        </h1>
-
-      <div class="post-meta">
-        <span class="post-time">
-          2017-01-26
-        </span></div>
-    </header>
-
-    <div class="post-content"><p>上了一年半的大学了，感觉水平还是很低，亟待提升。。。</p>
-<p>假期里发现了一个北京大学的一个mooc《程序设计与算法》，正好满足的我的需要：编程能力低下，基础算法不熟。正好这个课才刚刚开始，我决定要跟下去，恩一定！<br>下面两道题是第一章的练习：</p>
-<p>##特殊密码锁</p>
-<p>总Time Limit: 1000ms Memory Limit: 1024kB<br>Description<br>有一种特殊的二进制密码锁，由n个相连的按钮组成（n&lt;30），按钮有凹 凸两种状态，用手按按钮会改变其状态。=””<br>然而让人头疼的是，当你按一个按钮时，跟它相邻的两个按钮状态也会反转。当然，如果你按的是最左或者最右边的按钮，该按钮只会影响到跟它相邻的一个按钮。</p>
-<p>当前密码锁状态已知，需要解决的问题是，你至少需要按多少次按钮，才能将密码锁转变为所期望的目标状态。</p>
-          <div class="read-more">
-            <a href="/2017/01/26/%E6%9E%9A%E4%B8%BE%E7%AE%97%E6%B3%95/" class="read-more-link">Read more..</a>
           </div>
         </div></article>
       <nav class="pagination"><a class="prev" href="/page/4/">

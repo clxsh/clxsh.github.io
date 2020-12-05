@@ -114,6 +114,68 @@
         <div class="content-wrapper">
           <div id="content" class="content"><section id="posts" class="posts"><article class="post">
     <header class="post-header">
+      <h1 class="post-title"><a class="post-link" href="/2020/08/07/pwnable-tw-re-alloc/">pwnable.tw re-alloc</a>
+        </h1>
+
+      <div class="post-meta">
+        <span class="post-time">
+          2020-08-07
+        </span></div>
+    </header>
+
+    <div class="post-content"><h2 id="题目分析"><a href="#题目分析" class="headerlink" title="题目分析"></a>题目分析</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">Arch:     amd64-64-little</span><br><span class="line">RELRO:    Partial RELRO</span><br><span class="line">Stack:    Canary found</span><br><span class="line">NX:       NX enabled</span><br><span class="line">PIE:      No PIE (0x400000)</span><br><span class="line">FORTIFY:  Enabled</span><br></pre></td></tr></table></figure>
+
+<p>是一个典型的菜单类程序</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">$$$$$$$$$$$$$$$$$$$$$$$$$$$$</span><br><span class="line">🍊      RE Allocator      🍊</span><br><span class="line">$$$$$$$$$$$$$$$$$$$$$$$$$$$$</span><br><span class="line">$   1. Alloc               $</span><br><span class="line">$   2. Realloc             $</span><br><span class="line">$   3. Free                $</span><br><span class="line">$   4. Exit                $</span><br><span class="line">$$$$$$$$$$$$$$$$$$$$$$$$$$$</span><br></pre></td></tr></table></figure>
+
+<ol>
+<li>Alloc: index只能取0或1；size必须&lt;=0x78；然后使用<code>realloc(0, size)</code>分配，通过源码可以看出，这就相当于<code>malloc(size)</code>。这里存在null byte overflow（然而没什么用似乎，一开始我一直卡在这里想如何利用，完全没注意到后一个漏洞。。。</li>
+</ol>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* realloc of null is supposed to be same as malloc */</span></span><br><span class="line"><span class="keyword">if</span> (oldmem == <span class="number">0</span>)</span><br><span class="line">    <span class="keyword">return</span> __libc_malloc (bytes);</span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>Realloc: size同样&lt;=0x78。realloc有几种情况：请求大小自己可以满足；尝试向后扩展(top chunk或!inuse (next))；<code>__int_malloc</code>请求新块。（这里存在UAF，输入size为0</li>
+<li>Free：<code>realloc(ptr, 0)</code>相当于<code>free(ptr)</code>，同时将指针数组置空。</li>
+</ol>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (bytes == <span class="number">0</span> &amp;&amp; oldmem != <span class="literal">NULL</span>)</span><br><span class="line">&#123;</span><br><span class="line">    __libc_free (oldmem); <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>libc_version: glibc 2.29 with tcache。该版本libc的<a target="_blank" rel="noopener" href="https://launchpad.net/ubuntu/+source/glibc/2.29-0ubuntu2">源码</a>。下一篇文章说一下如何确定的libc版本，如何确定的有tcache，以及如何使用指定libc运行程序。</p>
+<p>此外，这个版本中出现了对tcache double free的一个<a href="https://hhdx.xyz/2020/08/01/How2heap%E6%80%BB%E7%BB%93/#fastbin-dup">检查机制</a>。</p>
+          <div class="read-more">
+            <a href="/2020/08/07/pwnable-tw-re-alloc/" class="read-more-link">Read more..</a>
+          </div>
+        </div></article>
+      <article class="post">
+    <header class="post-header">
+      <h1 class="post-title"><a class="post-link" href="/2020/08/02/glibcheap/">glibc heap 整理</a>
+        </h1>
+
+      <div class="post-meta">
+        <span class="post-time">
+          2020-08-02
+        </span></div>
+    </header>
+
+    <div class="post-content"><p>目前 Linux 标准发行版中使用的堆分配器是 glibc 中的堆分配器：ptmalloc2。ptmalloc2 主要是通过 malloc/free 函数来分配和释放内存块。</p>
+<p>需要注意的是，在内存分配与使用的过程中，Linux 有这样的一个基本内存管理思想，<strong>只有当真正访问一个地址的时候，系统才会建立虚拟页面与物理页面的映射关系</strong>。</p>
+<h2 id="基本操作"><a href="#基本操作" class="headerlink" title="基本操作"></a>基本操作</h2><h3 id="malloc"><a href="#malloc" class="headerlink" title="malloc"></a>malloc</h3><p><code>malloc(size_t n)</code></p>
+<ul>
+<li>当 n=0 时，返回当前系统允许的堆的最小内存块。</li>
+<li>当 n 为负数时，由于在大多数系统上，<strong>size_t 是无符号数（这一点非常重要）</strong>，所以程序就会申请很大的内存空间，但通常来说都会失败，因为系统没有那么多的内存可以分配。</li>
+</ul>
+<h3 id="free"><a href="#free" class="headerlink" title="free"></a>free</h3><p><code>free(void *p)</code></p>
+<ul>
+<li><strong>当 p 为空指针时，函数不执行任何操作。</strong></li>
+<li>当 p 已经被释放之后，再次释放会出现乱七八糟的效果，这其实就是 <code>double free</code>。</li>
+<li>除了被禁用 (mallopt) 的情况下，当释放很大的内存空间时，程序会将这些内存空间还给系统，以便于减小程序所使用的内存空间。</li>
+</ul>
+<h2 id="背后的系统调用"><a href="#背后的系统调用" class="headerlink" title="背后的系统调用"></a>背后的系统调用</h2><p>这些函数背后的系统调用主要是 <a target="_blank" rel="noopener" href="http://man7.org/linux/man-pages/man2/sbrk.2.html">(s)brk</a> 函数以及 <a target="_blank" rel="noopener" href="http://man7.org/linux/man-pages/man2/mmap.2.html">mmap, munmap</a> 函数。</p>
+          <div class="read-more">
+            <a href="/2020/08/02/glibcheap/" class="read-more-link">Read more..</a>
+          </div>
+        </div></article>
+      <article class="post">
+    <header class="post-header">
       <h1 class="post-title"><a class="post-link" href="/2020/08/01/How2heap%E6%80%BB%E7%BB%93/">How2heap总结</a>
         </h1>
 
@@ -169,46 +231,6 @@
 <p>代码涉及<code>_int_malloc</code>后边和<code>sysmalloc</code>。</p>
           <div class="read-more">
             <a href="/2020/07/25/How2heap-house-of-orange-Hitcon2016-houseoforange/" class="read-more-link">Read more..</a>
-          </div>
-        </div></article>
-      <article class="post">
-    <header class="post-header">
-      <h1 class="post-title"><a class="post-link" href="/2020/07/23/How2heap-house-of-einherjar-SECON2016-tinypad/">How2heap--house_of_einherjar SECON2016--tinypad</a>
-        </h1>
-
-      <div class="post-meta">
-        <span class="post-time">
-          2020-07-23
-        </span></div>
-    </header>
-
-    <div class="post-content"><h2 id="house-of-einherjar"><a href="#house-of-einherjar" class="headerlink" title="house of einherjar"></a>house of einherjar</h2><p>和house of force很像，都是篡改top chunk。</p>
-<p>off-by-one覆盖victim chunk的<code>pre_in_use</code>位，并修改<code>victim-&gt;pre_size</code>为距离目标地址的大小，在目标地址处伪造chunk，释放victim时，发生backward consolidate，合并到目标地址。</p>
-<p><strong>victim需要临近top chunk</strong>，backward consolidate结束，接着与top chunk进行forward consolidate。如果不这样，这个块被放入unsorted bin，而在unsorted bin中分配会过不了以下检查。</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (__builtin_expect (chunksize_nomask (victim) &lt;= <span class="number">2</span> * SIZE_SZ, <span class="number">0</span>)</span><br><span class="line">              || __builtin_expect (chunksize_nomask (victim)</span><br><span class="line">				   &gt; av-&gt;system_mem, <span class="number">0</span>))</span><br><span class="line">		malloc_printerr (<span class="string">&quot;malloc(): memory corruption&quot;</span>);</span><br></pre></td></tr></table></figure>
-          <div class="read-more">
-            <a href="/2020/07/23/How2heap-house-of-einherjar-SECON2016-tinypad/" class="read-more-link">Read more..</a>
-          </div>
-        </div></article>
-      <article class="post">
-    <header class="post-header">
-      <h1 class="post-title"><a class="post-link" href="/2020/07/18/How2heap-large-bin-attack-0ctf2018-heapstorm2/">How2heap--large_bin_attack 0ctf2018--heapstorm2</a>
-        </h1>
-
-      <div class="post-meta">
-        <span class="post-time">
-          2020-07-18
-        </span></div>
-    </header>
-
-    <div class="post-content"><h2 id="large-bin-attack"><a href="#large-bin-attack" class="headerlink" title="large bin attack"></a>large bin attack</h2><p>对已存在于large bin中的chunk的bk、bk_nextsize字段进行更改，在unsorted bin中取出插入该large bin时，会将bk-&gt;fd、bk_nextsize-&gt;fd_nextsize的位置覆盖成chunk的地址。涉及的代码就是unsorted bin遍历取出插入那块。和先前的unsorted bin attack类似，通常为进一步攻击做准备，如修改global_max_fast。</p>
-<p>这里比较难理解就是large bin的结构，特别是先前我被一个<a target="_blank" rel="noopener" href="https://raw.githubusercontent.com/clxsh/pics/master/img/largebin.png">large bin结构图</a>所误导，下面给出我画的结构图（如果有错误o((⊙﹏⊙))o，请帮忙指出）。</p>
-<p><img src="https://raw.githubusercontent.com/clxsh/pics/master/img/large_bin2.png" alt="glibc large bin"></p>
-<h2 id="0ctf2018-heapstorm2"><a href="#0ctf2018-heapstorm2" class="headerlink" title="0ctf2018 heapstorm2"></a>0ctf2018 heapstorm2</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Arch:     amd64-64-little</span><br><span class="line">RELRO:    Full RELRO</span><br><span class="line">Stack:    Canary found</span><br><span class="line">NX:       NX enabled</span><br><span class="line">PIE:      PIE enabled</span><br></pre></td></tr></table></figure>
-
-<h3 id="功能分析"><a href="#功能分析" class="headerlink" title="功能分析"></a>功能分析</h3><p>程序首先使用mallopt函数将global_max_fast设置为0，也就是不使用fastbin。</p>
-          <div class="read-more">
-            <a href="/2020/07/18/How2heap-large-bin-attack-0ctf2018-heapstorm2/" class="read-more-link">Read more..</a>
           </div>
         </div></article>
       <nav class="pagination"><a class="prev" href="/page/2/">

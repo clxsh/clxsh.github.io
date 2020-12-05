@@ -114,6 +114,34 @@
         <div class="content-wrapper">
           <div id="content" class="content"><section id="posts" class="posts"><article class="post">
     <header class="post-header">
+      <h1 class="post-title"><a class="post-link" href="/2020/12/05/CVE-2015-5165/">QEMU信息泄露漏洞分析与利用----CVE-2015-5165</a>
+        </h1>
+
+      <div class="post-meta">
+        <span class="post-time">
+          2020-12-05
+        </span></div>
+    </header>
+
+    <div class="post-content"><p>参考大佬们的文章复现CVE-2015-5165。</p>
+<h2 id="环境搭建"><a href="#环境搭建" class="headerlink" title="环境搭建"></a>环境搭建</h2><p>宿主机环境 Ubuntu 20.10</p>
+<h3 id="QEMU编译"><a href="#QEMU编译" class="headerlink" title="QEMU编译"></a>QEMU编译</h3><p>QEMU <a target="_blank" rel="noopener" href="https://github.com/qemu/qemu/tree/bd80b5963f58c601f31d3186b89887bf8e182fb5">commit-bd80b59</a>源码下载。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> unzip qemu.zip</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> mkdir -p bin/debug/native</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> <span class="built_in">cd</span> bin/debug/native</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> sudo apt-get install zlib1g-dev libglib2.0-dev libpixman-1-dev</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> ../../../configure --target-list=x86_64-softmmu --enable-debug --disable-werror</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> make</span></span><br></pre></td></tr></table></figure>
+
+<p>如果出现以下错误，给文件 <code>commands-posix.c</code> 增加头文件 <code>&lt;sys/sysmacros.h&gt;</code> 即可解决。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">/usr/bin/ld: qga/commands-posix.o: in function `dev_major_minor&#x27;:</span><br><span class="line">/repo/qemu/qga/commands-posix.c:640: undefined reference to `major&#x27;</span><br><span class="line">/usr/bin/ld: /repo/qemu/qga/commands-posix.c:641: undefined reference to `minor&#x27;</span><br></pre></td></tr></table></figure>
+
+<h3 id="制作QEMU虚拟机"><a href="#制作QEMU虚拟机" class="headerlink" title="制作QEMU虚拟机"></a>制作QEMU虚拟机</h3><p>这里我使用的Ubuntu 16.04 Server i386作为QEMU客户机系统。点击<a target="_blank" rel="noopener" href="https://mirrors6.tuna.tsinghua.edu.cn/ubuntu-releases/xenial/ubuntu-16.04.6-server-i386.iso">下载</a>。</p>
+<p>还需要下载安装VNC-Viewer，稍后会用到。<a target="_blank" rel="noopener" href="https://www.realvnc.com/en/connect/download/viewer/linux/">链接</a>。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> ./qemu-img create -f qcow2 ~/tmp/vm/ubuntu.img 10G</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> sudo dpkg -i VNC-Viewer-6.20.529-Linux-x64.deb</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> x86_64-softmmu/qemu-system-x86_64 -boot d -cdrom \  <span class="comment"># 能用嵌套虚拟就用(添加--enable-kvm)</span></span></span><br><span class="line">~/tmp/iso/ubuntu-16.04.6-server-i386.iso \</span><br><span class="line">-hda ~/tmp/vm/ubuntu.img -m 1024</span><br><span class="line"><span class="meta">$</span><span class="bash"> vncviewer host:port  <span class="comment"># 连接上，安装就好</span></span></span><br></pre></td></tr></table></figure>
+
+<p>（尽量使用–enable-kvm，否则卡的受不了，安装系统安了四五个小时。。。）</p>
+          <div class="read-more">
+            <a href="/2020/12/05/CVE-2015-5165/" class="read-more-link">Read more..</a>
+          </div>
+        </div></article>
+      <article class="post">
+    <header class="post-header">
       <h1 class="post-title"><a class="post-link" href="/2020/11/30/babyqemu/">HITB GSEC 2017：babyqemu</a>
         </h1>
 
@@ -130,6 +158,32 @@
 <p>在最后一行可以看到设备名称为hitb，在ida左侧Functions window，ctrl+f搜索hitb就可以找到相关函数。通过在ida的Local Types窗口搜索hitb可以找到<code>HitbState</code>结构体，其中还包含<code>dma_state</code>结构体。</p>
           <div class="read-more">
             <a href="/2020/11/30/babyqemu/" class="read-more-link">Read more..</a>
+          </div>
+        </div></article>
+      <article class="post">
+    <header class="post-header">
+      <h1 class="post-title"><a class="post-link" href="/2020/11/27/Virtio-intro/">【翻译】Virtio：一种Linux I/O虚拟化框架</a>
+        </h1>
+
+      <div class="post-meta">
+        <span class="post-time">
+          2020-11-27
+        </span></div>
+    </header>
+
+    <div class="post-content"><p>首发于安全客<a target="_blank" rel="noopener" href="https://www.anquanke.com/post/id/224001">Virtio：一种Linux I/O虚拟化框架 - 安全客，安全资讯平台 (anquanke.com)</a></p>
+<p>原文：<a target="_blank" rel="noopener" href="https://developer.ibm.com/articles/l-virtio/">Virtio: An I/O virtualization framework for Linux – IBM Developer</a></p>
+<blockquote>
+<p>学习Virtio推荐首先看一篇，国内好多文章写的太乱了，看来看不去都不明白整体的架构，给人很模糊的感觉。这篇文章好很多。</p>
+<p><strong>受限于个人水平，翻译肯定有不妥之处，译注根据自己的理解加入，也不一定准确。如有错误，还请不吝指出。</strong></p>
+</blockquote>
+<p>简言之，<code>virtio</code>是设备和半虚拟化管理程序(paravirtualized hypervisor)之间的一个抽象层。<code>virtio</code>是Rusty Russell为了支持他自己的虚拟化方案<code>lguest</code>而开发的。这篇文章以对半虚拟化和设备仿真的介绍开始，然后探寻<code>virtio</code>中的一些细节。采用kernel 2.6.30版本的<code>virtio</code>框架进行讲解。</p>
+<p>Linux是hypervisor的“游乐场”。正如我在文章<a target="_blank" rel="noopener" href="https://developer.ibm.com/tutorials/l-hypervisor/">使用Linux作为hypervisor</a>中所展现的，Linux提供了许多具有不同特性和优势的虚拟化解决方案。例如KVM(Kernel-based Virtual Machine)，<code>lguest</code>、和用户态的Linux。在Linux使用这些虚拟化解决方案给操作系统造成了重担，因为它们各自都有独立的需求。其中一个问题就是设备的虚拟化。<code>virtio</code>为各种各样设备（如：网络设备、块设备等等）的虚拟提供了通用的标准化前端接口，增加了各个虚拟化平台的代码复用。而不是各自为政般的使用繁杂的设备虚拟机制。</p>
+<h2 id="全虚拟化-vs-半虚拟化"><a href="#全虚拟化-vs-半虚拟化" class="headerlink" title="全虚拟化 vs. 半虚拟化"></a>全虚拟化 vs. 半虚拟化</h2><p>我们先来讨论两种完全不同的虚拟化方案：全虚拟化和半虚拟化。在全虚拟化中，客户操作系统在hypervisor上运行，相当于运行于裸机一般。客户机不知道它在虚拟机还是物理机中运行，不需要修改操作系统就可以直接运行。与此相反的是，在半虚拟化中，客户机操作系统不仅能够知道其运行于虚拟机之上，也必须包含与hypervisor进行交互的代码。但是能够在客户机和hypervisor的切换中，带来更高的效率（图1）。</p>
+<p><em>译注：客户机与hypervisor的切换举例：客户机请求I/O，需要hypervisor中所虚拟的设备来响应请求，此时就会发生切换。</em></p>
+<p>在全虚拟化中，hypervisor必须仿真设备硬件，也就是说模仿硬件最底层的会话（如：网卡驱动）。尽管这种仿真看起来方便，但代价是极低的效率和高度的复杂性。在半虚拟化中，客户机与hypervisor可以共同合作让这种仿真具有更高的效率。半虚拟化不足就是客户机操作系统会意识到它运行于虚拟机之中，而且需要对客户机操作系统做出一定的修改。</p>
+          <div class="read-more">
+            <a href="/2020/11/27/Virtio-intro/" class="read-more-link">Read more..</a>
           </div>
         </div></article>
       <article class="post">
@@ -179,50 +233,6 @@
 <p>更改为正确的后缀之后，图形界面“归档管理器”也可以打开。</p>
           <div class="read-more">
             <a href="/2020/10/25/Kernel-Pwn-%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E5%85%A5%E5%9C%9F/" class="read-more-link">Read more..</a>
-          </div>
-        </div></article>
-      <article class="post">
-    <header class="post-header">
-      <h1 class="post-title"><a class="post-link" href="/2020/10/17/Arm-pwn/">Arm Pwn</a>
-        </h1>
-
-      <div class="post-meta">
-        <span class="post-time">
-          2020-10-17
-        </span></div>
-    </header>
-
-    <div class="post-content"><h2 id="环境配置"><a href="#环境配置" class="headerlink" title="环境配置"></a>环境配置</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> sudo apt install qemu-user gdb-multiarch</span></span><br></pre></td></tr></table></figure>
-
-<p>安装完成后就可以运行平台上的静态链接文件了，会自动调用qemu执行。</p>
-<h3 id="动态链接程序"><a href="#动态链接程序" class="headerlink" title="动态链接程序"></a>动态链接程序</h3><p>对于动态链接的程序，还需要安装跨平台的lib。</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> apt-cache search <span class="string">&quot;libc&quot;</span> | grep arm</span></span><br></pre></td></tr></table></figure>
-
-<p>安装类似libc6-ARCH-cross。</p>
-<p>动态链接库被安装在类似<code>/usr/arm-linux-gnueabihf/</code>的路径。qemu不知道动态链接的位置，它预期在类似<code>/etc/qemu-binfmt/arm</code>的路径，所以可以设置软链接来避免用<code>-L</code>来指定链接库位置。</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> sudo mkdir /etc/qemu-binfmt</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> sudo ln -s /usr/arm-linux-gnueabihf /etc/qemu-binfmt/arm</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> sudo ln -s /usr/aarch64-linux-gnu/ /etc/qemu-binfmt/aarch64 <span class="comment"># 对于aarch64</span></span></span><br></pre></td></tr></table></figure>
-          <div class="read-more">
-            <a href="/2020/10/17/Arm-pwn/" class="read-more-link">Read more..</a>
-          </div>
-        </div></article>
-      <article class="post">
-    <header class="post-header">
-      <h1 class="post-title"><a class="post-link" href="/2020/09/07/pwnable-tw-re-alloc-revenge/">pwnable.tw re-alloc_revenge</a>
-        </h1>
-
-      <div class="post-meta">
-        <span class="post-time">
-          2020-09-07
-        </span></div>
-    </header>
-
-    <div class="post-content"><h2 id="题目分析"><a href="#题目分析" class="headerlink" title="题目分析"></a>题目分析</h2><p>防护比<a href="https://hhdx.xyz/2020/08/07/pwnable-tw-re-alloc/">re-alloc</a>多了FULL RELRO和PIE。其他没有改变。</p>
-<h2 id="总体思路"><a href="#总体思路" class="headerlink" title="总体思路"></a>总体思路</h2><p>程序没有show函数，所以通过修改stdout的方式泄露libc。</p>
-<p>将一个chunk同时释放到tcache和unsorted bin，partial overwrite fd部分，指向stdout，需要爆破4bit。取得stdout后修改进行泄露。</p>
-<p>最后修改<code>__realloc_hook</code>为one_gadget得到shell。</p>
-<p>主要难点在布局构造。</p>
-          <div class="read-more">
-            <a href="/2020/09/07/pwnable-tw-re-alloc-revenge/" class="read-more-link">Read more..</a>
           </div>
         </div></article>
       <nav class="pagination"><a class="next" href="/page/2/">

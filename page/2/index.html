@@ -114,6 +114,34 @@
         <div class="content-wrapper">
           <div id="content" class="content"><section id="posts" class="posts"><article class="post">
     <header class="post-header">
+      <h1 class="post-title"><a class="post-link" href="/2020/10/25/Kernel-Pwn-%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E5%85%A5%E5%9C%9F/">Kernel Pwn: 从入门到入土</a>
+        </h1>
+
+      <div class="post-meta">
+        <span class="post-time">
+          2020-10-25
+        </span></div>
+    </header>
+
+    <div class="post-content"><h2 id="MISC"><a href="#MISC" class="headerlink" title="MISC"></a>MISC</h2><h3 id="内核文件区别"><a href="#内核文件区别" class="headerlink" title="内核文件区别"></a>内核文件区别</h3><p><code>vmlinux</code> 是静态链接的可执行文件，未压缩的内核，最原始的文件，可以用来调试。</p>
+<p><code>vmlinuz</code> 是可引导的、压缩的内核。没有调试信息等数据，不可用于调试。启动时会自解压，通常会显示以下信息</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Decompressing Linux... done</span><br><span class="line">Booting the kernel.</span><br></pre></td></tr></table></figure>
+
+<p><code>zImage</code> 是经过压缩的小内核（小于512KB）。</p>
+<p><code>bzImage</code> 是经过压缩的大内核（大于512KB）。</p>
+<h3 id="Initial-Ramdisk"><a href="#Initial-Ramdisk" class="headerlink" title="Initial Ramdisk"></a>Initial Ramdisk</h3><p>名字类似<code>initramfs.cpio</code> 文件，一般可以使用cpio读取其中的文件。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> find . | cpio -o --format=newc &gt; initramfs.cpio <span class="comment"># compress</span></span></span><br><span class="line"><span class="meta">$</span><span class="bash"> sudo cpio -idmv &lt; initramfs.cpio <span class="comment"># depress</span></span></span><br></pre></td></tr></table></figure>
+
+<p>有时也经过了gzip的压缩。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> mv initramfs.cpio initramfs.cpio.gz</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> gunzip initramfs.cpio.gz	<span class="comment"># 解压得到initramfs.cpio</span></span></span><br><span class="line"><span class="meta">$</span><span class="bash"> cpio -idmv &lt; initramfs.cpio</span></span><br></pre></td></tr></table></figure>
+
+<p>更改为正确的后缀之后，图形界面“归档管理器”也可以打开。</p>
+          <div class="read-more">
+            <a href="/2020/10/25/Kernel-Pwn-%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E5%85%A5%E5%9C%9F/" class="read-more-link">Read more..</a>
+          </div>
+        </div></article>
+      <article class="post">
+    <header class="post-header">
       <h1 class="post-title"><a class="post-link" href="/2020/10/17/Arm-pwn/">Arm Pwn</a>
         </h1>
 
@@ -204,24 +232,6 @@
 <p>tcache默认最多有64个，第1个是0x20大小，递推第64个也就是0x410。所以将name处伪造为0x420大小。第一个chunk的<code>chunk-&gt;size=0x420|pre_in_use</code>，避免backward consolidate，第三个chunk的<code>chunk-&gt;size=0x20|pre_in_use</code>，避免forward consolidate。</p>
           <div class="read-more">
             <a href="/2020/08/19/pwnable-tw-tcache-tear-seethefile/" class="read-more-link">Read more..</a>
-          </div>
-        </div></article>
-      <article class="post">
-    <header class="post-header">
-      <h1 class="post-title"><a class="post-link" href="/2020/08/08/%E4%BB%A5%E6%8C%87%E5%AE%9Alibc%E8%BF%90%E8%A1%8C%E7%A8%8B%E5%BA%8F/">确定glibc版本,以指定glibc运行程序</a>
-        </h1>
-
-      <div class="post-meta">
-        <span class="post-time">
-          2020-08-08
-        </span></div>
-    </header>
-
-    <div class="post-content"><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>CTF题目中经常会给出libc的文件，首先需要做的就是确定libc的版本，对程序进行针对性的攻击。最直接的确定方法就是直接运行该libc<code>./libc.so.6</code>，但通常由于本机ld版本与libc版本不匹配，发生段错误。</p>
-<p>确定完大版本号还不够，因为就算是同一版本的libc也会有较大的变动。比方说，与最开始的2.29版本相比，gnu libc库的release/2.29/master分支的<code>tcache_perthread_struct-&gt;counts</code>的变量类型都变了；<code>__libc_malloc</code>中取用tcache的判定，也由判断指针是否为空变成了判断counts是否大于0。这些细节很大程度上影响了exploit的书写。</p>
-<p>下面以pwnable.tw re-alloc的<a target="_blank" rel="noopener" href="https://github.com/clxsh/ctf_wps/blob/master/pwnable.tw/Re-alloc/libc.so.6">libc</a>为例，写一写我的经验。</p>
-          <div class="read-more">
-            <a href="/2020/08/08/%E4%BB%A5%E6%8C%87%E5%AE%9Alibc%E8%BF%90%E8%A1%8C%E7%A8%8B%E5%BA%8F/" class="read-more-link">Read more..</a>
           </div>
         </div></article>
       <nav class="pagination"><a class="prev" href="/">

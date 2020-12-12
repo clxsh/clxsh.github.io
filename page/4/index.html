@@ -114,6 +114,24 @@
         <div class="content-wrapper">
           <div id="content" class="content"><section id="posts" class="posts"><article class="post">
     <header class="post-header">
+      <h1 class="post-title"><a class="post-link" href="/2020/07/25/How2heap-house-of-orange-Hitcon2016-houseoforange/">How2heap--house_of_orange Hitcon2016--houseoforange</a>
+        </h1>
+
+      <div class="post-meta">
+        <span class="post-time">
+          2020-07-25
+        </span></div>
+    </header>
+
+    <div class="post-content"><h2 id="house-of-orange"><a href="#house-of-orange" class="headerlink" title="house of orange"></a>house of orange</h2><p>修改<code>topchunk-&gt;size</code>为一个缩小的并且满足页对齐的大小，malloc一个大于size的块（但也不要大于mmap threshold），会导致原来topchunk被放入unsorted bin。</p>
+<p>当topchunk不足以分配所需空间时，会调用sysmalloc分配额外空间。一般情况下，main_arena中old top chunk和新分配的top chunk首尾相邻，从而会进行合并。当我们将<code>topchunk-&gt;size</code>减小后，会检测不到相邻，也就不会合并了。设置好fencepost chunk，会执行<code>_int_free (av, old_top, 1)</code>将其放入unsorted bin。</p>
+<p>代码涉及<code>_int_malloc</code>后边和<code>sysmalloc</code>。</p>
+          <div class="read-more">
+            <a href="/2020/07/25/How2heap-house-of-orange-Hitcon2016-houseoforange/" class="read-more-link">Read more..</a>
+          </div>
+        </div></article>
+      <article class="post">
+    <header class="post-header">
       <h1 class="post-title"><a class="post-link" href="/2020/07/23/How2heap-house-of-einherjar-SECON2016-tinypad/">How2heap--house_of_einherjar SECON2016--tinypad</a>
         </h1>
 
@@ -210,32 +228,6 @@
 <p>输入org、hostname函数中，存在同样问题，可覆盖的更多的字节。可以覆盖topchunk的size</p>
           <div class="read-more">
             <a href="/2020/07/07/How2heap-house-of-force-Bctf2016-bcloud/" class="read-more-link">Read more..</a>
-          </div>
-        </div></article>
-      <article class="post">
-    <header class="post-header">
-      <h1 class="post-title"><a class="post-link" href="/2020/07/05/How2heap-overlapping-chunks-Hack-lu2015-bookstore/">How2heap--overlapping_chunks Hack.lu2015--bookstore</a>
-        </h1>
-
-      <div class="post-meta">
-        <span class="post-time">
-          2020-07-05
-        </span></div>
-    </header>
-
-    <div class="post-content"><h2 id="overlapping-chunks"><a href="#overlapping-chunks" class="headerlink" title="overlapping chunks"></a>overlapping chunks</h2><p>溢出对unsortedbin中的<code>chunk-&gt;size</code>进行修改，造成堆块重叠。</p>
-<h2 id="hack-lu2015-bookstore"><a href="#hack-lu2015-bookstore" class="headerlink" title="hack.lu2015 bookstore"></a>hack.lu2015 bookstore</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Arch:     amd64-64-little</span><br><span class="line">RELRO:    No RELRO</span><br><span class="line">Stack:    Canary found</span><br><span class="line">NX:       NX enabled</span><br><span class="line">PIE:      No PIE (0x3ff000)</span><br></pre></td></tr></table></figure>
-
-<p>程序是一个订书系统，在main函数开始处，连续分配3个0x80的空间，一个存储订单1——order1，一个存储订单2——order2，一个存储提示信息——info。有以下功能菜单</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">1: Edit order 1</span><br><span class="line">2: Edit order 2</span><br><span class="line">3: Delete order 1</span><br><span class="line">4: Delete order 2</span><br><span class="line">5: Submit</span><br></pre></td></tr></table></figure>
-
-<p>Edit order 1/2：order1/order2使用fgetc读取字符串，读到<code>\n</code>终止，所以这里存在溢出</p>
-<p>Delete order 1/2：free掉order1/order2。这里存在指针悬空</p>
-<p>Submit： 分配0x140的空间（称为orderlist）将order1和order2拼接。这里存在溢出</p>
-<p>程序末尾<code>printf(info)</code>存在可能的格式化字符串漏洞。</p>
-<h3 id="overlapping-chunks-amp-amp-format-string-vulnerability"><a href="#overlapping-chunks-amp-amp-format-string-vulnerability" class="headerlink" title="overlapping chunks &amp;&amp; format string vulnerability"></a>overlapping chunks &amp;&amp; format string vulnerability</h3>
-          <div class="read-more">
-            <a href="/2020/07/05/How2heap-overlapping-chunks-Hack-lu2015-bookstore/" class="read-more-link">Read more..</a>
           </div>
         </div></article>
       <nav class="pagination"><a class="prev" href="/page/3/">

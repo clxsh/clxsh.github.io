@@ -114,6 +114,24 @@
         <div class="content-wrapper">
           <div id="content" class="content"><section id="posts" class="posts"><article class="post">
     <header class="post-header">
+      <h1 class="post-title"><a class="post-link" href="/2020/08/08/%E4%BB%A5%E6%8C%87%E5%AE%9Alibc%E8%BF%90%E8%A1%8C%E7%A8%8B%E5%BA%8F/">确定glibc版本,以指定glibc运行程序</a>
+        </h1>
+
+      <div class="post-meta">
+        <span class="post-time">
+          2020-08-08
+        </span></div>
+    </header>
+
+    <div class="post-content"><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>CTF题目中经常会给出libc的文件，首先需要做的就是确定libc的版本，对程序进行针对性的攻击。最直接的确定方法就是直接运行该libc<code>./libc.so.6</code>，但通常由于本机ld版本与libc版本不匹配，发生段错误。</p>
+<p>确定完大版本号还不够，因为就算是同一版本的libc也会有较大的变动。比方说，与最开始的2.29版本相比，gnu libc库的release/2.29/master分支的<code>tcache_perthread_struct-&gt;counts</code>的变量类型都变了；<code>__libc_malloc</code>中取用tcache的判定，也由判断指针是否为空变成了判断counts是否大于0。这些细节很大程度上影响了exploit的书写。</p>
+<p>下面以pwnable.tw re-alloc的<a target="_blank" rel="noopener" href="https://github.com/clxsh/ctf_wps/blob/master/pwnable.tw/Re-alloc/libc.so.6">libc</a>为例，写一写我的经验。</p>
+          <div class="read-more">
+            <a href="/2020/08/08/%E4%BB%A5%E6%8C%87%E5%AE%9Alibc%E8%BF%90%E8%A1%8C%E7%A8%8B%E5%BA%8F/" class="read-more-link">Read more..</a>
+          </div>
+        </div></article>
+      <article class="post">
+    <header class="post-header">
       <h1 class="post-title"><a class="post-link" href="/2020/08/07/pwnable-tw-re-alloc/">pwnable.tw re-alloc</a>
         </h1>
 
@@ -213,24 +231,6 @@
 <p>修改倒数第二个small chunk的bk，calloc触发，只在bk-&gt;fd写入大数字。</p>
           <div class="read-more">
             <a href="/2020/07/31/How2heap-tcache-stashing-unlink-attack-Hitcon2019-one-punch/" class="read-more-link">Read more..</a>
-          </div>
-        </div></article>
-      <article class="post">
-    <header class="post-header">
-      <h1 class="post-title"><a class="post-link" href="/2020/07/25/How2heap-house-of-orange-Hitcon2016-houseoforange/">How2heap--house_of_orange Hitcon2016--houseoforange</a>
-        </h1>
-
-      <div class="post-meta">
-        <span class="post-time">
-          2020-07-25
-        </span></div>
-    </header>
-
-    <div class="post-content"><h2 id="house-of-orange"><a href="#house-of-orange" class="headerlink" title="house of orange"></a>house of orange</h2><p>修改<code>topchunk-&gt;size</code>为一个缩小的并且满足页对齐的大小，malloc一个大于size的块（但也不要大于mmap threshold），会导致原来topchunk被放入unsorted bin。</p>
-<p>当topchunk不足以分配所需空间时，会调用sysmalloc分配额外空间。一般情况下，main_arena中old top chunk和新分配的top chunk首尾相邻，从而会进行合并。当我们将<code>topchunk-&gt;size</code>减小后，会检测不到相邻，也就不会合并了。设置好fencepost chunk，会执行<code>_int_free (av, old_top, 1)</code>将其放入unsorted bin。</p>
-<p>代码涉及<code>_int_malloc</code>后边和<code>sysmalloc</code>。</p>
-          <div class="read-more">
-            <a href="/2020/07/25/How2heap-house-of-orange-Hitcon2016-houseoforange/" class="read-more-link">Read more..</a>
           </div>
         </div></article>
       <nav class="pagination"><a class="prev" href="/page/2/">

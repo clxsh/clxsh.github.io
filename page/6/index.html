@@ -114,6 +114,27 @@
         <div class="content-wrapper">
           <div id="content" class="content"><section id="posts" class="posts"><article class="post">
     <header class="post-header">
+      <h1 class="post-title"><a class="post-link" href="/2020/03/17/ucore-os-lab4%E7%AC%94%E8%AE%B0/">ucore os lab4笔记</a>
+        </h1>
+
+      <div class="post-meta">
+        <span class="post-time">
+          2020-03-17
+        </span></div>
+    </header>
+
+    <div class="post-content"><h1 id="内核线程管理"><a href="#内核线程管理" class="headerlink" title="内核线程管理"></a>内核线程管理</h1><h2 id="实验执行流程综述"><a href="#实验执行流程综述" class="headerlink" title="实验执行流程综述"></a>实验执行流程综述</h2><p>内核线程是一种特殊的进程，内核线程与用户进程的区别有两个：</p>
+<ul>
+<li>内核线程只运行在内核态而用户进程会在在用户态和内核态交替运行；</li>
+<li>所有内核线程直接使用共同的ucore内核内存空间，不需为每个内核线程维护单独的内存空间而用户进程需要维护各自的用户内存空间。</li>
+</ul>
+<h2 id="进程的属性与特征解析"><a href="#进程的属性与特征解析" class="headerlink" title="进程的属性与特征解析"></a>进程的属性与特征解析</h2>
+          <div class="read-more">
+            <a href="/2020/03/17/ucore-os-lab4%E7%AC%94%E8%AE%B0/" class="read-more-link">Read more..</a>
+          </div>
+        </div></article>
+      <article class="post">
+    <header class="post-header">
       <h1 class="post-title"><a class="post-link" href="/2019/02/05/%E4%BA%8C%E7%BA%A7%E6%8C%87%E9%92%88%E4%B8%8E%E4%BA%8C%E7%BB%B4%E6%95%B0%E7%BB%84%EF%BC%8C%E6%95%B0%E7%BB%84%E6%8C%87%E9%92%88%E4%B8%8E%E6%8C%87%E9%92%88%E6%95%B0%E7%BB%84/">二级指针与二维数组，数组指针与指针数组</a>
         </h1>
 
@@ -186,24 +207,6 @@
 <p>当前密码锁状态已知，需要解决的问题是，你至少需要按多少次按钮，才能将密码锁转变为所期望的目标状态。</p>
           <div class="read-more">
             <a href="/2017/01/26/%E6%9E%9A%E4%B8%BE%E7%AE%97%E6%B3%95/" class="read-more-link">Read more..</a>
-          </div>
-        </div></article>
-      <article class="post">
-    <header class="post-header">
-      <h1 class="post-title"><a class="post-link" href="/2017/01/18/Smallest-Multiple/">Smallest Multiple</a>
-        </h1>
-
-      <div class="post-meta">
-        <span class="post-time">
-          2017-01-18
-        </span></div>
-    </header>
-
-    <div class="post-content"><p>2520 is the smallest number that can be divided by each of numbers from 1 to 10 without any remainder.<br>What is the smallest positive number that is evenly divisible by all of the number frome 1 to 20?</p>
-<p>分析：求能够被1到20整除的最小正整数，即求最小公倍数。相邻两位依次求最小公倍数到最后即为所求。</p>
-<p><strong>Python实现</strong></p>
-          <div class="read-more">
-            <a href="/2017/01/18/Smallest-Multiple/" class="read-more-link">Read more..</a>
           </div>
         </div></article>
       <nav class="pagination"><a class="prev" href="/page/5/">

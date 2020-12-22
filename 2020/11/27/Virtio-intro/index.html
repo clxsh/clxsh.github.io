@@ -131,7 +131,7 @@
   </div><div class="post-content"><p>首发于安全客<a target="_blank" rel="noopener" href="https://www.anquanke.com/post/id/224001">Virtio：一种Linux I/O虚拟化框架 - 安全客，安全资讯平台 (anquanke.com)</a></p>
 <p>原文：<a target="_blank" rel="noopener" href="https://developer.ibm.com/articles/l-virtio/">Virtio: An I/O virtualization framework for Linux – IBM Developer</a></p>
 <blockquote>
-<p>学习Virtio推荐首先看一篇，国内好多文章写的太乱了，看来看不去都不明白整体的架构，给人很模糊的感觉。这篇文章好很多。</p>
+<p>学习Virtio推荐首先看这一篇，国内好多文章写的太乱了，看来看不去都不明白整体的架构，给人很模糊的感觉。这篇文章好很多。</p>
 <p><strong>受限于个人水平，翻译肯定有不妥之处，译注根据自己的理解加入，也不一定准确。如有错误，还请不吝指出。</strong></p>
 </blockquote>
 <p>简言之，<code>virtio</code>是设备和半虚拟化管理程序(paravirtualized hypervisor)之间的一个抽象层。<code>virtio</code>是Rusty Russell为了支持他自己的虚拟化方案<code>lguest</code>而开发的。这篇文章以对半虚拟化和设备仿真的介绍开始，然后探寻<code>virtio</code>中的一些细节。采用kernel 2.6.30版本的<code>virtio</code>框架进行讲解。</p>

@@ -86,6 +86,25 @@
 <section id=posts class=posts>
 <article class=post>
 <header class=post-header>
+<h1 class=post-title><a class=post-link href=/post/smallest-multiple/>Smallest Multiple</a></h1>
+<div class=post-meta>
+<span class=post-time> 2017-01-18 </span>
+</div>
+</header>
+<div class=post-content>
+<div class=post-summary>
+<p>2520 is the smallest number that can be divided by each of numbers from 1 to 10 without any remainder.
+What is the smallest positive number that is evenly divisible by all of the number frome 1 to 20?</p>
+<p>分析：求能够被1到20整除的最小正整数，即求最小公倍数。相邻两位依次求最小公倍数到最后即为所求。</p>
+<p><strong>Python实现</strong></p>
+</div>
+<div class=read-more>
+<a href=/post/smallest-multiple/ class=read-more-link>阅读更多</a>
+</div>
+</div>
+</article>
+<article class=post>
+<header class=post-header>
 <h1 class=post-title><a class=post-link href=/post/10001st-prime/>10001st prime</a></h1>
 <div class=post-meta>
 <span class=post-time> 2016-12-25 </span>
@@ -177,39 +196,6 @@ deb-src http://mirrors.163.com/debian-security/ jessie/updates main non-free con
 </div>
 <div class=read-more>
 <a href=/post/markdown%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95/ class=read-more-link>阅读更多</a>
-</div>
-</div>
-</article>
-<article class=post>
-<header class=post-header>
-<h1 class=post-title><a class=post-link href=/post/glibcheap/>glibc heap 整理</a></h1>
-<div class=post-meta>
-<span class=post-time> 0001-01-01 </span>
-</div>
-</header>
-<div class=post-content>
-<div class=post-summary>
-<p>目前 Linux 标准发行版中使用的堆分配器是 glibc 中的堆分配器：ptmalloc2。ptmalloc2 主要是通过 malloc/free 函数来分配和释放内存块。</p>
-<p>需要注意的是，在内存分配与使用的过程中，Linux 有这样的一个基本内存管理思想，<strong>只有当真正访问一个地址的时候，系统才会建立虚拟页面与物理页面的映射关系</strong>。</p>
-<h2 id=基本操作>基本操作</h2>
-<h3 id=malloc>malloc</h3>
-<p><code>malloc(size_t n)</code></p>
-<ul>
-<li>当 n=0 时，返回当前系统允许的堆的最小内存块。</li>
-<li>当 n 为负数时，由于在大多数系统上，<strong>size_t 是无符号数（这一点非常重要）</strong>，所以程序就会申请很大的内存空间，但通常来说都会失败，因为系统没有那么多的内存可以分配。</li>
-</ul>
-<h3 id=free>free</h3>
-<p><code>free(void *p)</code></p>
-<ul>
-<li><strong>当 p 为空指针时，函数不执行任何操作。</strong></li>
-<li>当 p 已经被释放之后，再次释放会出现乱七八糟的效果，这其实就是 <code>double free</code>。</li>
-<li>除了被禁用 (mallopt) 的情况下，当释放很大的内存空间时，程序会将这些内存空间还给系统，以便于减小程序所使用的内存空间。</li>
-</ul>
-<h2 id=背后的系统调用>背后的系统调用</h2>
-<p>这些函数背后的系统调用主要是 <a href=http://man7.org/linux/man-pages/man2/sbrk.2.html>(s)brk</a> 函数以及 <a href=http://man7.org/linux/man-pages/man2/mmap.2.html>mmap, munmap</a> 函数。</p>
-</div>
-<div class=read-more>
-<a href=/post/glibcheap/ class=read-more-link>阅读更多</a>
 </div>
 </div>
 </article>

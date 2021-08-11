@@ -407,7 +407,24 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$
 &lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
 &lt;/div>
 &lt;/div>&lt;p>libc_version: glibc 2.29 with tcache。该版本libc的&lt;a href="https://launchpad.net/ubuntu/+source/glibc/2.29-0ubuntu2">源码&lt;/a>。下一篇文章说一下如何确定的libc版本，如何确定的有tcache，以及如何使用指定libc运行程序。&lt;/p>
-&lt;p>此外，这个版本中出现了对tcache double free的一个&lt;a href="https://hhdx.xyz/2020/08/01/How2heap%E6%80%BB%E7%BB%93/#fastbin-dup">检查机制&lt;/a>。&lt;/p></description></item><item><title>How2heap总结</title><link>https://hhdx.xyz/post/how2heap%E6%80%BB%E7%BB%93/</link><pubDate>Sat, 01 Aug 2020 19:36:10 +0000</pubDate><guid>https://hhdx.xyz/post/how2heap%E6%80%BB%E7%BB%93/</guid><description>&lt;h2 id="first-fit">first-fit&lt;/h2>
+&lt;p>此外，这个版本中出现了对tcache double free的一个&lt;a href="https://hhdx.xyz/2020/08/01/How2heap%E6%80%BB%E7%BB%93/#fastbin-dup">检查机制&lt;/a>。&lt;/p></description></item><item><title>glibc heap 整理</title><link>https://hhdx.xyz/post/glibcheap/</link><pubDate>Sun, 02 Aug 2020 12:51:56 +0000</pubDate><guid>https://hhdx.xyz/post/glibcheap/</guid><description>&lt;p>目前 Linux 标准发行版中使用的堆分配器是 glibc 中的堆分配器：ptmalloc2。ptmalloc2 主要是通过 malloc/free 函数来分配和释放内存块。&lt;/p>
+&lt;p>需要注意的是，在内存分配与使用的过程中，Linux 有这样的一个基本内存管理思想，&lt;strong>只有当真正访问一个地址的时候，系统才会建立虚拟页面与物理页面的映射关系&lt;/strong>。&lt;/p>
+&lt;h2 id="基本操作">基本操作&lt;/h2>
+&lt;h3 id="malloc">malloc&lt;/h3>
+&lt;p>&lt;code>malloc(size_t n)&lt;/code>&lt;/p>
+&lt;ul>
+&lt;li>当 n=0 时，返回当前系统允许的堆的最小内存块。&lt;/li>
+&lt;li>当 n 为负数时，由于在大多数系统上，&lt;strong>size_t 是无符号数（这一点非常重要）&lt;/strong>，所以程序就会申请很大的内存空间，但通常来说都会失败，因为系统没有那么多的内存可以分配。&lt;/li>
+&lt;/ul>
+&lt;h3 id="free">free&lt;/h3>
+&lt;p>&lt;code>free(void *p)&lt;/code>&lt;/p>
+&lt;ul>
+&lt;li>&lt;strong>当 p 为空指针时，函数不执行任何操作。&lt;/strong>&lt;/li>
+&lt;li>当 p 已经被释放之后，再次释放会出现乱七八糟的效果，这其实就是 &lt;code>double free&lt;/code>。&lt;/li>
+&lt;li>除了被禁用 (mallopt) 的情况下，当释放很大的内存空间时，程序会将这些内存空间还给系统，以便于减小程序所使用的内存空间。&lt;/li>
+&lt;/ul>
+&lt;h2 id="背后的系统调用">背后的系统调用&lt;/h2>
+&lt;p>这些函数背后的系统调用主要是 &lt;a href="http://man7.org/linux/man-pages/man2/sbrk.2.html">(s)brk&lt;/a> 函数以及 &lt;a href="http://man7.org/linux/man-pages/man2/mmap.2.html">mmap, munmap&lt;/a> 函数。&lt;/p></description></item><item><title>How2heap总结</title><link>https://hhdx.xyz/post/how2heap%E6%80%BB%E7%BB%93/</link><pubDate>Sat, 01 Aug 2020 19:36:10 +0000</pubDate><guid>https://hhdx.xyz/post/how2heap%E6%80%BB%E7%BB%93/</guid><description>&lt;h2 id="first-fit">first-fit&lt;/h2>
 &lt;p>如果一个chunk可用且足够大，那么就会使用这个chunk。&lt;/p>
 &lt;h2 id="calc_tcache_idx">calc_tcache_idx&lt;/h2>
 &lt;p>tcache(thread local caching)&lt;/p>
@@ -865,21 +882,4 @@ deb-src http://mirrors.163.com/debian-security/ jessie/updates main non-free con
 &lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
 &lt;/div>
 &lt;/div>&lt;p>引用自163镜像站[2]&lt;/p></description></item><item><title>Markdown学习记录</title><link>https://hhdx.xyz/post/markdown%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95/</link><pubDate>Fri, 17 Jun 2016 15:16:30 +0000</pubDate><guid>https://hhdx.xyz/post/markdown%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95/</guid><description>&lt;p>一直以来想要做一个自己的博客网站，直到最近才开始寻找教程。发现了可以使用github的pages服务免费空间构建自己的博客，主要参考了Sunwhut’s Home的教程。建成之后发现自己的表达能力太差还有生活太过无趣，写不了什么东西，所以终于拖到了七天多后…才开始学习此博客框架的文章书写语言——Markdown。这篇博客没什么价值，只是记录一下我初步学习到的Markdown的用法。&lt;/p>
-&lt;h2 id="标题">标题&lt;/h2></description></item><item><title>glibc heap 整理</title><link>https://hhdx.xyz/post/glibcheap/</link><pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate><guid>https://hhdx.xyz/post/glibcheap/</guid><description>&lt;p>目前 Linux 标准发行版中使用的堆分配器是 glibc 中的堆分配器：ptmalloc2。ptmalloc2 主要是通过 malloc/free 函数来分配和释放内存块。&lt;/p>
-&lt;p>需要注意的是，在内存分配与使用的过程中，Linux 有这样的一个基本内存管理思想，&lt;strong>只有当真正访问一个地址的时候，系统才会建立虚拟页面与物理页面的映射关系&lt;/strong>。&lt;/p>
-&lt;h2 id="基本操作">基本操作&lt;/h2>
-&lt;h3 id="malloc">malloc&lt;/h3>
-&lt;p>&lt;code>malloc(size_t n)&lt;/code>&lt;/p>
-&lt;ul>
-&lt;li>当 n=0 时，返回当前系统允许的堆的最小内存块。&lt;/li>
-&lt;li>当 n 为负数时，由于在大多数系统上，&lt;strong>size_t 是无符号数（这一点非常重要）&lt;/strong>，所以程序就会申请很大的内存空间，但通常来说都会失败，因为系统没有那么多的内存可以分配。&lt;/li>
-&lt;/ul>
-&lt;h3 id="free">free&lt;/h3>
-&lt;p>&lt;code>free(void *p)&lt;/code>&lt;/p>
-&lt;ul>
-&lt;li>&lt;strong>当 p 为空指针时，函数不执行任何操作。&lt;/strong>&lt;/li>
-&lt;li>当 p 已经被释放之后，再次释放会出现乱七八糟的效果，这其实就是 &lt;code>double free&lt;/code>。&lt;/li>
-&lt;li>除了被禁用 (mallopt) 的情况下，当释放很大的内存空间时，程序会将这些内存空间还给系统，以便于减小程序所使用的内存空间。&lt;/li>
-&lt;/ul>
-&lt;h2 id="背后的系统调用">背后的系统调用&lt;/h2>
-&lt;p>这些函数背后的系统调用主要是 &lt;a href="http://man7.org/linux/man-pages/man2/sbrk.2.html">(s)brk&lt;/a> 函数以及 &lt;a href="http://man7.org/linux/man-pages/man2/mmap.2.html">mmap, munmap&lt;/a> 函数。&lt;/p></description></item></channel></rss>
+&lt;h2 id="标题">标题&lt;/h2></description></item></channel></rss>

@@ -1,276 +1,347 @@
-<!DOCTYPE html>
-<html lang="zh-Hans">
-  <head><meta charset="UTF-8"/>
-<meta http-equiv="X-UA-Compatible" content="IE=edge" />
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
-
-
-<meta http-equiv="Cache-Control" content="no-transform" />
-<meta http-equiv="Cache-Control" content="no-siteapp" />
-
-<meta name="theme-color" content="#f8f5ec" />
-<meta name="msapplication-navbutton-color" content="#f8f5ec">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
-
-<link rel="alternate" href="/atom.xml" title="hhdx's blog" type="application/atom+xml"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=2.11.0" />
-<link rel="canonical" href="http://hhdx.xyz/page/3/"/>
-
-<link rel="stylesheet" type="text/css" href="/lib/fancybox/jquery.fancybox.css" />
-<link rel="stylesheet" type="text/css" href="/css/style.css?v=2.11.0" />
-
-<!-- Global site tag (gtag.js) - Google Analytics -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=UA-177325662-1"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'UA-177325662-1');
-</script><script id="baidu_push">
-(function(){
-    var bp = document.createElement('script');
-    var curProtocol = window.location.protocol.split(':')[0];
-    if (curProtocol === 'https') {
-        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
-    }
-    else {
-        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
-    }
-    var s = document.getElementsByTagName("script")[0];
-    s.parentNode.insertBefore(bp, s);
-})();
-</script>
-<script>
-  window.config = {"leancloud":{"app_id":null,"app_key":null},"toc":true,"fancybox":true,"pjax":true,"latex":false};
-</script>
-
-    <title>hhdx's blog</title>
-  <meta name="generator" content="Hexo 5.2.0"></head>
-
-  <body><div id="mobile-navbar" class="mobile-navbar">
-  <div class="mobile-header-logo">
-    <a href="/." class="logo">hhdx's blog</a>
-  </div>
-  <div class="mobile-navbar-icon">
-    <span></span>
-    <span></span>
-    <span></span>
-  </div>
+<!doctype html><html lang=zh-cn>
+<head>
+<meta charset=utf-8>
+<meta http-equiv=x-ua-compatible content="IE=edge,chrome=1">
+<title>hhdx's blog</title>
+<meta name=renderer content="webkit">
+<meta name=viewport content="width=device-width,initial-scale=1,maximum-scale=1">
+<meta http-equiv=cache-control content="no-transform">
+<meta http-equiv=cache-control content="no-siteapp">
+<meta name=theme-color content="#f8f5ec">
+<meta name=msapplication-navbutton-color content="#f8f5ec">
+<meta name=apple-mobile-web-app-capable content="yes">
+<meta name=apple-mobile-web-app-status-bar-style content="#f8f5ec">
+<meta name=author content="hhdx"><meta name=keywords content="C language,CTF,system engineer">
+<meta name=generator content="Hugo 0.87.0 with theme even">
+<link rel=canonical href=https://hhdx.xyz/>
+<link href=https://hhdx.xyz/index.xml rel=alternate type=application/rss+xml title="hhdx's blog">
+<link href=https://hhdx.xyz/index.xml rel=feed type=application/rss+xml title="hhdx's blog">
+<link rel=apple-touch-icon sizes=180x180 href=/apple-touch-icon.png>
+<link rel=icon type=image/png sizes=32x32 href=/favicon-32x32.png>
+<link rel=icon type=image/png sizes=16x16 href=/favicon-16x16.png>
+<link rel=manifest href=/manifest.json>
+<link rel=mask-icon href=/safari-pinned-tab.svg color=#5bbad5>
+<link href=/sass/main.min.0d3b8ec8ed7df891edf32830bfdc6af5976dc6b9ffeb7cd1d0cdd312bcf8e23e.css rel=stylesheet>
+<link rel=stylesheet href=https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin=anonymous>
+<meta property="og:title" content="hhdx's blog">
+<meta property="og:description" content>
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://hhdx.xyz/">
+<meta itemprop=name content="hhdx's blog">
+<meta itemprop=description content><meta name=twitter:card content="summary">
+<meta name=twitter:title content="hhdx's blog">
+<meta name=twitter:description content><!--[if lte IE 9]><script src=https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js></script><![endif]--><!--[if lt IE 9]><script src=https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js></script>
+<script src=https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js></script><![endif]-->
+</head>
+<body>
+<div id=mobile-navbar class=mobile-navbar>
+<div class=mobile-header-logo>
+<a href=/ class=logo>hhdx's blog</a>
 </div>
-
-<nav id="mobile-menu" class="mobile-menu slideout-menu">
-  <ul class="mobile-menu-list"><a href="/">
-        <li class="mobile-menu-item">Home
-          </li>
-      </a><a href="/archives/">
-        <li class="mobile-menu-item">Archives
-          </li>
-      </a><a href="/tags/">
-        <li class="mobile-menu-item">Tags
-          </li>
-      </a><a href="/links/">
-        <li class="mobile-menu-item">Links
-          </li>
-      </a><a href="/about/">
-        <li class="mobile-menu-item">About
-          </li>
-      </a></ul>
+<div class=mobile-navbar-icon>
+<span></span>
+<span></span>
+<span></span>
+</div>
+</div>
+<nav id=mobile-menu class="mobile-menu slideout-menu">
+<ul class=mobile-menu-list>
+<a href=/>
+<li class=mobile-menu-item>Home</li>
+</a><a href=/post/>
+<li class=mobile-menu-item>Archives</li>
+</a><a href=/tags/>
+<li class=mobile-menu-item>Tags</li>
+</a><a href=/links/>
+<li class=mobile-menu-item>Links</li>
+</a><a href=/about/>
+<li class=mobile-menu-item>About</li>
+</a>
+</ul>
 </nav>
-<div class="container" id="mobile-panel">
-      <header id="header" class="header"><div class="logo-wrapper">
-  <a href="/." class="logo">hhdx's blog</a>
+<div class=container id=mobile-panel>
+<header id=header class=header>
+<div class=logo-wrapper>
+<a href=/ class=logo>hhdx's blog</a>
 </div>
-
-<nav class="site-navbar"><ul id="menu" class="menu"><li class="menu-item">
-          <a class="menu-item-link" href="/">
-            Home
-            </a>
-        </li>
-      <li class="menu-item">
-          <a class="menu-item-link" href="/archives/">
-            Archives
-            </a>
-        </li>
-      <li class="menu-item">
-          <a class="menu-item-link" href="/tags/">
-            Tags
-            </a>
-        </li>
-      <li class="menu-item">
-          <a class="menu-item-link" href="/links/">
-            Links
-            </a>
-        </li>
-      <li class="menu-item">
-          <a class="menu-item-link" href="/about/">
-            About
-            </a>
-        </li>
-      </ul></nav>
+<nav class=site-navbar>
+<ul id=menu class=menu>
+<li class=menu-item>
+<a class=menu-item-link href=/>Home</a>
+</li><li class=menu-item>
+<a class=menu-item-link href=/post/>Archives</a>
+</li><li class=menu-item>
+<a class=menu-item-link href=/tags/>Tags</a>
+</li><li class=menu-item>
+<a class=menu-item-link href=/links/>Links</a>
+</li><li class=menu-item>
+<a class=menu-item-link href=/about/>About</a>
+</li>
+</ul>
+</nav>
 </header>
-
-      <main id="main" class="main">
-        <div class="content-wrapper">
-          <div id="content" class="content"><section id="posts" class="posts"><article class="post">
-    <header class="post-header">
-      <h1 class="post-title"><a class="post-link" href="/2020/08/08/%E4%BB%A5%E6%8C%87%E5%AE%9Alibc%E8%BF%90%E8%A1%8C%E7%A8%8B%E5%BA%8F/">确定glibc版本,以指定glibc运行程序</a>
-        </h1>
-
-      <div class="post-meta">
-        <span class="post-time">
-          2020-08-08
-        </span></div>
-    </header>
-
-    <div class="post-content"><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>CTF题目中经常会给出libc的文件，首先需要做的就是确定libc的版本，对程序进行针对性的攻击。最直接的确定方法就是直接运行该libc<code>./libc.so.6</code>，但通常由于本机ld版本与libc版本不匹配，发生段错误。</p>
-<p>确定完大版本号还不够，因为就算是同一版本的libc也会有较大的变动。比方说，与最开始的2.29版本相比，gnu libc库的release/2.29/master分支的<code>tcache_perthread_struct-&gt;counts</code>的变量类型都变了；<code>__libc_malloc</code>中取用tcache的判定，也由判断指针是否为空变成了判断counts是否大于0。这些细节很大程度上影响了exploit的书写。</p>
-<p>下面以pwnable.tw re-alloc的<a target="_blank" rel="noopener" href="https://github.com/clxsh/ctf_wps/blob/master/pwnable.tw/Re-alloc/libc.so.6">libc</a>为例，写一写我的经验。</p>
-          <div class="read-more">
-            <a href="/2020/08/08/%E4%BB%A5%E6%8C%87%E5%AE%9Alibc%E8%BF%90%E8%A1%8C%E7%A8%8B%E5%BA%8F/" class="read-more-link">Read more..</a>
-          </div>
-        </div></article>
-      <article class="post">
-    <header class="post-header">
-      <h1 class="post-title"><a class="post-link" href="/2020/08/07/pwnable-tw-re-alloc/">pwnable.tw re-alloc</a>
-        </h1>
-
-      <div class="post-meta">
-        <span class="post-time">
-          2020-08-07
-        </span></div>
-    </header>
-
-    <div class="post-content"><h2 id="题目分析"><a href="#题目分析" class="headerlink" title="题目分析"></a>题目分析</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">Arch:     amd64-64-little</span><br><span class="line">RELRO:    Partial RELRO</span><br><span class="line">Stack:    Canary found</span><br><span class="line">NX:       NX enabled</span><br><span class="line">PIE:      No PIE (0x400000)</span><br><span class="line">FORTIFY:  Enabled</span><br></pre></td></tr></table></figure>
-
-<p>是一个典型的菜单类程序</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">$$$$$$$$$$$$$$$$$$$$$$$$$$$$</span><br><span class="line">🍊      RE Allocator      🍊</span><br><span class="line">$$$$$$$$$$$$$$$$$$$$$$$$$$$$</span><br><span class="line">$   1. Alloc               $</span><br><span class="line">$   2. Realloc             $</span><br><span class="line">$   3. Free                $</span><br><span class="line">$   4. Exit                $</span><br><span class="line">$$$$$$$$$$$$$$$$$$$$$$$$$$$</span><br></pre></td></tr></table></figure>
-
-<ol>
+<main id=main class=main>
+<div class=content-wrapper>
+<div id=content class=content>
+<section id=posts class=posts>
+<article class=post>
+<header class=post-header>
+<h1 class=post-title><a class=post-link href=/post/%E4%BB%A5%E6%8C%87%E5%AE%9Alibc%E8%BF%90%E8%A1%8C%E7%A8%8B%E5%BA%8F/>确定glibc版本,以指定glibc运行程序</a></h1>
+<div class=post-meta>
+<span class=post-time> 2020-08-08 </span>
+</div>
+</header>
+<div class=post-content>
+<div class=post-summary>
+<h2 id=前言>前言</h2>
+<p>CTF题目中经常会给出libc的文件，首先需要做的就是确定libc的版本，对程序进行针对性的攻击。最直接的确定方法就是直接运行该libc<code>./libc.so.6</code>，但通常由于本机ld版本与libc版本不匹配，发生段错误。</p>
+<p>确定完大版本号还不够，因为就算是同一版本的libc也会有较大的变动。比方说，与最开始的2.29版本相比，gnu libc库的release/2.29/master分支的<code>tcache_perthread_struct->counts</code>的变量类型都变了；<code>__libc_malloc</code>中取用tcache的判定，也由判断指针是否为空变成了判断counts是否大于0。这些细节很大程度上影响了exploit的书写。</p>
+<p>下面以pwnable.tw re-alloc的<a href=https://github.com/clxsh/ctf_wps/blob/master/pwnable.tw/Re-alloc/libc.so.6>libc</a>为例，写一写我的经验。</p>
+</div>
+<div class=read-more>
+<a href=/post/%E4%BB%A5%E6%8C%87%E5%AE%9Alibc%E8%BF%90%E8%A1%8C%E7%A8%8B%E5%BA%8F/ class=read-more-link>阅读更多</a>
+</div>
+</div>
+</article>
+<article class=post>
+<header class=post-header>
+<h1 class=post-title><a class=post-link href=/post/pwnable-tw-re-alloc/>pwnable.tw re-alloc</a></h1>
+<div class=post-meta>
+<span class=post-time> 2020-08-07 </span>
+</div>
+</header>
+<div class=post-content>
+<div class=post-summary>
+<h2 id=题目分析>题目分析</h2>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback>Arch:     amd64-64-little
+RELRO:    Partial RELRO
+Stack:    Canary found
+NX:       NX enabled
+PIE:      No PIE (0x400000)
+FORTIFY:  Enabled
+</code></pre></td></tr></table>
+</div>
+</div><p>是一个典型的菜单类程序</p>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span><span class=lnt>8
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback>$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+🍊      RE Allocator      🍊
+$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+$   1. Alloc               $
+$   2. Realloc             $
+$   3. Free                $
+$   4. Exit                $
+$$$$$$$$$$$$$$$$$$$$$$$$$$$
+</code></pre></td></tr></table>
+</div>
+</div><ol>
 <li>Alloc: index只能取0或1；size必须&lt;=0x78；然后使用<code>realloc(0, size)</code>分配，通过源码可以看出，这就相当于<code>malloc(size)</code>。这里存在null byte overflow（然而没什么用似乎，一开始我一直卡在这里想如何利用，完全没注意到后一个漏洞。。。</li>
 </ol>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* realloc of null is supposed to be same as malloc */</span></span><br><span class="line"><span class="keyword">if</span> (oldmem == <span class="number">0</span>)</span><br><span class="line">    <span class="keyword">return</span> __libc_malloc (bytes);</span><br></pre></td></tr></table></figure>
-
-<ol start="2">
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-c data-lang=c><span class=cm>/* realloc of null is supposed to be same as malloc */</span>
+<span class=k>if</span> <span class=p>(</span><span class=n>oldmem</span> <span class=o>==</span> <span class=mi>0</span><span class=p>)</span>
+    <span class=k>return</span> <span class=n>__libc_malloc</span> <span class=p>(</span><span class=n>bytes</span><span class=p>);</span>
+</code></pre></td></tr></table>
+</div>
+</div><ol start=2>
 <li>Realloc: size同样&lt;=0x78。realloc有几种情况：请求大小自己可以满足；尝试向后扩展(top chunk或!inuse (next))；<code>__int_malloc</code>请求新块。（这里存在UAF，输入size为0</li>
 <li>Free：<code>realloc(ptr, 0)</code>相当于<code>free(ptr)</code>，同时将指针数组置空。</li>
 </ol>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (bytes == <span class="number">0</span> &amp;&amp; oldmem != <span class="literal">NULL</span>)</span><br><span class="line">&#123;</span><br><span class="line">    __libc_free (oldmem); <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>libc_version: glibc 2.29 with tcache。该版本libc的<a target="_blank" rel="noopener" href="https://launchpad.net/ubuntu/+source/glibc/2.29-0ubuntu2">源码</a>。下一篇文章说一下如何确定的libc版本，如何确定的有tcache，以及如何使用指定libc运行程序。</p>
-<p>此外，这个版本中出现了对tcache double free的一个<a href="https://hhdx.xyz/2020/08/01/How2heap%E6%80%BB%E7%BB%93/#fastbin-dup">检查机制</a>。</p>
-          <div class="read-more">
-            <a href="/2020/08/07/pwnable-tw-re-alloc/" class="read-more-link">Read more..</a>
-          </div>
-        </div></article>
-      <article class="post">
-    <header class="post-header">
-      <h1 class="post-title"><a class="post-link" href="/2020/08/02/glibcheap/">glibc heap 整理</a>
-        </h1>
-
-      <div class="post-meta">
-        <span class="post-time">
-          2020-08-02
-        </span></div>
-    </header>
-
-    <div class="post-content"><p>目前 Linux 标准发行版中使用的堆分配器是 glibc 中的堆分配器：ptmalloc2。ptmalloc2 主要是通过 malloc/free 函数来分配和释放内存块。</p>
-<p>需要注意的是，在内存分配与使用的过程中，Linux 有这样的一个基本内存管理思想，<strong>只有当真正访问一个地址的时候，系统才会建立虚拟页面与物理页面的映射关系</strong>。</p>
-<h2 id="基本操作"><a href="#基本操作" class="headerlink" title="基本操作"></a>基本操作</h2><h3 id="malloc"><a href="#malloc" class="headerlink" title="malloc"></a>malloc</h3><p><code>malloc(size_t n)</code></p>
-<ul>
-<li>当 n=0 时，返回当前系统允许的堆的最小内存块。</li>
-<li>当 n 为负数时，由于在大多数系统上，<strong>size_t 是无符号数（这一点非常重要）</strong>，所以程序就会申请很大的内存空间，但通常来说都会失败，因为系统没有那么多的内存可以分配。</li>
-</ul>
-<h3 id="free"><a href="#free" class="headerlink" title="free"></a>free</h3><p><code>free(void *p)</code></p>
-<ul>
-<li><strong>当 p 为空指针时，函数不执行任何操作。</strong></li>
-<li>当 p 已经被释放之后，再次释放会出现乱七八糟的效果，这其实就是 <code>double free</code>。</li>
-<li>除了被禁用 (mallopt) 的情况下，当释放很大的内存空间时，程序会将这些内存空间还给系统，以便于减小程序所使用的内存空间。</li>
-</ul>
-<h2 id="背后的系统调用"><a href="#背后的系统调用" class="headerlink" title="背后的系统调用"></a>背后的系统调用</h2><p>这些函数背后的系统调用主要是 <a target="_blank" rel="noopener" href="http://man7.org/linux/man-pages/man2/sbrk.2.html">(s)brk</a> 函数以及 <a target="_blank" rel="noopener" href="http://man7.org/linux/man-pages/man2/mmap.2.html">mmap, munmap</a> 函数。</p>
-          <div class="read-more">
-            <a href="/2020/08/02/glibcheap/" class="read-more-link">Read more..</a>
-          </div>
-        </div></article>
-      <article class="post">
-    <header class="post-header">
-      <h1 class="post-title"><a class="post-link" href="/2020/08/01/How2heap%E6%80%BB%E7%BB%93/">How2heap总结</a>
-        </h1>
-
-      <div class="post-meta">
-        <span class="post-time">
-          2020-08-01
-        </span></div>
-    </header>
-
-    <div class="post-content"><h2 id="first-fit"><a href="#first-fit" class="headerlink" title="first-fit"></a>first-fit</h2><p>如果一个chunk可用且足够大，那么就会使用这个chunk。</p>
-<h2 id="calc-tcache-idx"><a href="#calc-tcache-idx" class="headerlink" title="calc_tcache_idx"></a>calc_tcache_idx</h2><p>tcache(thread local caching)</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* We want 64 entries.  This is an arbitrary limit, which tunables can reduce.  */</span></span><br><span class="line"><span class="meta"># <span class="meta-keyword">define</span> TCACHE_MAX_BINS		64</span></span><br><span class="line"><span class="meta"># <span class="meta-keyword">define</span> MAX_TCACHE_SIZE	tidx2usize (TCACHE_MAX_BINS-1)</span></span><br><span class="line"></span><br><span class="line"><span class="comment">/* Only used to pre-fill the tunables.  */</span></span><br><span class="line"><span class="meta"># <span class="meta-keyword">define</span> tidx2usize(idx)	(((size_t) idx) * MALLOC_ALIGNMENT + MINSIZE - SIZE_SZ)</span></span><br><span class="line"></span><br><span class="line"><span class="comment">/* When &quot;x&quot; is from chunksize().  */</span></span><br><span class="line"><span class="meta"># <span class="meta-keyword">define</span> csize2tidx(x) (((x) - MINSIZE + MALLOC_ALIGNMENT - 1) / MALLOC_ALIGNMENT)</span></span><br><span class="line"><span class="comment">/* When &quot;x&quot; is a user-provided size.  */</span></span><br><span class="line"><span class="meta"># <span class="meta-keyword">define</span> usize2tidx(x) csize2tidx (request2size (x))</span></span><br><span class="line"></span><br><span class="line"><span class="comment">/* With rounding and alignment, the bins are...</span></span><br><span class="line"><span class="comment">   idx 0   bytes 0..24 (64-bit) or 0..12 (32-bit)</span></span><br><span class="line"><span class="comment">   idx 1   bytes 25..40 or 13..20</span></span><br><span class="line"><span class="comment">   idx 2   bytes 41..56 or 21..28</span></span><br><span class="line"><span class="comment">   etc.  */</span></span><br></pre></td></tr></table></figure>
-
-<p>tcache拥有和fastbin差不多的结构。默认情况下，64个bin，每个bin最多7个chunk</p>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-c data-lang=c><span class=k>if</span> <span class=p>(</span><span class=n>bytes</span> <span class=o>==</span> <span class=mi>0</span> <span class=o>&amp;&amp;</span> <span class=n>oldmem</span> <span class=o>!=</span> <span class=nb>NULL</span><span class=p>)</span>
+<span class=p>{</span>
+    <span class=n>__libc_free</span> <span class=p>(</span><span class=n>oldmem</span><span class=p>);</span> <span class=k>return</span> <span class=mi>0</span><span class=p>;</span>
+<span class=p>}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>libc_version: glibc 2.29 with tcache。该版本libc的<a href=https://launchpad.net/ubuntu/+source/glibc/2.29-0ubuntu2>源码</a>。下一篇文章说一下如何确定的libc版本，如何确定的有tcache，以及如何使用指定libc运行程序。</p>
+<p>此外，这个版本中出现了对tcache double free的一个<a href=https://hhdx.xyz/2020/08/01/How2heap%E6%80%BB%E7%BB%93/#fastbin-dup>检查机制</a>。</p>
+</div>
+<div class=read-more>
+<a href=/post/pwnable-tw-re-alloc/ class=read-more-link>阅读更多</a>
+</div>
+</div>
+</article>
+<article class=post>
+<header class=post-header>
+<h1 class=post-title><a class=post-link href=/post/how2heap%E6%80%BB%E7%BB%93/>How2heap总结</a></h1>
+<div class=post-meta>
+<span class=post-time> 2020-08-01 </span>
+</div>
+</header>
+<div class=post-content>
+<div class=post-summary>
+<h2 id=first-fit>first-fit</h2>
+<p>如果一个chunk可用且足够大，那么就会使用这个chunk。</p>
+<h2 id=calc_tcache_idx>calc_tcache_idx</h2>
+<p>tcache(thread local caching)</p>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-c data-lang=c><span class=cm>/* We want 64 entries.  This is an arbitrary limit, which tunables can reduce.  */</span>
+<span class=cp># define TCACHE_MAX_BINS		64
+</span><span class=cp># define MAX_TCACHE_SIZE	tidx2usize (TCACHE_MAX_BINS-1)
+</span><span class=cp></span>
+<span class=cm>/* Only used to pre-fill the tunables.  */</span>
+<span class=cp># define tidx2usize(idx)	(((size_t) idx) * MALLOC_ALIGNMENT + MINSIZE - SIZE_SZ)
+</span><span class=cp></span>
+<span class=cm>/* When &#34;x&#34; is from chunksize().  */</span>
+<span class=cp># define csize2tidx(x) (((x) - MINSIZE + MALLOC_ALIGNMENT - 1) / MALLOC_ALIGNMENT)
+</span><span class=cp></span><span class=cm>/* When &#34;x&#34; is a user-provided size.  */</span>
+<span class=cp># define usize2tidx(x) csize2tidx (request2size (x))
+</span><span class=cp></span>
+<span class=cm>/* With rounding and alignment, the bins are...
+</span><span class=cm>   idx 0   bytes 0..24 (64-bit) or 0..12 (32-bit)
+</span><span class=cm>   idx 1   bytes 25..40 or 13..20
+</span><span class=cm>   idx 2   bytes 41..56 or 21..28
+</span><span class=cm>   etc.  */</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>tcache拥有和fastbin差不多的结构。默认情况下，64个bin，每个bin最多7个chunk</p>
 <p>64bit: <code>IDX = (CHUNKSIZE - 0x11) / 0x10</code></p>
-          <div class="read-more">
-            <a href="/2020/08/01/How2heap%E6%80%BB%E7%BB%93/" class="read-more-link">Read more..</a>
-          </div>
-        </div></article>
-      <article class="post">
-    <header class="post-header">
-      <h1 class="post-title"><a class="post-link" href="/2020/07/31/How2heap-tcache-stashing-unlink-attack-Hitcon2019-one-punch/">How2heap--tcache_stashing_unlink_attack Hitcon2019--one_punch</a>
-        </h1>
-
-      <div class="post-meta">
-        <span class="post-time">
-          2020-07-31
-        </span></div>
-    </header>
-
-    <div class="post-content"><h2 id="tcache-stashing-unlink-attack"><a href="#tcache-stashing-unlink-attack" class="headerlink" title="tcache stashing unlink attack"></a>tcache stashing unlink attack</h2><p>在tcache中布置5个chunk，对应大小的small bin中布置2个chunk。修改倒数第二个small chunk的bk指向target，target-&gt;bk写入一个可写的位置。使用calloc触发，因为calloc调用<code>_int_malloc</code>不会使用tcache进行分配（除了<code>_int_malloc</code>遍历unsorted bin的尾部），只会往tcache中填充。</p>
-<p>可以造成target-&gt;bk-&gt;fd位置写入大数字，并且target成为tcache中第一个，再次malloc就可以获得。</p>
+</div>
+<div class=read-more>
+<a href=/post/how2heap%E6%80%BB%E7%BB%93/ class=read-more-link>阅读更多</a>
+</div>
+</div>
+</article>
+<article class=post>
+<header class=post-header>
+<h1 class=post-title><a class=post-link href=/post/how2heap-tcache-stashing-unlink-attack-hitcon2019-one-punch/>How2heap--tcache_stashing_unlink_attack Hitcon2019--one_punch</a></h1>
+<div class=post-meta>
+<span class=post-time> 2020-07-31 </span>
+</div>
+</header>
+<div class=post-content>
+<div class=post-summary>
+<h2 id=tcache-stashing-unlink-attack>tcache stashing unlink attack</h2>
+<p>在tcache中布置5个chunk，对应大小的small bin中布置2个chunk。修改倒数第二个small chunk的bk指向target，target->bk写入一个可写的位置。使用calloc触发，因为calloc调用<code>_int_malloc</code>不会使用tcache进行分配（除了<code>_int_malloc</code>遍历unsorted bin的尾部），只会往tcache中填充。</p>
+<p>可以造成target->bk->fd位置写入大数字，并且target成为tcache中第一个，再次malloc就可以获得。</p>
 <p>有点像fastbin reverse into tcache。</p>
-<h3 id="variation"><a href="#variation" class="headerlink" title="variation"></a>variation</h3><p>在tcache中布置6个chunk，对应大小的small bin中布置2个chunk。（可以用unsorted bin切割的方式布置2个small bin）</p>
-<p>修改倒数第二个small chunk的bk，calloc触发，只在bk-&gt;fd写入大数字。</p>
-          <div class="read-more">
-            <a href="/2020/07/31/How2heap-tcache-stashing-unlink-attack-Hitcon2019-one-punch/" class="read-more-link">Read more..</a>
-          </div>
-        </div></article>
-      <nav class="pagination"><a class="prev" href="/page/2/">
-        <i class="iconfont icon-left"></i>
-        <span class="prev-text">Prev</span>
-      </a>
-    <a class="next" href="/page/4/">
-        <span class="next-text">Next</span>
-        <i class="iconfont icon-right"></i>
-      </a>
-    </nav></section></div></div>
-      </main>
-
-      <footer id="footer" class="footer"><div class="social-links"><a target="_blank" rel="noopener" href="https://github.com/clxsh" class="iconfont icon-github" title="github"></a>
-        <a target="_blank" rel="noopener" href="https://www.douban.com/people/57285004/" class="iconfont icon-douban" title="douban"></a>
-        <a href="/atom.xml" class="iconfont icon-rss" title="rss"></a>
-    </div><div class="copyright">
-  <span class="power-by">
-    Powered by <a class="hexo-link" target="_blank" rel="noopener" href="https://hexo.io/">Hexo</a>
-  </span>
-  <span class="division">|</span>
-  <span class="theme-info">
-    Theme - 
-    <a class="theme-link" target="_blank" rel="noopener" href="https://github.com/ahonn/hexo-theme-even">Even</a>
-  </span>
-
-  <span class="copyright-year">&copy;2016 - 2021<span class="heart">
-      <i class="iconfont icon-heart"></i>
-    </span>
-    <span class="author">hhdx</span>
-  </span>
+<h3 id=variation>variation</h3>
+<p>在tcache中布置6个chunk，对应大小的small bin中布置2个chunk。（可以用unsorted bin切割的方式布置2个small bin）</p>
+<p>修改倒数第二个small chunk的bk，calloc触发，只在bk->fd写入大数字。</p>
+</div>
+<div class=read-more>
+<a href=/post/how2heap-tcache-stashing-unlink-attack-hitcon2019-one-punch/ class=read-more-link>阅读更多</a>
+</div>
+</div>
+</article>
+<article class=post>
+<header class=post-header>
+<h1 class=post-title><a class=post-link href=/post/how2heap-house-of-orange-hitcon2016-houseoforange/>How2heap--house_of_orange Hitcon2016--houseoforange</a></h1>
+<div class=post-meta>
+<span class=post-time> 2020-07-25 </span>
+</div>
+</header>
+<div class=post-content>
+<div class=post-summary>
+<h2 id=house-of-orange>house of orange</h2>
+<p>修改<code>topchunk->size</code>为一个缩小的并且满足页对齐的大小，malloc一个大于size的块（但也不要大于mmap threshold），会导致原来topchunk被放入unsorted bin。</p>
+<p>当topchunk不足以分配所需空间时，会调用sysmalloc分配额外空间。一般情况下，main_arena中old top chunk和新分配的top chunk首尾相邻，从而会进行合并。当我们将<code>topchunk->size</code>减小后，会检测不到相邻，也就不会合并了。设置好fencepost chunk，会执行<code>_int_free (av, old_top, 1)</code>将其放入unsorted bin。</p>
+<p>代码涉及<code>_int_malloc</code>后边和<code>sysmalloc</code>。</p>
+</div>
+<div class=read-more>
+<a href=/post/how2heap-house-of-orange-hitcon2016-houseoforange/ class=read-more-link>阅读更多</a>
+</div>
+</div>
+</article>
+</section>
+<nav class=pagination>
+<a class=prev href=/page/2/>
+<i class="iconfont icon-left"></i>
+<span class=prev-text>上一页</span>
+</a>
+<a class=next href=/page/4/>
+<span class=next-text>下一页</span>
+<i class="iconfont icon-right"></i>
+</a>
+</nav>
+</div>
+</div>
+</main>
+<footer id=footer class=footer>
+<div class=social-links>
+<a href=https://github.com/clxsh class="iconfont icon-github" title=github></a>
+<a href=https://www.douban.com/people/57285004/ class="iconfont icon-douban" title=douban></a>
+<a href=https://hhdx.xyz/index.xml type=application/rss+xml class="iconfont icon-rss" title=rss></a>
+</div>
+<div class=copyright>
+<span class=power-by>
+由 <a class=hexo-link href=https://gohugo.io>Hugo</a> 强力驱动
+</span>
+<span class=division>|</span>
+<span class=theme-info>
+主题 -
+<a class=theme-link href=https://github.com/olOwOlo/hugo-theme-even>Even</a>
+</span>
+<span class=copyright-year>
+&copy;
+2016 -
+2021<span class=heart><i class="iconfont icon-heart"></i></span><span>hhdx</span>
+</span>
 </div>
 </footer>
-
-      <div class="back-to-top" id="back-to-top">
-        <i class="iconfont icon-up"></i>
-      </div>
-    </div><script type="text/javascript" src="/lib/jquery/jquery.min.js"></script>
-  <script type="text/javascript" src="/lib/slideout/slideout.js"></script>
-  <script type="text/javascript" src="/lib/fancybox/jquery.fancybox.pack.js"></script>
-  <script type="text/javascript" src="/js/src/even.js?v=2.11.0"></script>
+<div class=back-to-top id=back-to-top>
+<i class="iconfont icon-up"></i>
+</div>
+</div>
+<script src=https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin=anonymous></script>
+<script src=https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin=anonymous></script>
+<script src=https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin=anonymous></script>
+<script type=text/javascript src=/js/main.min.c99b103c33d1539acf3025e1913697534542c4a5aa5af0ccc20475ed2863603b.js></script>
+<script type=application/javascript>var doNotTrack=!1;doNotTrack||(window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)},ga.l=+new Date,ga('create','UA-177325662-1','auto'),ga('set','anonymizeIp',!0),ga('send','pageview'))</script>
+<script async src=https://www.google-analytics.com/analytics.js></script>
 </body>
 </html>

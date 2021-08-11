@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>OS on hhdx's blog</title><link>https://hhdx.xyz/tags/os/</link><description>Recent content in OS on hhdx's blog</description><generator>Hugo -- gohugo.io</generator><language>en</language><lastBuildDate>Tue, 24 Mar 2020 23:39:11 +0000</lastBuildDate><atom:link href="https://hhdx.xyz/tags/os/index.xml" rel="self" type="application/rss+xml"/><item><title>ucore os lab7笔记</title><link>https://hhdx.xyz/post/ucore-os-lab7%E7%AC%94%E8%AE%B0/</link><pubDate>Tue, 24 Mar 2020 23:39:11 +0000</pubDate><guid>https://hhdx.xyz/post/ucore-os-lab7%E7%AC%94%E8%AE%B0/</guid><description>&lt;h1 id="同步互斥">同步互斥&lt;/h1>
+&lt;h2 id="理论">理论&lt;/h2>
+&lt;p>互斥、死锁、饥饿&lt;/p>
+&lt;p>&lt;strong>互斥&lt;/strong>是指某一资源同时只允许一个进程对其进行访问，具有唯一性和排它性，但互斥不用限制进程对资源的访问顺序，即访问可以是无序的。&lt;/p>
+&lt;p>&lt;strong>同步&lt;/strong>是指在进程间的执行必须严格按照规定的某种先后次序来运行，即访问是有序的，这种先后次序取决于要系统完成的任务需求。&lt;/p>
+&lt;h3 id="17-临界区">17 临界区&lt;/h3>
+&lt;p>空闲则入、忙则等待、有限等待、让权等待（可选）&lt;/p>
+&lt;p>&lt;strong>实现的三种办法&lt;/strong>：禁用中断、软件方法、更高级的抽象方法&lt;/p>
+&lt;p>方法比较主要考虑性能：并发级别&lt;/p>
+&lt;h4 id="禁用中断">禁用中断&lt;/h4></description></item><item><title>ucore os lab4笔记</title><link>https://hhdx.xyz/post/ucore-os-lab4%E7%AC%94%E8%AE%B0/</link><pubDate>Tue, 17 Mar 2020 23:14:13 +0000</pubDate><guid>https://hhdx.xyz/post/ucore-os-lab4%E7%AC%94%E8%AE%B0/</guid><description>&lt;h1 id="内核线程管理">内核线程管理&lt;/h1>
+&lt;h2 id="实验执行流程综述">实验执行流程综述&lt;/h2>
+&lt;p>内核线程是一种特殊的进程，内核线程与用户进程的区别有两个：&lt;/p>
+&lt;ul>
+&lt;li>内核线程只运行在内核态而用户进程会在在用户态和内核态交替运行；&lt;/li>
+&lt;li>所有内核线程直接使用共同的ucore内核内存空间，不需为每个内核线程维护单独的内存空间而用户进程需要维护各自的用户内存空间。&lt;/li>
+&lt;/ul>
+&lt;h2 id="进程的属性与特征解析">进程的属性与特征解析&lt;/h2></description></item></channel></rss>

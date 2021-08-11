@@ -1,0 +1,418 @@
+<!doctype html><html lang=zh-cn>
+<head>
+<meta charset=utf-8>
+<meta http-equiv=x-ua-compatible content="IE=edge,chrome=1">
+<title>ucore os lab7笔记 - hhdx's blog</title>
+<meta name=renderer content="webkit">
+<meta name=viewport content="width=device-width,initial-scale=1,maximum-scale=1">
+<meta http-equiv=cache-control content="no-transform">
+<meta http-equiv=cache-control content="no-siteapp">
+<meta name=theme-color content="#f8f5ec">
+<meta name=msapplication-navbutton-color content="#f8f5ec">
+<meta name=apple-mobile-web-app-capable content="yes">
+<meta name=apple-mobile-web-app-status-bar-style content="#f8f5ec">
+<meta name=author content="hhdx"><meta name=description content="同步互斥 理论 互斥、死锁、饥饿
+互斥是指某一资源同时只允许一个进程对其进行访问，具有唯一性和排它性，但互斥不用限制进程对资源的访问顺序，即访问可以是无序的。
+同步是指在进程间的执行必须严格按照规定的某种先后次序来运行，即访问是有序的，这种先后次序取决于要系统完成的任务需求。
+17 临界区 空闲则入、忙则等待、有限等待、让权等待（可选）
+实现的三种办法：禁用中断、软件方法、更高级的抽象方法
+方法比较主要考虑性能：并发级别
+禁用中断"><meta name=keywords content="C language,CTF,system engineer">
+<meta name=generator content="Hugo 0.87.0 with theme even">
+<link rel=canonical href=https://hhdx.xyz/post/ucore-os-lab7%E7%AC%94%E8%AE%B0/>
+<link rel=apple-touch-icon sizes=180x180 href=/apple-touch-icon.png>
+<link rel=icon type=image/png sizes=32x32 href=/favicon-32x32.png>
+<link rel=icon type=image/png sizes=16x16 href=/favicon-16x16.png>
+<link rel=manifest href=/manifest.json>
+<link rel=mask-icon href=/safari-pinned-tab.svg color=#5bbad5>
+<link href=/sass/main.min.0d3b8ec8ed7df891edf32830bfdc6af5976dc6b9ffeb7cd1d0cdd312bcf8e23e.css rel=stylesheet>
+<link rel=stylesheet href=https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin=anonymous>
+<meta property="og:title" content="ucore os lab7笔记">
+<meta property="og:description" content="同步互斥
+理论
+互斥、死锁、饥饿
+互斥是指某一资源同时只允许一个进程对其进行访问，具有唯一性和排它性，但互斥不用限制进程对资源的访问顺序，即访问可以是无序的。
+同步是指在进程间的执行必须严格按照规定的某种先后次序来运行，即访问是有序的，这种先后次序取决于要系统完成的任务需求。
+17 临界区
+空闲则入、忙则等待、有限等待、让权等待（可选）
+实现的三种办法：禁用中断、软件方法、更高级的抽象方法
+方法比较主要考虑性能：并发级别
+禁用中断">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://hhdx.xyz/post/ucore-os-lab7%E7%AC%94%E8%AE%B0/"><meta property="article:section" content="post">
+<meta property="article:published_time" content="2020-03-24T23:39:11+00:00">
+<meta property="article:modified_time" content="2020-03-24T23:39:11+00:00">
+<meta itemprop=name content="ucore os lab7笔记">
+<meta itemprop=description content="同步互斥
+理论
+互斥、死锁、饥饿
+互斥是指某一资源同时只允许一个进程对其进行访问，具有唯一性和排它性，但互斥不用限制进程对资源的访问顺序，即访问可以是无序的。
+同步是指在进程间的执行必须严格按照规定的某种先后次序来运行，即访问是有序的，这种先后次序取决于要系统完成的任务需求。
+17 临界区
+空闲则入、忙则等待、有限等待、让权等待（可选）
+实现的三种办法：禁用中断、软件方法、更高级的抽象方法
+方法比较主要考虑性能：并发级别
+禁用中断"><meta itemprop=datePublished content="2020-03-24T23:39:11+00:00">
+<meta itemprop=dateModified content="2020-03-24T23:39:11+00:00">
+<meta itemprop=wordCount content="1810">
+<meta itemprop=keywords content="ucore os lab,OS,"><meta name=twitter:card content="summary">
+<meta name=twitter:title content="ucore os lab7笔记">
+<meta name=twitter:description content="同步互斥
+理论
+互斥、死锁、饥饿
+互斥是指某一资源同时只允许一个进程对其进行访问，具有唯一性和排它性，但互斥不用限制进程对资源的访问顺序，即访问可以是无序的。
+同步是指在进程间的执行必须严格按照规定的某种先后次序来运行，即访问是有序的，这种先后次序取决于要系统完成的任务需求。
+17 临界区
+空闲则入、忙则等待、有限等待、让权等待（可选）
+实现的三种办法：禁用中断、软件方法、更高级的抽象方法
+方法比较主要考虑性能：并发级别
+禁用中断"><!--[if lte IE 9]><script src=https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js></script><![endif]--><!--[if lt IE 9]><script src=https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js></script>
+<script src=https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js></script><![endif]-->
+</head>
+<body>
+<div id=mobile-navbar class=mobile-navbar>
+<div class=mobile-header-logo>
+<a href=/ class=logo>hhdx's blog</a>
+</div>
+<div class=mobile-navbar-icon>
+<span></span>
+<span></span>
+<span></span>
+</div>
+</div>
+<nav id=mobile-menu class="mobile-menu slideout-menu">
+<ul class=mobile-menu-list>
+<a href=/>
+<li class=mobile-menu-item>Home</li>
+</a><a href=/post/>
+<li class=mobile-menu-item>Archives</li>
+</a><a href=/tags/>
+<li class=mobile-menu-item>Tags</li>
+</a><a href=/links/>
+<li class=mobile-menu-item>Links</li>
+</a><a href=/about/>
+<li class=mobile-menu-item>About</li>
+</a>
+</ul>
+</nav>
+<div class=container id=mobile-panel>
+<header id=header class=header>
+<div class=logo-wrapper>
+<a href=/ class=logo>hhdx's blog</a>
+</div>
+<nav class=site-navbar>
+<ul id=menu class=menu>
+<li class=menu-item>
+<a class=menu-item-link href=/>Home</a>
+</li><li class=menu-item>
+<a class=menu-item-link href=/post/>Archives</a>
+</li><li class=menu-item>
+<a class=menu-item-link href=/tags/>Tags</a>
+</li><li class=menu-item>
+<a class=menu-item-link href=/links/>Links</a>
+</li><li class=menu-item>
+<a class=menu-item-link href=/about/>About</a>
+</li>
+</ul>
+</nav>
+</header>
+<main id=main class=main>
+<div class=content-wrapper>
+<div id=content class=content>
+<article class=post>
+<header class=post-header>
+<h1 class=post-title>ucore os lab7笔记</h1>
+<div class=post-meta>
+<span class=post-time> 2020-03-24 </span>
+</div>
+</header>
+<div class=post-toc id=post-toc>
+<h2 class=post-toc-title>文章目录</h2>
+<div class="post-toc-content always-active">
+<nav id=TableOfContents>
+<ul>
+<li><a href=#同步互斥>同步互斥</a>
+<ul>
+<li><a href=#理论>理论</a>
+<ul>
+<li><a href=#17-临界区>17 临界区</a></li>
+<li><a href=#18-同步互斥>18 同步互斥</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+<div class=post-content>
+<h1 id=同步互斥>同步互斥</h1>
+<h2 id=理论>理论</h2>
+<p>互斥、死锁、饥饿</p>
+<p><strong>互斥</strong>是指某一资源同时只允许一个进程对其进行访问，具有唯一性和排它性，但互斥不用限制进程对资源的访问顺序，即访问可以是无序的。</p>
+<p><strong>同步</strong>是指在进程间的执行必须严格按照规定的某种先后次序来运行，即访问是有序的，这种先后次序取决于要系统完成的任务需求。</p>
+<h3 id=17-临界区>17 临界区</h3>
+<p>空闲则入、忙则等待、有限等待、让权等待（可选）</p>
+<p><strong>实现的三种办法</strong>：禁用中断、软件方法、更高级的抽象方法</p>
+<p>方法比较主要考虑性能：并发级别</p>
+<h4 id=禁用中断>禁用中断</h4>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-c data-lang=c><span class=n>local_irq_save</span><span class=p>(</span><span class=kt>unsigned</span> <span class=kt>long</span> <span class=n>flags</span><span class=p>);</span>
+<span class=c1>// critical section
+</span><span class=c1></span><span class=n>local_irq_restore</span><span class=p>(</span><span class=kt>unsigned</span> <span class=kt>long</span> <span class=n>flags</span><span class=p>);</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>进入临界区：禁用所有中断，并保存标志</p>
+<p>离开临界区：使能所有中断、并恢复标志</p>
+<p><strong>缺点</strong>：</p>
+<ul>
+<li>禁用中断后，进程无法被停止：使整个系统都停下来；可能导致其他进程饥饿</li>
+<li>临界区可能很长：无法确定响应中断所需的时间</li>
+<li>不得不使用时，才采用</li>
+</ul>
+<h4 id=基于软件的同步解决方法>基于软件的同步解决方法</h4>
+<p><strong>Peterson算法(双进程)</strong></p>
+<p><img src=https://raw.githubusercontent.com/clxsh/pics/master/img/image-20200229200859621.png alt></p>
+<p><strong>Dekkers算法(多进程)</strong></p>
+<p><img src=https://raw.githubusercontent.com/clxsh/pics/master/img/image-20200229201728124.png alt></p>
+<p><img src=https://raw.githubusercontent.com/clxsh/pics/master/img/image-20200229201801745.png alt></p>
+<p><strong>方法分析</strong>：复杂，需要进程间共享变量；需要忙等待，浪费CPU时间。</p>
+<h4 id=更高级的抽象算法>更高级的抽象算法</h4>
+<p>现代CPU体系结构都提供一些特殊的原子操作指令。</p>
+<p><strong>Test-and-Set</strong></p>
+<p>相当于以下过程</p>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-c data-lang=c><span class=n>boolean</span> <span class=nf>TestAndSet</span> <span class=p>(</span><span class=n>boolean</span> <span class=o>*</span><span class=n>target</span><span class=p>)</span><span class=err>‏</span>
+<span class=p>{</span>
+	<span class=n>boolean</span> <span class=n>rv</span> <span class=o>=</span> <span class=o>*</span><span class=n>target</span><span class=p>;</span>
+    <span class=o>*</span><span class=n>target</span> <span class=o>=</span> <span class=nb>true</span><span class=p>;</span>
+    <span class=k>return</span> <span class=nl>rv</span><span class=p>:</span>
+<span class=p>}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p><strong>exchange</strong></p>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-c data-lang=c><span class=kt>void</span> <span class=nf>Exchange</span> <span class=p>(</span><span class=n>boolean</span> <span class=o>*</span><span class=n>a</span><span class=p>,</span> <span class=n>boolean</span> <span class=o>*</span><span class=n>b</span><span class=p>)</span><span class=err>‏</span>
+<span class=p>{</span>
+	<span class=n>boolean</span> <span class=n>temp</span> <span class=o>=</span> <span class=o>*</span><span class=n>a</span><span class=p>;</span>
+	<span class=o>*</span><span class=n>a</span> <span class=o>=</span> <span class=o>*</span><span class=n>b</span><span class=p>;</span>
+	<span class=o>*</span><span class=n>b</span> <span class=o>=</span> <span class=nl>temp</span><span class=p>:</span>
+<span class=p>}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p><img src=https://raw.githubusercontent.com/clxsh/pics/master/img/os%20lock.png alt></p>
+<p>图左：spinlock(自旋锁无法实现先进先出)</p>
+<p><strong>原子操作指令锁特征</strong></p>
+<p><strong>优点</strong>：</p>
+<ul>
+<li>适用于单处理器或共享主存的多处理器中的任意数量的进程同步</li>
+<li>简单容易证明</li>
+<li>支持多临界区</li>
+</ul>
+<p><strong>缺点</strong></p>
+<ul>
+<li>
+<p>可能的忙等待，消耗处理器时间</p>
+</li>
+<li>
+<p>可能导致饥饿</p>
+<p>进程离开临界区时，唤醒的次序</p>
+</li>
+<li>
+<p>死锁</p>
+<p>拥有临界区的低优先级进程</p>
+<p>请求访问临界区的高优先级进程获得处理器并等待临界区</p>
+</li>
+</ul>
+<h3 id=18-同步互斥>18 同步互斥</h3>
+<h4 id=信号量semaphore>信号量(semaphore)</h4>
+<p><img src=https://raw.githubusercontent.com/clxsh/pics/master/img/semaphore.png alt></p>
+<p><strong>特性</strong>：</p>
+<ul>
+<li>信号量是被保护的整数变量
+<ul>
+<li>初始化完成后，只能通过P()和V()操作修改</li>
+<li>由操作系统保证，PV是原子操作</li>
+</ul>
+</li>
+<li>P()可能阻塞，V()不会阻塞</li>
+</ul>
+<p><img src=https://raw.githubusercontent.com/clxsh/pics/master/img/semaphore%20implement.png alt></p>
+<p><strong>两种信号量</strong>：二进制信号量、资源信号量。(二者等价，基于一个可以实现另一个)</p>
+<p><strong>使用</strong>：互斥访问、条件同步</p>
+<h5 id=生产者消费者问题>生产者消费者问题</h5>
+<p><strong>问题描述</strong>：一个或者多个生产者在生成数据后放在一个缓冲区里；单个消费者从缓冲区取出数据区里；任何时候只能有一个生产者或者消费者进入临界区。</p>
+<p><strong>问题分析</strong></p>
+<ul>
+<li>任何一个时刻只能有一个线程操作缓冲区(互斥访问)</li>
+<li>缓冲区空时，消费者必须等待生产者(条件同步)</li>
+<li>缓冲区满时，生产者必须等待消费者(条件同步)</li>
+</ul>
+<p><strong>信号量描述约束</strong></p>
+<ul>
+<li>二进制信号量mutex</li>
+<li>资源信号量fullBuffers</li>
+<li>资源信号量emptyBuffers</li>
+</ul>
+<p><img src=https://raw.githubusercontent.com/clxsh/pics/master/img/producer_consumer.png alt></p>
+<p><strong>信号量的困难</strong></p>
+<p>读/开发代码困难、容易出错(使用的信号量被占用，忘记释放信号量)、不能够处理死锁</p>
+<h4 id=管程>管程</h4>
+<p><img src=https://raw.githubusercontent.com/clxsh/pics/master/img/monitor.png alt></p>
+<p>管程是一种用于多线程互斥访问共享资源的程序结构</p>
+<ul>
+<li>采用面向对象方法，简化了线程间的同步控制</li>
+<li>任一时刻最多只有一个线程执行管程代码</li>
+<li>正在管程中的线程可临时放弃管程的互斥访问，等待事件出现时恢复</li>
+</ul>
+<p>管程的使用</p>
+<ul>
+<li>在对象/模块中，收集相关共享数据</li>
+<li>定义访问共享数据的方法</li>
+</ul>
+<p><img src=https://raw.githubusercontent.com/clxsh/pics/master/img/monitor_compo.png alt></p>
+<p><strong>条件变量(Condition Variable)</strong></p>
+<ul>
+<li>条件变量是管程内的等待机制
+<ul>
+<li>进入管程的线程因资源被占用而进入等待状态</li>
+<li>每个条件变量表示一种等待原因，对应一个等待队列</li>
+</ul>
+</li>
+<li>Wait()操作
+<ul>
+<li>将自己阻塞在等待队列中</li>
+<li>唤醒一个等待者或释放管程的互斥访问</li>
+</ul>
+</li>
+<li>Signal()操作
+<ul>
+<li>将等待队列中的一个线程唤醒</li>
+<li>如果等待队列为空，则等同空操作</li>
+</ul>
+</li>
+</ul>
+<p><img src=https://raw.githubusercontent.com/clxsh/pics/master/img/condition_variable_implement.png alt></p>
+<p><img src=https://raw.githubusercontent.com/clxsh/pics/master/img/resolve_PC_monitor.png alt></p>
+<p><strong>管程分类</strong></p>
+<p>Hoare管程存在两个缺陷：</p>
+<ol>
+<li>若产生signal的进程在管程内还未结束，则需要两次额外的切换：阻塞这个进程需要一次切换；管程可用时恢复有需要一次切换</li>
+<li>与信号相关的进程调度必须非常可靠。产生一个signal必须立即激活相关条件队列中的一个进程，调度程序必须保证在激活前没有其他进程进入管程，否则进程被激活的条件就发生改变。</li>
+</ol>
+<p><img src=https://raw.githubusercontent.com/clxsh/pics/master/img/classification_of_monitor.png alt></p>
+<p><strong>Hansen管程</strong></p>
+<p>Hansen管程signal被notify所取代，可解释为：当一个正在管程中的进程执行<code>notify(x)</code>时，会使得<code>x</code>条件队列得到通知，但发信号的进程继续执行。通知的结果是未来会调度到该队列中的某个进程进行执行。但是，不能保证在他之前没有其他进程进入管程，因而被调度的这个等待进程必须重新检查条件。</p>
+<p>这其中的区别就在于<code>if</code>和<code>while</code>的使用。这个方案对条件变量多了至少一次的检查，得到的回报是：不再有额外的进程切换，对等待进程之后什么时候运行没有任何限制。</p>
+<p>因为<code>if</code>没有再次的检查机制，必须立即切换到等待的进程中，以防其他的进程进入管程破坏条件，所以是Hoare管程。</p>
+<p><img src=https://raw.githubusercontent.com/clxsh/pics/master/img/2implement_of_monitor.png alt></p>
+<h5 id=读者写者问题>读者写者问题</h5>
+<p><strong>问题描述</strong></p>
+<ul>
+<li>
+<p>共享数据的两类使用者</p>
+<p>读者：只读取数据，不修改</p>
+<p>写者：读取和修改数据</p>
+</li>
+<li>
+<p>分析</p>
+<p>“读-读”允许，“读-写”互斥，“写-写”互斥</p>
+</li>
+</ul>
+<p><img src=https://raw.githubusercontent.com/clxsh/pics/master/img/monitor_writer.png alt><img src=https://raw.githubusercontent.com/clxsh/pics/master/img/monitor_reader.png alt></p>
+</div>
+<div class=post-copyright>
+<p class=copyright-item>
+<span class=item-title>文章作者</span>
+<span class=item-content>hhdx</span>
+</p>
+<p class=copyright-item>
+<span class=item-title>上次更新</span>
+<span class=item-content>
+2020-03-24
+</span>
+</p>
+</div>
+<footer class=post-footer>
+<div class=post-tags>
+<a href=/tags/ucore-os-lab/>ucore os lab</a>
+<a href=/tags/os/>OS</a>
+</div>
+<nav class=post-nav>
+<a class=prev href=/post/how2heap-fastbin-dup-consolidate-hitcon2016-sleepyholder/>
+<i class="iconfont icon-left"></i>
+<span class="prev-text nav-default">How2heap--fastbin_dup_consolidate Hitcon2016--SleepyHolder</span>
+<span class="prev-text nav-mobile">上一篇</span>
+</a>
+<a class=next href=/post/ucore-os-lab4%E7%AC%94%E8%AE%B0/>
+<span class="next-text nav-default">ucore os lab4笔记</span>
+<span class="next-text nav-mobile">下一篇</span>
+<i class="iconfont icon-right"></i>
+</a>
+</nav>
+</footer>
+</article>
+</div>
+<div id=disqus_thread></div>
+<script type=text/javascript>(function(){var a,b;if(window.location.hostname==='localhost')return;a=document.createElement('script'),a.type='text/javascript',a.async=!0,b='lyliuchao',a.src='//'+b+'.disqus.com/embed.js',(document.getElementsByTagName('head')[0]||document.getElementsByTagName('body')[0]).appendChild(a)})()</script>
+<noscript>Please enable JavaScript to view the <a href=http://disqus.com/?ref_noscript>comments powered by Disqus.</a></noscript>
+</div>
+</main>
+<footer id=footer class=footer>
+<div class=social-links>
+<a href=https://github.com/clxsh class="iconfont icon-github" title=github></a>
+<a href=https://www.douban.com/people/57285004/ class="iconfont icon-douban" title=douban></a>
+<a href=https://hhdx.xyz/index.xml type=application/rss+xml class="iconfont icon-rss" title=rss></a>
+</div>
+<div class=copyright>
+<span class=power-by>
+由 <a class=hexo-link href=https://gohugo.io>Hugo</a> 强力驱动
+</span>
+<span class=division>|</span>
+<span class=theme-info>
+主题 -
+<a class=theme-link href=https://github.com/olOwOlo/hugo-theme-even>Even</a>
+</span>
+<span class=copyright-year>
+&copy;
+2016 -
+2021<span class=heart><i class="iconfont icon-heart"></i></span><span>hhdx</span>
+</span>
+</div>
+</footer>
+<div class=back-to-top id=back-to-top>
+<i class="iconfont icon-up"></i>
+</div>
+</div>
+<script src=https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin=anonymous></script>
+<script src=https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin=anonymous></script>
+<script src=https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin=anonymous></script>
+<script type=text/javascript src=/js/main.min.c99b103c33d1539acf3025e1913697534542c4a5aa5af0ccc20475ed2863603b.js></script>
+<script type=application/javascript>var doNotTrack=!1;doNotTrack||(window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)},ga.l=+new Date,ga('create','UA-177325662-1','auto'),ga('set','anonymizeIp',!0),ga('send','pageview'))</script>
+<script async src=https://www.google-analytics.com/analytics.js></script>
+</body>
+</html>

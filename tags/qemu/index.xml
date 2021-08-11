@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>qemu on hhdx's blog</title><link>https://hhdx.xyz/tags/qemu/</link><description>Recent content in qemu on hhdx's blog</description><generator>Hugo -- gohugo.io</generator><language>en</language><lastBuildDate>Sat, 12 Dec 2020 10:36:40 +0000</lastBuildDate><atom:link href="https://hhdx.xyz/tags/qemu/index.xml" rel="self" type="application/rss+xml"/><item><title>QEMU堆溢出漏洞----CVE-2015-7504</title><link>https://hhdx.xyz/post/cve-2015-7504/</link><pubDate>Sat, 12 Dec 2020 10:36:40 +0000</pubDate><guid>https://hhdx.xyz/post/cve-2015-7504/</guid><description>&lt;p>CVE-2015-7504是QEMU在仿真pcnet网卡中出现的一个堆溢出漏洞，可以溢出四个字节，可以劫持程序的执行流，结合前面的CVE-2015-5165可以实现任意代码执行。但有一个很致命的问题，宿主机内核需要使用&lt;code>CONFIG_ARCH_BINFMT_ELF_RANDOMIZE_PIE &lt;/code>标志进行编译，否则在溢出的四个字节没法成功修改地址（总体八个字节的地址，因此需要高四字节与目标地址一致）。这个编译标志在目前最新的Ubuntu16.04中似乎已经没有了，所以就不进行完整的复现了，仅复现至PoC部分。&lt;/p>
+&lt;h2 id="pcnet网卡">PCNET网卡&lt;/h2>
+&lt;p>AMD 的PCNET系列网卡被许多虚拟机或仿真器支持，如QEMU、VMware和VirtualBox。虽然没有RTL8139简易，但它的支持更加广泛，RTL8139只在QEMU中有支持。&lt;/p>
+&lt;p>网卡有16位和32位两种模式，这取决于DWIO 的值（储存在卡中变量），16位模式是网卡重置之后的默认模式。网卡有两类内部寄存器：CSR（控制和状态寄存器）和BCR（Bus Control Register）。&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback"> 0 16
++----------------------------------+
+| EPROM |
++----------------------------------+
+| RDP - Data reg for CSR |
++----------------------------------+
+| RAP - Index reg for CSR and BCR |
++----------------------------------+
+| Reset reg |
++----------------------------------+
+| BDP - Data reg for BCR |
++----------------------------------+
+&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div></description></item><item><title>QEMU信息泄露漏洞分析与利用----CVE-2015-5165</title><link>https://hhdx.xyz/post/cve-2015-5165/</link><pubDate>Sat, 05 Dec 2020 15:58:52 +0000</pubDate><guid>https://hhdx.xyz/post/cve-2015-5165/</guid><description>&lt;p>参考大佬们的文章复现CVE-2015-5165。&lt;/p>
+&lt;h2 id="环境搭建">环境搭建&lt;/h2>
+&lt;p>宿主机环境 Ubuntu 20.10&lt;/p>
+&lt;h3 id="qemu编译">QEMU编译&lt;/h3>
+&lt;p>QEMU &lt;a href="https://github.com/qemu/qemu/tree/bd80b5963f58c601f31d3186b89887bf8e182fb5">commit-bd80b59&lt;/a>源码下载。&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">$ unzip qemu.zip
+$ mkdir -p bin/debug/native
+$ &lt;span class="nb">cd&lt;/span> bin/debug/native
+$ sudo apt-get install zlib1g-dev libglib2.0-dev libpixman-1-dev
+$ ../../../configure --target-list&lt;span class="o">=&lt;/span>x86_64-softmmu --enable-debug --disable-werror
+$ make
+&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>如果出现以下错误，给文件 &lt;code>commands-posix.c&lt;/code> 增加头文件 &lt;code>&amp;lt;sys/sysmacros.h&amp;gt;&lt;/code> 即可解决。&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">/usr/bin/ld: qga/commands-posix.o: in &lt;span class="k">function&lt;/span> &lt;span class="sb">`&lt;/span>dev_major_minor&lt;span class="s1">&amp;#39;:
+&lt;/span>&lt;span class="s1">/repo/qemu/qga/commands-posix.c:640: undefined reference to `major&amp;#39;&lt;/span>
+/usr/bin/ld: /repo/qemu/qga/commands-posix.c:641: undefined reference to &lt;span class="sb">`&lt;/span>minor&lt;span class="err">&amp;#39;&lt;/span>
+&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h3 id="制作qemu虚拟机">制作QEMU虚拟机&lt;/h3>
+&lt;p>这里我使用的Ubuntu 16.04 Server i386作为QEMU客户机系统。点击&lt;a href="https://mirrors6.tuna.tsinghua.edu.cn/ubuntu-releases/xenial/ubuntu-16.04.6-server-i386.iso">下载&lt;/a>。&lt;/p>
+&lt;p>还需要下载安装VNC-Viewer，稍后会用到。&lt;a href="https://www.realvnc.com/en/connect/download/viewer/linux/">链接&lt;/a>。&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">$ ./qemu-img create -f qcow2 ~/tmp/vm/ubuntu.img 10G
+$ sudo dpkg -i VNC-Viewer-6.20.529-Linux-x64.deb
+$ x86_64-softmmu/qemu-system-x86_64 -boot d -cdrom &lt;span class="se">\ &lt;/span> &lt;span class="c1"># 能用嵌套虚拟就用(添加--enable-kvm)&lt;/span>
+~/tmp/iso/ubuntu-16.04.6-server-i386.iso &lt;span class="se">\
+&lt;/span>&lt;span class="se">&lt;/span>-hda ~/tmp/vm/ubuntu.img -m &lt;span class="m">1024&lt;/span>
+$ vncviewer host:port &lt;span class="c1"># 连接上，安装就好&lt;/span>
+&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>（尽量使用&amp;ndash;enable-kvm，否则卡的受不了，安装系统安了四五个小时。。。）&lt;/p></description></item><item><title>HITB GSEC 2017：babyqemu</title><link>https://hhdx.xyz/post/babyqemu/</link><pubDate>Mon, 30 Nov 2020 12:05:03 +0000</pubDate><guid>https://hhdx.xyz/post/babyqemu/</guid><description>&lt;p>题目下载地址：&lt;a href="https://github.com/kitctf/writeups/blob/master/hitb-gsec-2017/babyqemu/babyqemu.tar.gz">babyqemu.tar.gz&lt;/a>&lt;/p>
+&lt;h2 id="分析">分析&lt;/h2>
+&lt;p>&lt;code>tar xvzf babyqemu.tar.gz&lt;/code>解压看到启动脚本&lt;code>launch.sh&lt;/code>&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="cp">#! /bin/sh
+&lt;/span>&lt;span class="cp">&lt;/span>./qemu-system-x86_64 &lt;span class="se">\
+&lt;/span>&lt;span class="se">&lt;/span>-initrd ./rootfs.cpio &lt;span class="se">\
+&lt;/span>&lt;span class="se">&lt;/span>-kernel ./vmlinuz-4.8.0-52-generic &lt;span class="se">\
+&lt;/span>&lt;span class="se">&lt;/span>-append &lt;span class="s1">&amp;#39;console=ttyS0 root=/dev/ram oops=panic panic=1&amp;#39;&lt;/span> &lt;span class="se">\
+&lt;/span>&lt;span class="se">&lt;/span>-enable-kvm &lt;span class="se">\ &lt;/span> &lt;span class="c1"># 需要CPU virtualization，现在与hyper-v共存的VMware不支持此选项。可以删掉&lt;/span>
+-monitor /dev/null &lt;span class="se">\
+&lt;/span>&lt;span class="se">&lt;/span>-m 64M --nographic -L ./dependency/usr/local/share/qemu &lt;span class="se">\
+&lt;/span>&lt;span class="se">&lt;/span>-L pc-bios &lt;span class="se">\
+&lt;/span>&lt;span class="se">&lt;/span>-device hitb,id&lt;span class="o">=&lt;/span>vda
+&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>在最后一行可以看到设备名称为hitb，在ida左侧Functions window，ctrl+f搜索hitb就可以找到相关函数。通过在ida的Local Types窗口搜索hitb可以找到&lt;code>HitbState&lt;/code>结构体，其中还包含&lt;code>dma_state&lt;/code>结构体。&lt;/p></description></item><item><title>【翻译】Virtio：一种Linux I/O虚拟化框架</title><link>https://hhdx.xyz/post/virtio-intro/</link><pubDate>Fri, 27 Nov 2020 14:43:05 +0000</pubDate><guid>https://hhdx.xyz/post/virtio-intro/</guid><description>&lt;p>首发于安全客&lt;a href="https://www.anquanke.com/post/id/224001">Virtio：一种Linux I/O虚拟化框架 - 安全客，安全资讯平台 (anquanke.com)&lt;/a>&lt;/p>
+&lt;p>原文：&lt;a href="https://developer.ibm.com/articles/l-virtio/">Virtio: An I/O virtualization framework for Linux – IBM Developer&lt;/a>&lt;/p>
+&lt;blockquote>
+&lt;p>学习Virtio推荐首先看这一篇，国内好多文章写的太乱了，看来看不去都不明白整体的架构，给人很模糊的感觉。这篇文章好很多。&lt;/p>
+&lt;p>&lt;strong>受限于个人水平，翻译肯定有不妥之处，译注根据自己的理解加入，也不一定准确。如有错误，还请不吝指出。&lt;/strong>&lt;/p>
+&lt;/blockquote>
+&lt;p>简言之，&lt;code>virtio&lt;/code>是设备和半虚拟化管理程序(paravirtualized hypervisor)之间的一个抽象层。&lt;code>virtio&lt;/code>是Rusty Russell为了支持他自己的虚拟化方案&lt;code>lguest&lt;/code>而开发的。这篇文章以对半虚拟化和设备仿真的介绍开始，然后探寻&lt;code>virtio&lt;/code>中的一些细节。采用kernel 2.6.30版本的&lt;code>virtio&lt;/code>框架进行讲解。&lt;/p>
+&lt;p>Linux是hypervisor的“游乐场”。正如我在文章&lt;a href="https://developer.ibm.com/tutorials/l-hypervisor/">使用Linux作为hypervisor&lt;/a>中所展现的，Linux提供了许多具有不同特性和优势的虚拟化解决方案。例如KVM(Kernel-based Virtual Machine)，&lt;code>lguest&lt;/code>、和用户态的Linux。在Linux使用这些虚拟化解决方案给操作系统造成了重担，因为它们各自都有独立的需求。其中一个问题就是设备的虚拟化。&lt;code>virtio&lt;/code>为各种各样设备（如：网络设备、块设备等等）的虚拟提供了通用的标准化前端接口，增加了各个虚拟化平台的代码复用。而不是各自为政般的使用繁杂的设备虚拟机制。&lt;/p>
+&lt;h2 id="全虚拟化-vs-半虚拟化">全虚拟化 vs. 半虚拟化&lt;/h2>
+&lt;p>我们先来讨论两种完全不同的虚拟化方案：全虚拟化和半虚拟化。在全虚拟化中，客户操作系统在hypervisor上运行，相当于运行于裸机一般。客户机不知道它在虚拟机还是物理机中运行，不需要修改操作系统就可以直接运行。与此相反的是，在半虚拟化中，客户机操作系统不仅能够知道其运行于虚拟机之上，也必须包含与hypervisor进行交互的代码。但是能够在客户机和hypervisor的切换中，带来更高的效率（图1）。&lt;/p>
+&lt;p>&lt;em>译注：客户机与hypervisor的切换举例：客户机请求I/O，需要hypervisor中所虚拟的设备来响应请求，此时就会发生切换。&lt;/em>&lt;/p>
+&lt;p>在全虚拟化中，hypervisor必须仿真设备硬件，也就是说模仿硬件最底层的会话（如：网卡驱动）。尽管这种仿真看起来方便，但代价是极低的效率和高度的复杂性。在半虚拟化中，客户机与hypervisor可以共同合作让这种仿真具有更高的效率。半虚拟化不足就是客户机操作系统会意识到它运行于虚拟机之中，而且需要对客户机操作系统做出一定的修改。&lt;/p></description></item><item><title>Qemu Escape ---- 以BlizzardCTF2017_STRNG为例</title><link>https://hhdx.xyz/post/qemu-pwn/</link><pubDate>Mon, 23 Nov 2020 15:05:17 +0000</pubDate><guid>https://hhdx.xyz/post/qemu-pwn/</guid><description>&lt;p>最近想学一下qemu escape的基础知识，进而分析一些Qemu的CVE漏洞。&lt;/p>
+&lt;p>本文主要参考raycp师傅的两篇文章。[1] [2]&lt;/p>
+&lt;h2 id="qemu概述">Qemu概述&lt;/h2>
+&lt;p>每个运行的qemu虚拟机对应于host上的一个进程，虚拟机的执行线程（如CPU线程、I/O线程等）对应于qemu进程中的一个线程。&lt;/p>
+&lt;p>&lt;img src="https://raw.githubusercontent.com/clxsh/pics/master/imgqemu-architecture.png" alt="qemu-architecture">&lt;/p>
+&lt;p>qemu的内存结构，根据&lt;a href="http://www.phrack.org/papers/vm-escape-qemu-case-study.html">QEMU Case Study&lt;/a>，虚拟机对应的内存结构为如下：&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;span class="lnt">15
+&lt;/span>&lt;span class="lnt">16
+&lt;/span>&lt;span class="lnt">17
+&lt;/span>&lt;span class="lnt">18
+&lt;/span>&lt;span class="lnt">19
+&lt;/span>&lt;span class="lnt">20
+&lt;/span>&lt;span class="lnt">21
+&lt;/span>&lt;span class="lnt">22
+&lt;/span>&lt;span class="lnt">23
+&lt;/span>&lt;span class="lnt">24
+&lt;/span>&lt;span class="lnt">25
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback"> Guest&amp;#39; processes
++--------------------+
+Virtual addr space | |
++--------------------+
+| |
+\__ Page Table \__
+\ \
+| | Guest kernel
++----+--------------------+----------------+
+Guest&amp;#39;s phy. memory | | | |
++----+--------------------+----------------+
+| |
+\__ \__
+\ \
+| QEMU process |
++----+------------------------------------------+
+Virtual addr space | | |
++----+------------------------------------------+
+| |
+\__ Page Table \__
+\ \
+| |
++----+-----------------------------------------------++
+Physical memory | | ||
++----+-----------------------------------------------++
+&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div></description></item></channel></rss>

@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>CVE on hhdx's blog</title><link>https://hhdx.xyz/tags/cve/</link><description>Recent content in CVE on hhdx's blog</description><generator>Hugo -- gohugo.io</generator><language>en</language><lastBuildDate>Sat, 12 Dec 2020 10:36:40 +0000</lastBuildDate><atom:link href="https://hhdx.xyz/tags/cve/index.xml" rel="self" type="application/rss+xml"/><item><title>QEMU堆溢出漏洞----CVE-2015-7504</title><link>https://hhdx.xyz/post/cve-2015-7504/</link><pubDate>Sat, 12 Dec 2020 10:36:40 +0000</pubDate><guid>https://hhdx.xyz/post/cve-2015-7504/</guid><description>&lt;p>CVE-2015-7504是QEMU在仿真pcnet网卡中出现的一个堆溢出漏洞，可以溢出四个字节，可以劫持程序的执行流，结合前面的CVE-2015-5165可以实现任意代码执行。但有一个很致命的问题，宿主机内核需要使用&lt;code>CONFIG_ARCH_BINFMT_ELF_RANDOMIZE_PIE &lt;/code>标志进行编译，否则在溢出的四个字节没法成功修改地址（总体八个字节的地址，因此需要高四字节与目标地址一致）。这个编译标志在目前最新的Ubuntu16.04中似乎已经没有了，所以就不进行完整的复现了，仅复现至PoC部分。&lt;/p>
+&lt;h2 id="pcnet网卡">PCNET网卡&lt;/h2>
+&lt;p>AMD 的PCNET系列网卡被许多虚拟机或仿真器支持，如QEMU、VMware和VirtualBox。虽然没有RTL8139简易，但它的支持更加广泛，RTL8139只在QEMU中有支持。&lt;/p>
+&lt;p>网卡有16位和32位两种模式，这取决于DWIO 的值（储存在卡中变量），16位模式是网卡重置之后的默认模式。网卡有两类内部寄存器：CSR（控制和状态寄存器）和BCR（Bus Control Register）。&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback"> 0 16
++----------------------------------+
+| EPROM |
++----------------------------------+
+| RDP - Data reg for CSR |
++----------------------------------+
+| RAP - Index reg for CSR and BCR |
++----------------------------------+
+| Reset reg |
++----------------------------------+
+| BDP - Data reg for BCR |
++----------------------------------+
+&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div></description></item><item><title>QEMU信息泄露漏洞分析与利用----CVE-2015-5165</title><link>https://hhdx.xyz/post/cve-2015-5165/</link><pubDate>Sat, 05 Dec 2020 15:58:52 +0000</pubDate><guid>https://hhdx.xyz/post/cve-2015-5165/</guid><description>&lt;p>参考大佬们的文章复现CVE-2015-5165。&lt;/p>
+&lt;h2 id="环境搭建">环境搭建&lt;/h2>
+&lt;p>宿主机环境 Ubuntu 20.10&lt;/p>
+&lt;h3 id="qemu编译">QEMU编译&lt;/h3>
+&lt;p>QEMU &lt;a href="https://github.com/qemu/qemu/tree/bd80b5963f58c601f31d3186b89887bf8e182fb5">commit-bd80b59&lt;/a>源码下载。&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">$ unzip qemu.zip
+$ mkdir -p bin/debug/native
+$ &lt;span class="nb">cd&lt;/span> bin/debug/native
+$ sudo apt-get install zlib1g-dev libglib2.0-dev libpixman-1-dev
+$ ../../../configure --target-list&lt;span class="o">=&lt;/span>x86_64-softmmu --enable-debug --disable-werror
+$ make
+&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>如果出现以下错误，给文件 &lt;code>commands-posix.c&lt;/code> 增加头文件 &lt;code>&amp;lt;sys/sysmacros.h&amp;gt;&lt;/code> 即可解决。&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">/usr/bin/ld: qga/commands-posix.o: in &lt;span class="k">function&lt;/span> &lt;span class="sb">`&lt;/span>dev_major_minor&lt;span class="s1">&amp;#39;:
+&lt;/span>&lt;span class="s1">/repo/qemu/qga/commands-posix.c:640: undefined reference to `major&amp;#39;&lt;/span>
+/usr/bin/ld: /repo/qemu/qga/commands-posix.c:641: undefined reference to &lt;span class="sb">`&lt;/span>minor&lt;span class="err">&amp;#39;&lt;/span>
+&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h3 id="制作qemu虚拟机">制作QEMU虚拟机&lt;/h3>
+&lt;p>这里我使用的Ubuntu 16.04 Server i386作为QEMU客户机系统。点击&lt;a href="https://mirrors6.tuna.tsinghua.edu.cn/ubuntu-releases/xenial/ubuntu-16.04.6-server-i386.iso">下载&lt;/a>。&lt;/p>
+&lt;p>还需要下载安装VNC-Viewer，稍后会用到。&lt;a href="https://www.realvnc.com/en/connect/download/viewer/linux/">链接&lt;/a>。&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">$ ./qemu-img create -f qcow2 ~/tmp/vm/ubuntu.img 10G
+$ sudo dpkg -i VNC-Viewer-6.20.529-Linux-x64.deb
+$ x86_64-softmmu/qemu-system-x86_64 -boot d -cdrom &lt;span class="se">\ &lt;/span> &lt;span class="c1"># 能用嵌套虚拟就用(添加--enable-kvm)&lt;/span>
+~/tmp/iso/ubuntu-16.04.6-server-i386.iso &lt;span class="se">\
+&lt;/span>&lt;span class="se">&lt;/span>-hda ~/tmp/vm/ubuntu.img -m &lt;span class="m">1024&lt;/span>
+$ vncviewer host:port &lt;span class="c1"># 连接上，安装就好&lt;/span>
+&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>（尽量使用&amp;ndash;enable-kvm，否则卡的受不了，安装系统安了四五个小时。。。）&lt;/p></description></item></channel></rss>

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>ARM on hhdx's blog</title><link>https://hhdx.xyz/tags/arm/</link><description>Recent content in ARM on hhdx's blog</description><generator>Hugo -- gohugo.io</generator><language>en</language><lastBuildDate>Sat, 17 Oct 2020 17:35:26 +0000</lastBuildDate><atom:link href="https://hhdx.xyz/tags/arm/index.xml" rel="self" type="application/rss+xml"/><item><title>Arm Pwn</title><link>https://hhdx.xyz/post/arm-pwn/</link><pubDate>Sat, 17 Oct 2020 17:35:26 +0000</pubDate><guid>https://hhdx.xyz/post/arm-pwn/</guid><description>&lt;h2 id="环境配置">环境配置&lt;/h2>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">$ sudo apt install qemu-user gdb-multiarch
+&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>安装完成后就可以运行平台上的静态链接文件了，会自动调用qemu执行。&lt;/p>
+&lt;h3 id="动态链接程序">动态链接程序&lt;/h3>
+&lt;p>对于动态链接的程序，还需要安装跨平台的lib。&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">$ apt-cache search &lt;span class="s2">&amp;#34;libc&amp;#34;&lt;/span> &lt;span class="p">|&lt;/span> grep arm
+&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>安装类似libc6-ARCH-cross。&lt;/p>
+&lt;p>动态链接库被安装在类似&lt;code>/usr/arm-linux-gnueabihf/&lt;/code>的路径。qemu不知道动态链接的位置，它预期在类似&lt;code>/etc/qemu-binfmt/arm&lt;/code>的路径，所以可以设置软链接来避免用&lt;code>-L&lt;/code>来指定链接库位置。&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">$ sudo mkdir /etc/qemu-binfmt
+$ sudo ln -s /usr/arm-linux-gnueabihf /etc/qemu-binfmt/arm
+$ sudo ln -s /usr/aarch64-linux-gnu/ /etc/qemu-binfmt/aarch64 &lt;span class="c1"># 对于aarch64&lt;/span>
+&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div></description></item></channel></rss>

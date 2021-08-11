@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>CSAPP on hhdx's blog</title><link>https://hhdx.xyz/tags/csapp/</link><description>Recent content in CSAPP on hhdx's blog</description><generator>Hugo -- gohugo.io</generator><language>en</language><lastBuildDate>Thu, 22 Mar 2018 21:20:38 +0000</lastBuildDate><atom:link href="https://hhdx.xyz/tags/csapp/index.xml" rel="self" type="application/rss+xml"/><item><title>CSAPP3e:Attacklab</title><link>https://hhdx.xyz/post/csapp3e-attacklab/</link><pubDate>Thu, 22 Mar 2018 21:20:38 +0000</pubDate><guid>https://hhdx.xyz/post/csapp3e-attacklab/</guid><description>&lt;h2 id="简介">简介&lt;/h2>
+&lt;p>这是CSAPP这本书的第三个实验，实验所需要的材料在 &lt;a href="http://csapp.cs.cmu.edu/3e/labs.html">CSAPP3e&lt;/a>。&lt;/p>
+&lt;p>这个实验分为两部分，第一部分是代码注入实验，主要是通过Gets()函数的堆栈溢出传入指令，然后跳转到指定位置执行的方式来实现执行指定指令；第二部分是ROP实验，因为这里采用栈随机化和堆栈不可执行所以代码注入失效了。ROP利用截取已知某指令序列来创建目的指令的方法来实现的，其中在实验中可利用的指令序列限制为farm.c生成的部分，通过Gets()函数的堆栈溢出传入一系列指令地址和数据实现。&lt;/p>
+&lt;h2 id="code-injection-attacks">Code injection attacks&lt;/h2>
+&lt;h3 id="phase-1">Phase 1&lt;/h3>
+&lt;p>实验目的是test()函数调用getbuf()后执行touch1()函数而不返回test()，所以这里用touch1()的地址覆盖掉test()的地址就可以。getbuf()里面分配了0x28个字节栈空间，所以这里把栈顶的0x28个字节覆盖掉，在末尾添加touch1()的地址就可以了。需要注意字节顺序。&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">00 00 00 00 00 00 00 00
+00 00 00 00 00 00 00 00
+00 00 00 00 00 00 00 00
+00 00 00 00 00 00 00 00
+00 00 00 00 00 00 00 00
+c0 17 40 00 00 00 00 00 /* 0x4017c0 即为touch1()起始地址*/
+&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div></description></item></channel></rss>

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>枚举 on hhdx's blog</title><link>https://hhdx.xyz/tags/%E6%9E%9A%E4%B8%BE/</link><description>Recent content in 枚举 on hhdx's blog</description><generator>Hugo -- gohugo.io</generator><language>en</language><lastBuildDate>Thu, 26 Jan 2017 15:09:17 +0000</lastBuildDate><atom:link href="https://hhdx.xyz/tags/%E6%9E%9A%E4%B8%BE/index.xml" rel="self" type="application/rss+xml"/><item><title>枚举算法</title><link>https://hhdx.xyz/post/%E6%9E%9A%E4%B8%BE%E7%AE%97%E6%B3%95/</link><pubDate>Thu, 26 Jan 2017 15:09:17 +0000</pubDate><guid>https://hhdx.xyz/post/%E6%9E%9A%E4%B8%BE%E7%AE%97%E6%B3%95/</guid><description>&lt;p>上了一年半的大学了，感觉水平还是很低，亟待提升。。。&lt;/p>
+&lt;p>假期里发现了一个北京大学的一个mooc《程序设计与算法》，正好满足的我的需要：编程能力低下，基础算法不熟。正好这个课才刚刚开始，我决定要跟下去，恩一定！
+下面两道题是第一章的练习：&lt;/p>
+&lt;p>##特殊密码锁&lt;/p>
+&lt;p>总Time Limit: 1000ms Memory Limit: 1024kB
+Description
+有一种特殊的二进制密码锁，由n个相连的按钮组成（n&amp;lt;30），按钮有凹 凸两种状态，用手按按钮会改变其状态。=&amp;quot;&amp;quot;
+然而让人头疼的是，当你按一个按钮时，跟它相邻的两个按钮状态也会反转。当然，如果你按的是最左或者最右边的按钮，该按钮只会影响到跟它相邻的一个按钮。&lt;/p>
+&lt;p>当前密码锁状态已知，需要解决的问题是，你至少需要按多少次按钮，才能将密码锁转变为所期望的目标状态。&lt;/p></description></item></channel></rss>

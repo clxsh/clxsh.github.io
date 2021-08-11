@@ -1,265 +1,403 @@
-<!DOCTYPE html>
-<html lang="zh-Hans">
-  <head><meta charset="UTF-8"/>
-<meta http-equiv="X-UA-Compatible" content="IE=edge" />
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
-
-
-<meta http-equiv="Cache-Control" content="no-transform" />
-<meta http-equiv="Cache-Control" content="no-siteapp" />
-
-<meta name="theme-color" content="#f8f5ec" />
-<meta name="msapplication-navbutton-color" content="#f8f5ec">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="#f8f5ec">
-
-<link rel="alternate" href="/atom.xml" title="hhdx's blog" type="application/atom+xml"><link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=2.11.0" />
-<link rel="canonical" href="http://hhdx.xyz/"/>
-
-<link rel="stylesheet" type="text/css" href="/lib/fancybox/jquery.fancybox.css" />
-<link rel="stylesheet" type="text/css" href="/css/style.css?v=2.11.0" />
-
-<!-- Global site tag (gtag.js) - Google Analytics -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=UA-177325662-1"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'UA-177325662-1');
-</script><script id="baidu_push">
-(function(){
-    var bp = document.createElement('script');
-    var curProtocol = window.location.protocol.split(':')[0];
-    if (curProtocol === 'https') {
-        bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
-    }
-    else {
-        bp.src = 'http://push.zhanzhang.baidu.com/push.js';
-    }
-    var s = document.getElementsByTagName("script")[0];
-    s.parentNode.insertBefore(bp, s);
-})();
-</script>
-<script>
-  window.config = {"leancloud":{"app_id":null,"app_key":null},"toc":true,"fancybox":true,"pjax":true,"latex":false};
-</script>
-
-    <title>hhdx's blog</title>
-  <meta name="generator" content="Hexo 5.2.0"></head>
-
-  <body><div id="mobile-navbar" class="mobile-navbar">
-  <div class="mobile-header-logo">
-    <a href="/." class="logo">hhdx's blog</a>
-  </div>
-  <div class="mobile-navbar-icon">
-    <span></span>
-    <span></span>
-    <span></span>
-  </div>
+<!doctype html><html lang=zh-cn>
+<head>
+<meta charset=utf-8>
+<meta http-equiv=x-ua-compatible content="IE=edge,chrome=1">
+<title>hhdx's blog</title>
+<meta name=renderer content="webkit">
+<meta name=viewport content="width=device-width,initial-scale=1,maximum-scale=1">
+<meta http-equiv=cache-control content="no-transform">
+<meta http-equiv=cache-control content="no-siteapp">
+<meta name=theme-color content="#f8f5ec">
+<meta name=msapplication-navbutton-color content="#f8f5ec">
+<meta name=apple-mobile-web-app-capable content="yes">
+<meta name=apple-mobile-web-app-status-bar-style content="#f8f5ec">
+<meta name=author content="hhdx"><meta name=keywords content="C language,CTF,system engineer">
+<meta name=generator content="Hugo 0.87.0 with theme even">
+<link rel=canonical href=https://hhdx.xyz/>
+<link href=https://hhdx.xyz/index.xml rel=alternate type=application/rss+xml title="hhdx's blog">
+<link href=https://hhdx.xyz/index.xml rel=feed type=application/rss+xml title="hhdx's blog">
+<link rel=apple-touch-icon sizes=180x180 href=/apple-touch-icon.png>
+<link rel=icon type=image/png sizes=32x32 href=/favicon-32x32.png>
+<link rel=icon type=image/png sizes=16x16 href=/favicon-16x16.png>
+<link rel=manifest href=/manifest.json>
+<link rel=mask-icon href=/safari-pinned-tab.svg color=#5bbad5>
+<link href=/sass/main.min.0d3b8ec8ed7df891edf32830bfdc6af5976dc6b9ffeb7cd1d0cdd312bcf8e23e.css rel=stylesheet>
+<link rel=stylesheet href=https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin=anonymous>
+<meta property="og:title" content="hhdx's blog">
+<meta property="og:description" content>
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://hhdx.xyz/">
+<meta itemprop=name content="hhdx's blog">
+<meta itemprop=description content><meta name=twitter:card content="summary">
+<meta name=twitter:title content="hhdx's blog">
+<meta name=twitter:description content><!--[if lte IE 9]><script src=https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js></script><![endif]--><!--[if lt IE 9]><script src=https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js></script>
+<script src=https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js></script><![endif]-->
+</head>
+<body>
+<div id=mobile-navbar class=mobile-navbar>
+<div class=mobile-header-logo>
+<a href=/ class=logo>hhdx's blog</a>
 </div>
-
-<nav id="mobile-menu" class="mobile-menu slideout-menu">
-  <ul class="mobile-menu-list"><a href="/">
-        <li class="mobile-menu-item">Home
-          </li>
-      </a><a href="/archives/">
-        <li class="mobile-menu-item">Archives
-          </li>
-      </a><a href="/tags/">
-        <li class="mobile-menu-item">Tags
-          </li>
-      </a><a href="/links/">
-        <li class="mobile-menu-item">Links
-          </li>
-      </a><a href="/about/">
-        <li class="mobile-menu-item">About
-          </li>
-      </a></ul>
+<div class=mobile-navbar-icon>
+<span></span>
+<span></span>
+<span></span>
+</div>
+</div>
+<nav id=mobile-menu class="mobile-menu slideout-menu">
+<ul class=mobile-menu-list>
+<a href=/>
+<li class=mobile-menu-item>Home</li>
+</a><a href=/post/>
+<li class=mobile-menu-item>Archives</li>
+</a><a href=/tags/>
+<li class=mobile-menu-item>Tags</li>
+</a><a href=/links/>
+<li class=mobile-menu-item>Links</li>
+</a><a href=/about/>
+<li class=mobile-menu-item>About</li>
+</a>
+</ul>
 </nav>
-<div class="container" id="mobile-panel">
-      <header id="header" class="header"><div class="logo-wrapper">
-  <a href="/." class="logo">hhdx's blog</a>
+<div class=container id=mobile-panel>
+<header id=header class=header>
+<div class=logo-wrapper>
+<a href=/ class=logo>hhdx's blog</a>
 </div>
-
-<nav class="site-navbar"><ul id="menu" class="menu"><li class="menu-item">
-          <a class="menu-item-link" href="/">
-            Home
-            </a>
-        </li>
-      <li class="menu-item">
-          <a class="menu-item-link" href="/archives/">
-            Archives
-            </a>
-        </li>
-      <li class="menu-item">
-          <a class="menu-item-link" href="/tags/">
-            Tags
-            </a>
-        </li>
-      <li class="menu-item">
-          <a class="menu-item-link" href="/links/">
-            Links
-            </a>
-        </li>
-      <li class="menu-item">
-          <a class="menu-item-link" href="/about/">
-            About
-            </a>
-        </li>
-      </ul></nav>
+<nav class=site-navbar>
+<ul id=menu class=menu>
+<li class=menu-item>
+<a class=menu-item-link href=/>Home</a>
+</li><li class=menu-item>
+<a class=menu-item-link href=/post/>Archives</a>
+</li><li class=menu-item>
+<a class=menu-item-link href=/tags/>Tags</a>
+</li><li class=menu-item>
+<a class=menu-item-link href=/links/>Links</a>
+</li><li class=menu-item>
+<a class=menu-item-link href=/about/>About</a>
+</li>
+</ul>
+</nav>
 </header>
-
-      <main id="main" class="main">
-        <div class="content-wrapper">
-          <div id="content" class="content"><section id="posts" class="posts"><article class="post">
-    <header class="post-header">
-      <h1 class="post-title"><a class="post-link" href="/2020/12/12/CVE-2015-7504/">QEMU堆溢出漏洞----CVE-2015-7504</a>
-        </h1>
-
-      <div class="post-meta">
-        <span class="post-time">
-          2020-12-12
-        </span></div>
-    </header>
-
-    <div class="post-content"><p>CVE-2015-7504是QEMU在仿真pcnet网卡中出现的一个堆溢出漏洞，可以溢出四个字节，可以劫持程序的执行流，结合前面的CVE-2015-5165可以实现任意代码执行。但有一个很致命的问题，宿主机内核需要使用<code>CONFIG_ARCH_BINFMT_ELF_RANDOMIZE_PIE </code>标志进行编译，否则在溢出的四个字节没法成功修改地址（总体八个字节的地址，因此需要高四字节与目标地址一致）。这个编译标志在目前最新的Ubuntu16.04中似乎已经没有了，所以就不进行完整的复现了，仅复现至PoC部分。</p>
-<h2 id="PCNET网卡"><a href="#PCNET网卡" class="headerlink" title="PCNET网卡"></a>PCNET网卡</h2><p>AMD 的PCNET系列网卡被许多虚拟机或仿真器支持，如QEMU、VMware和VirtualBox。虽然没有RTL8139简易，但它的支持更加广泛，RTL8139只在QEMU中有支持。</p>
+<main id=main class=main>
+<div class=content-wrapper>
+<div id=content class=content>
+<section id=posts class=posts>
+<article class=post>
+<header class=post-header>
+<h1 class=post-title><a class=post-link href=/post/cve-2015-7504/>QEMU堆溢出漏洞----CVE-2015-7504</a></h1>
+<div class=post-meta>
+<span class=post-time> 2020-12-12 </span>
+</div>
+</header>
+<div class=post-content>
+<div class=post-summary>
+<p>CVE-2015-7504是QEMU在仿真pcnet网卡中出现的一个堆溢出漏洞，可以溢出四个字节，可以劫持程序的执行流，结合前面的CVE-2015-5165可以实现任意代码执行。但有一个很致命的问题，宿主机内核需要使用<code>CONFIG_ARCH_BINFMT_ELF_RANDOMIZE_PIE </code>标志进行编译，否则在溢出的四个字节没法成功修改地址（总体八个字节的地址，因此需要高四字节与目标地址一致）。这个编译标志在目前最新的Ubuntu16.04中似乎已经没有了，所以就不进行完整的复现了，仅复现至PoC部分。</p>
+<h2 id=pcnet网卡>PCNET网卡</h2>
+<p>AMD 的PCNET系列网卡被许多虚拟机或仿真器支持，如QEMU、VMware和VirtualBox。虽然没有RTL8139简易，但它的支持更加广泛，RTL8139只在QEMU中有支持。</p>
 <p>网卡有16位和32位两种模式，这取决于DWIO 的值（储存在卡中变量），16位模式是网卡重置之后的默认模式。网卡有两类内部寄存器：CSR（控制和状态寄存器）和BCR（Bus Control Register）。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">0                                  16</span><br><span class="line">+----------------------------------+</span><br><span class="line">|              EPROM               |</span><br><span class="line">+----------------------------------+</span><br><span class="line">|      RDP - Data reg for CSR      |</span><br><span class="line">+----------------------------------+</span><br><span class="line">| RAP - Index reg for CSR and BCR  |</span><br><span class="line">+----------------------------------+</span><br><span class="line">|           Reset reg              |</span><br><span class="line">+----------------------------------+</span><br><span class="line">|      BDP - Data reg for BCR      |</span><br><span class="line">+----------------------------------+</span><br></pre></td></tr></table></figure>
-          <div class="read-more">
-            <a href="/2020/12/12/CVE-2015-7504/" class="read-more-link">Read more..</a>
-          </div>
-        </div></article>
-      <article class="post">
-    <header class="post-header">
-      <h1 class="post-title"><a class="post-link" href="/2020/12/05/CVE-2015-5165/">QEMU信息泄露漏洞分析与利用----CVE-2015-5165</a>
-        </h1>
-
-      <div class="post-meta">
-        <span class="post-time">
-          2020-12-05
-        </span></div>
-    </header>
-
-    <div class="post-content"><p>参考大佬们的文章复现CVE-2015-5165。</p>
-<h2 id="环境搭建"><a href="#环境搭建" class="headerlink" title="环境搭建"></a>环境搭建</h2><p>宿主机环境 Ubuntu 20.10</p>
-<h3 id="QEMU编译"><a href="#QEMU编译" class="headerlink" title="QEMU编译"></a>QEMU编译</h3><p>QEMU <a target="_blank" rel="noopener" href="https://github.com/qemu/qemu/tree/bd80b5963f58c601f31d3186b89887bf8e182fb5">commit-bd80b59</a>源码下载。</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> unzip qemu.zip</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> mkdir -p bin/debug/native</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> <span class="built_in">cd</span> bin/debug/native</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> sudo apt-get install zlib1g-dev libglib2.0-dev libpixman-1-dev</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> ../../../configure --target-list=x86_64-softmmu --enable-debug --disable-werror</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> make</span></span><br></pre></td></tr></table></figure>
-
-<p>如果出现以下错误，给文件 <code>commands-posix.c</code> 增加头文件 <code>&lt;sys/sysmacros.h&gt;</code> 即可解决。</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">/usr/bin/ld: qga/commands-posix.o: in function `dev_major_minor&#x27;:</span><br><span class="line">/repo/qemu/qga/commands-posix.c:640: undefined reference to `major&#x27;</span><br><span class="line">/usr/bin/ld: /repo/qemu/qga/commands-posix.c:641: undefined reference to `minor&#x27;</span><br></pre></td></tr></table></figure>
-
-<h3 id="制作QEMU虚拟机"><a href="#制作QEMU虚拟机" class="headerlink" title="制作QEMU虚拟机"></a>制作QEMU虚拟机</h3><p>这里我使用的Ubuntu 16.04 Server i386作为QEMU客户机系统。点击<a target="_blank" rel="noopener" href="https://mirrors6.tuna.tsinghua.edu.cn/ubuntu-releases/xenial/ubuntu-16.04.6-server-i386.iso">下载</a>。</p>
-<p>还需要下载安装VNC-Viewer，稍后会用到。<a target="_blank" rel="noopener" href="https://www.realvnc.com/en/connect/download/viewer/linux/">链接</a>。</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> ./qemu-img create -f qcow2 ~/tmp/vm/ubuntu.img 10G</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> sudo dpkg -i VNC-Viewer-6.20.529-Linux-x64.deb</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> x86_64-softmmu/qemu-system-x86_64 -boot d -cdrom \  <span class="comment"># 能用嵌套虚拟就用(添加--enable-kvm)</span></span></span><br><span class="line">~/tmp/iso/ubuntu-16.04.6-server-i386.iso \</span><br><span class="line">-hda ~/tmp/vm/ubuntu.img -m 1024</span><br><span class="line"><span class="meta">$</span><span class="bash"> vncviewer host:port  <span class="comment"># 连接上，安装就好</span></span></span><br></pre></td></tr></table></figure>
-
-<p>（尽量使用–enable-kvm，否则卡的受不了，安装系统安了四五个小时。。。）</p>
-          <div class="read-more">
-            <a href="/2020/12/05/CVE-2015-5165/" class="read-more-link">Read more..</a>
-          </div>
-        </div></article>
-      <article class="post">
-    <header class="post-header">
-      <h1 class="post-title"><a class="post-link" href="/2020/11/30/babyqemu/">HITB GSEC 2017：babyqemu</a>
-        </h1>
-
-      <div class="post-meta">
-        <span class="post-time">
-          2020-11-30
-        </span></div>
-    </header>
-
-    <div class="post-content"><p>题目下载地址：<a target="_blank" rel="noopener" href="https://github.com/kitctf/writeups/blob/master/hitb-gsec-2017/babyqemu/babyqemu.tar.gz">babyqemu.tar.gz</a></p>
-<h2 id="分析"><a href="#分析" class="headerlink" title="分析"></a>分析</h2><p><code>tar xvzf babyqemu.tar.gz</code>解压看到启动脚本<code>launch.sh</code></p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash">! /bin/sh</span></span><br><span class="line">./qemu-system-x86_64 \</span><br><span class="line">-initrd ./rootfs.cpio \</span><br><span class="line">-kernel ./vmlinuz-4.8.0-52-generic \</span><br><span class="line">-append &#x27;console=ttyS0 root=/dev/ram oops=panic panic=1&#x27; \</span><br><span class="line">-enable-kvm \     # 需要CPU virtualization，现在与hyper-v共存的VMware不支持此选项。可以删掉</span><br><span class="line">-monitor /dev/null \</span><br><span class="line">-m 64M --nographic  -L ./dependency/usr/local/share/qemu \</span><br><span class="line">-L pc-bios \</span><br><span class="line">-device hitb,id=vda</span><br></pre></td></tr></table></figure>
-
-<p>在最后一行可以看到设备名称为hitb，在ida左侧Functions window，ctrl+f搜索hitb就可以找到相关函数。通过在ida的Local Types窗口搜索hitb可以找到<code>HitbState</code>结构体，其中还包含<code>dma_state</code>结构体。</p>
-          <div class="read-more">
-            <a href="/2020/11/30/babyqemu/" class="read-more-link">Read more..</a>
-          </div>
-        </div></article>
-      <article class="post">
-    <header class="post-header">
-      <h1 class="post-title"><a class="post-link" href="/2020/11/27/Virtio-intro/">【翻译】Virtio：一种Linux I/O虚拟化框架</a>
-        </h1>
-
-      <div class="post-meta">
-        <span class="post-time">
-          2020-11-27
-        </span></div>
-    </header>
-
-    <div class="post-content"><p>首发于安全客<a target="_blank" rel="noopener" href="https://www.anquanke.com/post/id/224001">Virtio：一种Linux I/O虚拟化框架 - 安全客，安全资讯平台 (anquanke.com)</a></p>
-<p>原文：<a target="_blank" rel="noopener" href="https://developer.ibm.com/articles/l-virtio/">Virtio: An I/O virtualization framework for Linux – IBM Developer</a></p>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback>            0                                  16
+            +----------------------------------+
+            |              EPROM               |
+            +----------------------------------+
+            |      RDP - Data reg for CSR      |
+            +----------------------------------+
+            | RAP - Index reg for CSR and BCR  |
+            +----------------------------------+
+            |           Reset reg              |
+            +----------------------------------+
+            |      BDP - Data reg for BCR      |
+            +----------------------------------+
+</code></pre></td></tr></table>
+</div>
+</div>
+</div>
+<div class=read-more>
+<a href=/post/cve-2015-7504/ class=read-more-link>阅读更多</a>
+</div>
+</div>
+</article>
+<article class=post>
+<header class=post-header>
+<h1 class=post-title><a class=post-link href=/post/cve-2015-5165/>QEMU信息泄露漏洞分析与利用----CVE-2015-5165</a></h1>
+<div class=post-meta>
+<span class=post-time> 2020-12-05 </span>
+</div>
+</header>
+<div class=post-content>
+<div class=post-summary>
+<p>参考大佬们的文章复现CVE-2015-5165。</p>
+<h2 id=环境搭建>环境搭建</h2>
+<p>宿主机环境 Ubuntu 20.10</p>
+<h3 id=qemu编译>QEMU编译</h3>
+<p>QEMU <a href=https://github.com/qemu/qemu/tree/bd80b5963f58c601f31d3186b89887bf8e182fb5>commit-bd80b59</a>源码下载。</p>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-shell data-lang=shell>$ unzip qemu.zip
+$ mkdir -p bin/debug/native
+$ <span class=nb>cd</span> bin/debug/native
+$ sudo apt-get install zlib1g-dev libglib2.0-dev libpixman-1-dev
+$ ../../../configure --target-list<span class=o>=</span>x86_64-softmmu --enable-debug --disable-werror
+$ make
+</code></pre></td></tr></table>
+</div>
+</div><p>如果出现以下错误，给文件 <code>commands-posix.c</code> 增加头文件 <code>&lt;sys/sysmacros.h></code> 即可解决。</p>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-shell data-lang=shell>/usr/bin/ld: qga/commands-posix.o: in <span class=k>function</span> <span class=sb>`</span>dev_major_minor<span class=s1>&#39;:
+</span><span class=s1>/repo/qemu/qga/commands-posix.c:640: undefined reference to `major&#39;</span>
+/usr/bin/ld: /repo/qemu/qga/commands-posix.c:641: undefined reference to <span class=sb>`</span>minor<span class=err>&#39;</span>
+</code></pre></td></tr></table>
+</div>
+</div><h3 id=制作qemu虚拟机>制作QEMU虚拟机</h3>
+<p>这里我使用的Ubuntu 16.04 Server i386作为QEMU客户机系统。点击<a href=https://mirrors6.tuna.tsinghua.edu.cn/ubuntu-releases/xenial/ubuntu-16.04.6-server-i386.iso>下载</a>。</p>
+<p>还需要下载安装VNC-Viewer，稍后会用到。<a href=https://www.realvnc.com/en/connect/download/viewer/linux/>链接</a>。</p>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-shell data-lang=shell>$ ./qemu-img create -f qcow2 ~/tmp/vm/ubuntu.img 10G
+$ sudo dpkg -i VNC-Viewer-6.20.529-Linux-x64.deb
+$ x86_64-softmmu/qemu-system-x86_64 -boot d -cdrom <span class=se>\ </span> <span class=c1># 能用嵌套虚拟就用(添加--enable-kvm)</span>
+~/tmp/iso/ubuntu-16.04.6-server-i386.iso <span class=se>\
+</span><span class=se></span>-hda ~/tmp/vm/ubuntu.img -m <span class=m>1024</span>
+$ vncviewer host:port  <span class=c1># 连接上，安装就好</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>（尽量使用&ndash;enable-kvm，否则卡的受不了，安装系统安了四五个小时。。。）</p>
+</div>
+<div class=read-more>
+<a href=/post/cve-2015-5165/ class=read-more-link>阅读更多</a>
+</div>
+</div>
+</article>
+<article class=post>
+<header class=post-header>
+<h1 class=post-title><a class=post-link href=/post/babyqemu/>HITB GSEC 2017：babyqemu</a></h1>
+<div class=post-meta>
+<span class=post-time> 2020-11-30 </span>
+</div>
+</header>
+<div class=post-content>
+<div class=post-summary>
+<p>题目下载地址：<a href=https://github.com/kitctf/writeups/blob/master/hitb-gsec-2017/babyqemu/babyqemu.tar.gz>babyqemu.tar.gz</a></p>
+<h2 id=分析>分析</h2>
+<p><code>tar xvzf babyqemu.tar.gz</code>解压看到启动脚本<code>launch.sh</code></p>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=cp>#! /bin/sh
+</span><span class=cp></span>./qemu-system-x86_64 <span class=se>\
+</span><span class=se></span>-initrd ./rootfs.cpio <span class=se>\
+</span><span class=se></span>-kernel ./vmlinuz-4.8.0-52-generic <span class=se>\
+</span><span class=se></span>-append <span class=s1>&#39;console=ttyS0 root=/dev/ram oops=panic panic=1&#39;</span> <span class=se>\
+</span><span class=se></span>-enable-kvm <span class=se>\ </span>    <span class=c1># 需要CPU virtualization，现在与hyper-v共存的VMware不支持此选项。可以删掉</span>
+-monitor /dev/null <span class=se>\
+</span><span class=se></span>-m 64M --nographic  -L ./dependency/usr/local/share/qemu <span class=se>\
+</span><span class=se></span>-L pc-bios <span class=se>\
+</span><span class=se></span>-device hitb,id<span class=o>=</span>vda
+</code></pre></td></tr></table>
+</div>
+</div><p>在最后一行可以看到设备名称为hitb，在ida左侧Functions window，ctrl+f搜索hitb就可以找到相关函数。通过在ida的Local Types窗口搜索hitb可以找到<code>HitbState</code>结构体，其中还包含<code>dma_state</code>结构体。</p>
+</div>
+<div class=read-more>
+<a href=/post/babyqemu/ class=read-more-link>阅读更多</a>
+</div>
+</div>
+</article>
+<article class=post>
+<header class=post-header>
+<h1 class=post-title><a class=post-link href=/post/virtio-intro/>【翻译】Virtio：一种Linux I/O虚拟化框架</a></h1>
+<div class=post-meta>
+<span class=post-time> 2020-11-27 </span>
+</div>
+</header>
+<div class=post-content>
+<div class=post-summary>
+<p>首发于安全客<a href=https://www.anquanke.com/post/id/224001>Virtio：一种Linux I/O虚拟化框架 - 安全客，安全资讯平台 (anquanke.com)</a></p>
+<p>原文：<a href=https://developer.ibm.com/articles/l-virtio/>Virtio: An I/O virtualization framework for Linux – IBM Developer</a></p>
 <blockquote>
 <p>学习Virtio推荐首先看这一篇，国内好多文章写的太乱了，看来看不去都不明白整体的架构，给人很模糊的感觉。这篇文章好很多。</p>
 <p><strong>受限于个人水平，翻译肯定有不妥之处，译注根据自己的理解加入，也不一定准确。如有错误，还请不吝指出。</strong></p>
 </blockquote>
 <p>简言之，<code>virtio</code>是设备和半虚拟化管理程序(paravirtualized hypervisor)之间的一个抽象层。<code>virtio</code>是Rusty Russell为了支持他自己的虚拟化方案<code>lguest</code>而开发的。这篇文章以对半虚拟化和设备仿真的介绍开始，然后探寻<code>virtio</code>中的一些细节。采用kernel 2.6.30版本的<code>virtio</code>框架进行讲解。</p>
-<p>Linux是hypervisor的“游乐场”。正如我在文章<a target="_blank" rel="noopener" href="https://developer.ibm.com/tutorials/l-hypervisor/">使用Linux作为hypervisor</a>中所展现的，Linux提供了许多具有不同特性和优势的虚拟化解决方案。例如KVM(Kernel-based Virtual Machine)，<code>lguest</code>、和用户态的Linux。在Linux使用这些虚拟化解决方案给操作系统造成了重担，因为它们各自都有独立的需求。其中一个问题就是设备的虚拟化。<code>virtio</code>为各种各样设备（如：网络设备、块设备等等）的虚拟提供了通用的标准化前端接口，增加了各个虚拟化平台的代码复用。而不是各自为政般的使用繁杂的设备虚拟机制。</p>
-<h2 id="全虚拟化-vs-半虚拟化"><a href="#全虚拟化-vs-半虚拟化" class="headerlink" title="全虚拟化 vs. 半虚拟化"></a>全虚拟化 vs. 半虚拟化</h2><p>我们先来讨论两种完全不同的虚拟化方案：全虚拟化和半虚拟化。在全虚拟化中，客户操作系统在hypervisor上运行，相当于运行于裸机一般。客户机不知道它在虚拟机还是物理机中运行，不需要修改操作系统就可以直接运行。与此相反的是，在半虚拟化中，客户机操作系统不仅能够知道其运行于虚拟机之上，也必须包含与hypervisor进行交互的代码。但是能够在客户机和hypervisor的切换中，带来更高的效率（图1）。</p>
+<p>Linux是hypervisor的“游乐场”。正如我在文章<a href=https://developer.ibm.com/tutorials/l-hypervisor/>使用Linux作为hypervisor</a>中所展现的，Linux提供了许多具有不同特性和优势的虚拟化解决方案。例如KVM(Kernel-based Virtual Machine)，<code>lguest</code>、和用户态的Linux。在Linux使用这些虚拟化解决方案给操作系统造成了重担，因为它们各自都有独立的需求。其中一个问题就是设备的虚拟化。<code>virtio</code>为各种各样设备（如：网络设备、块设备等等）的虚拟提供了通用的标准化前端接口，增加了各个虚拟化平台的代码复用。而不是各自为政般的使用繁杂的设备虚拟机制。</p>
+<h2 id=全虚拟化-vs-半虚拟化>全虚拟化 vs. 半虚拟化</h2>
+<p>我们先来讨论两种完全不同的虚拟化方案：全虚拟化和半虚拟化。在全虚拟化中，客户操作系统在hypervisor上运行，相当于运行于裸机一般。客户机不知道它在虚拟机还是物理机中运行，不需要修改操作系统就可以直接运行。与此相反的是，在半虚拟化中，客户机操作系统不仅能够知道其运行于虚拟机之上，也必须包含与hypervisor进行交互的代码。但是能够在客户机和hypervisor的切换中，带来更高的效率（图1）。</p>
 <p><em>译注：客户机与hypervisor的切换举例：客户机请求I/O，需要hypervisor中所虚拟的设备来响应请求，此时就会发生切换。</em></p>
 <p>在全虚拟化中，hypervisor必须仿真设备硬件，也就是说模仿硬件最底层的会话（如：网卡驱动）。尽管这种仿真看起来方便，但代价是极低的效率和高度的复杂性。在半虚拟化中，客户机与hypervisor可以共同合作让这种仿真具有更高的效率。半虚拟化不足就是客户机操作系统会意识到它运行于虚拟机之中，而且需要对客户机操作系统做出一定的修改。</p>
-          <div class="read-more">
-            <a href="/2020/11/27/Virtio-intro/" class="read-more-link">Read more..</a>
-          </div>
-        </div></article>
-      <article class="post">
-    <header class="post-header">
-      <h1 class="post-title"><a class="post-link" href="/2020/11/23/Qemu-Pwn/">Qemu Escape ---- 以BlizzardCTF2017_STRNG为例</a>
-        </h1>
-
-      <div class="post-meta">
-        <span class="post-time">
-          2020-11-23
-        </span></div>
-    </header>
-
-    <div class="post-content"><p>最近想学一下qemu escape的基础知识，进而分析一些Qemu的CVE漏洞。</p>
+</div>
+<div class=read-more>
+<a href=/post/virtio-intro/ class=read-more-link>阅读更多</a>
+</div>
+</div>
+</article>
+<article class=post>
+<header class=post-header>
+<h1 class=post-title><a class=post-link href=/post/qemu-pwn/>Qemu Escape ---- 以BlizzardCTF2017_STRNG为例</a></h1>
+<div class=post-meta>
+<span class=post-time> 2020-11-23 </span>
+</div>
+</header>
+<div class=post-content>
+<div class=post-summary>
+<p>最近想学一下qemu escape的基础知识，进而分析一些Qemu的CVE漏洞。</p>
 <p>本文主要参考raycp师傅的两篇文章。[1] [2]</p>
-<h2 id="Qemu概述"><a href="#Qemu概述" class="headerlink" title="Qemu概述"></a>Qemu概述</h2><p>每个运行的qemu虚拟机对应于host上的一个进程，虚拟机的执行线程（如CPU线程、I/O线程等）对应于qemu进程中的一个线程。</p>
-<p><img src="https://raw.githubusercontent.com/clxsh/pics/master/imgqemu-architecture.png" alt="qemu-architecture"></p>
-<p>qemu的内存结构，根据<a target="_blank" rel="noopener" href="http://www.phrack.org/papers/vm-escape-qemu-case-study.html">QEMU Case Study</a>，虚拟机对应的内存结构为如下：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">                        Guest&#39; processes</span><br><span class="line">                     +--------------------+</span><br><span class="line">Virtual addr space   |                    |</span><br><span class="line">                     +--------------------+</span><br><span class="line">                     |                    |</span><br><span class="line">                     \__   Page Table     \__</span><br><span class="line">                        \                    \</span><br><span class="line">                         |                    |  Guest kernel</span><br><span class="line">                    +----+--------------------+----------------+</span><br><span class="line">Guest&#39;s phy. memory |    |                    |                |</span><br><span class="line">                    +----+--------------------+----------------+</span><br><span class="line">                    |                                          |</span><br><span class="line">                    \__                                        \__</span><br><span class="line">                       \                                          \</span><br><span class="line">                        |             QEMU process                 |</span><br><span class="line">                   +----+------------------------------------------+</span><br><span class="line">Virtual addr space |    |                                          |</span><br><span class="line">                   +----+------------------------------------------+</span><br><span class="line">                   |                                               |</span><br><span class="line">                    \__                Page Table                   \__</span><br><span class="line">                       \                                               \</span><br><span class="line">                        |                                               |</span><br><span class="line">                   +----+-----------------------------------------------++</span><br><span class="line">Physical memory    |    |                                               ||</span><br><span class="line">                   +----+-----------------------------------------------++</span><br></pre></td></tr></table></figure>
-          <div class="read-more">
-            <a href="/2020/11/23/Qemu-Pwn/" class="read-more-link">Read more..</a>
-          </div>
-        </div></article>
-      <nav class="pagination"><a class="next" href="/page/2/">
-        <span class="next-text">Next</span>
-        <i class="iconfont icon-right"></i>
-      </a>
-    </nav></section></div></div>
-      </main>
-
-      <footer id="footer" class="footer"><div class="social-links"><a target="_blank" rel="noopener" href="https://github.com/clxsh" class="iconfont icon-github" title="github"></a>
-        <a target="_blank" rel="noopener" href="https://www.douban.com/people/57285004/" class="iconfont icon-douban" title="douban"></a>
-        <a href="/atom.xml" class="iconfont icon-rss" title="rss"></a>
-    </div><div class="copyright">
-  <span class="power-by">
-    Powered by <a class="hexo-link" target="_blank" rel="noopener" href="https://hexo.io/">Hexo</a>
-  </span>
-  <span class="division">|</span>
-  <span class="theme-info">
-    Theme - 
-    <a class="theme-link" target="_blank" rel="noopener" href="https://github.com/ahonn/hexo-theme-even">Even</a>
-  </span>
-
-  <span class="copyright-year">&copy;2016 - 2021<span class="heart">
-      <i class="iconfont icon-heart"></i>
-    </span>
-    <span class="author">hhdx</span>
-  </span>
+<h2 id=qemu概述>Qemu概述</h2>
+<p>每个运行的qemu虚拟机对应于host上的一个进程，虚拟机的执行线程（如CPU线程、I/O线程等）对应于qemu进程中的一个线程。</p>
+<p><img src=https://raw.githubusercontent.com/clxsh/pics/master/imgqemu-architecture.png alt=qemu-architecture></p>
+<p>qemu的内存结构，根据<a href=http://www.phrack.org/papers/vm-escape-qemu-case-study.html>QEMU Case Study</a>，虚拟机对应的内存结构为如下：</p>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback>                        Guest&#39; processes
+                     +--------------------+
+Virtual addr space   |                    |
+                     +--------------------+
+                     |                    |
+                     \__   Page Table     \__
+                        \                    \
+                         |                    |  Guest kernel
+                    +----+--------------------+----------------+
+Guest&#39;s phy. memory |    |                    |                |
+                    +----+--------------------+----------------+
+                    |                                          |
+                    \__                                        \__
+                       \                                          \
+                        |             QEMU process                 |
+                   +----+------------------------------------------+
+Virtual addr space |    |                                          |
+                   +----+------------------------------------------+
+                   |                                               |
+                    \__                Page Table                   \__
+                       \                                               \
+                        |                                               |
+                   +----+-----------------------------------------------++
+Physical memory    |    |                                               ||
+                   +----+-----------------------------------------------++
+</code></pre></td></tr></table>
+</div>
+</div>
+</div>
+<div class=read-more>
+<a href=/post/qemu-pwn/ class=read-more-link>阅读更多</a>
+</div>
+</div>
+</article>
+</section>
+<nav class=pagination>
+<a class=next href=/page/2/>
+<span class=next-text>下一页</span>
+<i class="iconfont icon-right"></i>
+</a>
+</nav>
+</div>
+</div>
+</main>
+<footer id=footer class=footer>
+<div class=social-links>
+<a href=https://github.com/clxsh class="iconfont icon-github" title=github></a>
+<a href=https://www.douban.com/people/57285004/ class="iconfont icon-douban" title=douban></a>
+<a href=https://hhdx.xyz/index.xml type=application/rss+xml class="iconfont icon-rss" title=rss></a>
+</div>
+<div class=copyright>
+<span class=power-by>
+由 <a class=hexo-link href=https://gohugo.io>Hugo</a> 强力驱动
+</span>
+<span class=division>|</span>
+<span class=theme-info>
+主题 -
+<a class=theme-link href=https://github.com/olOwOlo/hugo-theme-even>Even</a>
+</span>
+<span class=copyright-year>
+&copy;
+2016 -
+2021<span class=heart><i class="iconfont icon-heart"></i></span><span>hhdx</span>
+</span>
 </div>
 </footer>
-
-      <div class="back-to-top" id="back-to-top">
-        <i class="iconfont icon-up"></i>
-      </div>
-    </div><script type="text/javascript" src="/lib/jquery/jquery.min.js"></script>
-  <script type="text/javascript" src="/lib/slideout/slideout.js"></script>
-  <script type="text/javascript" src="/lib/fancybox/jquery.fancybox.pack.js"></script>
-  <script type="text/javascript" src="/js/src/even.js?v=2.11.0"></script>
+<div class=back-to-top id=back-to-top>
+<i class="iconfont icon-up"></i>
+</div>
+</div>
+<script src=https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin=anonymous></script>
+<script src=https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin=anonymous></script>
+<script src=https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin=anonymous></script>
+<script type=text/javascript src=/js/main.min.c99b103c33d1539acf3025e1913697534542c4a5aa5af0ccc20475ed2863603b.js></script>
+<script type=application/javascript>var doNotTrack=!1;doNotTrack||(window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)},ga.l=+new Date,ga('create','UA-177325662-1','auto'),ga('set','anonymizeIp',!0),ga('send','pageview'))</script>
+<script async src=https://www.google-analytics.com/analytics.js></script>
 </body>
 </html>

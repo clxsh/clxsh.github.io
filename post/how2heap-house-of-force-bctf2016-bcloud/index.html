@@ -1,0 +1,416 @@
+<!doctype html><html lang=zh-cn>
+<head>
+<meta charset=utf-8>
+<meta http-equiv=x-ua-compatible content="IE=edge,chrome=1">
+<title>How2heap--house_of_force Bctf2016--bcloud - hhdx's blog</title>
+<meta name=renderer content="webkit">
+<meta name=viewport content="width=device-width,initial-scale=1,maximum-scale=1">
+<meta http-equiv=cache-control content="no-transform">
+<meta http-equiv=cache-control content="no-siteapp">
+<meta name=theme-color content="#f8f5ec">
+<meta name=msapplication-navbutton-color content="#f8f5ec">
+<meta name=apple-mobile-web-app-capable content="yes">
+<meta name=apple-mobile-web-app-status-bar-style content="#f8f5ec">
+<meta name=author content="hhdx"><meta name=description content="House of force 溢出修改topchunk的size，分配一个使size_t溢出的evil_size，使下一次分配在目标位置，进行修改。
+1 2 3 4 5 6 7 8 9  /* * The evil_size is calulcated as (nb is the number of bytes requested + space for metadata): * new_top = old_top + nb * nb = new_top - old_top * req + 2sizeof(long) = new_top - old_top * req = new_top - old_top - 2sizeof(long) * req = dest - 2sizeof(long) - old_top - 2sizeof(long) * req = dest - old_top - 4*sizeof(long) */   Bctf2016 bcloud 分析 1 2 3 4 5  Arch: i386-32-little RELRO: Partial RELRO Stack: Canary found NX: NX enabled PIE: No PIE (0x8047000)   程序一开始让输入name、org、hostname，输入字符串函数存在null byte overflow。
+输入name函数中，字符串数组在栈中后部紧邻指针变量，所以strcpy会将该指针一并拷贝入0x40的空间（实际可用0x44），并且null byte覆盖topchunk的最低字节。可以泄露堆的地址
+输入org、hostname函数中，存在同样问题，可覆盖的更多的字节。可以覆盖topchunk的size
+"><meta name=keywords content="C language,CTF,system engineer">
+<meta name=generator content="Hugo 0.87.0 with theme even">
+<link rel=canonical href=https://hhdx.xyz/post/how2heap-house-of-force-bctf2016-bcloud/>
+<link rel=apple-touch-icon sizes=180x180 href=/apple-touch-icon.png>
+<link rel=icon type=image/png sizes=32x32 href=/favicon-32x32.png>
+<link rel=icon type=image/png sizes=16x16 href=/favicon-16x16.png>
+<link rel=manifest href=/manifest.json>
+<link rel=mask-icon href=/safari-pinned-tab.svg color=#5bbad5>
+<link href=/sass/main.min.0d3b8ec8ed7df891edf32830bfdc6af5976dc6b9ffeb7cd1d0cdd312bcf8e23e.css rel=stylesheet>
+<link rel=stylesheet href=https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin=anonymous>
+<meta property="og:title" content="How2heap--house_of_force Bctf2016--bcloud">
+<meta property="og:description" content="House of force
+溢出修改topchunk的size，分配一个使size_t溢出的evil_size，使下一次分配在目标位置，进行修改。
+
+
+1
+2
+3
+4
+5
+6
+7
+8
+9
+
+
+/*
+* The evil_size is calulcated as (nb is the number of bytes requested + space for metadata):
+* new_top = old_top + nb
+* nb = new_top - old_top
+* req + 2sizeof(long) = new_top - old_top
+* req = new_top - old_top - 2sizeof(long)
+* req = dest - 2sizeof(long) - old_top - 2sizeof(long)
+* req = dest - old_top - 4*sizeof(long)
+*/
+
+
+Bctf2016 bcloud
+分析
+
+
+1
+2
+3
+4
+5
+
+
+Arch:     i386-32-little
+RELRO:    Partial RELRO
+Stack:    Canary found
+NX:       NX enabled
+PIE:      No PIE (0x8047000)
+
+
+程序一开始让输入name、org、hostname，输入字符串函数存在null byte overflow。
+输入name函数中，字符串数组在栈中后部紧邻指针变量，所以strcpy会将该指针一并拷贝入0x40的空间（实际可用0x44），并且null byte覆盖topchunk的最低字节。可以泄露堆的地址
+输入org、hostname函数中，存在同样问题，可覆盖的更多的字节。可以覆盖topchunk的size">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://hhdx.xyz/post/how2heap-house-of-force-bctf2016-bcloud/"><meta property="article:section" content="post">
+<meta property="article:published_time" content="2020-07-07T14:46:39+00:00">
+<meta property="article:modified_time" content="2020-07-07T14:46:39+00:00">
+<meta itemprop=name content="How2heap--house_of_force Bctf2016--bcloud">
+<meta itemprop=description content="House of force
+溢出修改topchunk的size，分配一个使size_t溢出的evil_size，使下一次分配在目标位置，进行修改。
+
+
+1
+2
+3
+4
+5
+6
+7
+8
+9
+
+
+/*
+* The evil_size is calulcated as (nb is the number of bytes requested + space for metadata):
+* new_top = old_top + nb
+* nb = new_top - old_top
+* req + 2sizeof(long) = new_top - old_top
+* req = new_top - old_top - 2sizeof(long)
+* req = dest - 2sizeof(long) - old_top - 2sizeof(long)
+* req = dest - old_top - 4*sizeof(long)
+*/
+
+
+Bctf2016 bcloud
+分析
+
+
+1
+2
+3
+4
+5
+
+
+Arch:     i386-32-little
+RELRO:    Partial RELRO
+Stack:    Canary found
+NX:       NX enabled
+PIE:      No PIE (0x8047000)
+
+
+程序一开始让输入name、org、hostname，输入字符串函数存在null byte overflow。
+输入name函数中，字符串数组在栈中后部紧邻指针变量，所以strcpy会将该指针一并拷贝入0x40的空间（实际可用0x44），并且null byte覆盖topchunk的最低字节。可以泄露堆的地址
+输入org、hostname函数中，存在同样问题，可覆盖的更多的字节。可以覆盖topchunk的size"><meta itemprop=datePublished content="2020-07-07T14:46:39+00:00">
+<meta itemprop=dateModified content="2020-07-07T14:46:39+00:00">
+<meta itemprop=wordCount content="1111">
+<meta itemprop=keywords content="how2heap,CTF,"><meta name=twitter:card content="summary">
+<meta name=twitter:title content="How2heap--house_of_force Bctf2016--bcloud">
+<meta name=twitter:description content="House of force
+溢出修改topchunk的size，分配一个使size_t溢出的evil_size，使下一次分配在目标位置，进行修改。
+
+
+1
+2
+3
+4
+5
+6
+7
+8
+9
+
+
+/*
+* The evil_size is calulcated as (nb is the number of bytes requested + space for metadata):
+* new_top = old_top + nb
+* nb = new_top - old_top
+* req + 2sizeof(long) = new_top - old_top
+* req = new_top - old_top - 2sizeof(long)
+* req = dest - 2sizeof(long) - old_top - 2sizeof(long)
+* req = dest - old_top - 4*sizeof(long)
+*/
+
+
+Bctf2016 bcloud
+分析
+
+
+1
+2
+3
+4
+5
+
+
+Arch:     i386-32-little
+RELRO:    Partial RELRO
+Stack:    Canary found
+NX:       NX enabled
+PIE:      No PIE (0x8047000)
+
+
+程序一开始让输入name、org、hostname，输入字符串函数存在null byte overflow。
+输入name函数中，字符串数组在栈中后部紧邻指针变量，所以strcpy会将该指针一并拷贝入0x40的空间（实际可用0x44），并且null byte覆盖topchunk的最低字节。可以泄露堆的地址
+输入org、hostname函数中，存在同样问题，可覆盖的更多的字节。可以覆盖topchunk的size"><!--[if lte IE 9]><script src=https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js></script><![endif]--><!--[if lt IE 9]><script src=https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js></script>
+<script src=https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js></script><![endif]-->
+</head>
+<body>
+<div id=mobile-navbar class=mobile-navbar>
+<div class=mobile-header-logo>
+<a href=/ class=logo>hhdx's blog</a>
+</div>
+<div class=mobile-navbar-icon>
+<span></span>
+<span></span>
+<span></span>
+</div>
+</div>
+<nav id=mobile-menu class="mobile-menu slideout-menu">
+<ul class=mobile-menu-list>
+<a href=/>
+<li class=mobile-menu-item>Home</li>
+</a><a href=/post/>
+<li class=mobile-menu-item>Archives</li>
+</a><a href=/tags/>
+<li class=mobile-menu-item>Tags</li>
+</a><a href=/links/>
+<li class=mobile-menu-item>Links</li>
+</a><a href=/about/>
+<li class=mobile-menu-item>About</li>
+</a>
+</ul>
+</nav>
+<div class=container id=mobile-panel>
+<header id=header class=header>
+<div class=logo-wrapper>
+<a href=/ class=logo>hhdx's blog</a>
+</div>
+<nav class=site-navbar>
+<ul id=menu class=menu>
+<li class=menu-item>
+<a class=menu-item-link href=/>Home</a>
+</li><li class=menu-item>
+<a class=menu-item-link href=/post/>Archives</a>
+</li><li class=menu-item>
+<a class=menu-item-link href=/tags/>Tags</a>
+</li><li class=menu-item>
+<a class=menu-item-link href=/links/>Links</a>
+</li><li class=menu-item>
+<a class=menu-item-link href=/about/>About</a>
+</li>
+</ul>
+</nav>
+</header>
+<main id=main class=main>
+<div class=content-wrapper>
+<div id=content class=content>
+<article class=post>
+<header class=post-header>
+<h1 class=post-title>How2heap--house_of_force Bctf2016--bcloud</h1>
+<div class=post-meta>
+<span class=post-time> 2020-07-07 </span>
+</div>
+</header>
+<div class=post-toc id=post-toc>
+<h2 class=post-toc-title>文章目录</h2>
+<div class="post-toc-content always-active">
+<nav id=TableOfContents>
+<ul>
+<li>
+<ul>
+<li><a href=#house-of-force>House of force</a></li>
+<li><a href=#bctf2016-bcloud>Bctf2016 bcloud</a>
+<ul>
+<li><a href=#分析>分析</a></li>
+<li><a href=#思路>思路</a></li>
+<li><a href=#house-of-force-1>House of force</a></li>
+</ul>
+</li>
+<li><a href=#reference>Reference</a></li>
+</ul>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+<div class=post-content>
+<h2 id=house-of-force>House of force</h2>
+<p>溢出修改topchunk的size，分配一个使size_t溢出的evil_size，使下一次分配在目标位置，进行修改。</p>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span><span class=lnt>8
+</span><span class=lnt>9
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-c data-lang=c><span class=cm>/*
+</span><span class=cm>* The evil_size is calulcated as (nb is the number of bytes requested + space for metadata):
+</span><span class=cm>* new_top = old_top + nb
+</span><span class=cm>* nb = new_top - old_top
+</span><span class=cm>* req + 2sizeof(long) = new_top - old_top
+</span><span class=cm>* req = new_top - old_top - 2sizeof(long)
+</span><span class=cm>* req = dest - 2sizeof(long) - old_top - 2sizeof(long)
+</span><span class=cm>* req = dest - old_top - 4*sizeof(long)
+</span><span class=cm>*/</span>
+</code></pre></td></tr></table>
+</div>
+</div><h2 id=bctf2016-bcloud>Bctf2016 bcloud</h2>
+<h3 id=分析>分析</h3>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback>Arch:     i386-32-little
+RELRO:    Partial RELRO
+Stack:    Canary found
+NX:       NX enabled
+PIE:      No PIE (0x8047000)
+</code></pre></td></tr></table>
+</div>
+</div><p>程序一开始让输入name、org、hostname，输入字符串函数存在null byte overflow。</p>
+<p>输入name函数中，字符串数组在栈中后部紧邻指针变量，所以strcpy会将该指针一并拷贝入0x40的空间（实际可用0x44），并且null byte覆盖topchunk的最低字节。可以泄露堆的地址</p>
+<p>输入org、hostname函数中，存在同样问题，可覆盖的更多的字节。可以覆盖topchunk的size</p>
+<p><strong>程序功能菜单</strong></p>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback>1.New note
+2.Show note
+3.Edit note
+4.Delete note
+5.Syn
+6.Quit
+</code></pre></td></tr></table>
+</div>
+</div><p>new note: 读入size存入全局数组，分配size+4的空间将指针也存入全局数组，读入字符串</p>
+<p>show note: 打印<code>WTF? Something strange happened.</code></p>
+<p>edit note: 修改存储的内容，根据size数组和指针数组</p>
+<p>delete note: free分配的空间</p>
+<p>syn: 修改sync标识。在这里没用</p>
+<h3 id=思路>思路</h3>
+<p>在input_name函数中，泄露堆的地址，由此可以计算evil_size；在input_orghost中覆盖topchunk的size为0xffffffff。使用atoi_got、free_got覆盖bss段所存储的全局指针数组，使用edit note函数将free_got处修改为puts_plt，使用delete note函数泄露libc base，最后使用edit note 修改atoi_got为system函数地址。</p>
+<h3 id=house-of-force-1>House of force</h3>
+<p>这个手法还是比较简单的，就是一开始没有找到漏洞。。只发现了null byte overflow。</p>
+<p>使用input_orghost函数覆盖topchunk->size为0xffffffff，接下来就是计算evil_size了。</p>
+<p>泄露的heap地址为分配的第一个0x40地址，称之为leak_heap。leak_heap+0x40就是此时的topchunk，后来又分配了两个0x40，此时<code>topchunk = leak_heap + 0x40 + 0x48*2</code>。到目标地址，还需要分配两个chunk，也就有两个8字节的头，new note中又加了4字节，所以<code>evil_size = dest_addr - topchunk - 8*2 - 4</code>。</p>
+<p>exp中，直接发送这个负值就可以，int到size_t，其中所存的数字没有变化，只是两种类型的解读不一样。原来我想发送unsigned值(evil_size&0xffffffff)，结果发现32位程序中atoi只会将其解析为4字节int最大的正数，即0x7fffffff。</p>
+<p><a href=https://github.com/clxsh/ctf_wps/blob/master/others/bctf2016%20bcloud/exp.py>exploit</a></p>
+<h2 id=reference>Reference</h2>
+<ol>
+<li>how2heap house_of_force.c</li>
+<li><a href=https://uaf.io/exploitation/2016/03/20/BCTF-bcloud.html>https://uaf.io/exploitation/2016/03/20/BCTF-bcloud.html</a></li>
+</ol>
+</div>
+<div class=post-copyright>
+<p class=copyright-item>
+<span class=item-title>文章作者</span>
+<span class=item-content>hhdx</span>
+</p>
+<p class=copyright-item>
+<span class=item-title>上次更新</span>
+<span class=item-content>
+2020-07-07
+</span>
+</p>
+</div>
+<footer class=post-footer>
+<div class=post-tags>
+<a href=/tags/how2heap/>how2heap</a>
+<a href=/tags/ctf/>CTF</a>
+</div>
+<nav class=post-nav>
+<a class=prev href=/post/how2heap-unsorted-bin-attack-0ctf2016-zerostorage/>
+<i class="iconfont icon-left"></i>
+<span class="prev-text nav-default">How2heap--unsorted_bin_attack 0ctf2016--zerostorage</span>
+<span class="prev-text nav-mobile">上一篇</span>
+</a>
+<a class=next href=/post/how2heap-overlapping-chunks-hack-lu2015-bookstore/>
+<span class="next-text nav-default">How2heap--overlapping_chunks Hack.lu2015--bookstore</span>
+<span class="next-text nav-mobile">下一篇</span>
+<i class="iconfont icon-right"></i>
+</a>
+</nav>
+</footer>
+</article>
+</div>
+<div id=disqus_thread></div>
+<script type=text/javascript>(function(){var a,b;if(window.location.hostname==='localhost')return;a=document.createElement('script'),a.type='text/javascript',a.async=!0,b='lyliuchao',a.src='//'+b+'.disqus.com/embed.js',(document.getElementsByTagName('head')[0]||document.getElementsByTagName('body')[0]).appendChild(a)})()</script>
+<noscript>Please enable JavaScript to view the <a href=http://disqus.com/?ref_noscript>comments powered by Disqus.</a></noscript>
+</div>
+</main>
+<footer id=footer class=footer>
+<div class=social-links>
+<a href=https://github.com/clxsh class="iconfont icon-github" title=github></a>
+<a href=https://www.douban.com/people/57285004/ class="iconfont icon-douban" title=douban></a>
+<a href=https://hhdx.xyz/index.xml type=application/rss+xml class="iconfont icon-rss" title=rss></a>
+</div>
+<div class=copyright>
+<span class=power-by>
+由 <a class=hexo-link href=https://gohugo.io>Hugo</a> 强力驱动
+</span>
+<span class=division>|</span>
+<span class=theme-info>
+主题 -
+<a class=theme-link href=https://github.com/olOwOlo/hugo-theme-even>Even</a>
+</span>
+<span class=copyright-year>
+&copy;
+2016 -
+2021<span class=heart><i class="iconfont icon-heart"></i></span><span>hhdx</span>
+</span>
+</div>
+</footer>
+<div class=back-to-top id=back-to-top>
+<i class="iconfont icon-up"></i>
+</div>
+</div>
+<script src=https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin=anonymous></script>
+<script src=https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin=anonymous></script>
+<script src=https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin=anonymous></script>
+<script type=text/javascript src=/js/main.min.c99b103c33d1539acf3025e1913697534542c4a5aa5af0ccc20475ed2863603b.js></script>
+<script type=application/javascript>var doNotTrack=!1;doNotTrack||(window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)},ga.l=+new Date,ga('create','UA-177325662-1','auto'),ga('set','anonymizeIp',!0),ga('send','pageview'))</script>
+<script async src=https://www.google-analytics.com/analytics.js></script>
+</body>
+</html>

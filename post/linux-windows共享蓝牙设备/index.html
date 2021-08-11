@@ -1,0 +1,212 @@
+<!doctype html><html lang=zh-cn>
+<head>
+<meta charset=utf-8>
+<meta http-equiv=x-ua-compatible content="IE=edge,chrome=1">
+<title>linux,windows共享蓝牙设备 - hhdx's blog</title>
+<meta name=renderer content="webkit">
+<meta name=viewport content="width=device-width,initial-scale=1,maximum-scale=1">
+<meta http-equiv=cache-control content="no-transform">
+<meta http-equiv=cache-control content="no-siteapp">
+<meta name=theme-color content="#f8f5ec">
+<meta name=msapplication-navbutton-color content="#f8f5ec">
+<meta name=apple-mobile-web-app-capable content="yes">
+<meta name=apple-mobile-web-app-status-bar-style content="#f8f5ec">
+<meta name=author content="hhdx"><meta name=description content="同一个蓝牙设备在装有linux，windows双系统的电脑上使用，每次重新连接都会出现连接失败的问题，都需要移除蓝牙设备再次添加，比较麻烦。导致这个问题的原因是蓝牙设备第一次连接电脑的蓝牙时会随机生成连接秘钥，储存在电脑和蓝牙设备中，以后每次连接都会校验这个秘钥。问题就是linux，windows蓝牙地址一样，在linux下连接过这个蓝牙设备存储了秘钥，在windows下又会重新连接又会生成新的秘钥，蓝牙设备记录下这个蓝牙地址的新秘钥，所以交替使用两个系统连接这个设备总会不成功。
+解决办法：  更改电脑蓝牙设备地址使两个系统下的不一样（这个没找到方法&amp;hellip;） 更改蓝牙设备连接秘钥使两个系统下的一样 "><meta name=keywords content="C language,CTF,system engineer">
+<meta name=generator content="Hugo 0.87.0 with theme even">
+<link rel=canonical href=https://hhdx.xyz/post/linux-windows%E5%85%B1%E4%BA%AB%E8%93%9D%E7%89%99%E8%AE%BE%E5%A4%87/>
+<link rel=apple-touch-icon sizes=180x180 href=/apple-touch-icon.png>
+<link rel=icon type=image/png sizes=32x32 href=/favicon-32x32.png>
+<link rel=icon type=image/png sizes=16x16 href=/favicon-16x16.png>
+<link rel=manifest href=/manifest.json>
+<link rel=mask-icon href=/safari-pinned-tab.svg color=#5bbad5>
+<link href=/sass/main.min.0d3b8ec8ed7df891edf32830bfdc6af5976dc6b9ffeb7cd1d0cdd312bcf8e23e.css rel=stylesheet>
+<link rel=stylesheet href=https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin=anonymous>
+<meta property="og:title" content="linux,windows共享蓝牙设备">
+<meta property="og:description" content="同一个蓝牙设备在装有linux，windows双系统的电脑上使用，每次重新连接都会出现连接失败的问题，都需要移除蓝牙设备再次添加，比较麻烦。导致这个问题的原因是蓝牙设备第一次连接电脑的蓝牙时会随机生成连接秘钥，储存在电脑和蓝牙设备中，以后每次连接都会校验这个秘钥。问题就是linux，windows蓝牙地址一样，在linux下连接过这个蓝牙设备存储了秘钥，在windows下又会重新连接又会生成新的秘钥，蓝牙设备记录下这个蓝牙地址的新秘钥，所以交替使用两个系统连接这个设备总会不成功。
+解决办法：
+
+更改电脑蓝牙设备地址使两个系统下的不一样（这个没找到方法&mldr;）
+更改蓝牙设备连接秘钥使两个系统下的一样
+">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://hhdx.xyz/post/linux-windows%E5%85%B1%E4%BA%AB%E8%93%9D%E7%89%99%E8%AE%BE%E5%A4%87/"><meta property="article:section" content="post">
+<meta property="article:published_time" content="2018-02-15T19:38:27+00:00">
+<meta property="article:modified_time" content="2018-02-15T19:38:27+00:00">
+<meta itemprop=name content="linux,windows共享蓝牙设备">
+<meta itemprop=description content="同一个蓝牙设备在装有linux，windows双系统的电脑上使用，每次重新连接都会出现连接失败的问题，都需要移除蓝牙设备再次添加，比较麻烦。导致这个问题的原因是蓝牙设备第一次连接电脑的蓝牙时会随机生成连接秘钥，储存在电脑和蓝牙设备中，以后每次连接都会校验这个秘钥。问题就是linux，windows蓝牙地址一样，在linux下连接过这个蓝牙设备存储了秘钥，在windows下又会重新连接又会生成新的秘钥，蓝牙设备记录下这个蓝牙地址的新秘钥，所以交替使用两个系统连接这个设备总会不成功。
+解决办法：
+
+更改电脑蓝牙设备地址使两个系统下的不一样（这个没找到方法&mldr;）
+更改蓝牙设备连接秘钥使两个系统下的一样
+"><meta itemprop=datePublished content="2018-02-15T19:38:27+00:00">
+<meta itemprop=dateModified content="2018-02-15T19:38:27+00:00">
+<meta itemprop=wordCount content="754">
+<meta itemprop=keywords content><meta name=twitter:card content="summary">
+<meta name=twitter:title content="linux,windows共享蓝牙设备">
+<meta name=twitter:description content="同一个蓝牙设备在装有linux，windows双系统的电脑上使用，每次重新连接都会出现连接失败的问题，都需要移除蓝牙设备再次添加，比较麻烦。导致这个问题的原因是蓝牙设备第一次连接电脑的蓝牙时会随机生成连接秘钥，储存在电脑和蓝牙设备中，以后每次连接都会校验这个秘钥。问题就是linux，windows蓝牙地址一样，在linux下连接过这个蓝牙设备存储了秘钥，在windows下又会重新连接又会生成新的秘钥，蓝牙设备记录下这个蓝牙地址的新秘钥，所以交替使用两个系统连接这个设备总会不成功。
+解决办法：
+
+更改电脑蓝牙设备地址使两个系统下的不一样（这个没找到方法&mldr;）
+更改蓝牙设备连接秘钥使两个系统下的一样
+"><!--[if lte IE 9]><script src=https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js></script><![endif]--><!--[if lt IE 9]><script src=https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js></script>
+<script src=https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js></script><![endif]-->
+</head>
+<body>
+<div id=mobile-navbar class=mobile-navbar>
+<div class=mobile-header-logo>
+<a href=/ class=logo>hhdx's blog</a>
+</div>
+<div class=mobile-navbar-icon>
+<span></span>
+<span></span>
+<span></span>
+</div>
+</div>
+<nav id=mobile-menu class="mobile-menu slideout-menu">
+<ul class=mobile-menu-list>
+<a href=/>
+<li class=mobile-menu-item>Home</li>
+</a><a href=/post/>
+<li class=mobile-menu-item>Archives</li>
+</a><a href=/tags/>
+<li class=mobile-menu-item>Tags</li>
+</a><a href=/links/>
+<li class=mobile-menu-item>Links</li>
+</a><a href=/about/>
+<li class=mobile-menu-item>About</li>
+</a>
+</ul>
+</nav>
+<div class=container id=mobile-panel>
+<header id=header class=header>
+<div class=logo-wrapper>
+<a href=/ class=logo>hhdx's blog</a>
+</div>
+<nav class=site-navbar>
+<ul id=menu class=menu>
+<li class=menu-item>
+<a class=menu-item-link href=/>Home</a>
+</li><li class=menu-item>
+<a class=menu-item-link href=/post/>Archives</a>
+</li><li class=menu-item>
+<a class=menu-item-link href=/tags/>Tags</a>
+</li><li class=menu-item>
+<a class=menu-item-link href=/links/>Links</a>
+</li><li class=menu-item>
+<a class=menu-item-link href=/about/>About</a>
+</li>
+</ul>
+</nav>
+</header>
+<main id=main class=main>
+<div class=content-wrapper>
+<div id=content class=content>
+<article class=post>
+<header class=post-header>
+<h1 class=post-title>linux,windows共享蓝牙设备</h1>
+<div class=post-meta>
+<span class=post-time> 2018-02-15 </span>
+</div>
+</header>
+<div class=post-toc id=post-toc>
+<h2 class=post-toc-title>文章目录</h2>
+<div class="post-toc-content always-active">
+<nav id=TableOfContents>
+<ul>
+<li>
+<ul>
+<li>
+<ul>
+<li></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+<div class=post-content>
+<p>同一个蓝牙设备在装有linux，windows双系统的电脑上使用，每次重新连接都会出现连接失败的问题，都需要移除蓝牙设备再次添加，比较麻烦。导致这个问题的原因是蓝牙设备第一次连接电脑的蓝牙时会随机生成连接秘钥，储存在电脑和蓝牙设备中，以后每次连接都会校验这个秘钥。问题就是linux，windows蓝牙地址一样，在linux下连接过这个蓝牙设备存储了秘钥，在windows下又会重新连接又会生成新的秘钥，蓝牙设备记录下这个蓝牙地址的新秘钥，所以交替使用两个系统连接这个设备总会不成功。</p>
+<h4 id=解决办法>解决办法：</h4>
+<ol>
+<li>更改电脑蓝牙设备地址使两个系统下的不一样（这个没找到方法&mldr;）</li>
+<li>更改蓝牙设备连接秘钥使两个系统下的一样</li>
+</ol>
+<h6 id=linux>Linux</h6>
+<p>linux在/var/lib/bluetooth/$(电脑蓝牙地址)/$(蓝牙设备地址)/info 文件里，有个叫linkkey项目里的key就是秘钥。记录一下。</p>
+<p><img src=/uploads/2018-02-15.png alt=sample></p>
+<h6 id=windows>Windows</h6>
+<p>windows的秘钥存储在注册表中，得先获得访问注册表编辑工具权限。运行gpedit.msc，依次展开用户配置->管理模板->系统，找到“阻止访问注册表编辑工具”，设置为禁止。然后下载个工具。</p>
+<p>下载地址：<a href=https://technet.microsoft.com/en-us/sysinternals/bb897553>https://technet.microsoft.com/en-us/sysinternals/bb897553</a></p>
+<p>下载完成后所有的exe文件解压到/windows/system32/里。</p>
+<p>以管理员身份运行cmd或powershell，输入<code>psexec -s -i regedit</code> ，找到“HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\services\BTHPORT\Parameters\Keys\”，找到电脑蓝牙地址下的以蓝牙设备地址为名的键(需要先前连接过），把那个键值改为和linux的一致就可以了。</p>
+</div>
+<div class=post-copyright>
+<p class=copyright-item>
+<span class=item-title>文章作者</span>
+<span class=item-content>hhdx</span>
+</p>
+<p class=copyright-item>
+<span class=item-title>上次更新</span>
+<span class=item-content>
+2018-02-15
+</span>
+</p>
+</div>
+<footer class=post-footer>
+<nav class=post-nav>
+<a class=prev href=/post/csapp3e-attacklab/>
+<i class="iconfont icon-left"></i>
+<span class="prev-text nav-default">CSAPP3e:Attacklab</span>
+<span class="prev-text nav-mobile">上一篇</span>
+</a>
+<a class=next href=/post/%E6%9E%9A%E4%B8%BE%E7%AE%97%E6%B3%95/>
+<span class="next-text nav-default">枚举算法</span>
+<span class="next-text nav-mobile">下一篇</span>
+<i class="iconfont icon-right"></i>
+</a>
+</nav>
+</footer>
+</article>
+</div>
+<div id=disqus_thread></div>
+<script type=text/javascript>(function(){var a,b;if(window.location.hostname==='localhost')return;a=document.createElement('script'),a.type='text/javascript',a.async=!0,b='lyliuchao',a.src='//'+b+'.disqus.com/embed.js',(document.getElementsByTagName('head')[0]||document.getElementsByTagName('body')[0]).appendChild(a)})()</script>
+<noscript>Please enable JavaScript to view the <a href=http://disqus.com/?ref_noscript>comments powered by Disqus.</a></noscript>
+</div>
+</main>
+<footer id=footer class=footer>
+<div class=social-links>
+<a href=https://github.com/clxsh class="iconfont icon-github" title=github></a>
+<a href=https://www.douban.com/people/57285004/ class="iconfont icon-douban" title=douban></a>
+<a href=https://hhdx.xyz/index.xml type=application/rss+xml class="iconfont icon-rss" title=rss></a>
+</div>
+<div class=copyright>
+<span class=power-by>
+由 <a class=hexo-link href=https://gohugo.io>Hugo</a> 强力驱动
+</span>
+<span class=division>|</span>
+<span class=theme-info>
+主题 -
+<a class=theme-link href=https://github.com/olOwOlo/hugo-theme-even>Even</a>
+</span>
+<span class=copyright-year>
+&copy;
+2016 -
+2021<span class=heart><i class="iconfont icon-heart"></i></span><span>hhdx</span>
+</span>
+</div>
+</footer>
+<div class=back-to-top id=back-to-top>
+<i class="iconfont icon-up"></i>
+</div>
+</div>
+<script src=https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin=anonymous></script>
+<script src=https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin=anonymous></script>
+<script src=https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin=anonymous></script>
+<script type=text/javascript src=/js/main.min.c99b103c33d1539acf3025e1913697534542c4a5aa5af0ccc20475ed2863603b.js></script>
+<script type=application/javascript>var doNotTrack=!1;doNotTrack||(window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)},ga.l=+new Date,ga('create','UA-177325662-1','auto'),ga('set','anonymizeIp',!0),ga('send','pageview'))</script>
+<script async src=https://www.google-analytics.com/analytics.js></script>
+</body>
+</html>

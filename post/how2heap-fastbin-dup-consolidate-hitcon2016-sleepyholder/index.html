@@ -15,7 +15,7 @@
 使用how2heap脚本编译glibc2.25，其中的4是编译线程数。脚本中git clone慢，可以替换成tsinghua mirrors，把第83行的git clone git://sourceware.org/git/glibc.git &amp;quot;$SRC&amp;quot; 替换成 git clone https://mirrors.tuna.tsinghua.edu.cn/git/glibc.git &amp;quot;$SRC&amp;quot;。
 1  $ ./glibc_build.sh 2.25 -j 4 -disable-tcache   做这道题目使用了glibc2.25，patchelf --set-interpreter /path/to/ld-2.25.so /path/to/exe，patch之后再运行程序就自动使用同目录下libc-2.25.so。
 "><meta name=keywords content="C language,CTF,system engineer">
-<meta name=generator content="Hugo 0.87.0 with theme even">
+<meta name=generator content="Hugo 0.88.1 with theme even">
 <link rel=canonical href=https://hhdx.xyz/post/how2heap-fastbin-dup-consolidate-hitcon2016-sleepyholder/>
 <link rel=apple-touch-icon sizes=180x180 href=/apple-touch-icon.png>
 <link rel=icon type=image/png sizes=32x32 href=/favicon-32x32.png>

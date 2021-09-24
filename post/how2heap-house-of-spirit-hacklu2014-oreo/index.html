@@ -14,7 +14,7 @@
 <meta name=author content="hhdx"><meta name=description content="House of Spirit 该攻击手法的主要是思想是，在不可控区域的前后伪造chunk信息，覆盖某指针指向chunk2mem(fake_chunk)，释放该指针后再次申请，对不可控区域的进行改写。
 1 2 3 4 5 6 7 8 9 10 11  +---------------+ | 可 控 区 域 | +---------------+ | | | 不 可 控 区 域 | | | | 一 般 为 某 些 | | 指 针 | +---------------+ | 可 控 区 域 | +---------------+   伪造的chunk也通常是fastbin，因为检查容易绕过。
 "><meta name=keywords content="C language,CTF,system engineer">
-<meta name=generator content="Hugo 0.87.0 with theme even">
+<meta name=generator content="Hugo 0.88.1 with theme even">
 <link rel=canonical href=https://hhdx.xyz/post/how2heap-house-of-spirit-hacklu2014-oreo/>
 <link rel=apple-touch-icon sizes=180x180 href=/apple-touch-icon.png>
 <link rel=icon type=image/png sizes=32x32 href=/favicon-32x32.png>

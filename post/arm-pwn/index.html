@@ -16,7 +16,7 @@
 1  $ apt-cache search &amp;#34;libc&amp;#34; | grep arm   安装类似libc6-ARCH-cross。
 动态链接库被安装在类似/usr/arm-linux-gnueabihf/的路径。qemu不知道动态链接的位置，它预期在类似/etc/qemu-binfmt/arm的路径，所以可以设置软链接来避免用-L来指定链接库位置。
 1 2 3  $ sudo mkdir /etc/qemu-binfmt $ sudo ln -s /usr/arm-linux-gnueabihf /etc/qemu-binfmt/arm $ sudo ln -s /usr/aarch64-linux-gnu/ /etc/qemu-binfmt/aarch64 # 对于aarch64   "><meta name=keywords content="C language,CTF,system engineer">
-<meta name=generator content="Hugo 0.87.0 with theme even">
+<meta name=generator content="Hugo 0.88.1 with theme even">
 <link rel=canonical href=https://hhdx.xyz/post/arm-pwn/>
 <link rel=apple-touch-icon sizes=180x180 href=/apple-touch-icon.png>
 <link rel=icon type=image/png sizes=32x32 href=/favicon-32x32.png>

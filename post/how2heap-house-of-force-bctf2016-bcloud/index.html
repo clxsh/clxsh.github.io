@@ -16,7 +16,7 @@
 输入name函数中，字符串数组在栈中后部紧邻指针变量，所以strcpy会将该指针一并拷贝入0x40的空间（实际可用0x44），并且null byte覆盖topchunk的最低字节。可以泄露堆的地址
 输入org、hostname函数中，存在同样问题，可覆盖的更多的字节。可以覆盖topchunk的size
 "><meta name=keywords content="C language,CTF,system engineer">
-<meta name=generator content="Hugo 0.87.0 with theme even">
+<meta name=generator content="Hugo 0.88.1 with theme even">
 <link rel=canonical href=https://hhdx.xyz/post/how2heap-house-of-force-bctf2016-bcloud/>
 <link rel=apple-touch-icon sizes=180x180 href=/apple-touch-icon.png>
 <link rel=icon type=image/png sizes=32x32 href=/favicon-32x32.png>

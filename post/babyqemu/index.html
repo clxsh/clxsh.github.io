@@ -15,7 +15,7 @@
 分析 tar xvzf babyqemu.tar.gz解压看到启动脚本launch.sh
 1 2 3 4 5 6 7 8 9 10  #! /bin/sh ./qemu-system-x86_64 \ -initrd ./rootfs.cpio \ -kernel ./vmlinuz-4.8.0-52-generic \ -append &amp;#39;console=ttyS0 root=/dev/ram oops=panic panic=1&amp;#39; \ -enable-kvm \  # 需要CPU virtualization，现在与hyper-v共存的VMware不支持此选项。可以删掉 -monitor /dev/null \ -m 64M --nographic -L ./dependency/usr/local/share/qemu \ -L pc-bios \ -device hitb,id=vda   在最后一行可以看到设备名称为hitb，在ida左侧Functions window，ctrl+f搜索hitb就可以找到相关函数。通过在ida的Local Types窗口搜索hitb可以找到HitbState结构体，其中还包含dma_state结构体。
 "><meta name=keywords content="C language,CTF,system engineer">
-<meta name=generator content="Hugo 0.87.0 with theme even">
+<meta name=generator content="Hugo 0.88.1 with theme even">
 <link rel=canonical href=https://hhdx.xyz/post/babyqemu/>
 <link rel=apple-touch-icon sizes=180x180 href=/apple-touch-icon.png>
 <link rel=icon type=image/png sizes=32x32 href=/favicon-32x32.png>

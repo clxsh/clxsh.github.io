@@ -15,7 +15,7 @@
 当topchunk不足以分配所需空间时，会调用sysmalloc分配额外空间。一般情况下，main_arena中old top chunk和新分配的top chunk首尾相邻，从而会进行合并。当我们将topchunk-&amp;gt;size减小后，会检测不到相邻，也就不会合并了。设置好fencepost chunk，会执行_int_free (av, old_top, 1)将其放入unsorted bin。
 代码涉及_int_malloc后边和sysmalloc。
 "><meta name=keywords content="C language,CTF,system engineer">
-<meta name=generator content="Hugo 0.87.0 with theme even">
+<meta name=generator content="Hugo 0.88.1 with theme even">
 <link rel=canonical href=https://hhdx.xyz/post/how2heap-house-of-orange-hitcon2016-houseoforange/>
 <link rel=apple-touch-icon sizes=180x180 href=/apple-touch-icon.png>
 <link rel=icon type=image/png sizes=32x32 href=/favicon-32x32.png>

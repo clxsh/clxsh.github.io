@@ -19,7 +19,7 @@ info: 打印姓名
 伪造chunk注意绕过free的所有检查。伪造完成的结构如下：
 1 2 3 4 5 6 7 8 9 10  +----------+ | | | | | 0x421 | | | +----------+ | 0x21 | +----------+ | 0x21 | +----------+   tcache默认最多有64个，第1个是0x20大小，递推第64个也就是0x410。所以将name处伪造为0x420大小。第一个chunk的chunk-&amp;gt;size=0x420|pre_in_use，避免backward consolidate，第三个chunk的chunk-&amp;gt;size=0x20|pre_in_use，避免forward consolidate。
 "><meta name=keywords content="C language,CTF,system engineer">
-<meta name=generator content="Hugo 0.87.0 with theme even">
+<meta name=generator content="Hugo 0.88.1 with theme even">
 <link rel=canonical href=https://hhdx.xyz/post/pwnable-tw-tcache-tear-seethefile/>
 <link rel=apple-touch-icon sizes=180x180 href=/apple-touch-icon.png>
 <link rel=icon type=image/png sizes=32x32 href=/favicon-32x32.png>

@@ -13,7 +13,7 @@
 <meta name=apple-mobile-web-app-status-bar-style content="#f8f5ec">
 <meta name=author content="hhdx"><meta name=description content="同一个蓝牙设备在装有linux，windows双系统的电脑上使用，每次重新连接都会出现连接失败的问题，都需要移除蓝牙设备再次添加，比较麻烦。导致这个问题的原因是蓝牙设备第一次连接电脑的蓝牙时会随机生成连接秘钥，储存在电脑和蓝牙设备中，以后每次连接都会校验这个秘钥。问题就是linux，windows蓝牙地址一样，在linux下连接过这个蓝牙设备存储了秘钥，在windows下又会重新连接又会生成新的秘钥，蓝牙设备记录下这个蓝牙地址的新秘钥，所以交替使用两个系统连接这个设备总会不成功。
 解决办法：  更改电脑蓝牙设备地址使两个系统下的不一样（这个没找到方法&amp;hellip;） 更改蓝牙设备连接秘钥使两个系统下的一样 "><meta name=keywords content="C language,CTF,system engineer">
-<meta name=generator content="Hugo 0.87.0 with theme even">
+<meta name=generator content="Hugo 0.88.1 with theme even">
 <link rel=canonical href=https://hhdx.xyz/post/linux-windows%E5%85%B1%E4%BA%AB%E8%93%9D%E7%89%99%E8%AE%BE%E5%A4%87/>
 <link rel=apple-touch-icon sizes=180x180 href=/apple-touch-icon.png>
 <link rel=icon type=image/png sizes=32x32 href=/favicon-32x32.png>

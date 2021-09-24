@@ -16,7 +16,7 @@
 Qemu概述 每个运行的qemu虚拟机对应于host上的一个进程，虚拟机的执行线程（如CPU线程、I/O线程等）对应于qemu进程中的一个线程。
 qemu的内存结构，根据QEMU Case Study，虚拟机对应的内存结构为如下：
 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25  Guest&amp;#39; processes +--------------------+ Virtual addr space | | +--------------------+ | | \__ Page Table \__ \ \ | | Guest kernel +----+--------------------+----------------+ Guest&amp;#39;s phy. memory | | | | +----+--------------------+----------------+ | | \__ \__ \ \ | QEMU process | +----+------------------------------------------+ Virtual addr space | | | +----+------------------------------------------+ | | \__ Page Table \__ \ \ | | +----+-----------------------------------------------++ Physical memory | | || +----+-----------------------------------------------++   "><meta name=keywords content="C language,CTF,system engineer">
-<meta name=generator content="Hugo 0.87.0 with theme even">
+<meta name=generator content="Hugo 0.88.1 with theme even">
 <link rel=canonical href=https://hhdx.xyz/post/qemu-pwn/>
 <link rel=apple-touch-icon sizes=180x180 href=/apple-touch-icon.png>
 <link rel=icon type=image/png sizes=32x32 href=/favicon-32x32.png>

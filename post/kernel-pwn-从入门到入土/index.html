@@ -19,7 +19,7 @@ Initial Ramdisk 名字类似initramfs.cpio 文件，一般可以使用cpio读取
 1 2  $ find . | cpio -o --format=newc &amp;gt; initramfs.cpio # compress $ sudo cpio -idmv &amp;lt; initramfs.cpio # depress   有时也经过了gzip的压缩。
 1 2 3  $ mv initramfs.cpio initramfs.cpio.gz $ gunzip initramfs.cpio.gz	# 解压得到initramfs.cpio $ cpio -idmv &amp;lt; initramfs.cpio   更改为正确的后缀之后，图形界面“归档管理器”也可以打开。
 "><meta name=keywords content="C language,CTF,system engineer">
-<meta name=generator content="Hugo 0.87.0 with theme even">
+<meta name=generator content="Hugo 0.88.1 with theme even">
 <link rel=canonical href=https://hhdx.xyz/post/kernel-pwn-%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E5%85%A5%E5%9C%9F/>
 <link rel=apple-touch-icon sizes=180x180 href=/apple-touch-icon.png>
 <link rel=icon type=image/png sizes=32x32 href=/favicon-32x32.png>

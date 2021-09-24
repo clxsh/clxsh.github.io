@@ -15,7 +15,7 @@
 这里比较难理解就是large bin的结构，特别是先前我被一个large bin结构图所误导，下面给出我画的结构图（如果有错误o((⊙﹏⊙))o，请帮忙指出）。
 0ctf2018 heapstorm2 1 2 3 4 5  Arch: amd64-64-little RELRO: Full RELRO Stack: Canary found NX: NX enabled PIE: PIE enabled   功能分析 程序首先使用mallopt函数将global_max_fast设置为0，也就是不使用fastbin。
 "><meta name=keywords content="C language,CTF,system engineer">
-<meta name=generator content="Hugo 0.87.0 with theme even">
+<meta name=generator content="Hugo 0.88.1 with theme even">
 <link rel=canonical href=https://hhdx.xyz/post/how2heap-large-bin-attack-0ctf2018-heapstorm2/>
 <link rel=apple-touch-icon sizes=180x180 href=/apple-touch-icon.png>
 <link rel=icon type=image/png sizes=32x32 href=/favicon-32x32.png>

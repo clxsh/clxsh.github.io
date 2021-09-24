@@ -15,7 +15,7 @@
 glibc2.26中，在unlink宏中加入了size==prev_size(next_chunk)的检查，与下一chunk所存储的pre_size进行了比对，在poison_null_byte.c中相应的添加了*(size_t*)(b+0x1f0) = 0x200，可以绕过这个检查，所以how2heap的README中对glibc的要求是&amp;lt;2.26应该是忘了改。
 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24  chunk b +------&amp;gt; +----------+ | | +----------+ &amp;lt;---------+ size | 0X200 | +----------+ &amp;lt;---------+ b | | | | | | | | | | | | | | | | | | +----------+ &amp;lt;--------+ fake pre_size | 0X200 | +----------+ | | chunk c +------&amp;gt; +----------+ &amp;lt;--------+ pre_size | 0X210 | +----------+ | | | | | |   触发unlink的流程：通过null byte溢出伪造完0x200的chunk后，此时该chunk存在于unsortedbin。再次分配0x100的b1时，遍历unsortedbin，该chunk被放入到smallbin中，unsortedbin里的chunk也就这一个，遍历结束无法分配。又通过查找binmap找到0x200的smallbin，这时触发的unlink，将该chunk从smallbin中取出。
 "><meta name=keywords content="C language,CTF,system engineer">
-<meta name=generator content="Hugo 0.87.0 with theme even">
+<meta name=generator content="Hugo 0.88.1 with theme even">
 <link rel=canonical href=https://hhdx.xyz/post/how2heap-poison-null-byte-plaidctf2015-plaiddb/>
 <link rel=apple-touch-icon sizes=180x180 href=/apple-touch-icon.png>
 <link rel=icon type=image/png sizes=32x32 href=/favicon-32x32.png>

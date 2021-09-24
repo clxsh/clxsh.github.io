@@ -17,7 +17,7 @@
  当 n=0 时，返回当前系统允许的堆的最小内存块。 当 n 为负数时，由于在大多数系统上，size_t 是无符号数（这一点非常重要），所以程序就会申请很大的内存空间，但通常来说都会失败，因为系统没有那么多的内存可以分配。  free free(void *p)
  当 p 为空指针时，函数不执行任何操作。 当 p 已经被释放之后，再次释放会出现乱七八糟的效果，这其实就是 double free。 除了被禁用 (mallopt) 的情况下，当释放很大的内存空间时，程序会将这些内存空间还给系统，以便于减小程序所使用的内存空间。  背后的系统调用 这些函数背后的系统调用主要是 (s)brk 函数以及 mmap, munmap 函数。
 "><meta name=keywords content="C language,CTF,system engineer">
-<meta name=generator content="Hugo 0.87.0 with theme even">
+<meta name=generator content="Hugo 0.88.1 with theme even">
 <link rel=canonical href=https://hhdx.xyz/post/glibcheap/>
 <link rel=apple-touch-icon sizes=180x180 href=/apple-touch-icon.png>
 <link rel=icon type=image/png sizes=32x32 href=/favicon-32x32.png>

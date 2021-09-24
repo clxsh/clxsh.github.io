@@ -21,7 +21,7 @@ Linux是hypervisor的“游乐场”。正如我在文章使用Linux作为hyperv
 译注：客户机与hypervisor的切换举例：客户机请求I/O，需要hypervisor中所虚拟的设备来响应请求，此时就会发生切换。
 在全虚拟化中，hypervisor必须仿真设备硬件，也就是说模仿硬件最底层的会话（如：网卡驱动）。尽管这种仿真看起来方便，但代价是极低的效率和高度的复杂性。在半虚拟化中，客户机与hypervisor可以共同合作让这种仿真具有更高的效率。半虚拟化不足就是客户机操作系统会意识到它运行于虚拟机之中，而且需要对客户机操作系统做出一定的修改。
 "><meta name=keywords content="C language,CTF,system engineer">
-<meta name=generator content="Hugo 0.87.0 with theme even">
+<meta name=generator content="Hugo 0.88.1 with theme even">
 <link rel=canonical href=https://hhdx.xyz/post/virtio-intro/>
 <link rel=apple-touch-icon sizes=180x180 href=/apple-touch-icon.png>
 <link rel=icon type=image/png sizes=32x32 href=/favicon-32x32.png>

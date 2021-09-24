@@ -15,7 +15,7 @@
 1 2 3 4 5 6 7 8  $$$$$$$$$$$$$$$$$$$$$$$$$$$$ 🍊 RE Allocator 🍊 $$$$$$$$$$$$$$$$$$$$$$$$$$$$ $ 1. Alloc $ $ 2. Realloc $ $ 3. Free $ $ 4. Exit $ $$$$$$$$$$$$$$$$$$$$$$$$$$$    Alloc: index只能取0或1；size必须&amp;lt;=0x78；然后使用realloc(0, size)分配，通过源码可以看出，这就相当于malloc(size)。这里存在null byte overflow（然而没什么用似乎，一开始我一直卡在这里想如何利用，完全没注意到后一个漏洞。。。  1 2 3  /* realloc of null is supposed to be same as malloc */ if (oldmem == 0) return __libc_malloc (bytes);   Realloc: size同样&amp;lt;=0x78。realloc有几种情况：请求大小自己可以满足；尝试向后扩展(top chunk或!inuse (next))；__int_malloc请求新块。（这里存在UAF，输入size为0 Free：realloc(ptr, 0)相当于free(ptr)，同时将指针数组置空。  1 2 3 4  if (bytes == 0 &amp;amp;&amp;amp; oldmem != NULL) { __libc_free (oldmem); return 0; }   libc_version: glibc 2.29 with tcache。该版本libc的源码。下一篇文章说一下如何确定的libc版本，如何确定的有tcache，以及如何使用指定libc运行程序。
 此外，这个版本中出现了对tcache double free的一个检查机制。
 "><meta name=keywords content="C language,CTF,system engineer">
-<meta name=generator content="Hugo 0.87.0 with theme even">
+<meta name=generator content="Hugo 0.88.1 with theme even">
 <link rel=canonical href=https://hhdx.xyz/post/pwnable-tw-re-alloc/>
 <link rel=apple-touch-icon sizes=180x180 href=/apple-touch-icon.png>
 <link rel=icon type=image/png sizes=32x32 href=/favicon-32x32.png>

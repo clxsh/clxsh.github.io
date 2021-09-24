@@ -15,7 +15,7 @@
 确定完大版本号还不够，因为就算是同一版本的libc也会有较大的变动。比方说，与最开始的2.29版本相比，gnu libc库的release/2.29/master分支的tcache_perthread_struct-&amp;gt;counts的变量类型都变了；__libc_malloc中取用tcache的判定，也由判断指针是否为空变成了判断counts是否大于0。这些细节很大程度上影响了exploit的书写。
 下面以pwnable.tw re-alloc的libc为例，写一写我的经验。
 "><meta name=keywords content="C language,CTF,system engineer">
-<meta name=generator content="Hugo 0.87.0 with theme even">
+<meta name=generator content="Hugo 0.88.1 with theme even">
 <link rel=canonical href=https://hhdx.xyz/post/%E4%BB%A5%E6%8C%87%E5%AE%9Alibc%E8%BF%90%E8%A1%8C%E7%A8%8B%E5%BA%8F/>
 <link rel=apple-touch-icon sizes=180x180 href=/apple-touch-icon.png>
 <link rel=icon type=image/png sizes=32x32 href=/favicon-32x32.png>

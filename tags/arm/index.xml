@@ -4,8 +4,8 @@
 &lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
 &lt;/span>&lt;/code>&lt;/pre>&lt;/td>
 &lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">$ sudo apt install qemu-user gdb-multiarch
-&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">$ sudo apt install qemu-user gdb-multiarch
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
 &lt;/div>
 &lt;/div>&lt;p>安装完成后就可以运行平台上的静态链接文件了，会自动调用qemu执行。&lt;/p>
 &lt;h3 id="动态链接程序">动态链接程序&lt;/h3>
@@ -15,8 +15,8 @@
 &lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
 &lt;/span>&lt;/code>&lt;/pre>&lt;/td>
 &lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">$ apt-cache search &lt;span class="s2">&amp;#34;libc&amp;#34;&lt;/span> &lt;span class="p">|&lt;/span> grep arm
-&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">$ apt-cache search &lt;span class="s2">&amp;#34;libc&amp;#34;&lt;/span> &lt;span class="p">|&lt;/span> grep arm
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
 &lt;/div>
 &lt;/div>&lt;p>安装类似libc6-ARCH-cross。&lt;/p>
 &lt;p>动态链接库被安装在类似&lt;code>/usr/arm-linux-gnueabihf/&lt;/code>的路径。qemu不知道动态链接的位置，它预期在类似&lt;code>/etc/qemu-binfmt/arm&lt;/code>的路径，所以可以设置软链接来避免用&lt;code>-L&lt;/code>来指定链接库位置。&lt;/p>
@@ -27,9 +27,9 @@
 &lt;/span>&lt;span class="lnt">3
 &lt;/span>&lt;/code>&lt;/pre>&lt;/td>
 &lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">$ sudo mkdir /etc/qemu-binfmt
-$ sudo ln -s /usr/arm-linux-gnueabihf /etc/qemu-binfmt/arm
-$ sudo ln -s /usr/aarch64-linux-gnu/ /etc/qemu-binfmt/aarch64 &lt;span class="c1"># 对于aarch64&lt;/span>
-&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">$ sudo mkdir /etc/qemu-binfmt
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">$ sudo ln -s /usr/arm-linux-gnueabihf /etc/qemu-binfmt/arm
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">$ sudo ln -s /usr/aarch64-linux-gnu/ /etc/qemu-binfmt/aarch64 &lt;span class="c1"># 对于aarch64&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
 &lt;/div>
 &lt;/div></description></item></channel></rss>

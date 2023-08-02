@@ -23,24 +23,24 @@
 &lt;/span>&lt;span class="lnt">17
 &lt;/span>&lt;/code>&lt;/pre>&lt;/td>
 &lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code class="language-c" data-lang="c">&lt;span class="cm">/* We want 64 entries. This is an arbitrary limit, which tunables can reduce. */&lt;/span>
-&lt;span class="cp"># define TCACHE_MAX_BINS 64
-&lt;/span>&lt;span class="cp"># define MAX_TCACHE_SIZE tidx2usize (TCACHE_MAX_BINS-1)
-&lt;/span>&lt;span class="cp">&lt;/span>
-&lt;span class="cm">/* Only used to pre-fill the tunables. */&lt;/span>
-&lt;span class="cp"># define tidx2usize(idx) (((size_t) idx) * MALLOC_ALIGNMENT + MINSIZE - SIZE_SZ)
-&lt;/span>&lt;span class="cp">&lt;/span>
-&lt;span class="cm">/* When &amp;#34;x&amp;#34; is from chunksize(). */&lt;/span>
-&lt;span class="cp"># define csize2tidx(x) (((x) - MINSIZE + MALLOC_ALIGNMENT - 1) / MALLOC_ALIGNMENT)
-&lt;/span>&lt;span class="cp">&lt;/span>&lt;span class="cm">/* When &amp;#34;x&amp;#34; is a user-provided size. */&lt;/span>
-&lt;span class="cp"># define usize2tidx(x) csize2tidx (request2size (x))
-&lt;/span>&lt;span class="cp">&lt;/span>
-&lt;span class="cm">/* With rounding and alignment, the bins are...
-&lt;/span>&lt;span class="cm"> idx 0 bytes 0..24 (64-bit) or 0..12 (32-bit)
-&lt;/span>&lt;span class="cm"> idx 1 bytes 25..40 or 13..20
-&lt;/span>&lt;span class="cm"> idx 2 bytes 41..56 or 21..28
-&lt;/span>&lt;span class="cm"> etc. */&lt;/span>
-&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-c" data-lang="c">&lt;span class="line">&lt;span class="cl">&lt;span class="cm">/* We want 64 entries. This is an arbitrary limit, which tunables can reduce. */&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="cp"># define TCACHE_MAX_BINS 64
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="cp"># define MAX_TCACHE_SIZE tidx2usize (TCACHE_MAX_BINS-1)
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="cp">&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="cm">/* Only used to pre-fill the tunables. */&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="cp"># define tidx2usize(idx) (((size_t) idx) * MALLOC_ALIGNMENT + MINSIZE - SIZE_SZ)
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="cp">&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="cm">/* When &amp;#34;x&amp;#34; is from chunksize(). */&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="cp"># define csize2tidx(x) (((x) - MINSIZE + MALLOC_ALIGNMENT - 1) / MALLOC_ALIGNMENT)
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="cp">&lt;/span>&lt;span class="cm">/* When &amp;#34;x&amp;#34; is a user-provided size. */&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="cp"># define usize2tidx(x) csize2tidx (request2size (x))
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="cp">&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="cm">/* With rounding and alignment, the bins are...
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="cm"> idx 0 bytes 0..24 (64-bit) or 0..12 (32-bit)
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="cm"> idx 1 bytes 25..40 or 13..20
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="cm"> idx 2 bytes 41..56 or 21..28
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="cm"> etc. */&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
 &lt;/div>
 &lt;/div>&lt;p>tcache拥有和fastbin差不多的结构。默认情况下，64个bin，每个bin最多7个chunk&lt;/p>
 &lt;p>64bit: &lt;code>IDX = (CHUNKSIZE - 0x11) / 0x10&lt;/code>&lt;/p></description></item><item><title>How2heap--tcache_stashing_unlink_attack Hitcon2019--one_punch</title><link>https://hhdx.xyz/post/how2heap-tcache-stashing-unlink-attack-hitcon2019-one-punch/</link><pubDate>Fri, 31 Jul 2020 21:40:45 +0000</pubDate><guid>https://hhdx.xyz/post/how2heap-tcache-stashing-unlink-attack-hitcon2019-one-punch/</guid><description>&lt;h2 id="tcache-stashing-unlink-attack">tcache stashing unlink attack&lt;/h2>
@@ -64,11 +64,11 @@
 &lt;/span>&lt;span class="lnt">4
 &lt;/span>&lt;/code>&lt;/pre>&lt;/td>
 &lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code class="language-c" data-lang="c">&lt;span class="k">if&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="n">__builtin_expect&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="n">chunksize_nomask&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="n">victim&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">&amp;lt;=&lt;/span> &lt;span class="mi">2&lt;/span> &lt;span class="o">*&lt;/span> &lt;span class="n">SIZE_SZ&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="mi">0&lt;/span>&lt;span class="p">)&lt;/span>
-&lt;span class="o">||&lt;/span> &lt;span class="n">__builtin_expect&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="n">chunksize_nomask&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="n">victim&lt;/span>&lt;span class="p">)&lt;/span>
-&lt;span class="o">&amp;gt;&lt;/span> &lt;span class="n">av&lt;/span>&lt;span class="o">-&amp;gt;&lt;/span>&lt;span class="n">system_mem&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="mi">0&lt;/span>&lt;span class="p">))&lt;/span>
-&lt;span class="n">malloc_printerr&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;malloc(): memory corruption&amp;#34;&lt;/span>&lt;span class="p">);&lt;/span>
-&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-c" data-lang="c">&lt;span class="line">&lt;span class="cl">&lt;span class="k">if&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="nf">__builtin_expect&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="nf">chunksize_nomask&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="n">victim&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">&amp;lt;=&lt;/span> &lt;span class="mi">2&lt;/span> &lt;span class="o">*&lt;/span> &lt;span class="n">SIZE_SZ&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="mi">0&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="o">||&lt;/span> &lt;span class="nf">__builtin_expect&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="nf">chunksize_nomask&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="n">victim&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="o">&amp;gt;&lt;/span> &lt;span class="n">av&lt;/span>&lt;span class="o">-&amp;gt;&lt;/span>&lt;span class="n">system_mem&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="mi">0&lt;/span>&lt;span class="p">))&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nf">malloc_printerr&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;malloc(): memory corruption&amp;#34;&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
 &lt;/div>
 &lt;/div></description></item><item><title>How2heap--large_bin_attack 0ctf2018--heapstorm2</title><link>https://hhdx.xyz/post/how2heap-large-bin-attack-0ctf2018-heapstorm2/</link><pubDate>Sat, 18 Jul 2020 21:10:54 +0000</pubDate><guid>https://hhdx.xyz/post/how2heap-large-bin-attack-0ctf2018-heapstorm2/</guid><description>&lt;h2 id="large-bin-attack">large bin attack&lt;/h2>
 &lt;p>对已存在于large bin中的chunk的bk、bk_nextsize字段进行更改，在unsorted bin中取出插入该large bin时，会将bk-&amp;gt;fd、bk_nextsize-&amp;gt;fd_nextsize的位置覆盖成chunk的地址。涉及的代码就是unsorted bin遍历取出插入那块。和先前的unsorted bin attack类似，通常为进一步攻击做准备，如修改global_max_fast。&lt;/p>
@@ -84,12 +84,12 @@
 &lt;/span>&lt;span class="lnt">5
 &lt;/span>&lt;/code>&lt;/pre>&lt;/td>
 &lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">Arch: amd64-64-little
-RELRO: Full RELRO
-Stack: Canary found
-NX: NX enabled
-PIE: PIE enabled
-&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">Arch: amd64-64-little
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">RELRO: Full RELRO
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">Stack: Canary found
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">NX: NX enabled
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">PIE: PIE enabled
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
 &lt;/div>
 &lt;/div>&lt;h3 id="功能分析">功能分析&lt;/h3>
 &lt;p>程序首先使用mallopt函数将global_max_fast设置为0，也就是不使用fastbin。&lt;/p></description></item><item><title>How2heap--unsorted_bin_attack 0ctf2016--zerostorage</title><link>https://hhdx.xyz/post/how2heap-unsorted-bin-attack-0ctf2016-zerostorage/</link><pubDate>Sun, 12 Jul 2020 10:01:35 +0000</pubDate><guid>https://hhdx.xyz/post/how2heap-unsorted-bin-attack-0ctf2016-zerostorage/</guid><description>&lt;h2 id="unsorted-bin-attack">unsorted bin attack&lt;/h2>
@@ -102,11 +102,11 @@ PIE: PIE enabled
 &lt;/span>&lt;span class="lnt">4
 &lt;/span>&lt;/code>&lt;/pre>&lt;/td>
 &lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code class="language-c" data-lang="c">&lt;span class="n">bck&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">victim&lt;/span>&lt;span class="o">-&amp;gt;&lt;/span>&lt;span class="n">bk&lt;/span>&lt;span class="p">;&lt;/span>
-&lt;span class="cm">/* remove from unsorted list */&lt;/span>
-&lt;span class="n">unsorted_chunks&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="n">av&lt;/span>&lt;span class="p">)&lt;/span>&lt;span class="o">-&amp;gt;&lt;/span>&lt;span class="n">bk&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">bck&lt;/span>&lt;span class="p">;&lt;/span>
-&lt;span class="n">bck&lt;/span>&lt;span class="o">-&amp;gt;&lt;/span>&lt;span class="n">fd&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">unsorted_chunks&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="n">av&lt;/span>&lt;span class="p">);&lt;/span>
-&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-c" data-lang="c">&lt;span class="line">&lt;span class="cl">&lt;span class="n">bck&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">victim&lt;/span>&lt;span class="o">-&amp;gt;&lt;/span>&lt;span class="n">bk&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="cm">/* remove from unsorted list */&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nf">unsorted_chunks&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="n">av&lt;/span>&lt;span class="p">)&lt;/span>&lt;span class="o">-&amp;gt;&lt;/span>&lt;span class="n">bk&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">bck&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">bck&lt;/span>&lt;span class="o">-&amp;gt;&lt;/span>&lt;span class="n">fd&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nf">unsorted_chunks&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="n">av&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
 &lt;/div>
 &lt;/div>&lt;p>在glibc2.28中增加了以下检查，使得此攻击失效。&lt;/p>
 &lt;div class="highlight">&lt;div class="chroma">
@@ -115,9 +115,9 @@ PIE: PIE enabled
 &lt;/span>&lt;span class="lnt">2
 &lt;/span>&lt;/code>&lt;/pre>&lt;/td>
 &lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code class="language-c" data-lang="c">&lt;span class="k">if&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="n">__glibc_unlikely&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="n">bck&lt;/span>&lt;span class="o">-&amp;gt;&lt;/span>&lt;span class="n">fd&lt;/span> &lt;span class="o">!=&lt;/span> &lt;span class="n">victim&lt;/span>&lt;span class="p">))&lt;/span>
-&lt;span class="n">malloc_printerr&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;malloc(): corrupted unsorted chunks 3&amp;#34;&lt;/span>&lt;span class="p">);&lt;/span>
-&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-c" data-lang="c">&lt;span class="line">&lt;span class="cl">&lt;span class="k">if&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="nf">__glibc_unlikely&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="n">bck&lt;/span>&lt;span class="o">-&amp;gt;&lt;/span>&lt;span class="n">fd&lt;/span> &lt;span class="o">!=&lt;/span> &lt;span class="n">victim&lt;/span>&lt;span class="p">))&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nf">malloc_printerr&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;malloc(): corrupted unsorted chunks 3&amp;#34;&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
 &lt;/div>
 &lt;/div>&lt;p>unsorted bin attack通常为进一步的攻击做准备，比如覆写global_max_fast。&lt;/p>
 &lt;h2 id="0ctf2016-zerostorage">0ctf2016 zerostorage&lt;/h2>
@@ -131,13 +131,13 @@ PIE: PIE enabled
 &lt;/span>&lt;span class="lnt">6
 &lt;/span>&lt;/code>&lt;/pre>&lt;/td>
 &lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">Arch: amd64-64-little
-RELRO: Full RELRO
-Stack: Canary found
-NX: NX enabled
-PIE: PIE enabled
-FORTIFY: Enabled
-&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">Arch: amd64-64-little
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">RELRO: Full RELRO
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">Stack: Canary found
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">NX: NX enabled
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">PIE: PIE enabled
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">FORTIFY: Enabled
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
 &lt;/div>
 &lt;/div>&lt;p>关键数据结构&lt;/p>
 &lt;p>&lt;img src="https://raw.githubusercontent.com/clxsh/pics/master/img/image-20200712102723178.png" alt="image-20200712102723178">&lt;/p>
@@ -156,14 +156,14 @@ FORTIFY: Enabled
 &lt;/span>&lt;span class="lnt">7
 &lt;/span>&lt;/code>&lt;/pre>&lt;/td>
 &lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">1. Insert
-2. Update
-3. Merge
-4. Delete
-5. View
-6. List
-7. Exit
-&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">1. Insert
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">2. Update
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">3. Merge
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">4. Delete
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">5. View
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">6. List
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">7. Exit
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
 &lt;/div>
 &lt;/div>&lt;p>insert：获取数据块大小，并读入数据。数据块大小在128~4096这个范围内&lt;/p>
 &lt;p>update：对数据块进行大小内容进行更新&lt;/p>
@@ -185,16 +185,16 @@ FORTIFY: Enabled
 &lt;/span>&lt;span class="lnt">9
 &lt;/span>&lt;/code>&lt;/pre>&lt;/td>
 &lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code class="language-c" data-lang="c">&lt;span class="cm">/*
-&lt;/span>&lt;span class="cm">* The evil_size is calulcated as (nb is the number of bytes requested + space for metadata):
-&lt;/span>&lt;span class="cm">* new_top = old_top + nb
-&lt;/span>&lt;span class="cm">* nb = new_top - old_top
-&lt;/span>&lt;span class="cm">* req + 2sizeof(long) = new_top - old_top
-&lt;/span>&lt;span class="cm">* req = new_top - old_top - 2sizeof(long)
-&lt;/span>&lt;span class="cm">* req = dest - 2sizeof(long) - old_top - 2sizeof(long)
-&lt;/span>&lt;span class="cm">* req = dest - old_top - 4*sizeof(long)
-&lt;/span>&lt;span class="cm">*/&lt;/span>
-&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-c" data-lang="c">&lt;span class="line">&lt;span class="cl">&lt;span class="cm">/*
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="cm">* The evil_size is calulcated as (nb is the number of bytes requested + space for metadata):
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="cm">* new_top = old_top + nb
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="cm">* nb = new_top - old_top
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="cm">* req + 2sizeof(long) = new_top - old_top
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="cm">* req = new_top - old_top - 2sizeof(long)
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="cm">* req = dest - 2sizeof(long) - old_top - 2sizeof(long)
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="cm">* req = dest - old_top - 4*sizeof(long)
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="cm">*/&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
 &lt;/div>
 &lt;/div>&lt;h2 id="bctf2016-bcloud">Bctf2016 bcloud&lt;/h2>
 &lt;h3 id="分析">分析&lt;/h3>
@@ -207,12 +207,12 @@ FORTIFY: Enabled
 &lt;/span>&lt;span class="lnt">5
 &lt;/span>&lt;/code>&lt;/pre>&lt;/td>
 &lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">Arch: i386-32-little
-RELRO: Partial RELRO
-Stack: Canary found
-NX: NX enabled
-PIE: No PIE (0x8047000)
-&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">Arch: i386-32-little
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">RELRO: Partial RELRO
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">Stack: Canary found
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">NX: NX enabled
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">PIE: No PIE (0x8047000)
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
 &lt;/div>
 &lt;/div>&lt;p>程序一开始让输入name、org、hostname，输入字符串函数存在null byte overflow。&lt;/p>
 &lt;p>输入name函数中，字符串数组在栈中后部紧邻指针变量，所以strcpy会将该指针一并拷贝入0x40的空间（实际可用0x44），并且null byte覆盖topchunk的最低字节。可以泄露堆的地址&lt;/p>
@@ -228,12 +228,12 @@ PIE: No PIE (0x8047000)
 &lt;/span>&lt;span class="lnt">5
 &lt;/span>&lt;/code>&lt;/pre>&lt;/td>
 &lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">Arch: amd64-64-little
-RELRO: No RELRO
-Stack: Canary found
-NX: NX enabled
-PIE: No PIE (0x3ff000)
-&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">Arch: amd64-64-little
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">RELRO: No RELRO
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">Stack: Canary found
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">NX: NX enabled
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">PIE: No PIE (0x3ff000)
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
 &lt;/div>
 &lt;/div>&lt;p>程序是一个订书系统，在main函数开始处，连续分配3个0x80的空间，一个存储订单1——order1，一个存储订单2——order2，一个存储提示信息——info。有以下功能菜单&lt;/p>
 &lt;div class="highlight">&lt;div class="chroma">
@@ -245,12 +245,12 @@ PIE: No PIE (0x3ff000)
 &lt;/span>&lt;span class="lnt">5
 &lt;/span>&lt;/code>&lt;/pre>&lt;/td>
 &lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">1: Edit order 1
-2: Edit order 2
-3: Delete order 1
-4: Delete order 2
-5: Submit
-&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">1: Edit order 1
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">2: Edit order 2
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">3: Delete order 1
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">4: Delete order 2
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">5: Submit
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
 &lt;/div>
 &lt;/div>&lt;p>Edit order 1/2：order1/order2使用fgetc读取字符串，读到&lt;code>\n&lt;/code>终止，所以这里存在溢出&lt;/p>
 &lt;p>Delete order 1/2：free掉order1/order2。这里存在指针悬空&lt;/p>
@@ -287,31 +287,31 @@ PIE: No PIE (0x3ff000)
 &lt;/span>&lt;span class="lnt">24
 &lt;/span>&lt;/code>&lt;/pre>&lt;/td>
 &lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">chunk b +------&amp;gt; +----------+
-| |
-+----------+ &amp;lt;---------+ size
-| 0X200 |
-+----------+ &amp;lt;---------+ b
-| |
-| |
-| |
-| |
-| |
-| |
-| |
-| |
-| |
-+----------+ &amp;lt;--------+ fake pre_size
-| 0X200 |
-+----------+
-| |
-chunk c +------&amp;gt; +----------+ &amp;lt;--------+ pre_size
-| 0X210 |
-+----------+
-| |
-| |
-| |
-&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">chunk b +------&amp;gt; +----------+
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> | |
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> +----------+ &amp;lt;---------+ size
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> | 0X200 |
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> +----------+ &amp;lt;---------+ b
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> | |
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> | |
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> | |
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> | |
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> | |
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> | |
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> | |
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> | |
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> | |
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> +----------+ &amp;lt;--------+ fake pre_size
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> | 0X200 |
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> +----------+
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> | |
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">chunk c +------&amp;gt; +----------+ &amp;lt;--------+ pre_size
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> | 0X210 |
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> +----------+
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> | |
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> | |
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> | |
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
 &lt;/div>
 &lt;/div>&lt;p>&lt;strong>触发unlink的流程&lt;/strong>：通过null byte溢出伪造完0x200的chunk后，此时该chunk存在于unsortedbin。再次分配0x100的b1时，遍历unsortedbin，该chunk被放入到smallbin中，unsortedbin里的chunk也就这一个，遍历结束无法分配。又通过查找binmap找到0x200的smallbin，这时触发的unlink，将该chunk从smallbin中取出。&lt;/p></description></item><item><title>how2heap--House_of_Spirit Hack.lu2014--oreo</title><link>https://hhdx.xyz/post/how2heap-house-of-spirit-hacklu2014-oreo/</link><pubDate>Wed, 01 Jul 2020 14:13:34 +0000</pubDate><guid>https://hhdx.xyz/post/how2heap-house-of-spirit-hacklu2014-oreo/</guid><description>&lt;h2 id="house-of-spirit">House of Spirit&lt;/h2>
 &lt;p>该攻击手法的主要是思想是，在不可控区域的前后伪造chunk信息，覆盖某指针指向&lt;code>chunk2mem(fake_chunk)&lt;/code>，释放该指针后再次申请，对不可控区域的进行改写。&lt;/p>
@@ -330,18 +330,18 @@ chunk c +------&amp;gt; +----------+ &amp;lt;--------+ pre_size
 &lt;/span>&lt;span class="lnt">11
 &lt;/span>&lt;/code>&lt;/pre>&lt;/td>
 &lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">+---------------+
-| 可 控 区 域 |
-+---------------+
-| |
-| 不 可 控 区 域 |
-| |
-| 一 般 为 某 些 |
-| 指 针 |
-+---------------+
-| 可 控 区 域 |
-+---------------+
-&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">+---------------+
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">| 可 控 区 域 |
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">+---------------+
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">| |
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">| 不 可 控 区 域 |
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">| |
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">| 一 般 为 某 些 |
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">| 指 针 |
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">+---------------+
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">| 可 控 区 域 |
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">+---------------+
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
 &lt;/div>
 &lt;/div>&lt;p>伪造的chunk也通常是fastbin，因为检查容易绕过。&lt;/p></description></item><item><title>How2heap--fastbin_dup_consolidate Hitcon2016--SleepyHolder</title><link>https://hhdx.xyz/post/how2heap-fastbin-dup-consolidate-hitcon2016-sleepyholder/</link><pubDate>Sun, 28 Jun 2020 23:01:43 +0000</pubDate><guid>https://hhdx.xyz/post/how2heap-fastbin-dup-consolidate-hitcon2016-sleepyholder/</guid><description>&lt;h2 id="前置">前置&lt;/h2>
 &lt;p>Ubuntu 16.04&lt;/p>
@@ -351,7 +351,7 @@ chunk c +------&amp;gt; +----------+ &amp;lt;--------+ pre_size
 &lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
 &lt;/span>&lt;/code>&lt;/pre>&lt;/td>
 &lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">$ ./glibc_build.sh 2.25 -j &lt;span class="m">4&lt;/span> -disable-tcache
-&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">$ ./glibc_build.sh 2.25 -j &lt;span class="m">4&lt;/span> -disable-tcache
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
 &lt;/div>
 &lt;/div>&lt;p>做这道题目使用了glibc2.25，&lt;code>patchelf --set-interpreter /path/to/ld-2.25.so /path/to/exe&lt;/code>，patch之后再运行程序就自动使用同目录下libc-2.25.so。&lt;/p></description></item></channel></rss>

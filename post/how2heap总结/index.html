@@ -1,32 +1,8 @@
-<!doctype html><html lang=zh-cn>
-<head>
-<meta charset=utf-8>
-<meta http-equiv=x-ua-compatible content="IE=edge,chrome=1">
-<title>How2heap总结 - hhdx's blog</title>
-<meta name=renderer content="webkit">
-<meta name=viewport content="width=device-width,initial-scale=1,maximum-scale=1">
-<meta http-equiv=cache-control content="no-transform">
-<meta http-equiv=cache-control content="no-siteapp">
-<meta name=theme-color content="#f8f5ec">
-<meta name=msapplication-navbutton-color content="#f8f5ec">
-<meta name=apple-mobile-web-app-capable content="yes">
-<meta name=apple-mobile-web-app-status-bar-style content="#f8f5ec">
-<meta name=author content="hhdx"><meta name=description content="first-fit 如果一个chunk可用且足够大，那么就会使用这个chunk。
+<!doctype html><html lang=zh-cn><head><meta charset=utf-8><meta http-equiv=x-ua-compatible content="IE=edge,chrome=1"><title>How2heap总结 - hhdx's blog</title><meta name=renderer content="webkit"><meta name=viewport content="width=device-width,initial-scale=1,maximum-scale=1"><meta http-equiv=cache-control content="no-transform"><meta http-equiv=cache-control content="no-siteapp"><meta name=theme-color content="#f8f5ec"><meta name=msapplication-navbutton-color content="#f8f5ec"><meta name=apple-mobile-web-app-capable content="yes"><meta name=apple-mobile-web-app-status-bar-style content="#f8f5ec"><meta name=author content="hhdx"><meta name=description content="first-fit 如果一个chunk可用且足够大，那么就会使用这个chunk。
 calc_tcache_idx tcache(thread local caching)
-1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17  /* We want 64 entries. This is an arbitrary limit, which tunables can reduce. */ # define TCACHE_MAX_BINS	64 # define MAX_TCACHE_SIZE	tidx2usize (TCACHE_MAX_BINS-1)  /* Only used to pre-fill the tunables. */ # define tidx2usize(idx)	(((size_t) idx) * MALLOC_ALIGNMENT + MINSIZE - SIZE_SZ)  /* When &amp;#34;x&amp;#34; is from chunksize(). */ # define csize2tidx(x) (((x) - MINSIZE + MALLOC_ALIGNMENT - 1) / MALLOC_ALIGNMENT) /* When &amp;#34;x&amp;#34; is a user-provided size. */ # define usize2tidx(x) csize2tidx (request2size (x))  /* With rounding and alignment, the bins are... idx 0 bytes 0..24 (64-bit) or 0..12 (32-bit) idx 1 bytes 25..40 or 13..20 idx 2 bytes 41..56 or 21..28 etc. */   tcache拥有和fastbin差不多的结构。默认情况下，64个bin，每个bin最多7个chunk
+1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 /* We want 64 entries. This is an arbitrary limit, which tunables can reduce. */ # define TCACHE_MAX_BINS	64 # define MAX_TCACHE_SIZE	tidx2usize (TCACHE_MAX_BINS-1) /* Only used to pre-fill the tunables. */ # define tidx2usize(idx)	(((size_t) idx) * MALLOC_ALIGNMENT + MINSIZE - SIZE_SZ) /* When &amp;#34;x&amp;#34; is from chunksize(). */ # define csize2tidx(x) (((x) - MINSIZE + MALLOC_ALIGNMENT - 1) / MALLOC_ALIGNMENT) /* When &amp;#34;x&amp;#34; is a user-provided size. */ # define usize2tidx(x) csize2tidx (request2size (x)) /* With rounding and alignment, the bins are... idx 0 bytes 0..24 (64-bit) or 0..12 (32-bit) idx 1 bytes 25..40 or 13..20 idx 2 bytes 41..56 or 21..28 etc. */ tcache拥有和fastbin差不多的结构。默认情况下，64个bin，每个bin最多7个chunk
 64bit: IDX = (CHUNKSIZE - 0x11) / 0x10
-"><meta name=keywords content="C language,CTF,system engineer">
-<meta name=generator content="Hugo 0.88.1 with theme even">
-<link rel=canonical href=https://hhdx.xyz/post/how2heap%E6%80%BB%E7%BB%93/>
-<link rel=apple-touch-icon sizes=180x180 href=/apple-touch-icon.png>
-<link rel=icon type=image/png sizes=32x32 href=/favicon-32x32.png>
-<link rel=icon type=image/png sizes=16x16 href=/favicon-16x16.png>
-<link rel=manifest href=/manifest.json>
-<link rel=mask-icon href=/safari-pinned-tab.svg color=#5bbad5>
-<link href=/sass/main.min.0d3b8ec8ed7df891edf32830bfdc6af5976dc6b9ffeb7cd1d0cdd312bcf8e23e.css rel=stylesheet>
-<link rel=stylesheet href=https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin=anonymous>
-<meta property="og:title" content="How2heap总结">
-<meta property="og:description" content="first-fit
+"><meta name=keywords content="C language,CTF,system engineer"><meta name=generator content="Hugo 0.116.1 with theme even"><link rel=canonical href=https://hhdx.xyz/post/how2heap%E6%80%BB%E7%BB%93/><link rel=apple-touch-icon sizes=180x180 href=/apple-touch-icon.png><link rel=icon type=image/png sizes=32x32 href=/favicon-32x32.png><link rel=icon type=image/png sizes=16x16 href=/favicon-16x16.png><link rel=manifest href=/manifest.json><link rel=mask-icon href=/safari-pinned-tab.svg color=#5bbad5><link href=/sass/main.min.bda6190ea12800aa36851bdb7b5cb5af46ca988222781d28b20a96aa4c1f6e68.css rel=stylesheet><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin=anonymous><meta property="og:title" content="How2heap总结"><meta property="og:description" content="first-fit
 如果一个chunk可用且足够大，那么就会使用这个chunk。
 calc_tcache_idx
 tcache(thread local caching)
@@ -71,13 +47,7 @@ tcache(thread local caching)
 
 
 tcache拥有和fastbin差不多的结构。默认情况下，64个bin，每个bin最多7个chunk
-64bit: IDX = (CHUNKSIZE - 0x11) / 0x10">
-<meta property="og:type" content="article">
-<meta property="og:url" content="https://hhdx.xyz/post/how2heap%E6%80%BB%E7%BB%93/"><meta property="article:section" content="post">
-<meta property="article:published_time" content="2020-08-01T19:36:10+00:00">
-<meta property="article:modified_time" content="2020-08-01T19:36:10+00:00">
-<meta itemprop=name content="How2heap总结">
-<meta itemprop=description content="first-fit
+64bit: IDX = (CHUNKSIZE - 0x11) / 0x10"><meta property="og:type" content="article"><meta property="og:url" content="https://hhdx.xyz/post/how2heap%E6%80%BB%E7%BB%93/"><meta property="article:section" content="post"><meta property="article:published_time" content="2020-08-01T19:36:10+00:00"><meta property="article:modified_time" content="2020-08-01T19:36:10+00:00"><meta itemprop=name content="How2heap总结"><meta itemprop=description content="first-fit
 如果一个chunk可用且足够大，那么就会使用这个chunk。
 calc_tcache_idx
 tcache(thread local caching)
@@ -122,12 +92,7 @@ tcache(thread local caching)
 
 
 tcache拥有和fastbin差不多的结构。默认情况下，64个bin，每个bin最多7个chunk
-64bit: IDX = (CHUNKSIZE - 0x11) / 0x10"><meta itemprop=datePublished content="2020-08-01T19:36:10+00:00">
-<meta itemprop=dateModified content="2020-08-01T19:36:10+00:00">
-<meta itemprop=wordCount content="4282">
-<meta itemprop=keywords content="CTF,how2heap,"><meta name=twitter:card content="summary">
-<meta name=twitter:title content="How2heap总结">
-<meta name=twitter:description content="first-fit
+64bit: IDX = (CHUNKSIZE - 0x11) / 0x10"><meta itemprop=datePublished content="2020-08-01T19:36:10+00:00"><meta itemprop=dateModified content="2020-08-01T19:36:10+00:00"><meta itemprop=wordCount content="4282"><meta itemprop=keywords content="CTF,how2heap,"><meta name=twitter:card content="summary"><meta name=twitter:title content="How2heap总结"><meta name=twitter:description content="first-fit
 如果一个chunk可用且足够大，那么就会使用这个chunk。
 calc_tcache_idx
 tcache(thread local caching)
@@ -173,163 +138,9 @@ tcache(thread local caching)
 
 tcache拥有和fastbin差不多的结构。默认情况下，64个bin，每个bin最多7个chunk
 64bit: IDX = (CHUNKSIZE - 0x11) / 0x10"><!--[if lte IE 9]><script src=https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js></script><![endif]--><!--[if lt IE 9]><script src=https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js></script>
-<script src=https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js></script><![endif]-->
-</head>
-<body>
-<div id=mobile-navbar class=mobile-navbar>
-<div class=mobile-header-logo>
-<a href=/ class=logo>hhdx's blog</a>
-</div>
-<div class=mobile-navbar-icon>
+<script src=https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js></script><![endif]--></head><body><div id=mobile-navbar class=mobile-navbar><div class=mobile-header-logo><a href=/ class=logo>hhdx's blog</a></div><div class=mobile-navbar-icon><span></span>
 <span></span>
-<span></span>
-<span></span>
-</div>
-</div>
-<nav id=mobile-menu class="mobile-menu slideout-menu">
-<ul class=mobile-menu-list>
-<a href=/>
-<li class=mobile-menu-item>Home</li>
-</a><a href=/post/>
-<li class=mobile-menu-item>Archives</li>
-</a><a href=/tags/>
-<li class=mobile-menu-item>Tags</li>
-</a><a href=/links/>
-<li class=mobile-menu-item>Links</li>
-</a><a href=/about/>
-<li class=mobile-menu-item>About</li>
-</a>
-</ul>
-</nav>
-<div class=container id=mobile-panel>
-<header id=header class=header>
-<div class=logo-wrapper>
-<a href=/ class=logo>hhdx's blog</a>
-</div>
-<nav class=site-navbar>
-<ul id=menu class=menu>
-<li class=menu-item>
-<a class=menu-item-link href=/>Home</a>
-</li><li class=menu-item>
-<a class=menu-item-link href=/post/>Archives</a>
-</li><li class=menu-item>
-<a class=menu-item-link href=/tags/>Tags</a>
-</li><li class=menu-item>
-<a class=menu-item-link href=/links/>Links</a>
-</li><li class=menu-item>
-<a class=menu-item-link href=/about/>About</a>
-</li>
-</ul>
-</nav>
-</header>
-<main id=main class=main>
-<div class=content-wrapper>
-<div id=content class=content>
-<article class=post>
-<header class=post-header>
-<h1 class=post-title>How2heap总结</h1>
-<div class=post-meta>
-<span class=post-time> 2020-08-01 </span>
-</div>
-</header>
-<div class=post-toc id=post-toc>
-<h2 class=post-toc-title>文章目录</h2>
-<div class="post-toc-content always-active">
-<nav id=TableOfContents>
-<ul>
-<li>
-<ul>
-<li><a href=#first-fit>first-fit</a></li>
-<li><a href=#calc_tcache_idx>calc_tcache_idx</a></li>
-<li><a href=#fastbin_dup>fastbin_dup</a></li>
-<li><a href=#fastbin_dup_into_stackc>fastbin_dup_into_stack.c</a>
-<ul>
-<li><a href=#0ctf2017-babyheap>0ctf2017-babyheap</a></li>
-<li><a href=#ref>ref</a></li>
-</ul>
-</li>
-<li><a href=#fastbin_dup_consolidate>fastbin_dup_consolidate</a>
-<ul>
-<li><a href=#hitcon-2016-sleepyholder>Hitcon 2016 SleepyHolder</a></li>
-<li><a href=#ref-1>ref</a></li>
-</ul>
-</li>
-<li><a href=#unsafe-unlink>unsafe unlink</a>
-<ul>
-<li><a href=#hitcon2014-stkof>Hitcon2014 stkof</a></li>
-</ul>
-</li>
-<li><a href=#house-of-spirit>House of spirit</a>
-<ul>
-<li><a href=#hacklu2014-oreo>hack.lu2014 oreo</a></li>
-</ul>
-</li>
-<li><a href=#poison-null-byte>poison null byte</a>
-<ul>
-<li><a href=#plaidctf2015-plaiddb>Plaidctf2015 plaiddb</a></li>
-<li><a href=#ref-2>ref</a></li>
-</ul>
-</li>
-<li><a href=#house-of-lore>house of lore</a></li>
-<li><a href=#overlapping-chunks>overlapping chunks</a>
-<ul>
-<li><a href=#hacklu2015-bookstore>hack.lu2015 bookstore</a></li>
-</ul>
-</li>
-<li><a href=#overlapping-chunks-2>overlapping chunks 2</a></li>
-<li><a href=#house-of-force>house of force</a>
-<ul>
-<li><a href=#bctf2016-bcloud>bctf2016 bcloud</a></li>
-</ul>
-</li>
-<li><a href=#unsorted-bin-into-stack>unsorted bin into stack</a></li>
-<li><a href=#unsorted-bin-attack>unsorted bin attack</a>
-<ul>
-<li><a href=#0ctf2016-zerostorage>0ctf2016 zerostorage</a></li>
-</ul>
-</li>
-<li><a href=#large-bin-attack>large bin attack</a>
-<ul>
-<li><a href=#0ctf2018-heapstorm2>0ctf2018 heapstorm2</a></li>
-</ul>
-</li>
-<li><a href=#house-of-einherjar>house of einherjar</a>
-<ul>
-<li><a href=#secon2016-tinypad>Secon2016 tinypad</a></li>
-</ul>
-</li>
-<li><a href=#house-of-orange>house of orange</a>
-<ul>
-<li><a href=#hitcon2016-houseoforange>Hitcon2016 houseoforange</a></li>
-</ul>
-</li>
-<li><a href=#house-of-roman>house of roman</a></li>
-<li><a href=#tcache-dup>tcache dup</a></li>
-<li><a href=#tcache-poisoning>tcache poisoning</a></li>
-<li><a href=#tcache-house-of-spirit>tcache house of spirit</a></li>
-<li><a href=#house-of-botcake>house of botcake</a></li>
-<li><a href=#tcache-stashing-unlink-attack>tcache stashing unlink attack</a>
-<ul>
-<li><a href=#variation>variation</a></li>
-<li><a href=#tips>tips</a></li>
-<li><a href=#hitcon2019-one-punch>Hitcon2019 one punch</a></li>
-</ul>
-</li>
-<li><a href=#fastbin-reverse-into-tcache>fastbin reverse into tcache</a></li>
-</ul>
-</li>
-</ul>
-</nav>
-</div>
-</div>
-<div class=post-content>
-<h2 id=first-fit>first-fit</h2>
-<p>如果一个chunk可用且足够大，那么就会使用这个chunk。</p>
-<h2 id=calc_tcache_idx>calc_tcache_idx</h2>
-<p>tcache(thread local caching)</p>
-<div class=highlight><div class=chroma>
-<table class=lntable><tr><td class=lntd>
-<pre tabindex=0 class=chroma><code><span class=lnt> 1
+<span></span></div></div><nav id=mobile-menu class="mobile-menu slideout-menu"><ul class=mobile-menu-list><a href=/><li class=mobile-menu-item>Home</li></a><a href=/post/><li class=mobile-menu-item>Archives</li></a><a href=/tags/><li class=mobile-menu-item>Tags</li></a><a href=/links/><li class=mobile-menu-item>Links</li></a><a href=/about/><li class=mobile-menu-item>About</li></a></ul></nav><div class=container id=mobile-panel><header id=header class=header><div class=logo-wrapper><a href=/ class=logo>hhdx's blog</a></div><nav class=site-navbar><ul id=menu class=menu><li class=menu-item><a class=menu-item-link href=/>Home</a></li><li class=menu-item><a class=menu-item-link href=/post/>Archives</a></li><li class=menu-item><a class=menu-item-link href=/tags/>Tags</a></li><li class=menu-item><a class=menu-item-link href=/links/>Links</a></li><li class=menu-item><a class=menu-item-link href=/about/>About</a></li></ul></nav></header><main id=main class=main><div class=content-wrapper><div id=content class=content><article class=post><header class=post-header><h1 class=post-title>How2heap总结</h1><div class=post-meta><span class=post-time>2020-08-01</span></div></header><div class=post-toc id=post-toc><h2 class=post-toc-title>文章目录</h2><div class="post-toc-content always-active"><nav id=TableOfContents><ul><li><ul><li><a href=#first-fit>first-fit</a></li><li><a href=#calc_tcache_idx>calc_tcache_idx</a></li><li><a href=#fastbin_dup>fastbin_dup</a></li><li><a href=#fastbin_dup_into_stackc>fastbin_dup_into_stack.c</a><ul><li><a href=#0ctf2017-babyheap>0ctf2017-babyheap</a></li><li><a href=#ref>ref</a></li></ul></li><li><a href=#fastbin_dup_consolidate>fastbin_dup_consolidate</a><ul><li><a href=#hitcon-2016-sleepyholder>Hitcon 2016 SleepyHolder</a></li><li><a href=#ref-1>ref</a></li></ul></li><li><a href=#unsafe-unlink>unsafe unlink</a><ul><li><a href=#hitcon2014-stkof>Hitcon2014 stkof</a></li></ul></li><li><a href=#house-of-spirit>House of spirit</a><ul><li><a href=#hacklu2014-oreo>hack.lu2014 oreo</a></li></ul></li><li><a href=#poison-null-byte>poison null byte</a><ul><li><a href=#plaidctf2015-plaiddb>Plaidctf2015 plaiddb</a></li><li><a href=#ref-2>ref</a></li></ul></li><li><a href=#house-of-lore>house of lore</a></li><li><a href=#overlapping-chunks>overlapping chunks</a><ul><li><a href=#hacklu2015-bookstore>hack.lu2015 bookstore</a></li></ul></li><li><a href=#overlapping-chunks-2>overlapping chunks 2</a></li><li><a href=#house-of-force>house of force</a><ul><li><a href=#bctf2016-bcloud>bctf2016 bcloud</a></li></ul></li><li><a href=#unsorted-bin-into-stack>unsorted bin into stack</a></li><li><a href=#unsorted-bin-attack>unsorted bin attack</a><ul><li><a href=#0ctf2016-zerostorage>0ctf2016 zerostorage</a></li></ul></li><li><a href=#large-bin-attack>large bin attack</a><ul><li><a href=#0ctf2018-heapstorm2>0ctf2018 heapstorm2</a></li></ul></li><li><a href=#house-of-einherjar>house of einherjar</a><ul><li><a href=#secon2016-tinypad>Secon2016 tinypad</a></li></ul></li><li><a href=#house-of-orange>house of orange</a><ul><li><a href=#hitcon2016-houseoforange>Hitcon2016 houseoforange</a></li></ul></li><li><a href=#house-of-roman>house of roman</a></li><li><a href=#tcache-dup>tcache dup</a></li><li><a href=#tcache-poisoning>tcache poisoning</a></li><li><a href=#tcache-house-of-spirit>tcache house of spirit</a></li><li><a href=#house-of-botcake>house of botcake</a></li><li><a href=#tcache-stashing-unlink-attack>tcache stashing unlink attack</a><ul><li><a href=#variation>variation</a></li><li><a href=#tips>tips</a></li><li><a href=#hitcon2019-one-punch>Hitcon2019 one punch</a></li></ul></li><li><a href=#fastbin-reverse-into-tcache>fastbin reverse into tcache</a></li></ul></li></ul></nav></div></div><div class=post-content><h2 id=first-fit>first-fit</h2><p>如果一个chunk可用且足够大，那么就会使用这个chunk。</p><h2 id=calc_tcache_idx>calc_tcache_idx</h2><p>tcache(thread local caching)</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
 </span><span class=lnt> 2
 </span><span class=lnt> 3
 </span><span class=lnt> 4
@@ -346,76 +157,50 @@ tcache拥有和fastbin差不多的结构。默认情况下，64个bin，每个bi
 </span><span class=lnt>15
 </span><span class=lnt>16
 </span><span class=lnt>17
-</span></code></pre></td>
-<td class=lntd>
-<pre tabindex=0 class=chroma><code class=language-c data-lang=c><span class=cm>/* We want 64 entries.  This is an arbitrary limit, which tunables can reduce.  */</span>
-<span class=cp># define TCACHE_MAX_BINS		64
-</span><span class=cp># define MAX_TCACHE_SIZE	tidx2usize (TCACHE_MAX_BINS-1)
-</span><span class=cp></span>
-<span class=cm>/* Only used to pre-fill the tunables.  */</span>
-<span class=cp># define tidx2usize(idx)	(((size_t) idx) * MALLOC_ALIGNMENT + MINSIZE - SIZE_SZ)
-</span><span class=cp></span>
-<span class=cm>/* When &#34;x&#34; is from chunksize().  */</span>
-<span class=cp># define csize2tidx(x) (((x) - MINSIZE + MALLOC_ALIGNMENT - 1) / MALLOC_ALIGNMENT)
-</span><span class=cp></span><span class=cm>/* When &#34;x&#34; is a user-provided size.  */</span>
-<span class=cp># define usize2tidx(x) csize2tidx (request2size (x))
-</span><span class=cp></span>
-<span class=cm>/* With rounding and alignment, the bins are...
-</span><span class=cm>   idx 0   bytes 0..24 (64-bit) or 0..12 (32-bit)
-</span><span class=cm>   idx 1   bytes 25..40 or 13..20
-</span><span class=cm>   idx 2   bytes 41..56 or 21..28
-</span><span class=cm>   etc.  */</span>
-</code></pre></td></tr></table>
-</div>
-</div><p>tcache拥有和fastbin差不多的结构。默认情况下，64个bin，每个bin最多7个chunk</p>
-<p>64bit: <code>IDX = (CHUNKSIZE - 0x11) / 0x10</code></p>
-<h2 id=fastbin_dup>fastbin_dup</h2>
-<p>free(fastbin)过程中，只检查了链表头部是否和将要free的指针一样。</p>
-<div class=highlight><div class=chroma>
-<table class=lntable><tr><td class=lntd>
-<pre tabindex=0 class=chroma><code><span class=lnt>1
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-c data-lang=c><span class=line><span class=cl><span class=cm>/* We want 64 entries.  This is an arbitrary limit, which tunables can reduce.  */</span>
+</span></span><span class=line><span class=cl><span class=cp># define TCACHE_MAX_BINS		64
+</span></span></span><span class=line><span class=cl><span class=cp># define MAX_TCACHE_SIZE	tidx2usize (TCACHE_MAX_BINS-1)
+</span></span></span><span class=line><span class=cl><span class=cp></span>
+</span></span><span class=line><span class=cl><span class=cm>/* Only used to pre-fill the tunables.  */</span>
+</span></span><span class=line><span class=cl><span class=cp># define tidx2usize(idx)	(((size_t) idx) * MALLOC_ALIGNMENT + MINSIZE - SIZE_SZ)
+</span></span></span><span class=line><span class=cl><span class=cp></span>
+</span></span><span class=line><span class=cl><span class=cm>/* When &#34;x&#34; is from chunksize().  */</span>
+</span></span><span class=line><span class=cl><span class=cp># define csize2tidx(x) (((x) - MINSIZE + MALLOC_ALIGNMENT - 1) / MALLOC_ALIGNMENT)
+</span></span></span><span class=line><span class=cl><span class=cp></span><span class=cm>/* When &#34;x&#34; is a user-provided size.  */</span>
+</span></span><span class=line><span class=cl><span class=cp># define usize2tidx(x) csize2tidx (request2size (x))
+</span></span></span><span class=line><span class=cl><span class=cp></span>
+</span></span><span class=line><span class=cl><span class=cm>/* With rounding and alignment, the bins are...
+</span></span></span><span class=line><span class=cl><span class=cm>   idx 0   bytes 0..24 (64-bit) or 0..12 (32-bit)
+</span></span></span><span class=line><span class=cl><span class=cm>   idx 1   bytes 25..40 or 13..20
+</span></span></span><span class=line><span class=cl><span class=cm>   idx 2   bytes 41..56 or 21..28
+</span></span></span><span class=line><span class=cl><span class=cm>   etc.  */</span>
+</span></span></code></pre></td></tr></table></div></div><p>tcache拥有和fastbin差不多的结构。默认情况下，64个bin，每个bin最多7个chunk</p><p>64bit: <code>IDX = (CHUNKSIZE - 0x11) / 0x10</code></p><h2 id=fastbin_dup>fastbin_dup</h2><p>free(fastbin)过程中，只检查了链表头部是否和将要free的指针一样。</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
 </span><span class=lnt>2
 </span><span class=lnt>3
 </span><span class=lnt>4
 </span><span class=lnt>5
 </span><span class=lnt>6
 </span><span class=lnt>7
-</span></code></pre></td>
-<td class=lntd>
-<pre tabindex=0 class=chroma><code class=language-c data-lang=c><span class=kt>int</span> <span class=o>*</span><span class=n>a</span> <span class=o>=</span> <span class=n>malloc</span><span class=p>(</span><span class=mi>8</span><span class=p>);</span>
-<span class=kt>int</span> <span class=o>*</span><span class=n>b</span> <span class=o>=</span> <span class=n>malloc</span><span class=p>(</span><span class=mi>8</span><span class=p>);</span>
-<span class=kt>int</span> <span class=o>*</span><span class=n>c</span> <span class=o>=</span> <span class=n>malloc</span><span class=p>(</span><span class=mi>8</span><span class=p>);</span>
-
-<span class=n>free</span><span class=p>(</span><span class=n>a</span><span class=p>);</span>
-<span class=n>free</span><span class=p>(</span><span class=n>b</span><span class=p>);</span>
-<span class=n>free</span><span class=p>(</span><span class=n>a</span><span class=p>);</span>
-</code></pre></td></tr></table>
-</div>
-</div><p>此时fastbin 0x20: <code>a->b->a</code></p>
-<p><strong>附注：</strong></p>
-<p>tcache可以检测到double free。在本机glibc2.31中发现，tcache_entry中使用key指向了tcache_perthread_struct。<a href="https://sourceware.org/git/?p=glibc.git;a=blob;f=malloc/malloc.c;h=f7cd29bc2f93e1082ee77800bd64a4b2a2897055;hb=9ea3686266dca3f004ba874745a4087a89682617#l4186">malloc.c:4186</a></p>
-<div class=highlight><div class=chroma>
-<table class=lntable><tr><td class=lntd>
-<pre tabindex=0 class=chroma><code><span class=lnt>1
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-c data-lang=c><span class=line><span class=cl><span class=kt>int</span> <span class=o>*</span><span class=n>a</span> <span class=o>=</span> <span class=nf>malloc</span><span class=p>(</span><span class=mi>8</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=kt>int</span> <span class=o>*</span><span class=n>b</span> <span class=o>=</span> <span class=nf>malloc</span><span class=p>(</span><span class=mi>8</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=kt>int</span> <span class=o>*</span><span class=n>c</span> <span class=o>=</span> <span class=nf>malloc</span><span class=p>(</span><span class=mi>8</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=nf>free</span><span class=p>(</span><span class=n>a</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=nf>free</span><span class=p>(</span><span class=n>b</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=nf>free</span><span class=p>(</span><span class=n>a</span><span class=p>);</span>
+</span></span></code></pre></td></tr></table></div></div><p>此时fastbin 0x20: <code>a->b->a</code></p><p><strong>附注：</strong></p><p>tcache可以检测到double free。在本机glibc2.31中发现，tcache_entry中使用key指向了tcache_perthread_struct。<a href="https://sourceware.org/git/?p=glibc.git;a=blob;f=malloc/malloc.c;h=f7cd29bc2f93e1082ee77800bd64a4b2a2897055;hb=9ea3686266dca3f004ba874745a4087a89682617#l4186">malloc.c:4186</a></p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
 </span><span class=lnt>2
 </span><span class=lnt>3
 </span><span class=lnt>4
 </span><span class=lnt>5
 </span><span class=lnt>6
-</span></code></pre></td>
-<td class=lntd>
-<pre tabindex=0 class=chroma><code class=language-c data-lang=c><span class=k>typedef</span> <span class=k>struct</span> <span class=n>tcache_entry</span>
-<span class=p>{</span>
-  <span class=k>struct</span> <span class=n>tcache_entry</span> <span class=o>*</span><span class=n>next</span><span class=p>;</span>
-  <span class=cm>/* This field exists to detect double frees.  */</span>
-  <span class=k>struct</span> <span class=n>tcache_perthread_struct</span> <span class=o>*</span><span class=n>key</span><span class=p>;</span>
-<span class=p>}</span> <span class=n>tcache_entry</span><span class=p>;</span>
-</code></pre></td></tr></table>
-</div>
-</div><p>tcache检测double free代码：</p>
-<div class=highlight><div class=chroma>
-<table class=lntable><tr><td class=lntd>
-<pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-c data-lang=c><span class=line><span class=cl><span class=k>typedef</span> <span class=k>struct</span> <span class=n>tcache_entry</span>
+</span></span><span class=line><span class=cl><span class=p>{</span>
+</span></span><span class=line><span class=cl>  <span class=k>struct</span> <span class=n>tcache_entry</span> <span class=o>*</span><span class=n>next</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>  <span class=cm>/* This field exists to detect double frees.  */</span>
+</span></span><span class=line><span class=cl>  <span class=k>struct</span> <span class=n>tcache_perthread_struct</span> <span class=o>*</span><span class=n>key</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=p>}</span> <span class=n>tcache_entry</span><span class=p>;</span>
+</span></span></code></pre></td></tr></table></div></div><p>tcache检测double free代码：</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
 </span><span class=lnt> 2
 </span><span class=lnt> 3
 </span><span class=lnt> 4
@@ -434,87 +219,46 @@ tcache拥有和fastbin差不多的结构。默认情况下，64个bin，每个bi
 </span><span class=lnt>17
 </span><span class=lnt>18
 </span><span class=lnt>19
-</span></code></pre></td>
-<td class=lntd>
-<pre tabindex=0 class=chroma><code class=language-c data-lang=c><span class=cm>/* Check to see if it&#39;s already in the tcache.  */</span>
-<span class=n>tcache_entry</span> <span class=o>*</span><span class=n>e</span> <span class=o>=</span> <span class=p>(</span><span class=n>tcache_entry</span> <span class=o>*</span><span class=p>)</span> <span class=n>chunk2mem</span> <span class=p>(</span><span class=n>p</span><span class=p>);</span>
-
-<span class=cm>/* This test succeeds on double free.  However, we don&#39;t 100%
-</span><span class=cm>	   trust it (it also matches random payload data at a 1 in
-</span><span class=cm>	   2^&lt;size_t&gt; chance), so verify it&#39;s not an unlikely
-</span><span class=cm>	   coincidence before aborting.  */</span>
-<span class=k>if</span> <span class=p>(</span><span class=n>__glibc_unlikely</span> <span class=p>(</span><span class=n>e</span><span class=o>-&gt;</span><span class=n>key</span> <span class=o>==</span> <span class=n>tcache</span><span class=p>))</span>
-<span class=p>{</span>
-    <span class=n>tcache_entry</span> <span class=o>*</span><span class=n>tmp</span><span class=p>;</span>
-    <span class=n>LIBC_PROBE</span> <span class=p>(</span><span class=n>memory_tcache_double_free</span><span class=p>,</span> <span class=mi>2</span><span class=p>,</span> <span class=n>e</span><span class=p>,</span> <span class=n>tc_idx</span><span class=p>);</span>
-    <span class=k>for</span> <span class=p>(</span><span class=n>tmp</span> <span class=o>=</span> <span class=n>tcache</span><span class=o>-&gt;</span><span class=n>entries</span><span class=p>[</span><span class=n>tc_idx</span><span class=p>];</span>
-         <span class=n>tmp</span><span class=p>;</span>
-         <span class=n>tmp</span> <span class=o>=</span> <span class=n>tmp</span><span class=o>-&gt;</span><span class=n>next</span><span class=p>)</span>
-        <span class=k>if</span> <span class=p>(</span><span class=n>tmp</span> <span class=o>==</span> <span class=n>e</span><span class=p>)</span>
-            <span class=n>malloc_printerr</span> <span class=p>(</span><span class=s>&#34;free(): double free detected in tcache 2&#34;</span><span class=p>);</span>
-    <span class=cm>/* If we get here, it was a coincidence.  We&#39;ve wasted a
-</span><span class=cm>	       few cycles, but don&#39;t abort.  */</span>
-<span class=p>}</span>
-</code></pre></td></tr></table>
-</div>
-</div><h2 id=fastbin_dup_into_stackc>fastbin_dup_into_stack.c</h2>
-<p>假设fastbin中通过double free得到以下序列。</p>
-<p>fastbin: <code>a->b->a</code></p>
-<p>第一次malloc得到a后，修改数据，使得第二个a->fd指向栈地址。</p>
-<h3 id=0ctf2017-babyheap>0ctf2017-babyheap</h3>
-<p>fill函数中存在对chunk的任意长度溢出。</p>
-<div class=highlight><div class=chroma>
-<table class=lntable><tr><td class=lntd>
-<pre tabindex=0 class=chroma><code><span class=lnt>1
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-c data-lang=c><span class=line><span class=cl><span class=cm>/* Check to see if it&#39;s already in the tcache.  */</span>
+</span></span><span class=line><span class=cl><span class=n>tcache_entry</span> <span class=o>*</span><span class=n>e</span> <span class=o>=</span> <span class=p>(</span><span class=n>tcache_entry</span> <span class=o>*</span><span class=p>)</span> <span class=nf>chunk2mem</span> <span class=p>(</span><span class=n>p</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>
+</span></span><span class=line><span class=cl><span class=cm>/* This test succeeds on double free.  However, we don&#39;t 100%
+</span></span></span><span class=line><span class=cl><span class=cm>	   trust it (it also matches random payload data at a 1 in
+</span></span></span><span class=line><span class=cl><span class=cm>	   2^&lt;size_t&gt; chance), so verify it&#39;s not an unlikely
+</span></span></span><span class=line><span class=cl><span class=cm>	   coincidence before aborting.  */</span>
+</span></span><span class=line><span class=cl><span class=k>if</span> <span class=p>(</span><span class=nf>__glibc_unlikely</span> <span class=p>(</span><span class=n>e</span><span class=o>-&gt;</span><span class=n>key</span> <span class=o>==</span> <span class=n>tcache</span><span class=p>))</span>
+</span></span><span class=line><span class=cl><span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=n>tcache_entry</span> <span class=o>*</span><span class=n>tmp</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=nf>LIBC_PROBE</span> <span class=p>(</span><span class=n>memory_tcache_double_free</span><span class=p>,</span> <span class=mi>2</span><span class=p>,</span> <span class=n>e</span><span class=p>,</span> <span class=n>tc_idx</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=k>for</span> <span class=p>(</span><span class=n>tmp</span> <span class=o>=</span> <span class=n>tcache</span><span class=o>-&gt;</span><span class=n>entries</span><span class=p>[</span><span class=n>tc_idx</span><span class=p>];</span>
+</span></span><span class=line><span class=cl>         <span class=n>tmp</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>         <span class=n>tmp</span> <span class=o>=</span> <span class=n>tmp</span><span class=o>-&gt;</span><span class=n>next</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>        <span class=k>if</span> <span class=p>(</span><span class=n>tmp</span> <span class=o>==</span> <span class=n>e</span><span class=p>)</span>
+</span></span><span class=line><span class=cl>            <span class=nf>malloc_printerr</span> <span class=p>(</span><span class=s>&#34;free(): double free detected in tcache 2&#34;</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=cm>/* If we get here, it was a coincidence.  We&#39;ve wasted a
+</span></span></span><span class=line><span class=cl><span class=cm>	       few cycles, but don&#39;t abort.  */</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><h2 id=fastbin_dup_into_stackc>fastbin_dup_into_stack.c</h2><p>假设fastbin中通过double free得到以下序列。</p><p>fastbin: <code>a->b->a</code></p><p>第一次malloc得到a后，修改数据，使得第二个a->fd指向栈地址。</p><h3 id=0ctf2017-babyheap>0ctf2017-babyheap</h3><p>fill函数中存在对chunk的任意长度溢出。</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
 </span><span class=lnt>2
 </span><span class=lnt>3
 </span><span class=lnt>4
 </span><span class=lnt>5
-</span></code></pre></td>
-<td class=lntd>
-<pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=n>allocate</span><span class=p>(</span><span class=mh>0x20</span><span class=p>)</span>
-<span class=n>allocate</span><span class=p>(</span><span class=mh>0x20</span><span class=p>)</span>
-<span class=n>allocate</span><span class=p>(</span><span class=mh>0x20</span><span class=p>)</span>
-<span class=n>allocate</span><span class=p>(</span><span class=mh>0x20</span><span class=p>)</span>
-<span class=n>allocate</span><span class=p>(</span><span class=mh>0x80</span><span class=p>)</span>		<span class=c1># smallbin</span>
-</code></pre></td></tr></table>
-</div>
-</div><p>mmap分配空间那块没看懂，怎么就获得了随机空间。。如果有人看懂，麻烦告诉我一下</p>
-<p><strong>泄露</strong>：通过<strong>partial overwrite</strong>修改fd，指向smallbin。溢出修改smallbin->size为0x31，两次分配后得到另一指针指向该smallbin。而后重新修改smallbin->size为0x91，free该smallbin，smallbin->fd和smallbin->bk就会指向main_arena中的区域。使用另一指针打印内容就可以得到libc_base。</p>
-<p><strong>攻击</strong>：0x70 fastbin attack，复写<code>__malloc_hook</code>为one_gadget地址。</p>
-<h3 id=ref>ref</h3>
-<p><a href=https://uaf.io/exploitation/2017/03/19/0ctf-Quals-2017-BabyHeap2017.html>https://uaf.io/exploitation/2017/03/19/0ctf-Quals-2017-BabyHeap2017.html</a></p>
-<h2 id=fastbin_dup_consolidate>fastbin_dup_consolidate</h2>
-<p>double free fastbin到unsorted bin和fastbin。通过分配large bin触发malloc_consolidate，清空fastbin到unsorted bin。<a href=https://raw.githubusercontent.com/cloudburst/libheap/master/heap.png>图源</a></p>
-<p><img src=https://raw.githubusercontent.com/cloudburst/libheap/master/heap.png alt></p>
-<h3 id=hitcon-2016-sleepyholder>Hitcon 2016 SleepyHolder</h3>
-<p>fastbin dup consolidate double free</p>
-<p>unsafe unlink</p>
-<h3 id=ref-1>ref</h3>
-<p><a href=https://github.com/mehQQ/public_writeup/tree/master/hitcon2016/SleepyHolder>https://github.com/mehQQ/public_writeup/tree/master/hitcon2016/SleepyHolder</a></p>
-<h2 id=unsafe-unlink>unsafe unlink</h2>
-<p>在前块中构造fake_chunk，用一些方法将后块的pre_in_use位清掉，释放后块向前合并。</p>
-<p>伪造fake_chunk需要绕过检查，一般用某个指针变量前后的地址当做fd、bk。之后就会将该指针变量就会被覆盖。</p>
-<div class=highlight><div class=chroma>
-<table class=lntable><tr><td class=lntd>
-<pre tabindex=0 class=chroma><code><span class=lnt>1
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-python data-lang=python><span class=line><span class=cl><span class=n>allocate</span><span class=p>(</span><span class=mh>0x20</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=n>allocate</span><span class=p>(</span><span class=mh>0x20</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=n>allocate</span><span class=p>(</span><span class=mh>0x20</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=n>allocate</span><span class=p>(</span><span class=mh>0x20</span><span class=p>)</span>
+</span></span><span class=line><span class=cl><span class=n>allocate</span><span class=p>(</span><span class=mh>0x80</span><span class=p>)</span>		<span class=c1># smallbin</span>
+</span></span></code></pre></td></tr></table></div></div><p>mmap分配空间那块没看懂，怎么就获得了随机空间。。如果有人看懂，麻烦告诉我一下</p><p><strong>泄露</strong>：通过<strong>partial overwrite</strong>修改fd，指向smallbin。溢出修改smallbin->size为0x31，两次分配后得到另一指针指向该smallbin。而后重新修改smallbin->size为0x91，free该smallbin，smallbin->fd和smallbin->bk就会指向main_arena中的区域。使用另一指针打印内容就可以得到libc_base。</p><p><strong>攻击</strong>：0x70 fastbin attack，复写<code>__malloc_hook</code>为one_gadget地址。</p><h3 id=ref>ref</h3><p><a href=https://uaf.io/exploitation/2017/03/19/0ctf-Quals-2017-BabyHeap2017.html>https://uaf.io/exploitation/2017/03/19/0ctf-Quals-2017-BabyHeap2017.html</a></p><h2 id=fastbin_dup_consolidate>fastbin_dup_consolidate</h2><p>double free fastbin到unsorted bin和fastbin。通过分配large bin触发malloc_consolidate，清空fastbin到unsorted bin。<a href=https://raw.githubusercontent.com/cloudburst/libheap/master/heap.png>图源</a></p><p><img src=https://raw.githubusercontent.com/cloudburst/libheap/master/heap.png alt></p><h3 id=hitcon-2016-sleepyholder>Hitcon 2016 SleepyHolder</h3><p>fastbin dup consolidate double free</p><p>unsafe unlink</p><h3 id=ref-1>ref</h3><p><a href=https://github.com/mehQQ/public_writeup/tree/master/hitcon2016/SleepyHolder>https://github.com/mehQQ/public_writeup/tree/master/hitcon2016/SleepyHolder</a></p><h2 id=unsafe-unlink>unsafe unlink</h2><p>在前块中构造fake_chunk，用一些方法将后块的pre_in_use位清掉，释放后块向前合并。</p><p>伪造fake_chunk需要绕过检查，一般用某个指针变量前后的地址当做fd、bk。之后就会将该指针变量就会被覆盖。</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
 </span><span class=lnt>2
 </span><span class=lnt>3
 </span><span class=lnt>4
 </span><span class=lnt>5
-</span></code></pre></td>
-<td class=lntd>
-<pre tabindex=0 class=chroma><code class=language-c data-lang=c><span class=cp>#define unlink(AV, P, BK, FD) {                                            \
-</span><span class=cp>    FD = P-&gt;fd;								      \
-</span><span class=cp>    BK = P-&gt;bk;								      \
-</span><span class=cp>    if (__builtin_expect (FD-&gt;bk != P || BK-&gt;fd != P, 0))		      \
-</span><span class=cp>      malloc_printerr (check_action, &#34;corrupted double-linked list&#34;, P, AV);  \
-</span></code></pre></td></tr></table>
-</div>
-</div><p>how2heap对glibc的版本要求<code>&lt;2.26</code>似乎有误？据我测试，<strong>glibc2.31 without tcache也可以运行成功</strong>，只要添加<code>chunk0_ptr[1] = (uint64_t)malloc_size;</code>，glibc2.31中看起来只是增加了size的验证。</p>
-<div class=highlight><div class=chroma>
-<table class=lntable><tr><td class=lntd>
-<pre tabindex=0 class=chroma><code><span class=lnt>1
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-c data-lang=c><span class=line><span class=cl><span class=cp>#define unlink(AV, P, BK, FD) {                                            \
+</span></span></span><span class=line><span class=cl><span class=cp>    FD = P-&gt;fd;								      \
+</span></span></span><span class=line><span class=cl><span class=cp>    BK = P-&gt;bk;								      \
+</span></span></span><span class=line><span class=cl><span class=cp>    if (__builtin_expect (FD-&gt;bk != P || BK-&gt;fd != P, 0))		      \
+</span></span></span><span class=line><span class=cl><span class=cp>      malloc_printerr (check_action, &#34;corrupted double-linked list&#34;, P, AV);  \
+</span></span></span></code></pre></td></tr></table></div></div><p>how2heap对glibc的版本要求<code>&lt;2.26</code>似乎有误？据我测试，<strong>glibc2.31 without tcache也可以运行成功</strong>，只要添加<code>chunk0_ptr[1] = (uint64_t)malloc_size;</code>，glibc2.31中看起来只是增加了size的验证。</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
 </span><span class=lnt>2
 </span><span class=lnt>3
 </span><span class=lnt>4
@@ -523,244 +267,62 @@ tcache拥有和fastbin差不多的结构。默认情况下，64个bin，每个bi
 </span><span class=lnt>7
 </span><span class=lnt>8
 </span><span class=lnt>9
-</span></code></pre></td>
-<td class=lntd>
-<pre tabindex=0 class=chroma><code class=language-c data-lang=c><span class=cm>/* consolidate backward */</span>
-<span class=k>if</span> <span class=p>(</span><span class=o>!</span><span class=n>prev_inuse</span><span class=p>(</span><span class=n>p</span><span class=p>))</span> <span class=p>{</span>
-    <span class=n>prevsize</span> <span class=o>=</span> <span class=n>prev_size</span> <span class=p>(</span><span class=n>p</span><span class=p>);</span>
-    <span class=n>size</span> <span class=o>+=</span> <span class=n>prevsize</span><span class=p>;</span>
-    <span class=n>p</span> <span class=o>=</span> <span class=n>chunk_at_offset</span><span class=p>(</span><span class=n>p</span><span class=p>,</span> <span class=o>-</span><span class=p>((</span><span class=kt>long</span><span class=p>)</span> <span class=n>prevsize</span><span class=p>));</span>
-    <span class=k>if</span> <span class=p>(</span><span class=n>__glibc_unlikely</span> <span class=p>(</span><span class=n>chunksize</span><span class=p>(</span><span class=n>p</span><span class=p>)</span> <span class=o>!=</span> <span class=n>prevsize</span><span class=p>))</span>
-        <span class=n>malloc_printerr</span> <span class=p>(</span><span class=s>&#34;corrupted size vs. prev_size while consolidating&#34;</span><span class=p>);</span>
-    <span class=n>unlink_chunk</span> <span class=p>(</span><span class=n>av</span><span class=p>,</span> <span class=n>p</span><span class=p>);</span>
-<span class=p>}</span>
-</code></pre></td></tr></table>
-</div>
-</div><p><strong>非fastbin size才会进行前后consolidate。</strong></p>
-<h3 id=hitcon2014-stkof>Hitcon2014 stkof</h3>
-<p>p1分配0x80，p2分配0x80。</p>
-<p>p1内伪造fake_chunk，溢出修改p2的pre_size,pre_in_use。free(p2)</p>
-<p>覆盖free_got泄露地址，再任意写到atoi_got</p>
-<h2 id=house-of-spirit>House of spirit</h2>
-<p>在不可控区域周围构造fakechunk，覆盖某指针，释放再分配，以控制不可控区域。</p>
-<h3 id=hacklu2014-oreo>hack.lu2014 oreo</h3>
-<p>在message_ptr周围构造。</p>
-<h2 id=poison-null-byte>poison null byte</h2>
-<p>溢出，覆盖已经释放的chunk的size，使其大小变小。free后块使其合并。</p>
-<h3 id=plaidctf2015-plaiddb>Plaidctf2015 plaiddb</h3>
-<p>null byte溢出，堆块重叠，libc泄露和fastbin attack</p>
-<h3 id=ref-2>ref</h3>
-<ol>
-<li><a href=https://4ngelboy.blogspot.com/2016/10/span-display-block-overflow-hidden_10.html>https://4ngelboy.blogspot.com/2016/10/span-display-block-overflow-hidden_10.html</a></li>
-<li><a href=https://ctf-wiki.github.io/ctf-wiki/pwn/linux/glibc-heap/off_by_one-zh/#2-plaidctf-2015-plaiddb>https://ctf-wiki.github.io/ctf-wiki/pwn/linux/glibc-heap/off_by_one-zh/#2-plaidctf-2015-plaiddb</a></li>
-</ol>
-<h2 id=house-of-lore>house of lore</h2>
-<p><strong>glibc2.31 without tcache可以运行成功。</strong></p>
-<p>smallbin链表的特点是头插尾取的FIFO。</p>
-<p>关键的漏洞点在，攻击者可以控制已经释放的smallbin的bk指针。取出smallbin过程中，双向链表尾部被修改为fake_chunk。</p>
-<p>程序中的描述对于64位有些问题，但没有影响效果。64位过程如下：</p>
-<p><code>free((void*)victim)</code>后，该chunk被放入fastbin，后<code>void *p2 = malloc(1200);</code>申请largebin触发malloc_consolidate，将fastbin放入unsortedbin，然后遍历unsortedbin查找chunk导致victim chunk被放入smallbin。</p>
-<div class=highlight><div class=chroma>
-<table class=lntable><tr><td class=lntd>
-<pre tabindex=0 class=chroma><code><span class=lnt>1
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-c data-lang=c><span class=line><span class=cl><span class=cm>/* consolidate backward */</span>
+</span></span><span class=line><span class=cl><span class=k>if</span> <span class=p>(</span><span class=o>!</span><span class=nf>prev_inuse</span><span class=p>(</span><span class=n>p</span><span class=p>))</span> <span class=p>{</span>
+</span></span><span class=line><span class=cl>    <span class=n>prevsize</span> <span class=o>=</span> <span class=nf>prev_size</span> <span class=p>(</span><span class=n>p</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=n>size</span> <span class=o>+=</span> <span class=n>prevsize</span><span class=p>;</span>
+</span></span><span class=line><span class=cl>    <span class=n>p</span> <span class=o>=</span> <span class=nf>chunk_at_offset</span><span class=p>(</span><span class=n>p</span><span class=p>,</span> <span class=o>-</span><span class=p>((</span><span class=kt>long</span><span class=p>)</span> <span class=n>prevsize</span><span class=p>));</span>
+</span></span><span class=line><span class=cl>    <span class=k>if</span> <span class=p>(</span><span class=nf>__glibc_unlikely</span> <span class=p>(</span><span class=nf>chunksize</span><span class=p>(</span><span class=n>p</span><span class=p>)</span> <span class=o>!=</span> <span class=n>prevsize</span><span class=p>))</span>
+</span></span><span class=line><span class=cl>        <span class=nf>malloc_printerr</span> <span class=p>(</span><span class=s>&#34;corrupted size vs. prev_size while consolidating&#34;</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>    <span class=nf>unlink_chunk</span> <span class=p>(</span><span class=n>av</span><span class=p>,</span> <span class=n>p</span><span class=p>);</span>
+</span></span><span class=line><span class=cl><span class=p>}</span>
+</span></span></code></pre></td></tr></table></div></div><p><strong>非fastbin size才会进行前后consolidate。</strong></p><h3 id=hitcon2014-stkof>Hitcon2014 stkof</h3><p>p1分配0x80，p2分配0x80。</p><p>p1内伪造fake_chunk，溢出修改p2的pre_size,pre_in_use。free(p2)</p><p>覆盖free_got泄露地址，再任意写到atoi_got</p><h2 id=house-of-spirit>House of spirit</h2><p>在不可控区域周围构造fakechunk，覆盖某指针，释放再分配，以控制不可控区域。</p><h3 id=hacklu2014-oreo>hack.lu2014 oreo</h3><p>在message_ptr周围构造。</p><h2 id=poison-null-byte>poison null byte</h2><p>溢出，覆盖已经释放的chunk的size，使其大小变小。free后块使其合并。</p><h3 id=plaidctf2015-plaiddb>Plaidctf2015 plaiddb</h3><p>null byte溢出，堆块重叠，libc泄露和fastbin attack</p><h3 id=ref-2>ref</h3><ol><li><a href=https://4ngelboy.blogspot.com/2016/10/span-display-block-overflow-hidden_10.html>https://4ngelboy.blogspot.com/2016/10/span-display-block-overflow-hidden_10.html</a></li><li><a href=https://ctf-wiki.github.io/ctf-wiki/pwn/linux/glibc-heap/off_by_one-zh/#2-plaidctf-2015-plaiddb>https://ctf-wiki.github.io/ctf-wiki/pwn/linux/glibc-heap/off_by_one-zh/#2-plaidctf-2015-plaiddb</a></li></ol><h2 id=house-of-lore>house of lore</h2><p><strong>glibc2.31 without tcache可以运行成功。</strong></p><p>smallbin链表的特点是头插尾取的FIFO。</p><p>关键的漏洞点在，攻击者可以控制已经释放的smallbin的bk指针。取出smallbin过程中，双向链表尾部被修改为fake_chunk。</p><p>程序中的描述对于64位有些问题，但没有影响效果。64位过程如下：</p><p><code>free((void*)victim)</code>后，该chunk被放入fastbin，后<code>void *p2 = malloc(1200);</code>申请largebin触发malloc_consolidate，将fastbin放入unsortedbin，然后遍历unsortedbin查找chunk导致victim chunk被放入smallbin。</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
 </span><span class=lnt>2
 </span><span class=lnt>3
 </span><span class=lnt>4
-</span></code></pre></td>
-<td class=lntd>
-<pre tabindex=0 class=chroma><code class=language-c data-lang=c><span class=n>victim_chunk</span><span class=o>-&gt;</span><span class=n>bk</span>   <span class=o>=</span> <span class=n>stack_buffer_1</span><span class=p>;</span>
-<span class=n>stack_buffer_1</span><span class=o>-&gt;</span><span class=n>fd</span> <span class=o>=</span> <span class=n>vimtim_chunk</span><span class=p>;</span>
-<span class=n>stack_buffer_1</span><span class=o>-&gt;</span><span class=n>bk</span> <span class=o>=</span> <span class=n>stack_buffer_2</span><span class=p>;</span>
-<span class=n>stack_buffer_2</span><span class=o>-&gt;</span><span class=n>fd</span> <span class=o>=</span> <span class=n>stack_buffer_1</span><span class=p>;</span>
-</code></pre></td></tr></table>
-</div>
-</div><h2 id=overlapping-chunks>overlapping chunks</h2>
-<p>溢出，对unsortedbin中的chunk的size进行更改，造成重叠。可以添加<code>prev_size(nextchunk) == chunk->size</code>检查修补。</p>
-<h3 id=hacklu2015-bookstore>hack.lu2015 bookstore</h3>
-<p>overlapping</p>
-<p>format string vulnerability：泄露libc，修改fini_array和返回地址</p>
-<h2 id=overlapping-chunks-2>overlapping chunks 2</h2>
-<div class=highlight><div class=chroma>
-<table class=lntable><tr><td class=lntd>
-<pre tabindex=0 class=chroma><code><span class=lnt>1
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-c data-lang=c><span class=line><span class=cl><span class=n>victim_chunk</span><span class=o>-&gt;</span><span class=n>bk</span>   <span class=o>=</span> <span class=n>stack_buffer_1</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=n>stack_buffer_1</span><span class=o>-&gt;</span><span class=n>fd</span> <span class=o>=</span> <span class=n>vimtim_chunk</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=n>stack_buffer_1</span><span class=o>-&gt;</span><span class=n>bk</span> <span class=o>=</span> <span class=n>stack_buffer_2</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=n>stack_buffer_2</span><span class=o>-&gt;</span><span class=n>fd</span> <span class=o>=</span> <span class=n>stack_buffer_1</span><span class=p>;</span>
+</span></span></code></pre></td></tr></table></div></div><h2 id=overlapping-chunks>overlapping chunks</h2><p>溢出，对unsortedbin中的chunk的size进行更改，造成重叠。可以添加<code>prev_size(nextchunk) == chunk->size</code>检查修补。</p><h3 id=hacklu2015-bookstore>hack.lu2015 bookstore</h3><p>overlapping</p><p>format string vulnerability：泄露libc，修改fini_array和返回地址</p><h2 id=overlapping-chunks-2>overlapping chunks 2</h2><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
 </span><span class=lnt>2
 </span><span class=lnt>3
 </span><span class=lnt>4
 </span><span class=lnt>5
-</span></code></pre></td>
-<td class=lntd>
-<pre tabindex=0 class=chroma><code class=language-c data-lang=c>  <span class=n>p1</span> <span class=o>=</span> <span class=n>malloc</span><span class=p>(</span><span class=mi>1000</span><span class=p>);</span>
-  <span class=n>p2</span> <span class=o>=</span> <span class=n>malloc</span><span class=p>(</span><span class=mi>1000</span><span class=p>);</span>
-  <span class=n>p3</span> <span class=o>=</span> <span class=n>malloc</span><span class=p>(</span><span class=mi>1000</span><span class=p>);</span>
-  <span class=n>p4</span> <span class=o>=</span> <span class=n>malloc</span><span class=p>(</span><span class=mi>1000</span><span class=p>);</span>
-  <span class=n>p5</span> <span class=o>=</span> <span class=n>malloc</span><span class=p>(</span><span class=mi>1000</span><span class=p>);</span>
-</code></pre></td></tr></table>
-</div>
-</div><p>首先free(p4)，溢出，对使用中的chunk p2的size进行更改，free掉p2，与p4合并，造成重叠。</p>
-<h2 id=house-of-force>house of force</h2>
-<p>覆盖topchun-size为0xffffffff，分配一个能够溢出size_t的evil_size，到目的地址，再分配一次，对其进行修改。</p>
-<h3 id=bctf2016-bcloud>bctf2016 bcloud</h3>
-<p>null byte overflow，strcpy溢出。修改free_got为put_plt，泄露libc base，后修改atoi_got。</p>
-<h2 id=unsorted-bin-into-stack>unsorted bin into stack</h2>
-<p>和house of lore差不多，只不过这里是对于unsorted bin。</p>
-<p>在栈上伪造chunk，修改unsorted bin尾部chunk的size和bk，使其size不符合下一次分配的要求，使其bk指向栈上伪造的chunk，造成下一次分配落到栈上。</p>
-<h2 id=unsorted-bin-attack>unsorted bin attack</h2>
-<p>修改unsorted bin中某一chunk的bk指向某位置p，接下来该chunk分配后，<code>p+2*SIZE_ZE</code>处会被覆盖为unsorted bin头结点的地址，也就是unsortedbin地址。</p>
-<p>该攻击通常为进一步攻击做准备，比如覆盖global_max_fast</p>
-<h3 id=0ctf2016-zerostorage>0ctf2016 zerostorage</h3>
-<p>UAF，realloc with topchunk</p>
-<h2 id=large-bin-attack>large bin attack</h2>
-<p>对已存在于large bin中的chunk的bk、bk_nextsize字段进行更改，在unsorted bin中取出插入该large bin时，会将bk->fd、bk_nextsize->fd_nextsize的位置覆盖成堆的地址。和先前的unsorted bin attack类似，通常为进一步攻击做准备，如修改global_max_fast。</p>
-<p><img src=https://raw.githubusercontent.com/clxsh/pics/master/img/large_bin2.png alt="large bin"></p>
-<h3 id=0ctf2018-heapstorm2>0ctf2018 heapstorm2</h3>
-<p>poison null byte, large bin attack，fake unsorted bin</p>
-<h2 id=house-of-einherjar>house of einherjar</h2>
-<p>泄露堆地址，计算fake size。</p>
-<p>off-by-one覆盖victim->pre_in_use，修改victim->prev_size。</p>
-<p>释放victim，与fake chunk合并。</p>
-<p><strong>victim需要与top chunk临近。</strong></p>
-<h3 id=secon2016-tinypad>Secon2016 tinypad</h3>
-<h2 id=house-of-orange>house of orange</h2>
-<p>将<code>topchunk->size</code>缩小并对齐页，malloc一个大于size，就会将old top chunk释放到unsorted bin中。</p>
-<h3 id=hitcon2016-houseoforange>Hitcon2016 houseoforange</h3>
-<h2 id=house-of-roman>house of roman</h2>
-<p>最主要的思想就是partial overwrite，所以能够在不泄露地址的情况下getshell。</p>
-<p>需要溢出或者UAF</p>
-<p>fast bin attack，partial overwrite fd或者bk指向main_arena的块（从small large unsorted bin中malloc），使其指向<code>malloc_hook-0x23</code></p>
-<p>unsorted bin attack，将bk指向malloc_hook-0x10，使得malloc_hook被写入main_arena地址，从而partial overwrite成为system、onegadget等。</p>
-<h2 id=tcache-dup>tcache dup</h2>
-<p>glibc 2.26~2.28</p>
-<p>没有任何检查，简单的double free</p>
-<h2 id=tcache-poisoning>tcache poisoning</h2>
-<p>修改tcache中已释放块的next(fd)到任意位置，然后进行分配得到</p>
-<h2 id=tcache-house-of-spirit>tcache house of spirit</h2>
-<p>伪造堆块释放到tcahe。和普通house of spirit不同的是，tcache并没有对后块检查</p>
-<p>prev_inuse没有影响，IS_MMAPPED、NON_MAIN_ARENA有影响</p>
-<h2 id=house-of-botcake>house of botcake</h2>
-<p>double free</p>
-<p><a href="https://sourceware.org/git/?p=glibc.git;a=commit;h=bcdaad21d4635931d1bd3b54a7894276925d081d">commit</a>在<code>struct tcache_entry</code>结构中添加了key变量指向tcache_perthread_struct，所以简单的向tcache中double free两次会被检测到。</p>
-<div class=highlight><div class=chroma>
-<table class=lntable><tr><td class=lntd>
-<pre tabindex=0 class=chroma><code><span class=lnt>1
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-c data-lang=c><span class=line><span class=cl>  <span class=n>p1</span> <span class=o>=</span> <span class=nf>malloc</span><span class=p>(</span><span class=mi>1000</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>  <span class=n>p2</span> <span class=o>=</span> <span class=nf>malloc</span><span class=p>(</span><span class=mi>1000</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>  <span class=n>p3</span> <span class=o>=</span> <span class=nf>malloc</span><span class=p>(</span><span class=mi>1000</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>  <span class=n>p4</span> <span class=o>=</span> <span class=nf>malloc</span><span class=p>(</span><span class=mi>1000</span><span class=p>);</span>
+</span></span><span class=line><span class=cl>  <span class=n>p5</span> <span class=o>=</span> <span class=nf>malloc</span><span class=p>(</span><span class=mi>1000</span><span class=p>);</span>
+</span></span></code></pre></td></tr></table></div></div><p>首先free(p4)，溢出，对使用中的chunk p2的size进行更改，free掉p2，与p4合并，造成重叠。</p><h2 id=house-of-force>house of force</h2><p>覆盖topchun-size为0xffffffff，分配一个能够溢出size_t的evil_size，到目的地址，再分配一次，对其进行修改。</p><h3 id=bctf2016-bcloud>bctf2016 bcloud</h3><p>null byte overflow，strcpy溢出。修改free_got为put_plt，泄露libc base，后修改atoi_got。</p><h2 id=unsorted-bin-into-stack>unsorted bin into stack</h2><p>和house of lore差不多，只不过这里是对于unsorted bin。</p><p>在栈上伪造chunk，修改unsorted bin尾部chunk的size和bk，使其size不符合下一次分配的要求，使其bk指向栈上伪造的chunk，造成下一次分配落到栈上。</p><h2 id=unsorted-bin-attack>unsorted bin attack</h2><p>修改unsorted bin中某一chunk的bk指向某位置p，接下来该chunk分配后，<code>p+2*SIZE_ZE</code>处会被覆盖为unsorted bin头结点的地址，也就是unsortedbin地址。</p><p>该攻击通常为进一步攻击做准备，比如覆盖global_max_fast</p><h3 id=0ctf2016-zerostorage>0ctf2016 zerostorage</h3><p>UAF，realloc with topchunk</p><h2 id=large-bin-attack>large bin attack</h2><p>对已存在于large bin中的chunk的bk、bk_nextsize字段进行更改，在unsorted bin中取出插入该large bin时，会将bk->fd、bk_nextsize->fd_nextsize的位置覆盖成堆的地址。和先前的unsorted bin attack类似，通常为进一步攻击做准备，如修改global_max_fast。</p><p><img src=https://raw.githubusercontent.com/clxsh/pics/master/img/large_bin2.png alt="large bin"></p><h3 id=0ctf2018-heapstorm2>0ctf2018 heapstorm2</h3><p>poison null byte, large bin attack，fake unsorted bin</p><h2 id=house-of-einherjar>house of einherjar</h2><p>泄露堆地址，计算fake size。</p><p>off-by-one覆盖victim->pre_in_use，修改victim->prev_size。</p><p>释放victim，与fake chunk合并。</p><p><strong>victim需要与top chunk临近。</strong></p><h3 id=secon2016-tinypad>Secon2016 tinypad</h3><h2 id=house-of-orange>house of orange</h2><p>将<code>topchunk->size</code>缩小并对齐页，malloc一个大于size，就会将old top chunk释放到unsorted bin中。</p><h3 id=hitcon2016-houseoforange>Hitcon2016 houseoforange</h3><h2 id=house-of-roman>house of roman</h2><p>最主要的思想就是partial overwrite，所以能够在不泄露地址的情况下getshell。</p><p>需要溢出或者UAF</p><p>fast bin attack，partial overwrite fd或者bk指向main_arena的块（从small large unsorted bin中malloc），使其指向<code>malloc_hook-0x23</code></p><p>unsorted bin attack，将bk指向malloc_hook-0x10，使得malloc_hook被写入main_arena地址，从而partial overwrite成为system、onegadget等。</p><h2 id=tcache-dup>tcache dup</h2><p>glibc 2.26~2.28</p><p>没有任何检查，简单的double free</p><h2 id=tcache-poisoning>tcache poisoning</h2><p>修改tcache中已释放块的next(fd)到任意位置，然后进行分配得到</p><h2 id=tcache-house-of-spirit>tcache house of spirit</h2><p>伪造堆块释放到tcahe。和普通house of spirit不同的是，tcache并没有对后块检查</p><p>prev_inuse没有影响，IS_MMAPPED、NON_MAIN_ARENA有影响</p><h2 id=house-of-botcake>house of botcake</h2><p>double free</p><p><a href="https://sourceware.org/git/?p=glibc.git;a=commit;h=bcdaad21d4635931d1bd3b54a7894276925d081d">commit</a>在<code>struct tcache_entry</code>结构中添加了key变量指向tcache_perthread_struct，所以简单的向tcache中double free两次会被检测到。</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
 </span><span class=lnt>2
 </span><span class=lnt>3
 </span><span class=lnt>4
 </span><span class=lnt>5
 </span><span class=lnt>6
-</span></code></pre></td>
-<td class=lntd>
-<pre tabindex=0 class=chroma><code class=language-c data-lang=c> <span class=k>typedef</span> <span class=k>struct</span> <span class=n>tcache_entry</span>
- <span class=p>{</span>
-   <span class=k>struct</span> <span class=n>tcache_entry</span> <span class=o>*</span><span class=n>next</span><span class=p>;</span>
-<span class=o>+</span>  <span class=cm>/* This field exists to detect double frees.  */</span>
-<span class=o>+</span>  <span class=k>struct</span> <span class=n>tcache_perthread_struct</span> <span class=o>*</span><span class=n>key</span><span class=p>;</span>
- <span class=p>}</span> <span class=n>tcache_entry</span><span class=p>;</span>
-</code></pre></td></tr></table>
-</div>
-</div><p>使用把某个大小tcache填满的方式，将victim同时double free到tcache和unsorted bin，并在victim前面准备了了prev块，以使得size不一样，便于分配。</p>
-<h2 id=tcache-stashing-unlink-attack>tcache stashing unlink attack</h2>
-<p>在tcache中布置5个chunk，对应大小的small bin中布置2个chunk。修改倒数第二个small chunk的bk指向target，target->bk写入一个可写的位置。使用calloc触发，因为calloc调用<code>_int_malloc</code>不会使用tcache进行分配（除了遍历unsorted bin的尾部），只会往tcache中填充。</p>
-<p>可以造成target->bk->fd位置写入大数字，并且target成为tcache中第一个，再次malloc就可以获得。</p>
-<p>有点像fastbin reverse into tcache。</p>
-<h3 id=variation>variation</h3>
-<p>在tcache中布置6个chunk，对应大小的small bin中布置2个chunk。（可以用unsorted bin切割的方式布置2个small bin）</p>
-<p>修改倒数第二个small chunk的bk，calloc触发，只修改bk->fd。</p>
-<h3 id=tips>tips</h3>
-<p>可以使用分割unsorted bin的方法，得到对应大小small bin，在不必填满tcache的情况下。</p>
-<h3 id=hitcon2019-one-punch>Hitcon2019 one punch</h3>
-<h2 id=fastbin-reverse-into-tcache>fastbin reverse into tcache</h2>
-<p>UAF or overflow</p>
-<p>可以达成类似unsorted bin attack的效果，写入一个大的数字到指定地址。（但也可以获得指定地址的chunk。。</p>
-<p>chunk size = 0x50</p>
-<ol>
-<li>
-<p>填满tcache。除了victim外，再往fastbin释放1或6个chunk。如果要写入位置存储的数值为0，则1个就可以。如果数值不为0，则需要6个。结构如下</p>
-<p>fast bin 0x50: p1->p2->p3->p4->p5->p6->victim</p>
-</li>
-<li>
-<p>分配清空tcache</p>
-</li>
-<li>
-<p>修改victim->fd为"指定地址-0x10"</p>
-<p>fast bin 0x50: p1->p2->p3->p4->p5->p6->victim->target</p>
-</li>
-<li>
-<p>malloc触发，target->fd被覆盖为堆地址。tcache中的结构如下</p>
-<p>tcache 0x50: target->victim->p6->p5->p4->p3->p2</p>
-</li>
-<li>
-<p>再malloc一次，获得target</p>
-</li>
-</ol>
-</div>
-<div class=post-copyright>
-<p class=copyright-item>
-<span class=item-title>文章作者</span>
-<span class=item-content>hhdx</span>
-</p>
-<p class=copyright-item>
-<span class=item-title>上次更新</span>
-<span class=item-content>
-2020-08-01
-</span>
-</p>
-</div>
-<footer class=post-footer>
-<div class=post-tags>
-<a href=/tags/ctf/>CTF</a>
-<a href=/tags/how2heap/>how2heap</a>
-</div>
-<nav class=post-nav>
-<a class=prev href=/post/glibcheap/>
-<i class="iconfont icon-left"></i>
+</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-c data-lang=c><span class=line><span class=cl> <span class=k>typedef</span> <span class=k>struct</span> <span class=n>tcache_entry</span>
+</span></span><span class=line><span class=cl> <span class=p>{</span>
+</span></span><span class=line><span class=cl>   <span class=k>struct</span> <span class=n>tcache_entry</span> <span class=o>*</span><span class=n>next</span><span class=p>;</span>
+</span></span><span class=line><span class=cl><span class=o>+</span>  <span class=cm>/* This field exists to detect double frees.  */</span>
+</span></span><span class=line><span class=cl><span class=o>+</span>  <span class=k>struct</span> <span class=n>tcache_perthread_struct</span> <span class=o>*</span><span class=n>key</span><span class=p>;</span>
+</span></span><span class=line><span class=cl> <span class=p>}</span> <span class=n>tcache_entry</span><span class=p>;</span>
+</span></span></code></pre></td></tr></table></div></div><p>使用把某个大小tcache填满的方式，将victim同时double free到tcache和unsorted bin，并在victim前面准备了了prev块，以使得size不一样，便于分配。</p><h2 id=tcache-stashing-unlink-attack>tcache stashing unlink attack</h2><p>在tcache中布置5个chunk，对应大小的small bin中布置2个chunk。修改倒数第二个small chunk的bk指向target，target->bk写入一个可写的位置。使用calloc触发，因为calloc调用<code>_int_malloc</code>不会使用tcache进行分配（除了遍历unsorted bin的尾部），只会往tcache中填充。</p><p>可以造成target->bk->fd位置写入大数字，并且target成为tcache中第一个，再次malloc就可以获得。</p><p>有点像fastbin reverse into tcache。</p><h3 id=variation>variation</h3><p>在tcache中布置6个chunk，对应大小的small bin中布置2个chunk。（可以用unsorted bin切割的方式布置2个small bin）</p><p>修改倒数第二个small chunk的bk，calloc触发，只修改bk->fd。</p><h3 id=tips>tips</h3><p>可以使用分割unsorted bin的方法，得到对应大小small bin，在不必填满tcache的情况下。</p><h3 id=hitcon2019-one-punch>Hitcon2019 one punch</h3><h2 id=fastbin-reverse-into-tcache>fastbin reverse into tcache</h2><p>UAF or overflow</p><p>可以达成类似unsorted bin attack的效果，写入一个大的数字到指定地址。（但也可以获得指定地址的chunk。。</p><p>chunk size = 0x50</p><ol><li><p>填满tcache。除了victim外，再往fastbin释放1或6个chunk。如果要写入位置存储的数值为0，则1个就可以。如果数值不为0，则需要6个。结构如下</p><p>fast bin 0x50: p1->p2->p3->p4->p5->p6->victim</p></li><li><p>分配清空tcache</p></li><li><p>修改victim->fd为"指定地址-0x10"</p><p>fast bin 0x50: p1->p2->p3->p4->p5->p6->victim->target</p></li><li><p>malloc触发，target->fd被覆盖为堆地址。tcache中的结构如下</p><p>tcache 0x50: target->victim->p6->p5->p4->p3->p2</p></li><li><p>再malloc一次，获得target</p></li></ol></div><div class=post-copyright><p class=copyright-item><span class=item-title>文章作者</span>
+<span class=item-content>hhdx</span></p><p class=copyright-item><span class=item-title>上次更新</span>
+<span class=item-content>2020-08-01</span></p></div><footer class=post-footer><div class=post-tags><a href=/tags/ctf/>CTF</a>
+<a href=/tags/how2heap/>how2heap</a></div><nav class=post-nav><a class=prev href=/post/glibcheap/><i class="iconfont icon-left"></i>
 <span class="prev-text nav-default">glibc heap 整理</span>
-<span class="prev-text nav-mobile">上一篇</span>
-</a>
-<a class=next href=/post/how2heap-tcache-stashing-unlink-attack-hitcon2019-one-punch/>
-<span class="next-text nav-default">How2heap--tcache_stashing_unlink_attack Hitcon2019--one_punch</span>
+<span class="prev-text nav-mobile">上一篇</span></a>
+<a class=next href=/post/how2heap-tcache-stashing-unlink-attack-hitcon2019-one-punch/><span class="next-text nav-default">How2heap--tcache_stashing_unlink_attack Hitcon2019--one_punch</span>
 <span class="next-text nav-mobile">下一篇</span>
-<i class="iconfont icon-right"></i>
-</a>
-</nav>
-</footer>
-</article>
-</div>
-<div id=disqus_thread></div>
-<script type=text/javascript>(function(){var a,b;if(window.location.hostname==='localhost')return;a=document.createElement('script'),a.type='text/javascript',a.async=!0,b='lyliuchao',a.src='//'+b+'.disqus.com/embed.js',(document.getElementsByTagName('head')[0]||document.getElementsByTagName('body')[0]).appendChild(a)})()</script>
-<noscript>Please enable JavaScript to view the <a href=http://disqus.com/?ref_noscript>comments powered by Disqus.</a></noscript>
-</div>
-</main>
-<footer id=footer class=footer>
-<div class=social-links>
-<a href=https://github.com/clxsh class="iconfont icon-github" title=github></a>
-<a href=https://www.douban.com/people/57285004/ class="iconfont icon-douban" title=douban></a>
-<a href=https://hhdx.xyz/index.xml type=application/rss+xml class="iconfont icon-rss" title=rss></a>
-</div>
-<div class=copyright>
-<span class=power-by>
-由 <a class=hexo-link href=https://gohugo.io>Hugo</a> 强力驱动
-</span>
+<i class="iconfont icon-right"></i></a></nav></footer></article></div><div id=disqus_thread></div><script type=text/javascript>(function(){if(window.location.hostname==="localhost")return;var t,e=document.createElement("script");e.type="text/javascript",e.async=!0,t="lyliuchao",e.src="//"+t+".disqus.com/embed.js",(document.getElementsByTagName("head")[0]||document.getElementsByTagName("body")[0]).appendChild(e)})()</script><noscript>Please enable JavaScript to view the <a href=http://disqus.com/?ref_noscript>comments powered by Disqus.</a></noscript></div></main><footer id=footer class=footer><div class=social-links><a href=https://github.com/clxsh class="iconfont icon-github" title=github></a>
+<a href=https://www.douban.com/people/57285004/ class="iconfont icon-douban" title=douban></a></div><div class=copyright><span class=power-by>由 <a class=hexo-link href=https://gohugo.io>Hugo</a> 强力驱动</span>
 <span class=division>|</span>
-<span class=theme-info>
-主题 -
-<a class=theme-link href=https://github.com/olOwOlo/hugo-theme-even>Even</a>
-</span>
-<span class=copyright-year>
-&copy;
+<span class=theme-info>主题 -
+<a class=theme-link href=https://github.com/olOwOlo/hugo-theme-even>Even</a></span>
+<span class=copyright-year>&copy;
 2016 -
-2021<span class=heart><i class="iconfont icon-heart"></i></span><span>hhdx</span>
-</span>
-</div>
-</footer>
-<div class=back-to-top id=back-to-top>
-<i class="iconfont icon-up"></i>
-</div>
-</div>
-<script src=https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin=anonymous></script>
+2023<span class=heart><i class="iconfont icon-heart"></i></span><span>hhdx</span></span></div></footer><div class=back-to-top id=back-to-top><i class="iconfont icon-up"></i></div></div><script src=https://cdn.jsdelivr.net/npm/jquery@3.7.0/dist/jquery.min.js integrity=sha384-NXgwF8Kv9SSAr+jemKKcbvQsz+teULH/a5UNJvZc6kP47hZgl62M1vGnw6gHQhb1 crossorigin=anonymous></script>
 <script src=https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin=anonymous></script>
 <script src=https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin=anonymous></script>
-<script type=text/javascript src=/js/main.min.c99b103c33d1539acf3025e1913697534542c4a5aa5af0ccc20475ed2863603b.js></script>
-<script type=application/javascript>var doNotTrack=!1;doNotTrack||(window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)},ga.l=+new Date,ga('create','UA-177325662-1','auto'),ga('set','anonymizeIp',!0),ga('send','pageview'))</script>
-<script async src=https://www.google-analytics.com/analytics.js></script>
-</body>
-</html>
+<script type=text/javascript src=/js/main.min.4ae89da218555efa0e7093a20b92017d2e1202b66fff9fc2edf4cb8d44b44c6e.js></script>
+<script type=application/javascript>var doNotTrack=!1;doNotTrack||(window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)},ga.l=+new Date,ga("create","UA-177325662-1","auto"),ga("set","anonymizeIp",!0),ga("send","pageview"))</script><script async src=https://www.google-analytics.com/analytics.js></script></body></html>

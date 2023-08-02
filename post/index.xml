@@ -18,19 +18,19 @@
 &lt;/span>&lt;span class="lnt">12
 &lt;/span>&lt;/code>&lt;/pre>&lt;/td>
 &lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback"> 0 16
-+----------------------------------+
-| EPROM |
-+----------------------------------+
-| RDP - Data reg for CSR |
-+----------------------------------+
-| RAP - Index reg for CSR and BCR |
-+----------------------------------+
-| Reset reg |
-+----------------------------------+
-| BDP - Data reg for BCR |
-+----------------------------------+
-&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl"> 0 16
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> +----------------------------------+
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> | EPROM |
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> +----------------------------------+
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> | RDP - Data reg for CSR |
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> +----------------------------------+
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> | RAP - Index reg for CSR and BCR |
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> +----------------------------------+
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> | Reset reg |
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> +----------------------------------+
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> | BDP - Data reg for BCR |
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> +----------------------------------+
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
 &lt;/div>
 &lt;/div></description></item><item><title>QEMU信息泄露漏洞分析与利用----CVE-2015-5165</title><link>https://hhdx.xyz/post/cve-2015-5165/</link><pubDate>Sat, 05 Dec 2020 15:58:52 +0000</pubDate><guid>https://hhdx.xyz/post/cve-2015-5165/</guid><description>&lt;p>参考大佬们的文章复现CVE-2015-5165。&lt;/p>
 &lt;h2 id="环境搭建">环境搭建&lt;/h2>
@@ -47,13 +47,13 @@
 &lt;/span>&lt;span class="lnt">6
 &lt;/span>&lt;/code>&lt;/pre>&lt;/td>
 &lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">$ unzip qemu.zip
-$ mkdir -p bin/debug/native
-$ &lt;span class="nb">cd&lt;/span> bin/debug/native
-$ sudo apt-get install zlib1g-dev libglib2.0-dev libpixman-1-dev
-$ ../../../configure --target-list&lt;span class="o">=&lt;/span>x86_64-softmmu --enable-debug --disable-werror
-$ make
-&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">$ unzip qemu.zip
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">$ mkdir -p bin/debug/native
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">$ &lt;span class="nb">cd&lt;/span> bin/debug/native
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">$ sudo apt-get install zlib1g-dev libglib2.0-dev libpixman-1-dev
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">$ ../../../configure --target-list&lt;span class="o">=&lt;/span>x86_64-softmmu --enable-debug --disable-werror
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">$ make
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
 &lt;/div>
 &lt;/div>&lt;p>如果出现以下错误，给文件 &lt;code>commands-posix.c&lt;/code> 增加头文件 &lt;code>&amp;lt;sys/sysmacros.h&amp;gt;&lt;/code> 即可解决。&lt;/p>
 &lt;div class="highlight">&lt;div class="chroma">
@@ -63,10 +63,10 @@ $ make
 &lt;/span>&lt;span class="lnt">3
 &lt;/span>&lt;/code>&lt;/pre>&lt;/td>
 &lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">/usr/bin/ld: qga/commands-posix.o: in &lt;span class="k">function&lt;/span> &lt;span class="sb">`&lt;/span>dev_major_minor&lt;span class="s1">&amp;#39;:
-&lt;/span>&lt;span class="s1">/repo/qemu/qga/commands-posix.c:640: undefined reference to `major&amp;#39;&lt;/span>
-/usr/bin/ld: /repo/qemu/qga/commands-posix.c:641: undefined reference to &lt;span class="sb">`&lt;/span>minor&lt;span class="err">&amp;#39;&lt;/span>
-&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">/usr/bin/ld: qga/commands-posix.o: in &lt;span class="k">function&lt;/span> &lt;span class="sb">`&lt;/span>dev_major_minor&lt;span class="s1">&amp;#39;:
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="s1">/repo/qemu/qga/commands-posix.c:640: undefined reference to `major&amp;#39;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">/usr/bin/ld: /repo/qemu/qga/commands-posix.c:641: undefined reference to &lt;span class="sb">`&lt;/span>minor&lt;span class="err">&amp;#39;&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
 &lt;/div>
 &lt;/div>&lt;h3 id="制作qemu虚拟机">制作QEMU虚拟机&lt;/h3>
 &lt;p>这里我使用的Ubuntu 16.04 Server i386作为QEMU客户机系统。点击&lt;a href="https://mirrors6.tuna.tsinghua.edu.cn/ubuntu-releases/xenial/ubuntu-16.04.6-server-i386.iso">下载&lt;/a>。&lt;/p>
@@ -81,13 +81,13 @@ $ make
 &lt;/span>&lt;span class="lnt">6
 &lt;/span>&lt;/code>&lt;/pre>&lt;/td>
 &lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">$ ./qemu-img create -f qcow2 ~/tmp/vm/ubuntu.img 10G
-$ sudo dpkg -i VNC-Viewer-6.20.529-Linux-x64.deb
-$ x86_64-softmmu/qemu-system-x86_64 -boot d -cdrom &lt;span class="se">\ &lt;/span> &lt;span class="c1"># 能用嵌套虚拟就用(添加--enable-kvm)&lt;/span>
-~/tmp/iso/ubuntu-16.04.6-server-i386.iso &lt;span class="se">\
-&lt;/span>&lt;span class="se">&lt;/span>-hda ~/tmp/vm/ubuntu.img -m &lt;span class="m">1024&lt;/span>
-$ vncviewer host:port &lt;span class="c1"># 连接上，安装就好&lt;/span>
-&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">$ ./qemu-img create -f qcow2 ~/tmp/vm/ubuntu.img 10G
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">$ sudo dpkg -i VNC-Viewer-6.20.529-Linux-x64.deb
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">$ x86_64-softmmu/qemu-system-x86_64 -boot d -cdrom &lt;span class="se">\ &lt;/span> &lt;span class="c1"># 能用嵌套虚拟就用(添加--enable-kvm)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">~/tmp/iso/ubuntu-16.04.6-server-i386.iso &lt;span class="se">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="se">&lt;/span>-hda ~/tmp/vm/ubuntu.img -m &lt;span class="m">1024&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">$ vncviewer host:port &lt;span class="c1"># 连接上，安装就好&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
 &lt;/div>
 &lt;/div>&lt;p>（尽量使用&amp;ndash;enable-kvm，否则卡的受不了，安装系统安了四五个小时。。。）&lt;/p></description></item><item><title>HITB GSEC 2017：babyqemu</title><link>https://hhdx.xyz/post/babyqemu/</link><pubDate>Mon, 30 Nov 2020 12:05:03 +0000</pubDate><guid>https://hhdx.xyz/post/babyqemu/</guid><description>&lt;p>题目下载地址：&lt;a href="https://github.com/kitctf/writeups/blob/master/hitb-gsec-2017/babyqemu/babyqemu.tar.gz">babyqemu.tar.gz&lt;/a>&lt;/p>
 &lt;h2 id="分析">分析&lt;/h2>
@@ -106,17 +106,17 @@ $ vncviewer host:port &lt;span class="c1"># 连接上，安装就好&lt;/span>
 &lt;/span>&lt;span class="lnt">10
 &lt;/span>&lt;/code>&lt;/pre>&lt;/td>
 &lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="cp">#! /bin/sh
-&lt;/span>&lt;span class="cp">&lt;/span>./qemu-system-x86_64 &lt;span class="se">\
-&lt;/span>&lt;span class="se">&lt;/span>-initrd ./rootfs.cpio &lt;span class="se">\
-&lt;/span>&lt;span class="se">&lt;/span>-kernel ./vmlinuz-4.8.0-52-generic &lt;span class="se">\
-&lt;/span>&lt;span class="se">&lt;/span>-append &lt;span class="s1">&amp;#39;console=ttyS0 root=/dev/ram oops=panic panic=1&amp;#39;&lt;/span> &lt;span class="se">\
-&lt;/span>&lt;span class="se">&lt;/span>-enable-kvm &lt;span class="se">\ &lt;/span> &lt;span class="c1"># 需要CPU virtualization，现在与hyper-v共存的VMware不支持此选项。可以删掉&lt;/span>
--monitor /dev/null &lt;span class="se">\
-&lt;/span>&lt;span class="se">&lt;/span>-m 64M --nographic -L ./dependency/usr/local/share/qemu &lt;span class="se">\
-&lt;/span>&lt;span class="se">&lt;/span>-L pc-bios &lt;span class="se">\
-&lt;/span>&lt;span class="se">&lt;/span>-device hitb,id&lt;span class="o">=&lt;/span>vda
-&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">&lt;span class="cp">#! /bin/sh
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="cp">&lt;/span>./qemu-system-x86_64 &lt;span class="se">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="se">&lt;/span>-initrd ./rootfs.cpio &lt;span class="se">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="se">&lt;/span>-kernel ./vmlinuz-4.8.0-52-generic &lt;span class="se">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="se">&lt;/span>-append &lt;span class="s1">&amp;#39;console=ttyS0 root=/dev/ram oops=panic panic=1&amp;#39;&lt;/span> &lt;span class="se">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="se">&lt;/span>-enable-kvm &lt;span class="se">\ &lt;/span> &lt;span class="c1"># 需要CPU virtualization，现在与hyper-v共存的VMware不支持此选项。可以删掉&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">-monitor /dev/null &lt;span class="se">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="se">&lt;/span>-m 64M --nographic -L ./dependency/usr/local/share/qemu &lt;span class="se">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="se">&lt;/span>-L pc-bios &lt;span class="se">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="se">&lt;/span>-device hitb,id&lt;span class="o">=&lt;/span>vda
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
 &lt;/div>
 &lt;/div>&lt;p>在最后一行可以看到设备名称为hitb，在ida左侧Functions window，ctrl+f搜索hitb就可以找到相关函数。通过在ida的Local Types窗口搜索hitb可以找到&lt;code>HitbState&lt;/code>结构体，其中还包含&lt;code>dma_state&lt;/code>结构体。&lt;/p></description></item><item><title>【翻译】Virtio：一种Linux I/O虚拟化框架</title><link>https://hhdx.xyz/post/virtio-intro/</link><pubDate>Fri, 27 Nov 2020 14:43:05 +0000</pubDate><guid>https://hhdx.xyz/post/virtio-intro/</guid><description>&lt;p>首发于安全客&lt;a href="https://www.anquanke.com/post/id/224001">Virtio：一种Linux I/O虚拟化框架 - 安全客，安全资讯平台 (anquanke.com)&lt;/a>&lt;/p>
 &lt;p>原文：&lt;a href="https://developer.ibm.com/articles/l-virtio/">Virtio: An I/O virtualization framework for Linux – IBM Developer&lt;/a>&lt;/p>
@@ -164,32 +164,32 @@ $ vncviewer host:port &lt;span class="c1"># 连接上，安装就好&lt;/span>
 &lt;/span>&lt;span class="lnt">25
 &lt;/span>&lt;/code>&lt;/pre>&lt;/td>
 &lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback"> Guest&amp;#39; processes
-+--------------------+
-Virtual addr space | |
-+--------------------+
-| |
-\__ Page Table \__
-\ \
-| | Guest kernel
-+----+--------------------+----------------+
-Guest&amp;#39;s phy. memory | | | |
-+----+--------------------+----------------+
-| |
-\__ \__
-\ \
-| QEMU process |
-+----+------------------------------------------+
-Virtual addr space | | |
-+----+------------------------------------------+
-| |
-\__ Page Table \__
-\ \
-| |
-+----+-----------------------------------------------++
-Physical memory | | ||
-+----+-----------------------------------------------++
-&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl"> Guest&amp;#39; processes
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> +--------------------+
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">Virtual addr space | |
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> +--------------------+
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> | |
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> \__ Page Table \__
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> \ \
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> | | Guest kernel
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> +----+--------------------+----------------+
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">Guest&amp;#39;s phy. memory | | | |
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> +----+--------------------+----------------+
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> | |
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> \__ \__
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> \ \
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> | QEMU process |
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> +----+------------------------------------------+
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">Virtual addr space | | |
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> +----+------------------------------------------+
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> | |
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> \__ Page Table \__
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> \ \
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> | |
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> +----+-----------------------------------------------++
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">Physical memory | | ||
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> +----+-----------------------------------------------++
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
 &lt;/div>
 &lt;/div></description></item><item><title>Kernel Pwn: 从入门到入土</title><link>https://hhdx.xyz/post/kernel-pwn-%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E5%85%A5%E5%9C%9F/</link><pubDate>Sun, 25 Oct 2020 19:12:40 +0000</pubDate><guid>https://hhdx.xyz/post/kernel-pwn-%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E5%85%A5%E5%9C%9F/</guid><description>&lt;h2 id="misc">MISC&lt;/h2>
 &lt;h3 id="内核文件区别">内核文件区别&lt;/h3>
@@ -201,9 +201,9 @@ Physical memory | | ||
 &lt;/span>&lt;span class="lnt">2
 &lt;/span>&lt;/code>&lt;/pre>&lt;/td>
 &lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">Decompressing Linux... done
-Booting the kernel.
-&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">Decompressing Linux... done
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">Booting the kernel.
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
 &lt;/div>
 &lt;/div>&lt;p>&lt;code>zImage&lt;/code> 是经过压缩的小内核（小于512KB）。&lt;/p>
 &lt;p>&lt;code>bzImage&lt;/code> 是经过压缩的大内核（大于512KB）。&lt;/p>
@@ -215,9 +215,9 @@ Booting the kernel.
 &lt;/span>&lt;span class="lnt">2
 &lt;/span>&lt;/code>&lt;/pre>&lt;/td>
 &lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">$ find . &lt;span class="p">|&lt;/span> cpio -o --format&lt;span class="o">=&lt;/span>newc &amp;gt; initramfs.cpio &lt;span class="c1"># compress&lt;/span>
-$ sudo cpio -idmv &amp;lt; initramfs.cpio &lt;span class="c1"># depress&lt;/span>
-&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">$ find . &lt;span class="p">|&lt;/span> cpio -o --format&lt;span class="o">=&lt;/span>newc &amp;gt; initramfs.cpio &lt;span class="c1"># compress&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">$ sudo cpio -idmv &amp;lt; initramfs.cpio &lt;span class="c1"># depress&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
 &lt;/div>
 &lt;/div>&lt;p>有时也经过了gzip的压缩。&lt;/p>
 &lt;div class="highlight">&lt;div class="chroma">
@@ -227,10 +227,10 @@ $ sudo cpio -idmv &amp;lt; initramfs.cpio &lt;span class="c1"># depress&lt;/span
 &lt;/span>&lt;span class="lnt">3
 &lt;/span>&lt;/code>&lt;/pre>&lt;/td>
 &lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">$ mv initramfs.cpio initramfs.cpio.gz
-$ gunzip initramfs.cpio.gz &lt;span class="c1"># 解压得到initramfs.cpio&lt;/span>
-$ cpio -idmv &amp;lt; initramfs.cpio
-&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">$ mv initramfs.cpio initramfs.cpio.gz
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">$ gunzip initramfs.cpio.gz &lt;span class="c1"># 解压得到initramfs.cpio&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">$ cpio -idmv &amp;lt; initramfs.cpio
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
 &lt;/div>
 &lt;/div>&lt;p>更改为正确的后缀之后，图形界面“归档管理器”也可以打开。&lt;/p></description></item><item><title>Arm Pwn</title><link>https://hhdx.xyz/post/arm-pwn/</link><pubDate>Sat, 17 Oct 2020 17:35:26 +0000</pubDate><guid>https://hhdx.xyz/post/arm-pwn/</guid><description>&lt;h2 id="环境配置">环境配置&lt;/h2>
 &lt;div class="highlight">&lt;div class="chroma">
@@ -238,8 +238,8 @@ $ cpio -idmv &amp;lt; initramfs.cpio
 &lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
 &lt;/span>&lt;/code>&lt;/pre>&lt;/td>
 &lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">$ sudo apt install qemu-user gdb-multiarch
-&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">$ sudo apt install qemu-user gdb-multiarch
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
 &lt;/div>
 &lt;/div>&lt;p>安装完成后就可以运行平台上的静态链接文件了，会自动调用qemu执行。&lt;/p>
 &lt;h3 id="动态链接程序">动态链接程序&lt;/h3>
@@ -249,8 +249,8 @@ $ cpio -idmv &amp;lt; initramfs.cpio
 &lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
 &lt;/span>&lt;/code>&lt;/pre>&lt;/td>
 &lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">$ apt-cache search &lt;span class="s2">&amp;#34;libc&amp;#34;&lt;/span> &lt;span class="p">|&lt;/span> grep arm
-&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">$ apt-cache search &lt;span class="s2">&amp;#34;libc&amp;#34;&lt;/span> &lt;span class="p">|&lt;/span> grep arm
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
 &lt;/div>
 &lt;/div>&lt;p>安装类似libc6-ARCH-cross。&lt;/p>
 &lt;p>动态链接库被安装在类似&lt;code>/usr/arm-linux-gnueabihf/&lt;/code>的路径。qemu不知道动态链接的位置，它预期在类似&lt;code>/etc/qemu-binfmt/arm&lt;/code>的路径，所以可以设置软链接来避免用&lt;code>-L&lt;/code>来指定链接库位置。&lt;/p>
@@ -261,10 +261,10 @@ $ cpio -idmv &amp;lt; initramfs.cpio
 &lt;/span>&lt;span class="lnt">3
 &lt;/span>&lt;/code>&lt;/pre>&lt;/td>
 &lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">$ sudo mkdir /etc/qemu-binfmt
-$ sudo ln -s /usr/arm-linux-gnueabihf /etc/qemu-binfmt/arm
-$ sudo ln -s /usr/aarch64-linux-gnu/ /etc/qemu-binfmt/aarch64 &lt;span class="c1"># 对于aarch64&lt;/span>
-&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">$ sudo mkdir /etc/qemu-binfmt
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">$ sudo ln -s /usr/arm-linux-gnueabihf /etc/qemu-binfmt/arm
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">$ sudo ln -s /usr/aarch64-linux-gnu/ /etc/qemu-binfmt/aarch64 &lt;span class="c1"># 对于aarch64&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
 &lt;/div>
 &lt;/div></description></item><item><title>pwnable.tw re-alloc_revenge</title><link>https://hhdx.xyz/post/pwnable-tw-re-alloc-revenge/</link><pubDate>Mon, 07 Sep 2020 14:48:20 +0000</pubDate><guid>https://hhdx.xyz/post/pwnable-tw-re-alloc-revenge/</guid><description>&lt;h2 id="题目分析">题目分析&lt;/h2>
 &lt;p>防护比&lt;a href="https://hhdx.xyz/2020/08/07/pwnable-tw-re-alloc/">re-alloc&lt;/a>多了FULL RELRO和PIE。其他没有改变。&lt;/p>
@@ -286,14 +286,15 @@ $ sudo ln -s /usr/aarch64-linux-gnu/ /etc/qemu-binfmt/aarch64 &lt;span class="c1
 &lt;/span>&lt;span class="lnt">8
 &lt;/span>&lt;/code>&lt;/pre>&lt;/td>
 &lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">Arch: amd64-64-little
-RELRO: Full RELRO
-Stack: Canary found
-NX: NX enabled
-PIE: No PIE (0x400000)
-FORTIFY: Enabled
-libc_version: Ubuntu GLIBC 2.27-3ubuntu1
-&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">Arch: amd64-64-little
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">RELRO: Full RELRO
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">Stack: Canary found
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">NX: NX enabled
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">PIE: No PIE (0x400000)
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">FORTIFY: Enabled
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">libc_version: Ubuntu GLIBC 2.27-3ubuntu1
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
 &lt;/div>
 &lt;/div>&lt;p>程序开始在bss段上读入了一个0x20的名字&lt;/p>
 &lt;p>malloc: 输入指定size，分配，指针ptr同样存储在bss，读入size-16的字符，这里字符个数可以溢出&lt;/p>
@@ -316,17 +317,17 @@ libc_version: Ubuntu GLIBC 2.27-3ubuntu1
 &lt;/span>&lt;span class="lnt">10
 &lt;/span>&lt;/code>&lt;/pre>&lt;/td>
 &lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">+----------+
-| |
-| |
-| 0x421 |
-| |
-+----------+
-| 0x21 |
-+----------+
-| 0x21 |
-+----------+
-&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">+----------+
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">| |
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">| |
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">| 0x421 |
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">| |
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">+----------+
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">| 0x21 |
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">+----------+
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">| 0x21 |
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">+----------+
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
 &lt;/div>
 &lt;/div>&lt;p>tcache默认最多有64个，第1个是0x20大小，递推第64个也就是0x410。所以将name处伪造为0x420大小。第一个chunk的&lt;code>chunk-&amp;gt;size=0x420|pre_in_use&lt;/code>，避免backward consolidate，第三个chunk的&lt;code>chunk-&amp;gt;size=0x20|pre_in_use&lt;/code>，避免forward consolidate。&lt;/p></description></item><item><title>确定glibc版本,以指定glibc运行程序</title><link>https://hhdx.xyz/post/%E4%BB%A5%E6%8C%87%E5%AE%9Alibc%E8%BF%90%E8%A1%8C%E7%A8%8B%E5%BA%8F/</link><pubDate>Sat, 08 Aug 2020 09:08:15 +0000</pubDate><guid>https://hhdx.xyz/post/%E4%BB%A5%E6%8C%87%E5%AE%9Alibc%E8%BF%90%E8%A1%8C%E7%A8%8B%E5%BA%8F/</guid><description>&lt;h2 id="前言">前言&lt;/h2>
 &lt;p>CTF题目中经常会给出libc的文件，首先需要做的就是确定libc的版本，对程序进行针对性的攻击。最直接的确定方法就是直接运行该libc&lt;code>./libc.so.6&lt;/code>，但通常由于本机ld版本与libc版本不匹配，发生段错误。&lt;/p>
@@ -342,13 +343,13 @@ libc_version: Ubuntu GLIBC 2.27-3ubuntu1
 &lt;/span>&lt;span class="lnt">6
 &lt;/span>&lt;/code>&lt;/pre>&lt;/td>
 &lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">Arch: amd64-64-little
-RELRO: Partial RELRO
-Stack: Canary found
-NX: NX enabled
-PIE: No PIE (0x400000)
-FORTIFY: Enabled
-&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">Arch: amd64-64-little
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">RELRO: Partial RELRO
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">Stack: Canary found
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">NX: NX enabled
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">PIE: No PIE (0x400000)
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">FORTIFY: Enabled
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
 &lt;/div>
 &lt;/div>&lt;p>是一个典型的菜单类程序&lt;/p>
 &lt;div class="highlight">&lt;div class="chroma">
@@ -363,15 +364,15 @@ FORTIFY: Enabled
 &lt;/span>&lt;span class="lnt">8
 &lt;/span>&lt;/code>&lt;/pre>&lt;/td>
 &lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">$$$$$$$$$$$$$$$$$$$$$$$$$$$$
-🍊 RE Allocator 🍊
-$$$$$$$$$$$$$$$$$$$$$$$$$$$$
-$ 1. Alloc $
-$ 2. Realloc $
-$ 3. Free $
-$ 4. Exit $
-$$$$$$$$$$$$$$$$$$$$$$$$$$$
-&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">🍊 RE Allocator 🍊
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">$ 1. Alloc $
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">$ 2. Realloc $
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">$ 3. Free $
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">$ 4. Exit $
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">$$$$$$$$$$$$$$$$$$$$$$$$$$$
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
 &lt;/div>
 &lt;/div>&lt;ol>
 &lt;li>Alloc: index只能取0或1；size必须&amp;lt;=0x78；然后使用&lt;code>realloc(0, size)&lt;/code>分配，通过源码可以看出，这就相当于&lt;code>malloc(size)&lt;/code>。这里存在null byte overflow（然而没什么用似乎，一开始我一直卡在这里想如何利用，完全没注意到后一个漏洞。。。&lt;/li>
@@ -383,10 +384,10 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$
 &lt;/span>&lt;span class="lnt">3
 &lt;/span>&lt;/code>&lt;/pre>&lt;/td>
 &lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code class="language-c" data-lang="c">&lt;span class="cm">/* realloc of null is supposed to be same as malloc */&lt;/span>
-&lt;span class="k">if&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="n">oldmem&lt;/span> &lt;span class="o">==&lt;/span> &lt;span class="mi">0&lt;/span>&lt;span class="p">)&lt;/span>
-&lt;span class="k">return&lt;/span> &lt;span class="n">__libc_malloc&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="n">bytes&lt;/span>&lt;span class="p">);&lt;/span>
-&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-c" data-lang="c">&lt;span class="line">&lt;span class="cl">&lt;span class="cm">/* realloc of null is supposed to be same as malloc */&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">if&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="n">oldmem&lt;/span> &lt;span class="o">==&lt;/span> &lt;span class="mi">0&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span> &lt;span class="nf">__libc_malloc&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="n">bytes&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
 &lt;/div>
 &lt;/div>&lt;ol start="2">
 &lt;li>Realloc: size同样&amp;lt;=0x78。realloc有几种情况：请求大小自己可以满足；尝试向后扩展(top chunk或!inuse (next))；&lt;code>__int_malloc&lt;/code>请求新块。（这里存在UAF，输入size为0&lt;/li>
@@ -400,11 +401,11 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$
 &lt;/span>&lt;span class="lnt">4
 &lt;/span>&lt;/code>&lt;/pre>&lt;/td>
 &lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code class="language-c" data-lang="c">&lt;span class="k">if&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="n">bytes&lt;/span> &lt;span class="o">==&lt;/span> &lt;span class="mi">0&lt;/span> &lt;span class="o">&amp;amp;&amp;amp;&lt;/span> &lt;span class="n">oldmem&lt;/span> &lt;span class="o">!=&lt;/span> &lt;span class="nb">NULL&lt;/span>&lt;span class="p">)&lt;/span>
-&lt;span class="p">{&lt;/span>
-&lt;span class="n">__libc_free&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="n">oldmem&lt;/span>&lt;span class="p">);&lt;/span> &lt;span class="k">return&lt;/span> &lt;span class="mi">0&lt;/span>&lt;span class="p">;&lt;/span>
-&lt;span class="p">}&lt;/span>
-&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-c" data-lang="c">&lt;span class="line">&lt;span class="cl">&lt;span class="k">if&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="n">bytes&lt;/span> &lt;span class="o">==&lt;/span> &lt;span class="mi">0&lt;/span> &lt;span class="o">&amp;amp;&amp;amp;&lt;/span> &lt;span class="n">oldmem&lt;/span> &lt;span class="o">!=&lt;/span> &lt;span class="nb">NULL&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nf">__libc_free&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="n">oldmem&lt;/span>&lt;span class="p">);&lt;/span> &lt;span class="k">return&lt;/span> &lt;span class="mi">0&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
 &lt;/div>
 &lt;/div>&lt;p>libc_version: glibc 2.29 with tcache。该版本libc的&lt;a href="https://launchpad.net/ubuntu/+source/glibc/2.29-0ubuntu2">源码&lt;/a>。下一篇文章说一下如何确定的libc版本，如何确定的有tcache，以及如何使用指定libc运行程序。&lt;/p>
 &lt;p>此外，这个版本中出现了对tcache double free的一个&lt;a href="https://hhdx.xyz/2020/08/01/How2heap%E6%80%BB%E7%BB%93/#fastbin-dup">检查机制&lt;/a>。&lt;/p></description></item><item><title>glibc heap 整理</title><link>https://hhdx.xyz/post/glibcheap/</link><pubDate>Sun, 02 Aug 2020 12:51:56 +0000</pubDate><guid>https://hhdx.xyz/post/glibcheap/</guid><description>&lt;p>目前 Linux 标准发行版中使用的堆分配器是 glibc 中的堆分配器：ptmalloc2。ptmalloc2 主要是通过 malloc/free 函数来分配和释放内存块。&lt;/p>
@@ -449,24 +450,24 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$
 &lt;/span>&lt;span class="lnt">17
 &lt;/span>&lt;/code>&lt;/pre>&lt;/td>
 &lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code class="language-c" data-lang="c">&lt;span class="cm">/* We want 64 entries. This is an arbitrary limit, which tunables can reduce. */&lt;/span>
-&lt;span class="cp"># define TCACHE_MAX_BINS 64
-&lt;/span>&lt;span class="cp"># define MAX_TCACHE_SIZE tidx2usize (TCACHE_MAX_BINS-1)
-&lt;/span>&lt;span class="cp">&lt;/span>
-&lt;span class="cm">/* Only used to pre-fill the tunables. */&lt;/span>
-&lt;span class="cp"># define tidx2usize(idx) (((size_t) idx) * MALLOC_ALIGNMENT + MINSIZE - SIZE_SZ)
-&lt;/span>&lt;span class="cp">&lt;/span>
-&lt;span class="cm">/* When &amp;#34;x&amp;#34; is from chunksize(). */&lt;/span>
-&lt;span class="cp"># define csize2tidx(x) (((x) - MINSIZE + MALLOC_ALIGNMENT - 1) / MALLOC_ALIGNMENT)
-&lt;/span>&lt;span class="cp">&lt;/span>&lt;span class="cm">/* When &amp;#34;x&amp;#34; is a user-provided size. */&lt;/span>
-&lt;span class="cp"># define usize2tidx(x) csize2tidx (request2size (x))
-&lt;/span>&lt;span class="cp">&lt;/span>
-&lt;span class="cm">/* With rounding and alignment, the bins are...
-&lt;/span>&lt;span class="cm"> idx 0 bytes 0..24 (64-bit) or 0..12 (32-bit)
-&lt;/span>&lt;span class="cm"> idx 1 bytes 25..40 or 13..20
-&lt;/span>&lt;span class="cm"> idx 2 bytes 41..56 or 21..28
-&lt;/span>&lt;span class="cm"> etc. */&lt;/span>
-&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-c" data-lang="c">&lt;span class="line">&lt;span class="cl">&lt;span class="cm">/* We want 64 entries. This is an arbitrary limit, which tunables can reduce. */&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="cp"># define TCACHE_MAX_BINS 64
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="cp"># define MAX_TCACHE_SIZE tidx2usize (TCACHE_MAX_BINS-1)
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="cp">&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="cm">/* Only used to pre-fill the tunables. */&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="cp"># define tidx2usize(idx) (((size_t) idx) * MALLOC_ALIGNMENT + MINSIZE - SIZE_SZ)
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="cp">&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="cm">/* When &amp;#34;x&amp;#34; is from chunksize(). */&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="cp"># define csize2tidx(x) (((x) - MINSIZE + MALLOC_ALIGNMENT - 1) / MALLOC_ALIGNMENT)
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="cp">&lt;/span>&lt;span class="cm">/* When &amp;#34;x&amp;#34; is a user-provided size. */&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="cp"># define usize2tidx(x) csize2tidx (request2size (x))
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="cp">&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="cm">/* With rounding and alignment, the bins are...
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="cm"> idx 0 bytes 0..24 (64-bit) or 0..12 (32-bit)
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="cm"> idx 1 bytes 25..40 or 13..20
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="cm"> idx 2 bytes 41..56 or 21..28
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="cm"> etc. */&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
 &lt;/div>
 &lt;/div>&lt;p>tcache拥有和fastbin差不多的结构。默认情况下，64个bin，每个bin最多7个chunk&lt;/p>
 &lt;p>64bit: &lt;code>IDX = (CHUNKSIZE - 0x11) / 0x10&lt;/code>&lt;/p></description></item><item><title>How2heap--tcache_stashing_unlink_attack Hitcon2019--one_punch</title><link>https://hhdx.xyz/post/how2heap-tcache-stashing-unlink-attack-hitcon2019-one-punch/</link><pubDate>Fri, 31 Jul 2020 21:40:45 +0000</pubDate><guid>https://hhdx.xyz/post/how2heap-tcache-stashing-unlink-attack-hitcon2019-one-punch/</guid><description>&lt;h2 id="tcache-stashing-unlink-attack">tcache stashing unlink attack&lt;/h2>
@@ -490,11 +491,11 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$
 &lt;/span>&lt;span class="lnt">4
 &lt;/span>&lt;/code>&lt;/pre>&lt;/td>
 &lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code class="language-c" data-lang="c">&lt;span class="k">if&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="n">__builtin_expect&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="n">chunksize_nomask&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="n">victim&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">&amp;lt;=&lt;/span> &lt;span class="mi">2&lt;/span> &lt;span class="o">*&lt;/span> &lt;span class="n">SIZE_SZ&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="mi">0&lt;/span>&lt;span class="p">)&lt;/span>
-&lt;span class="o">||&lt;/span> &lt;span class="n">__builtin_expect&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="n">chunksize_nomask&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="n">victim&lt;/span>&lt;span class="p">)&lt;/span>
-&lt;span class="o">&amp;gt;&lt;/span> &lt;span class="n">av&lt;/span>&lt;span class="o">-&amp;gt;&lt;/span>&lt;span class="n">system_mem&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="mi">0&lt;/span>&lt;span class="p">))&lt;/span>
-&lt;span class="n">malloc_printerr&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;malloc(): memory corruption&amp;#34;&lt;/span>&lt;span class="p">);&lt;/span>
-&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-c" data-lang="c">&lt;span class="line">&lt;span class="cl">&lt;span class="k">if&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="nf">__builtin_expect&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="nf">chunksize_nomask&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="n">victim&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="o">&amp;lt;=&lt;/span> &lt;span class="mi">2&lt;/span> &lt;span class="o">*&lt;/span> &lt;span class="n">SIZE_SZ&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="mi">0&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="o">||&lt;/span> &lt;span class="nf">__builtin_expect&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="nf">chunksize_nomask&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="n">victim&lt;/span>&lt;span class="p">)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="o">&amp;gt;&lt;/span> &lt;span class="n">av&lt;/span>&lt;span class="o">-&amp;gt;&lt;/span>&lt;span class="n">system_mem&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="mi">0&lt;/span>&lt;span class="p">))&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nf">malloc_printerr&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;malloc(): memory corruption&amp;#34;&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
 &lt;/div>
 &lt;/div></description></item><item><title>How2heap--large_bin_attack 0ctf2018--heapstorm2</title><link>https://hhdx.xyz/post/how2heap-large-bin-attack-0ctf2018-heapstorm2/</link><pubDate>Sat, 18 Jul 2020 21:10:54 +0000</pubDate><guid>https://hhdx.xyz/post/how2heap-large-bin-attack-0ctf2018-heapstorm2/</guid><description>&lt;h2 id="large-bin-attack">large bin attack&lt;/h2>
 &lt;p>对已存在于large bin中的chunk的bk、bk_nextsize字段进行更改，在unsorted bin中取出插入该large bin时，会将bk-&amp;gt;fd、bk_nextsize-&amp;gt;fd_nextsize的位置覆盖成chunk的地址。涉及的代码就是unsorted bin遍历取出插入那块。和先前的unsorted bin attack类似，通常为进一步攻击做准备，如修改global_max_fast。&lt;/p>
@@ -510,12 +511,12 @@ $$$$$$$$$$$$$$$$$$$$$$$$$$$
 &lt;/span>&lt;span class="lnt">5
 &lt;/span>&lt;/code>&lt;/pre>&lt;/td>
 &lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">Arch: amd64-64-little
-RELRO: Full RELRO
-Stack: Canary found
-NX: NX enabled
-PIE: PIE enabled
-&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">Arch: amd64-64-little
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">RELRO: Full RELRO
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">Stack: Canary found
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">NX: NX enabled
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">PIE: PIE enabled
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
 &lt;/div>
 &lt;/div>&lt;h3 id="功能分析">功能分析&lt;/h3>
 &lt;p>程序首先使用mallopt函数将global_max_fast设置为0，也就是不使用fastbin。&lt;/p></description></item><item><title>How2heap--unsorted_bin_attack 0ctf2016--zerostorage</title><link>https://hhdx.xyz/post/how2heap-unsorted-bin-attack-0ctf2016-zerostorage/</link><pubDate>Sun, 12 Jul 2020 10:01:35 +0000</pubDate><guid>https://hhdx.xyz/post/how2heap-unsorted-bin-attack-0ctf2016-zerostorage/</guid><description>&lt;h2 id="unsorted-bin-attack">unsorted bin attack&lt;/h2>
@@ -528,11 +529,11 @@ PIE: PIE enabled
 &lt;/span>&lt;span class="lnt">4
 &lt;/span>&lt;/code>&lt;/pre>&lt;/td>
 &lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code class="language-c" data-lang="c">&lt;span class="n">bck&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">victim&lt;/span>&lt;span class="o">-&amp;gt;&lt;/span>&lt;span class="n">bk&lt;/span>&lt;span class="p">;&lt;/span>
-&lt;span class="cm">/* remove from unsorted list */&lt;/span>
-&lt;span class="n">unsorted_chunks&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="n">av&lt;/span>&lt;span class="p">)&lt;/span>&lt;span class="o">-&amp;gt;&lt;/span>&lt;span class="n">bk&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">bck&lt;/span>&lt;span class="p">;&lt;/span>
-&lt;span class="n">bck&lt;/span>&lt;span class="o">-&amp;gt;&lt;/span>&lt;span class="n">fd&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">unsorted_chunks&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="n">av&lt;/span>&lt;span class="p">);&lt;/span>
-&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-c" data-lang="c">&lt;span class="line">&lt;span class="cl">&lt;span class="n">bck&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">victim&lt;/span>&lt;span class="o">-&amp;gt;&lt;/span>&lt;span class="n">bk&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="cm">/* remove from unsorted list */&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nf">unsorted_chunks&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="n">av&lt;/span>&lt;span class="p">)&lt;/span>&lt;span class="o">-&amp;gt;&lt;/span>&lt;span class="n">bk&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">bck&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">bck&lt;/span>&lt;span class="o">-&amp;gt;&lt;/span>&lt;span class="n">fd&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nf">unsorted_chunks&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="n">av&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
 &lt;/div>
 &lt;/div>&lt;p>在glibc2.28中增加了以下检查，使得此攻击失效。&lt;/p>
 &lt;div class="highlight">&lt;div class="chroma">
@@ -541,9 +542,9 @@ PIE: PIE enabled
 &lt;/span>&lt;span class="lnt">2
 &lt;/span>&lt;/code>&lt;/pre>&lt;/td>
 &lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code class="language-c" data-lang="c">&lt;span class="k">if&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="n">__glibc_unlikely&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="n">bck&lt;/span>&lt;span class="o">-&amp;gt;&lt;/span>&lt;span class="n">fd&lt;/span> &lt;span class="o">!=&lt;/span> &lt;span class="n">victim&lt;/span>&lt;span class="p">))&lt;/span>
-&lt;span class="n">malloc_printerr&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;malloc(): corrupted unsorted chunks 3&amp;#34;&lt;/span>&lt;span class="p">);&lt;/span>
-&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-c" data-lang="c">&lt;span class="line">&lt;span class="cl">&lt;span class="k">if&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="nf">__glibc_unlikely&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="n">bck&lt;/span>&lt;span class="o">-&amp;gt;&lt;/span>&lt;span class="n">fd&lt;/span> &lt;span class="o">!=&lt;/span> &lt;span class="n">victim&lt;/span>&lt;span class="p">))&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nf">malloc_printerr&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;malloc(): corrupted unsorted chunks 3&amp;#34;&lt;/span>&lt;span class="p">);&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
 &lt;/div>
 &lt;/div>&lt;p>unsorted bin attack通常为进一步的攻击做准备，比如覆写global_max_fast。&lt;/p>
 &lt;h2 id="0ctf2016-zerostorage">0ctf2016 zerostorage&lt;/h2>
@@ -557,13 +558,13 @@ PIE: PIE enabled
 &lt;/span>&lt;span class="lnt">6
 &lt;/span>&lt;/code>&lt;/pre>&lt;/td>
 &lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">Arch: amd64-64-little
-RELRO: Full RELRO
-Stack: Canary found
-NX: NX enabled
-PIE: PIE enabled
-FORTIFY: Enabled
-&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">Arch: amd64-64-little
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">RELRO: Full RELRO
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">Stack: Canary found
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">NX: NX enabled
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">PIE: PIE enabled
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">FORTIFY: Enabled
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
 &lt;/div>
 &lt;/div>&lt;p>关键数据结构&lt;/p>
 &lt;p>&lt;img src="https://raw.githubusercontent.com/clxsh/pics/master/img/image-20200712102723178.png" alt="image-20200712102723178">&lt;/p>
@@ -582,14 +583,14 @@ FORTIFY: Enabled
 &lt;/span>&lt;span class="lnt">7
 &lt;/span>&lt;/code>&lt;/pre>&lt;/td>
 &lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">1. Insert
-2. Update
-3. Merge
-4. Delete
-5. View
-6. List
-7. Exit
-&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">1. Insert
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">2. Update
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">3. Merge
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">4. Delete
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">5. View
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">6. List
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">7. Exit
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
 &lt;/div>
 &lt;/div>&lt;p>insert：获取数据块大小，并读入数据。数据块大小在128~4096这个范围内&lt;/p>
 &lt;p>update：对数据块进行大小内容进行更新&lt;/p>
@@ -611,16 +612,16 @@ FORTIFY: Enabled
 &lt;/span>&lt;span class="lnt">9
 &lt;/span>&lt;/code>&lt;/pre>&lt;/td>
 &lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code class="language-c" data-lang="c">&lt;span class="cm">/*
-&lt;/span>&lt;span class="cm">* The evil_size is calulcated as (nb is the number of bytes requested + space for metadata):
-&lt;/span>&lt;span class="cm">* new_top = old_top + nb
-&lt;/span>&lt;span class="cm">* nb = new_top - old_top
-&lt;/span>&lt;span class="cm">* req + 2sizeof(long) = new_top - old_top
-&lt;/span>&lt;span class="cm">* req = new_top - old_top - 2sizeof(long)
-&lt;/span>&lt;span class="cm">* req = dest - 2sizeof(long) - old_top - 2sizeof(long)
-&lt;/span>&lt;span class="cm">* req = dest - old_top - 4*sizeof(long)
-&lt;/span>&lt;span class="cm">*/&lt;/span>
-&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-c" data-lang="c">&lt;span class="line">&lt;span class="cl">&lt;span class="cm">/*
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="cm">* The evil_size is calulcated as (nb is the number of bytes requested + space for metadata):
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="cm">* new_top = old_top + nb
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="cm">* nb = new_top - old_top
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="cm">* req + 2sizeof(long) = new_top - old_top
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="cm">* req = new_top - old_top - 2sizeof(long)
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="cm">* req = dest - 2sizeof(long) - old_top - 2sizeof(long)
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="cm">* req = dest - old_top - 4*sizeof(long)
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="cm">*/&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
 &lt;/div>
 &lt;/div>&lt;h2 id="bctf2016-bcloud">Bctf2016 bcloud&lt;/h2>
 &lt;h3 id="分析">分析&lt;/h3>
@@ -633,12 +634,12 @@ FORTIFY: Enabled
 &lt;/span>&lt;span class="lnt">5
 &lt;/span>&lt;/code>&lt;/pre>&lt;/td>
 &lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">Arch: i386-32-little
-RELRO: Partial RELRO
-Stack: Canary found
-NX: NX enabled
-PIE: No PIE (0x8047000)
-&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">Arch: i386-32-little
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">RELRO: Partial RELRO
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">Stack: Canary found
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">NX: NX enabled
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">PIE: No PIE (0x8047000)
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
 &lt;/div>
 &lt;/div>&lt;p>程序一开始让输入name、org、hostname，输入字符串函数存在null byte overflow。&lt;/p>
 &lt;p>输入name函数中，字符串数组在栈中后部紧邻指针变量，所以strcpy会将该指针一并拷贝入0x40的空间（实际可用0x44），并且null byte覆盖topchunk的最低字节。可以泄露堆的地址&lt;/p>
@@ -654,12 +655,12 @@ PIE: No PIE (0x8047000)
 &lt;/span>&lt;span class="lnt">5
 &lt;/span>&lt;/code>&lt;/pre>&lt;/td>
 &lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">Arch: amd64-64-little
-RELRO: No RELRO
-Stack: Canary found
-NX: NX enabled
-PIE: No PIE (0x3ff000)
-&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">Arch: amd64-64-little
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">RELRO: No RELRO
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">Stack: Canary found
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">NX: NX enabled
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">PIE: No PIE (0x3ff000)
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
 &lt;/div>
 &lt;/div>&lt;p>程序是一个订书系统，在main函数开始处，连续分配3个0x80的空间，一个存储订单1——order1，一个存储订单2——order2，一个存储提示信息——info。有以下功能菜单&lt;/p>
 &lt;div class="highlight">&lt;div class="chroma">
@@ -671,12 +672,12 @@ PIE: No PIE (0x3ff000)
 &lt;/span>&lt;span class="lnt">5
 &lt;/span>&lt;/code>&lt;/pre>&lt;/td>
 &lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">1: Edit order 1
-2: Edit order 2
-3: Delete order 1
-4: Delete order 2
-5: Submit
-&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">1: Edit order 1
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">2: Edit order 2
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">3: Delete order 1
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">4: Delete order 2
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">5: Submit
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
 &lt;/div>
 &lt;/div>&lt;p>Edit order 1/2：order1/order2使用fgetc读取字符串，读到&lt;code>\n&lt;/code>终止，所以这里存在溢出&lt;/p>
 &lt;p>Delete order 1/2：free掉order1/order2。这里存在指针悬空&lt;/p>
@@ -713,31 +714,31 @@ PIE: No PIE (0x3ff000)
 &lt;/span>&lt;span class="lnt">24
 &lt;/span>&lt;/code>&lt;/pre>&lt;/td>
 &lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">chunk b +------&amp;gt; +----------+
-| |
-+----------+ &amp;lt;---------+ size
-| 0X200 |
-+----------+ &amp;lt;---------+ b
-| |
-| |
-| |
-| |
-| |
-| |
-| |
-| |
-| |
-+----------+ &amp;lt;--------+ fake pre_size
-| 0X200 |
-+----------+
-| |
-chunk c +------&amp;gt; +----------+ &amp;lt;--------+ pre_size
-| 0X210 |
-+----------+
-| |
-| |
-| |
-&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">chunk b +------&amp;gt; +----------+
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> | |
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> +----------+ &amp;lt;---------+ size
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> | 0X200 |
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> +----------+ &amp;lt;---------+ b
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> | |
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> | |
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> | |
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> | |
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> | |
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> | |
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> | |
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> | |
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> | |
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> +----------+ &amp;lt;--------+ fake pre_size
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> | 0X200 |
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> +----------+
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> | |
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">chunk c +------&amp;gt; +----------+ &amp;lt;--------+ pre_size
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> | 0X210 |
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> +----------+
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> | |
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> | |
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> | |
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
 &lt;/div>
 &lt;/div>&lt;p>&lt;strong>触发unlink的流程&lt;/strong>：通过null byte溢出伪造完0x200的chunk后，此时该chunk存在于unsortedbin。再次分配0x100的b1时，遍历unsortedbin，该chunk被放入到smallbin中，unsortedbin里的chunk也就这一个，遍历结束无法分配。又通过查找binmap找到0x200的smallbin，这时触发的unlink，将该chunk从smallbin中取出。&lt;/p></description></item><item><title>how2heap--House_of_Spirit Hack.lu2014--oreo</title><link>https://hhdx.xyz/post/how2heap-house-of-spirit-hacklu2014-oreo/</link><pubDate>Wed, 01 Jul 2020 14:13:34 +0000</pubDate><guid>https://hhdx.xyz/post/how2heap-house-of-spirit-hacklu2014-oreo/</guid><description>&lt;h2 id="house-of-spirit">House of Spirit&lt;/h2>
 &lt;p>该攻击手法的主要是思想是，在不可控区域的前后伪造chunk信息，覆盖某指针指向&lt;code>chunk2mem(fake_chunk)&lt;/code>，释放该指针后再次申请，对不可控区域的进行改写。&lt;/p>
@@ -756,18 +757,18 @@ chunk c +------&amp;gt; +----------+ &amp;lt;--------+ pre_size
 &lt;/span>&lt;span class="lnt">11
 &lt;/span>&lt;/code>&lt;/pre>&lt;/td>
 &lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">+---------------+
-| 可 控 区 域 |
-+---------------+
-| |
-| 不 可 控 区 域 |
-| |
-| 一 般 为 某 些 |
-| 指 针 |
-+---------------+
-| 可 控 区 域 |
-+---------------+
-&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">+---------------+
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">| 可 控 区 域 |
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">+---------------+
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">| |
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">| 不 可 控 区 域 |
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">| |
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">| 一 般 为 某 些 |
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">| 指 针 |
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">+---------------+
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">| 可 控 区 域 |
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">+---------------+
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
 &lt;/div>
 &lt;/div>&lt;p>伪造的chunk也通常是fastbin，因为检查容易绕过。&lt;/p></description></item><item><title>How2heap--fastbin_dup_consolidate Hitcon2016--SleepyHolder</title><link>https://hhdx.xyz/post/how2heap-fastbin-dup-consolidate-hitcon2016-sleepyholder/</link><pubDate>Sun, 28 Jun 2020 23:01:43 +0000</pubDate><guid>https://hhdx.xyz/post/how2heap-fastbin-dup-consolidate-hitcon2016-sleepyholder/</guid><description>&lt;h2 id="前置">前置&lt;/h2>
 &lt;p>Ubuntu 16.04&lt;/p>
@@ -777,8 +778,8 @@ chunk c +------&amp;gt; +----------+ &amp;lt;--------+ pre_size
 &lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
 &lt;/span>&lt;/code>&lt;/pre>&lt;/td>
 &lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">$ ./glibc_build.sh 2.25 -j &lt;span class="m">4&lt;/span> -disable-tcache
-&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">$ ./glibc_build.sh 2.25 -j &lt;span class="m">4&lt;/span> -disable-tcache
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
 &lt;/div>
 &lt;/div>&lt;p>做这道题目使用了glibc2.25，&lt;code>patchelf --set-interpreter /path/to/ld-2.25.so /path/to/exe&lt;/code>，patch之后再运行程序就自动使用同目录下libc-2.25.so。&lt;/p></description></item><item><title>ucore os lab7笔记</title><link>https://hhdx.xyz/post/ucore-os-lab7%E7%AC%94%E8%AE%B0/</link><pubDate>Tue, 24 Mar 2020 23:39:11 +0000</pubDate><guid>https://hhdx.xyz/post/ucore-os-lab7%E7%AC%94%E8%AE%B0/</guid><description>&lt;h1 id="同步互斥">同步互斥&lt;/h1>
 &lt;h2 id="理论">理论&lt;/h2>
@@ -805,11 +806,11 @@ chunk c +------&amp;gt; +----------+ &amp;lt;--------+ pre_size
 &lt;/span>&lt;span class="lnt">4
 &lt;/span>&lt;/code>&lt;/pre>&lt;/td>
 &lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code class="language-c" data-lang="c">&lt;span class="kt">int&lt;/span> &lt;span class="n">a&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="mi">5&lt;/span>&lt;span class="p">][&lt;/span>&lt;span class="mi">4&lt;/span>&lt;span class="p">];&lt;/span>
-&lt;span class="kt">int&lt;/span> &lt;span class="o">**&lt;/span>&lt;span class="n">p&lt;/span>&lt;span class="p">;&lt;/span>
-&lt;span class="n">p&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">a&lt;/span>&lt;span class="p">;&lt;/span>
-&lt;span class="n">printf&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;%d&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">p&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="mi">2&lt;/span>&lt;span class="p">][&lt;/span>&lt;span class="mi">0&lt;/span>&lt;span class="p">]);&lt;/span> &lt;span class="c1">//访问引起段错误
-&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-c" data-lang="c">&lt;span class="line">&lt;span class="cl">&lt;span class="kt">int&lt;/span> &lt;span class="n">a&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="mi">5&lt;/span>&lt;span class="p">][&lt;/span>&lt;span class="mi">4&lt;/span>&lt;span class="p">];&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="kt">int&lt;/span> &lt;span class="o">**&lt;/span>&lt;span class="n">p&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">p&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">a&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nf">printf&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;%d&amp;#34;&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">p&lt;/span>&lt;span class="p">[&lt;/span>&lt;span class="mi">2&lt;/span>&lt;span class="p">][&lt;/span>&lt;span class="mi">0&lt;/span>&lt;span class="p">]);&lt;/span> &lt;span class="c1">//访问引起段错误
+&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
 &lt;/div>
 &lt;/div></description></item><item><title>CSAPP3e:Attacklab</title><link>https://hhdx.xyz/post/csapp3e-attacklab/</link><pubDate>Thu, 22 Mar 2018 21:20:38 +0000</pubDate><guid>https://hhdx.xyz/post/csapp3e-attacklab/</guid><description>&lt;h2 id="简介">简介&lt;/h2>
 &lt;p>这是CSAPP这本书的第三个实验，实验所需要的材料在 &lt;a href="http://csapp.cs.cmu.edu/3e/labs.html">CSAPP3e&lt;/a>。&lt;/p>
@@ -827,13 +828,13 @@ chunk c +------&amp;gt; +----------+ &amp;lt;--------+ pre_size
 &lt;/span>&lt;span class="lnt">6
 &lt;/span>&lt;/code>&lt;/pre>&lt;/td>
 &lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">00 00 00 00 00 00 00 00
-00 00 00 00 00 00 00 00
-00 00 00 00 00 00 00 00
-00 00 00 00 00 00 00 00
-00 00 00 00 00 00 00 00
-c0 17 40 00 00 00 00 00 /* 0x4017c0 即为touch1()起始地址*/
-&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">00 00 00 00 00 00 00 00
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">00 00 00 00 00 00 00 00
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">00 00 00 00 00 00 00 00
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">00 00 00 00 00 00 00 00
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">00 00 00 00 00 00 00 00
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">c0 17 40 00 00 00 00 00 /* 0x4017c0 即为touch1()起始地址*/
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
 &lt;/div>
 &lt;/div></description></item><item><title>linux,windows共享蓝牙设备</title><link>https://hhdx.xyz/post/linux-windows%E5%85%B1%E4%BA%AB%E8%93%9D%E7%89%99%E8%AE%BE%E5%A4%87/</link><pubDate>Thu, 15 Feb 2018 19:38:27 +0000</pubDate><guid>https://hhdx.xyz/post/linux-windows%E5%85%B1%E4%BA%AB%E8%93%9D%E7%89%99%E8%AE%BE%E5%A4%87/</guid><description>&lt;p>同一个蓝牙设备在装有linux，windows双系统的电脑上使用，每次重新连接都会出现连接失败的问题，都需要移除蓝牙设备再次添加，比较麻烦。导致这个问题的原因是蓝牙设备第一次连接电脑的蓝牙时会随机生成连接秘钥，储存在电脑和蓝牙设备中，以后每次连接都会校验这个秘钥。问题就是linux，windows蓝牙地址一样，在linux下连接过这个蓝牙设备存储了秘钥，在windows下又会重新连接又会生成新的秘钥，蓝牙设备记录下这个蓝牙地址的新秘钥，所以交替使用两个系统连接这个设备总会不成功。&lt;/p>
 &lt;h4 id="解决办法">解决办法：&lt;/h4>
@@ -868,18 +869,17 @@ Find the largest palindrome made from the product of two 3-digit numbers.&lt;/p>
 &lt;/span>&lt;span class="lnt">6
 &lt;/span>&lt;span class="lnt">7
 &lt;/span>&lt;span class="lnt">8
-&lt;/span>&lt;span class="lnt">9
 &lt;/span>&lt;/code>&lt;/pre>&lt;/td>
 &lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">deb http://mirrors.163.com/debian/ jessie main non-free contrib
-deb http://mirrors.163.com/debian/ jessie-updates main non-free contrib
-deb http://mirrors.163.com/debian/ jessie-backports main non-free contrib
-deb-src http://mirrors.163.com/debian/ jessie main non-free contrib
-deb-src http://mirrors.163.com/debian/ jessie-updates main non-free contrib
-deb-src http://mirrors.163.com/debian/ jessie-backports main non-free contrib
-deb http://mirrors.163.com/debian-security/ jessie/updates main non-free contrib
-deb-src http://mirrors.163.com/debian-security/ jessie/updates main non-free contrib
-&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">deb http://mirrors.163.com/debian/ jessie main non-free contrib
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">deb http://mirrors.163.com/debian/ jessie-updates main non-free contrib
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">deb http://mirrors.163.com/debian/ jessie-backports main non-free contrib
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">deb-src http://mirrors.163.com/debian/ jessie main non-free contrib
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">deb-src http://mirrors.163.com/debian/ jessie-updates main non-free contrib
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">deb-src http://mirrors.163.com/debian/ jessie-backports main non-free contrib
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">deb http://mirrors.163.com/debian-security/ jessie/updates main non-free contrib
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">deb-src http://mirrors.163.com/debian-security/ jessie/updates main non-free contrib
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
 &lt;/div>
 &lt;/div>&lt;p>引用自163镜像站[2]&lt;/p></description></item><item><title>Markdown学习记录</title><link>https://hhdx.xyz/post/markdown%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95/</link><pubDate>Fri, 17 Jun 2016 15:16:30 +0000</pubDate><guid>https://hhdx.xyz/post/markdown%E5%AD%A6%E4%B9%A0%E8%AE%B0%E5%BD%95/</guid><description>&lt;p>一直以来想要做一个自己的博客网站，直到最近才开始寻找教程。发现了可以使用github的pages服务免费空间构建自己的博客，主要参考了Sunwhut’s Home的教程。建成之后发现自己的表达能力太差还有生活太过无趣，写不了什么东西，所以终于拖到了七天多后…才开始学习此博客框架的文章书写语言——Markdown。这篇博客没什么价值，只是记录一下我初步学习到的Markdown的用法。&lt;/p>
 &lt;h2 id="标题">标题&lt;/h2></description></item></channel></rss>

@@ -18,19 +18,19 @@
 &lt;/span>&lt;span class="lnt">12
 &lt;/span>&lt;/code>&lt;/pre>&lt;/td>
 &lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback"> 0 16
-+----------------------------------+
-| EPROM |
-+----------------------------------+
-| RDP - Data reg for CSR |
-+----------------------------------+
-| RAP - Index reg for CSR and BCR |
-+----------------------------------+
-| Reset reg |
-+----------------------------------+
-| BDP - Data reg for BCR |
-+----------------------------------+
-&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl"> 0 16
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> +----------------------------------+
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> | EPROM |
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> +----------------------------------+
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> | RDP - Data reg for CSR |
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> +----------------------------------+
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> | RAP - Index reg for CSR and BCR |
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> +----------------------------------+
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> | Reset reg |
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> +----------------------------------+
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> | BDP - Data reg for BCR |
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> +----------------------------------+
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
 &lt;/div>
 &lt;/div></description></item><item><title>QEMU信息泄露漏洞分析与利用----CVE-2015-5165</title><link>https://hhdx.xyz/post/cve-2015-5165/</link><pubDate>Sat, 05 Dec 2020 15:58:52 +0000</pubDate><guid>https://hhdx.xyz/post/cve-2015-5165/</guid><description>&lt;p>参考大佬们的文章复现CVE-2015-5165。&lt;/p>
 &lt;h2 id="环境搭建">环境搭建&lt;/h2>
@@ -47,13 +47,13 @@
 &lt;/span>&lt;span class="lnt">6
 &lt;/span>&lt;/code>&lt;/pre>&lt;/td>
 &lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">$ unzip qemu.zip
-$ mkdir -p bin/debug/native
-$ &lt;span class="nb">cd&lt;/span> bin/debug/native
-$ sudo apt-get install zlib1g-dev libglib2.0-dev libpixman-1-dev
-$ ../../../configure --target-list&lt;span class="o">=&lt;/span>x86_64-softmmu --enable-debug --disable-werror
-$ make
-&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">$ unzip qemu.zip
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">$ mkdir -p bin/debug/native
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">$ &lt;span class="nb">cd&lt;/span> bin/debug/native
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">$ sudo apt-get install zlib1g-dev libglib2.0-dev libpixman-1-dev
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">$ ../../../configure --target-list&lt;span class="o">=&lt;/span>x86_64-softmmu --enable-debug --disable-werror
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">$ make
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
 &lt;/div>
 &lt;/div>&lt;p>如果出现以下错误，给文件 &lt;code>commands-posix.c&lt;/code> 增加头文件 &lt;code>&amp;lt;sys/sysmacros.h&amp;gt;&lt;/code> 即可解决。&lt;/p>
 &lt;div class="highlight">&lt;div class="chroma">
@@ -63,10 +63,10 @@ $ make
 &lt;/span>&lt;span class="lnt">3
 &lt;/span>&lt;/code>&lt;/pre>&lt;/td>
 &lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">/usr/bin/ld: qga/commands-posix.o: in &lt;span class="k">function&lt;/span> &lt;span class="sb">`&lt;/span>dev_major_minor&lt;span class="s1">&amp;#39;:
-&lt;/span>&lt;span class="s1">/repo/qemu/qga/commands-posix.c:640: undefined reference to `major&amp;#39;&lt;/span>
-/usr/bin/ld: /repo/qemu/qga/commands-posix.c:641: undefined reference to &lt;span class="sb">`&lt;/span>minor&lt;span class="err">&amp;#39;&lt;/span>
-&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">/usr/bin/ld: qga/commands-posix.o: in &lt;span class="k">function&lt;/span> &lt;span class="sb">`&lt;/span>dev_major_minor&lt;span class="s1">&amp;#39;:
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="s1">/repo/qemu/qga/commands-posix.c:640: undefined reference to `major&amp;#39;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">/usr/bin/ld: /repo/qemu/qga/commands-posix.c:641: undefined reference to &lt;span class="sb">`&lt;/span>minor&lt;span class="err">&amp;#39;&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
 &lt;/div>
 &lt;/div>&lt;h3 id="制作qemu虚拟机">制作QEMU虚拟机&lt;/h3>
 &lt;p>这里我使用的Ubuntu 16.04 Server i386作为QEMU客户机系统。点击&lt;a href="https://mirrors6.tuna.tsinghua.edu.cn/ubuntu-releases/xenial/ubuntu-16.04.6-server-i386.iso">下载&lt;/a>。&lt;/p>
@@ -81,13 +81,13 @@ $ make
 &lt;/span>&lt;span class="lnt">6
 &lt;/span>&lt;/code>&lt;/pre>&lt;/td>
 &lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">$ ./qemu-img create -f qcow2 ~/tmp/vm/ubuntu.img 10G
-$ sudo dpkg -i VNC-Viewer-6.20.529-Linux-x64.deb
-$ x86_64-softmmu/qemu-system-x86_64 -boot d -cdrom &lt;span class="se">\ &lt;/span> &lt;span class="c1"># 能用嵌套虚拟就用(添加--enable-kvm)&lt;/span>
-~/tmp/iso/ubuntu-16.04.6-server-i386.iso &lt;span class="se">\
-&lt;/span>&lt;span class="se">&lt;/span>-hda ~/tmp/vm/ubuntu.img -m &lt;span class="m">1024&lt;/span>
-$ vncviewer host:port &lt;span class="c1"># 连接上，安装就好&lt;/span>
-&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">$ ./qemu-img create -f qcow2 ~/tmp/vm/ubuntu.img 10G
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">$ sudo dpkg -i VNC-Viewer-6.20.529-Linux-x64.deb
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">$ x86_64-softmmu/qemu-system-x86_64 -boot d -cdrom &lt;span class="se">\ &lt;/span> &lt;span class="c1"># 能用嵌套虚拟就用(添加--enable-kvm)&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">~/tmp/iso/ubuntu-16.04.6-server-i386.iso &lt;span class="se">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="se">&lt;/span>-hda ~/tmp/vm/ubuntu.img -m &lt;span class="m">1024&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">$ vncviewer host:port &lt;span class="c1"># 连接上，安装就好&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
 &lt;/div>
 &lt;/div>&lt;p>（尽量使用&amp;ndash;enable-kvm，否则卡的受不了，安装系统安了四五个小时。。。）&lt;/p></description></item><item><title>HITB GSEC 2017：babyqemu</title><link>https://hhdx.xyz/post/babyqemu/</link><pubDate>Mon, 30 Nov 2020 12:05:03 +0000</pubDate><guid>https://hhdx.xyz/post/babyqemu/</guid><description>&lt;p>题目下载地址：&lt;a href="https://github.com/kitctf/writeups/blob/master/hitb-gsec-2017/babyqemu/babyqemu.tar.gz">babyqemu.tar.gz&lt;/a>&lt;/p>
 &lt;h2 id="分析">分析&lt;/h2>
@@ -106,17 +106,17 @@ $ vncviewer host:port &lt;span class="c1"># 连接上，安装就好&lt;/span>
 &lt;/span>&lt;span class="lnt">10
 &lt;/span>&lt;/code>&lt;/pre>&lt;/td>
 &lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="cp">#! /bin/sh
-&lt;/span>&lt;span class="cp">&lt;/span>./qemu-system-x86_64 &lt;span class="se">\
-&lt;/span>&lt;span class="se">&lt;/span>-initrd ./rootfs.cpio &lt;span class="se">\
-&lt;/span>&lt;span class="se">&lt;/span>-kernel ./vmlinuz-4.8.0-52-generic &lt;span class="se">\
-&lt;/span>&lt;span class="se">&lt;/span>-append &lt;span class="s1">&amp;#39;console=ttyS0 root=/dev/ram oops=panic panic=1&amp;#39;&lt;/span> &lt;span class="se">\
-&lt;/span>&lt;span class="se">&lt;/span>-enable-kvm &lt;span class="se">\ &lt;/span> &lt;span class="c1"># 需要CPU virtualization，现在与hyper-v共存的VMware不支持此选项。可以删掉&lt;/span>
--monitor /dev/null &lt;span class="se">\
-&lt;/span>&lt;span class="se">&lt;/span>-m 64M --nographic -L ./dependency/usr/local/share/qemu &lt;span class="se">\
-&lt;/span>&lt;span class="se">&lt;/span>-L pc-bios &lt;span class="se">\
-&lt;/span>&lt;span class="se">&lt;/span>-device hitb,id&lt;span class="o">=&lt;/span>vda
-&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">&lt;span class="cp">#! /bin/sh
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="cp">&lt;/span>./qemu-system-x86_64 &lt;span class="se">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="se">&lt;/span>-initrd ./rootfs.cpio &lt;span class="se">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="se">&lt;/span>-kernel ./vmlinuz-4.8.0-52-generic &lt;span class="se">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="se">&lt;/span>-append &lt;span class="s1">&amp;#39;console=ttyS0 root=/dev/ram oops=panic panic=1&amp;#39;&lt;/span> &lt;span class="se">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="se">&lt;/span>-enable-kvm &lt;span class="se">\ &lt;/span> &lt;span class="c1"># 需要CPU virtualization，现在与hyper-v共存的VMware不支持此选项。可以删掉&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">-monitor /dev/null &lt;span class="se">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="se">&lt;/span>-m 64M --nographic -L ./dependency/usr/local/share/qemu &lt;span class="se">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="se">&lt;/span>-L pc-bios &lt;span class="se">\
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="se">&lt;/span>-device hitb,id&lt;span class="o">=&lt;/span>vda
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
 &lt;/div>
 &lt;/div>&lt;p>在最后一行可以看到设备名称为hitb，在ida左侧Functions window，ctrl+f搜索hitb就可以找到相关函数。通过在ida的Local Types窗口搜索hitb可以找到&lt;code>HitbState&lt;/code>结构体，其中还包含&lt;code>dma_state&lt;/code>结构体。&lt;/p></description></item><item><title>【翻译】Virtio：一种Linux I/O虚拟化框架</title><link>https://hhdx.xyz/post/virtio-intro/</link><pubDate>Fri, 27 Nov 2020 14:43:05 +0000</pubDate><guid>https://hhdx.xyz/post/virtio-intro/</guid><description>&lt;p>首发于安全客&lt;a href="https://www.anquanke.com/post/id/224001">Virtio：一种Linux I/O虚拟化框架 - 安全客，安全资讯平台 (anquanke.com)&lt;/a>&lt;/p>
 &lt;p>原文：&lt;a href="https://developer.ibm.com/articles/l-virtio/">Virtio: An I/O virtualization framework for Linux – IBM Developer&lt;/a>&lt;/p>
@@ -164,31 +164,31 @@ $ vncviewer host:port &lt;span class="c1"># 连接上，安装就好&lt;/span>
 &lt;/span>&lt;span class="lnt">25
 &lt;/span>&lt;/code>&lt;/pre>&lt;/td>
 &lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback"> Guest&amp;#39; processes
-+--------------------+
-Virtual addr space | |
-+--------------------+
-| |
-\__ Page Table \__
-\ \
-| | Guest kernel
-+----+--------------------+----------------+
-Guest&amp;#39;s phy. memory | | | |
-+----+--------------------+----------------+
-| |
-\__ \__
-\ \
-| QEMU process |
-+----+------------------------------------------+
-Virtual addr space | | |
-+----+------------------------------------------+
-| |
-\__ Page Table \__
-\ \
-| |
-+----+-----------------------------------------------++
-Physical memory | | ||
-+----+-----------------------------------------------++
-&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl"> Guest&amp;#39; processes
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> +--------------------+
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">Virtual addr space | |
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> +--------------------+
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> | |
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> \__ Page Table \__
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> \ \
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> | | Guest kernel
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> +----+--------------------+----------------+
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">Guest&amp;#39;s phy. memory | | | |
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> +----+--------------------+----------------+
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> | |
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> \__ \__
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> \ \
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> | QEMU process |
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> +----+------------------------------------------+
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">Virtual addr space | | |
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> +----+------------------------------------------+
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> | |
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> \__ Page Table \__
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> \ \
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> | |
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> +----+-----------------------------------------------++
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">Physical memory | | ||
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> +----+-----------------------------------------------++
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
 &lt;/div>
 &lt;/div></description></item></channel></rss>

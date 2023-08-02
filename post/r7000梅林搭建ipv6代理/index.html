@@ -1,193 +1,22 @@
-<!doctype html><html lang=zh-cn>
-<head>
-<meta charset=utf-8>
-<meta http-equiv=x-ua-compatible content="IE=edge,chrome=1">
-<title>R7000梅林搭建ipv6代理 - hhdx's blog</title>
-<meta name=renderer content="webkit">
-<meta name=viewport content="width=device-width,initial-scale=1,maximum-scale=1">
-<meta http-equiv=cache-control content="no-transform">
-<meta http-equiv=cache-control content="no-siteapp">
-<meta name=theme-color content="#f8f5ec">
-<meta name=msapplication-navbutton-color content="#f8f5ec">
-<meta name=apple-mobile-web-app-capable content="yes">
-<meta name=apple-mobile-web-app-status-bar-style content="#f8f5ec">
-<meta name=author content="hhdx"><meta name=description content="目前宽带基本都支持了ipv6(可能需要自己在光猫开启)，为了在学校省流量，利用家庭宽带的ipv6环境搭一个代理。 R7000固件版本是kool"><meta name=keywords content="C language,CTF,system engineer">
-<meta name=generator content="Hugo 0.88.1 with theme even">
-<link rel=canonical href=https://hhdx.xyz/post/r7000%E6%A2%85%E6%9E%97%E6%90%AD%E5%BB%BAipv6%E4%BB%A3%E7%90%86/>
-<link rel=apple-touch-icon sizes=180x180 href=/apple-touch-icon.png>
-<link rel=icon type=image/png sizes=32x32 href=/favicon-32x32.png>
-<link rel=icon type=image/png sizes=16x16 href=/favicon-16x16.png>
-<link rel=manifest href=/manifest.json>
-<link rel=mask-icon href=/safari-pinned-tab.svg color=#5bbad5>
-<link href=/sass/main.min.0d3b8ec8ed7df891edf32830bfdc6af5976dc6b9ffeb7cd1d0cdd312bcf8e23e.css rel=stylesheet>
-<link rel=stylesheet href=https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin=anonymous>
-<meta property="og:title" content="R7000梅林搭建ipv6代理">
-<meta property="og:description" content="目前宽带基本都支持了ipv6(可能需要自己在光猫开启)，为了在学校省流量，利用家庭宽带的ipv6环境搭一个代理。 R7000固件版本是kool">
-<meta property="og:type" content="article">
-<meta property="og:url" content="https://hhdx.xyz/post/r7000%E6%A2%85%E6%9E%97%E6%90%AD%E5%BB%BAipv6%E4%BB%A3%E7%90%86/"><meta property="article:section" content="post">
-<meta property="article:published_time" content="2020-09-01T08:55:50+00:00">
-<meta property="article:modified_time" content="2020-09-01T08:55:50+00:00">
-<meta itemprop=name content="R7000梅林搭建ipv6代理">
-<meta itemprop=description content="目前宽带基本都支持了ipv6(可能需要自己在光猫开启)，为了在学校省流量，利用家庭宽带的ipv6环境搭一个代理。 R7000固件版本是kool"><meta itemprop=datePublished content="2020-09-01T08:55:50+00:00">
-<meta itemprop=dateModified content="2020-09-01T08:55:50+00:00">
-<meta itemprop=wordCount content="345">
-<meta itemprop=keywords content="misc,"><meta name=twitter:card content="summary">
-<meta name=twitter:title content="R7000梅林搭建ipv6代理">
-<meta name=twitter:description content="目前宽带基本都支持了ipv6(可能需要自己在光猫开启)，为了在学校省流量，利用家庭宽带的ipv6环境搭一个代理。 R7000固件版本是kool"><!--[if lte IE 9]><script src=https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js></script><![endif]--><!--[if lt IE 9]><script src=https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js></script>
-<script src=https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js></script><![endif]-->
-</head>
-<body>
-<div id=mobile-navbar class=mobile-navbar>
-<div class=mobile-header-logo>
-<a href=/ class=logo>hhdx's blog</a>
-</div>
-<div class=mobile-navbar-icon>
+<!doctype html><html lang=zh-cn><head><meta charset=utf-8><meta http-equiv=x-ua-compatible content="IE=edge,chrome=1"><title>R7000梅林搭建ipv6代理 - hhdx's blog</title><meta name=renderer content="webkit"><meta name=viewport content="width=device-width,initial-scale=1,maximum-scale=1"><meta http-equiv=cache-control content="no-transform"><meta http-equiv=cache-control content="no-siteapp"><meta name=theme-color content="#f8f5ec"><meta name=msapplication-navbutton-color content="#f8f5ec"><meta name=apple-mobile-web-app-capable content="yes"><meta name=apple-mobile-web-app-status-bar-style content="#f8f5ec"><meta name=author content="hhdx"><meta name=description content="目前宽带基本都支持了ipv6(可能需要自己在光猫开启)，为了在学校省流量，利用家庭宽带的ipv6环境搭一个代理。 R7000固件版本是kool"><meta name=keywords content="C language,CTF,system engineer"><meta name=generator content="Hugo 0.116.1 with theme even"><link rel=canonical href=https://hhdx.xyz/post/r7000%E6%A2%85%E6%9E%97%E6%90%AD%E5%BB%BAipv6%E4%BB%A3%E7%90%86/><link rel=apple-touch-icon sizes=180x180 href=/apple-touch-icon.png><link rel=icon type=image/png sizes=32x32 href=/favicon-32x32.png><link rel=icon type=image/png sizes=16x16 href=/favicon-16x16.png><link rel=manifest href=/manifest.json><link rel=mask-icon href=/safari-pinned-tab.svg color=#5bbad5><link href=/sass/main.min.bda6190ea12800aa36851bdb7b5cb5af46ca988222781d28b20a96aa4c1f6e68.css rel=stylesheet><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin=anonymous><meta property="og:title" content="R7000梅林搭建ipv6代理"><meta property="og:description" content="目前宽带基本都支持了ipv6(可能需要自己在光猫开启)，为了在学校省流量，利用家庭宽带的ipv6环境搭一个代理。 R7000固件版本是kool"><meta property="og:type" content="article"><meta property="og:url" content="https://hhdx.xyz/post/r7000%E6%A2%85%E6%9E%97%E6%90%AD%E5%BB%BAipv6%E4%BB%A3%E7%90%86/"><meta property="article:section" content="post"><meta property="article:published_time" content="2020-09-01T08:55:50+00:00"><meta property="article:modified_time" content="2020-09-01T08:55:50+00:00"><meta itemprop=name content="R7000梅林搭建ipv6代理"><meta itemprop=description content="目前宽带基本都支持了ipv6(可能需要自己在光猫开启)，为了在学校省流量，利用家庭宽带的ipv6环境搭一个代理。 R7000固件版本是kool"><meta itemprop=datePublished content="2020-09-01T08:55:50+00:00"><meta itemprop=dateModified content="2020-09-01T08:55:50+00:00"><meta itemprop=wordCount content="345"><meta itemprop=keywords content="misc,"><meta name=twitter:card content="summary"><meta name=twitter:title content="R7000梅林搭建ipv6代理"><meta name=twitter:description content="目前宽带基本都支持了ipv6(可能需要自己在光猫开启)，为了在学校省流量，利用家庭宽带的ipv6环境搭一个代理。 R7000固件版本是kool"><!--[if lte IE 9]><script src=https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js></script><![endif]--><!--[if lt IE 9]><script src=https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js></script>
+<script src=https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js></script><![endif]--></head><body><div id=mobile-navbar class=mobile-navbar><div class=mobile-header-logo><a href=/ class=logo>hhdx's blog</a></div><div class=mobile-navbar-icon><span></span>
 <span></span>
-<span></span>
-<span></span>
-</div>
-</div>
-<nav id=mobile-menu class="mobile-menu slideout-menu">
-<ul class=mobile-menu-list>
-<a href=/>
-<li class=mobile-menu-item>Home</li>
-</a><a href=/post/>
-<li class=mobile-menu-item>Archives</li>
-</a><a href=/tags/>
-<li class=mobile-menu-item>Tags</li>
-</a><a href=/links/>
-<li class=mobile-menu-item>Links</li>
-</a><a href=/about/>
-<li class=mobile-menu-item>About</li>
-</a>
-</ul>
-</nav>
-<div class=container id=mobile-panel>
-<header id=header class=header>
-<div class=logo-wrapper>
-<a href=/ class=logo>hhdx's blog</a>
-</div>
-<nav class=site-navbar>
-<ul id=menu class=menu>
-<li class=menu-item>
-<a class=menu-item-link href=/>Home</a>
-</li><li class=menu-item>
-<a class=menu-item-link href=/post/>Archives</a>
-</li><li class=menu-item>
-<a class=menu-item-link href=/tags/>Tags</a>
-</li><li class=menu-item>
-<a class=menu-item-link href=/links/>Links</a>
-</li><li class=menu-item>
-<a class=menu-item-link href=/about/>About</a>
-</li>
-</ul>
-</nav>
-</header>
-<main id=main class=main>
-<div class=content-wrapper>
-<div id=content class=content>
-<article class=post>
-<header class=post-header>
-<h1 class=post-title>R7000梅林搭建ipv6代理</h1>
-<div class=post-meta>
-<span class=post-time> 2020-09-01 </span>
-</div>
-</header>
-<div class=post-toc id=post-toc>
-<h2 class=post-toc-title>文章目录</h2>
-<div class="post-toc-content always-active">
-<nav id=TableOfContents>
-<ul>
-<li>
-<ul>
-<li><a href=#ref>ref</a></li>
-</ul>
-</li>
-</ul>
-</nav>
-</div>
-</div>
-<div class=post-content>
-<p>目前宽带基本都支持了ipv6(可能需要自己在光猫开启)，为了在学校省流量，利用家庭宽带的ipv6环境搭一个代理。</p>
-<p>R7000固件版本是koolshare X7.9.1，使用软件中心ss server 3.1。默认情况下，该插件不支持ipv6代理。通过查看该<a href=https://github.com/koolshare/merlin-ssserver>插件的代码</a>，发现了可以修改启动脚本使其支持ipv6。</p>
-<p>需要开启固件的telnet或者ssh。</p>
-<p>/koolshare/ssserver/目录下存放的其启动脚本ssserver.sh。</p>
-<p>修改服务器地址为<code>::</code>，并添加允许外部访问的两条规则。重新启动插件就可以了。</p>
-<p><img src=https://raw.githubusercontent.com/clxsh/pics/master/img/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202020-09-01%20091624.jpg alt></p>
-<p>客户端windows可以使用<a href=https://github.com/shadowsocks/shadowsocks-windows>shadowsocks-windows</a>，mac可以用<a href=https://github.com/shadowsocks/ShadowsocksX-NG>ShadowsocksX-NG</a></p>
-<p>实测延迟183，受限于家庭宽带上传，30Mbps下载，5Mbps上传&mldr;..</p>
-<h2 id=ref>ref</h2>
-<ol>
-<li><a href=https://www.polarxiong.com/archives/%E6%90%AD%E5%BB%BAipv6-VPN-%E8%AE%A9ipv4%E4%B8%8Aipv6-%E4%B8%8B%E8%BD%BD%E9%80%9F%E5%BA%A6%E6%8F%90%E5%8D%87%E5%88%B0100M.html>https://www.polarxiong.com/archives/%E6%90%AD%E5%BB%BAipv6-VPN-%E8%AE%A9ipv4%E4%B8%8Aipv6-%E4%B8%8B%E8%BD%BD%E9%80%9F%E5%BA%A6%E6%8F%90%E5%8D%87%E5%88%B0100M.html</a></li>
-</ol>
-</div>
-<div class=post-copyright>
-<p class=copyright-item>
-<span class=item-title>文章作者</span>
-<span class=item-content>hhdx</span>
-</p>
-<p class=copyright-item>
-<span class=item-title>上次更新</span>
-<span class=item-content>
-2020-09-01
-</span>
-</p>
-</div>
-<footer class=post-footer>
-<div class=post-tags>
-<a href=/tags/misc/>misc</a>
-</div>
-<nav class=post-nav>
-<a class=prev href=/post/pwnable-tw-re-alloc-revenge/>
-<i class="iconfont icon-left"></i>
+<span></span></div></div><nav id=mobile-menu class="mobile-menu slideout-menu"><ul class=mobile-menu-list><a href=/><li class=mobile-menu-item>Home</li></a><a href=/post/><li class=mobile-menu-item>Archives</li></a><a href=/tags/><li class=mobile-menu-item>Tags</li></a><a href=/links/><li class=mobile-menu-item>Links</li></a><a href=/about/><li class=mobile-menu-item>About</li></a></ul></nav><div class=container id=mobile-panel><header id=header class=header><div class=logo-wrapper><a href=/ class=logo>hhdx's blog</a></div><nav class=site-navbar><ul id=menu class=menu><li class=menu-item><a class=menu-item-link href=/>Home</a></li><li class=menu-item><a class=menu-item-link href=/post/>Archives</a></li><li class=menu-item><a class=menu-item-link href=/tags/>Tags</a></li><li class=menu-item><a class=menu-item-link href=/links/>Links</a></li><li class=menu-item><a class=menu-item-link href=/about/>About</a></li></ul></nav></header><main id=main class=main><div class=content-wrapper><div id=content class=content><article class=post><header class=post-header><h1 class=post-title>R7000梅林搭建ipv6代理</h1><div class=post-meta><span class=post-time>2020-09-01</span></div></header><div class=post-toc id=post-toc><h2 class=post-toc-title>文章目录</h2><div class="post-toc-content always-active"><nav id=TableOfContents><ul><li><ul><li><a href=#ref>ref</a></li></ul></li></ul></nav></div></div><div class=post-content><p>目前宽带基本都支持了ipv6(可能需要自己在光猫开启)，为了在学校省流量，利用家庭宽带的ipv6环境搭一个代理。</p><p>R7000固件版本是koolshare X7.9.1，使用软件中心ss server 3.1。默认情况下，该插件不支持ipv6代理。通过查看该<a href=https://github.com/koolshare/merlin-ssserver>插件的代码</a>，发现了可以修改启动脚本使其支持ipv6。</p><p>需要开启固件的telnet或者ssh。</p><p>/koolshare/ssserver/目录下存放的其启动脚本ssserver.sh。</p><p>修改服务器地址为<code>::</code>，并添加允许外部访问的两条规则。重新启动插件就可以了。</p><p><img src=https://raw.githubusercontent.com/clxsh/pics/master/img/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202020-09-01%20091624.jpg alt></p><p>客户端windows可以使用<a href=https://github.com/shadowsocks/shadowsocks-windows>shadowsocks-windows</a>，mac可以用<a href=https://github.com/shadowsocks/ShadowsocksX-NG>ShadowsocksX-NG</a></p><p>实测延迟183，受限于家庭宽带上传，30Mbps下载，5Mbps上传&mldr;..</p><h2 id=ref>ref</h2><ol><li><a href=https://www.polarxiong.com/archives/%E6%90%AD%E5%BB%BAipv6-VPN-%E8%AE%A9ipv4%E4%B8%8Aipv6-%E4%B8%8B%E8%BD%BD%E9%80%9F%E5%BA%A6%E6%8F%90%E5%8D%87%E5%88%B0100M.html>https://www.polarxiong.com/archives/%E6%90%AD%E5%BB%BAipv6-VPN-%E8%AE%A9ipv4%E4%B8%8Aipv6-%E4%B8%8B%E8%BD%BD%E9%80%9F%E5%BA%A6%E6%8F%90%E5%8D%87%E5%88%B0100M.html</a></li></ol></div><div class=post-copyright><p class=copyright-item><span class=item-title>文章作者</span>
+<span class=item-content>hhdx</span></p><p class=copyright-item><span class=item-title>上次更新</span>
+<span class=item-content>2020-09-01</span></p></div><footer class=post-footer><div class=post-tags><a href=/tags/misc/>misc</a></div><nav class=post-nav><a class=prev href=/post/pwnable-tw-re-alloc-revenge/><i class="iconfont icon-left"></i>
 <span class="prev-text nav-default">pwnable.tw re-alloc_revenge</span>
-<span class="prev-text nav-mobile">上一篇</span>
-</a>
-<a class=next href=/post/pwnable-tw-tcache-tear-seethefile/>
-<span class="next-text nav-default">pwnable.tw tcache_tear seethefile</span>
+<span class="prev-text nav-mobile">上一篇</span></a>
+<a class=next href=/post/pwnable-tw-tcache-tear-seethefile/><span class="next-text nav-default">pwnable.tw tcache_tear seethefile</span>
 <span class="next-text nav-mobile">下一篇</span>
-<i class="iconfont icon-right"></i>
-</a>
-</nav>
-</footer>
-</article>
-</div>
-<div id=disqus_thread></div>
-<script type=text/javascript>(function(){var a,b;if(window.location.hostname==='localhost')return;a=document.createElement('script'),a.type='text/javascript',a.async=!0,b='lyliuchao',a.src='//'+b+'.disqus.com/embed.js',(document.getElementsByTagName('head')[0]||document.getElementsByTagName('body')[0]).appendChild(a)})()</script>
-<noscript>Please enable JavaScript to view the <a href=http://disqus.com/?ref_noscript>comments powered by Disqus.</a></noscript>
-</div>
-</main>
-<footer id=footer class=footer>
-<div class=social-links>
-<a href=https://github.com/clxsh class="iconfont icon-github" title=github></a>
-<a href=https://www.douban.com/people/57285004/ class="iconfont icon-douban" title=douban></a>
-<a href=https://hhdx.xyz/index.xml type=application/rss+xml class="iconfont icon-rss" title=rss></a>
-</div>
-<div class=copyright>
-<span class=power-by>
-由 <a class=hexo-link href=https://gohugo.io>Hugo</a> 强力驱动
-</span>
+<i class="iconfont icon-right"></i></a></nav></footer></article></div><div id=disqus_thread></div><script type=text/javascript>(function(){if(window.location.hostname==="localhost")return;var t,e=document.createElement("script");e.type="text/javascript",e.async=!0,t="lyliuchao",e.src="//"+t+".disqus.com/embed.js",(document.getElementsByTagName("head")[0]||document.getElementsByTagName("body")[0]).appendChild(e)})()</script><noscript>Please enable JavaScript to view the <a href=http://disqus.com/?ref_noscript>comments powered by Disqus.</a></noscript></div></main><footer id=footer class=footer><div class=social-links><a href=https://github.com/clxsh class="iconfont icon-github" title=github></a>
+<a href=https://www.douban.com/people/57285004/ class="iconfont icon-douban" title=douban></a></div><div class=copyright><span class=power-by>由 <a class=hexo-link href=https://gohugo.io>Hugo</a> 强力驱动</span>
 <span class=division>|</span>
-<span class=theme-info>
-主题 -
-<a class=theme-link href=https://github.com/olOwOlo/hugo-theme-even>Even</a>
-</span>
-<span class=copyright-year>
-&copy;
+<span class=theme-info>主题 -
+<a class=theme-link href=https://github.com/olOwOlo/hugo-theme-even>Even</a></span>
+<span class=copyright-year>&copy;
 2016 -
-2021<span class=heart><i class="iconfont icon-heart"></i></span><span>hhdx</span>
-</span>
-</div>
-</footer>
-<div class=back-to-top id=back-to-top>
-<i class="iconfont icon-up"></i>
-</div>
-</div>
-<script src=https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin=anonymous></script>
+2023<span class=heart><i class="iconfont icon-heart"></i></span><span>hhdx</span></span></div></footer><div class=back-to-top id=back-to-top><i class="iconfont icon-up"></i></div></div><script src=https://cdn.jsdelivr.net/npm/jquery@3.7.0/dist/jquery.min.js integrity=sha384-NXgwF8Kv9SSAr+jemKKcbvQsz+teULH/a5UNJvZc6kP47hZgl62M1vGnw6gHQhb1 crossorigin=anonymous></script>
 <script src=https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin=anonymous></script>
 <script src=https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin=anonymous></script>
-<script type=text/javascript src=/js/main.min.c99b103c33d1539acf3025e1913697534542c4a5aa5af0ccc20475ed2863603b.js></script>
-<script type=application/javascript>var doNotTrack=!1;doNotTrack||(window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)},ga.l=+new Date,ga('create','UA-177325662-1','auto'),ga('set','anonymizeIp',!0),ga('send','pageview'))</script>
-<script async src=https://www.google-analytics.com/analytics.js></script>
-</body>
-</html>
+<script type=text/javascript src=/js/main.min.4ae89da218555efa0e7093a20b92017d2e1202b66fff9fc2edf4cb8d44b44c6e.js></script>
+<script type=application/javascript>var doNotTrack=!1;doNotTrack||(window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)},ga.l=+new Date,ga("create","UA-177325662-1","auto"),ga("set","anonymizeIp",!0),ga("send","pageview"))</script><script async src=https://www.google-analytics.com/analytics.js></script></body></html>

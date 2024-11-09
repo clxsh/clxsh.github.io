@@ -1,4 +1,51 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/"><channel><title>hhdx's blog</title><link>https://hhdx.xyz/</link><description>Recent content on hhdx's blog</description><generator>Hugo -- 0.138.0</generator><language>en</language><lastBuildDate>Sun, 13 Aug 2023 14:40:28 +0800</lastBuildDate><atom:link href="https://hhdx.xyz/index.xml" rel="self" type="application/rss+xml"/><item><title>RISC-V 汇编概览</title><link>https://hhdx.xyz/post/riscv-assembly-intro/</link><pubDate>Sun, 13 Aug 2023 14:40:28 +0800</pubDate><guid>https://hhdx.xyz/post/riscv-assembly-intro/</guid><description>&lt;p>最近尝试跟着 &lt;a href="http://rcore-os.cn/rCore-Tutorial-Book-v3/index.html">rCore Tutorial&lt;/a> 教程，使用 Rust 实现基于 RISC-V 架构的类 Unix 内核，从而在深化 OS 理解的目标上，同时入门学习 Rust 语言和 RISC-V 基础。虽然说是 RISC-V 比 x86 简单很多，但是直接跟着教程来同时学习 RISC-V 还是有点不够，经常前面记得一点零星的汇编，看到后面的代码就忘了是怎么回事了。所以尝试来整理一下 RISC-V 的汇编，希望能让看到的小伙伴快速的入门一下。本文将以 64 位为例介绍汇编语言。&lt;/p></description></item><item><title>施工中</title><link>https://hhdx.xyz/underway/</link><pubDate>Sat, 05 Aug 2023 11:03:59 +0000</pubDate><guid>https://hhdx.xyz/underway/</guid><description>&lt;p>对于计算机技术的学习，我的观念是基础很重要，所以最近几年都在尝试去 &lt;del>补充&lt;/del> 弥补自己的计算机基础知识，包括操作系统，计算机网络，数据库，编译原理等一些课程，以前虽然学的太过于浅显。 &lt;del>实际上懒得要命，现在化身社畜了，一星期学不了几个小时🥲，暂且在这里列出一下想学的东西&lt;/del>&lt;/p></description></item><item><title>QEMU堆溢出漏洞----CVE-2015-7504</title><link>https://hhdx.xyz/post/cve-2015-7504/</link><pubDate>Sat, 12 Dec 2020 10:36:40 +0000</pubDate><guid>https://hhdx.xyz/post/cve-2015-7504/</guid><description>&lt;p>CVE-2015-7504是QEMU在仿真pcnet网卡中出现的一个堆溢出漏洞，可以溢出四个字节，可以劫持程序的执行流，结合前面的CVE-2015-5165可以实现任意代码执行。但有一个很致命的问题，宿主机内核需要使用&lt;code>CONFIG_ARCH_BINFMT_ELF_RANDOMIZE_PIE &lt;/code>标志进行编译，否则在溢出的四个字节没法成功修改地址（总体八个字节的地址，因此需要高四字节与目标地址一致）。这个编译标志在目前最新的Ubuntu16.04中似乎已经没有了，所以就不进行完整的复现了，仅复现至PoC部分。&lt;/p>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/"><channel><title>hhdx's blog</title><link>https://hhdx.xyz/</link><description>Recent content on hhdx's blog</description><generator>Hugo -- 0.138.0</generator><language>en</language><lastBuildDate>Sat, 09 Nov 2024 17:14:01 +0800</lastBuildDate><atom:link href="https://hhdx.xyz/index.xml" rel="self" type="application/rss+xml"/><item><title>GPG 命令备忘</title><link>https://hhdx.xyz/post/gpg%E4%BD%BF%E7%94%A8%E5%A4%87%E5%BF%98/</link><pubDate>Sat, 09 Nov 2024 17:14:01 +0800</pubDate><guid>https://hhdx.xyz/post/gpg%E4%BD%BF%E7%94%A8%E5%A4%87%E5%BF%98/</guid><description>&lt;h1 id="gpg-命令">GPG 命令&lt;/h1>
+&lt;h2 id="创建-gpg-key">创建 gpg key&lt;/h2>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;span class="lnt">7
+&lt;/span>&lt;span class="lnt">8
+&lt;/span>&lt;span class="lnt">9
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">$ gpg --full-generate-key &lt;span class="c1"># 生成 gpg key&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">gpg: directory &lt;span class="s1">&amp;#39;/home/ubuntu/.gnupg/openpgp-revocs.d&amp;#39;&lt;/span> created
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">gpg: revocation certificate stored as &lt;span class="s1">&amp;#39;/home/ubuntu/.gnupg/openpgp-revocs.d/ECA3A621F79A890A23D03ED5D5634A568BBCEDC4.rev&amp;#39;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">public and secret key created and signed.
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">pub ed25519 2024-11-09 &lt;span class="o">[&lt;/span>SC&lt;span class="o">]&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> ECA3A621F79A890A23D03ED5D5634A568BBCEDC4
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">uid &lt;span class="nb">test&lt;/span> &amp;lt;test@test.com&amp;gt;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">sub cv25519 2024-11-09 &lt;span class="o">[&lt;/span>E&lt;span class="o">]&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h2 id="列出">列出&lt;/h2>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;span class="lnt">7
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">$ gpg --list-key &lt;span class="c1"># 简化写法 gpg -k&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">/home/ubuntu/.gnupg/pubring.kbx
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">-------------------------------
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">pub ed25519 2024-11-09 &lt;span class="o">[&lt;/span>SC&lt;span class="o">]&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> ECA3A621F79A890A23D03ED5D5634A568BBCEDC4
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">uid &lt;span class="o">[&lt;/span>ultimate&lt;span class="o">]&lt;/span> &lt;span class="nb">test&lt;/span> &amp;lt;test@test.com&amp;gt;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">sub cv25519 2024-11-09 &lt;span class="o">[&lt;/span>E&lt;span class="o">]&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>列出所有公钥、子公钥&lt;/p></description></item><item><title>RISC-V 汇编概览</title><link>https://hhdx.xyz/post/riscv-assembly-intro/</link><pubDate>Sun, 13 Aug 2023 14:40:28 +0800</pubDate><guid>https://hhdx.xyz/post/riscv-assembly-intro/</guid><description>&lt;p>最近尝试跟着 &lt;a href="http://rcore-os.cn/rCore-Tutorial-Book-v3/index.html">rCore Tutorial&lt;/a> 教程，使用 Rust 实现基于 RISC-V 架构的类 Unix 内核，从而在深化 OS 理解的目标上，同时入门学习 Rust 语言和 RISC-V 基础。虽然说是 RISC-V 比 x86 简单很多，但是直接跟着教程来同时学习 RISC-V 还是有点不够，经常前面记得一点零星的汇编，看到后面的代码就忘了是怎么回事了。所以尝试来整理一下 RISC-V 的汇编，希望能让看到的小伙伴快速的入门一下。本文将以 64 位为例介绍汇编语言。&lt;/p></description></item><item><title>施工中</title><link>https://hhdx.xyz/underway/</link><pubDate>Sat, 05 Aug 2023 11:03:59 +0000</pubDate><guid>https://hhdx.xyz/underway/</guid><description>&lt;p>对于计算机技术的学习，我一直认为基础很重要，并且对系统层的东西更感兴趣，所以一直都在尝试去弥补自己的计算机基础知识，包括操作系统，计算机网络，数据库，编译原理等一些课程，以前学的太过于浅显。&lt;/p></description></item><item><title>QEMU堆溢出漏洞----CVE-2015-7504</title><link>https://hhdx.xyz/post/cve-2015-7504/</link><pubDate>Sat, 12 Dec 2020 10:36:40 +0000</pubDate><guid>https://hhdx.xyz/post/cve-2015-7504/</guid><description>&lt;p>CVE-2015-7504是QEMU在仿真pcnet网卡中出现的一个堆溢出漏洞，可以溢出四个字节，可以劫持程序的执行流，结合前面的CVE-2015-5165可以实现任意代码执行。但有一个很致命的问题，宿主机内核需要使用&lt;code>CONFIG_ARCH_BINFMT_ELF_RANDOMIZE_PIE &lt;/code>标志进行编译，否则在溢出的四个字节没法成功修改地址（总体八个字节的地址，因此需要高四字节与目标地址一致）。这个编译标志在目前最新的Ubuntu16.04中似乎已经没有了，所以就不进行完整的复现了，仅复现至PoC部分。&lt;/p>
 &lt;h2 id="pcnet网卡">PCNET网卡&lt;/h2>
 &lt;p>AMD 的PCNET系列网卡被许多虚拟机或仿真器支持，如QEMU、VMware和VirtualBox。虽然没有RTL8139简易，但它的支持更加广泛，RTL8139只在QEMU中有支持。&lt;/p>
 &lt;p>网卡有16位和32位两种模式，这取决于DWIO 的值（储存在卡中变量），16位模式是网卡重置之后的默认模式。网卡有两类内部寄存器：CSR（控制和状态寄存器）和BCR（Bus Control Register）。&lt;/p>

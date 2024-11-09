@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>how2heap on hhdx's blog</title><link>https://hhdx.xyz/tags/how2heap/</link><description>Recent content in how2heap on hhdx's blog</description><generator>Hugo -- gohugo.io</generator><language>en</language><lastBuildDate>Sat, 01 Aug 2020 19:36:10 +0000</lastBuildDate><atom:link href="https://hhdx.xyz/tags/how2heap/index.xml" rel="self" type="application/rss+xml"/><item><title>How2heap总结</title><link>https://hhdx.xyz/post/how2heap%E6%80%BB%E7%BB%93/</link><pubDate>Sat, 01 Aug 2020 19:36:10 +0000</pubDate><guid>https://hhdx.xyz/post/how2heap%E6%80%BB%E7%BB%93/</guid><description>&lt;h2 id="first-fit">first-fit&lt;/h2>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/"><channel><title>How2heap on hhdx's blog</title><link>https://hhdx.xyz/tags/how2heap/</link><description>Recent content in How2heap on hhdx's blog</description><generator>Hugo -- 0.138.0</generator><language>en</language><lastBuildDate>Sat, 01 Aug 2020 19:36:10 +0000</lastBuildDate><atom:link href="https://hhdx.xyz/tags/how2heap/index.xml" rel="self" type="application/rss+xml"/><item><title>How2heap总结</title><link>https://hhdx.xyz/post/how2heap%E6%80%BB%E7%BB%93/</link><pubDate>Sat, 01 Aug 2020 19:36:10 +0000</pubDate><guid>https://hhdx.xyz/post/how2heap%E6%80%BB%E7%BB%93/</guid><description>&lt;h2 id="first-fit">first-fit&lt;/h2>
 &lt;p>如果一个chunk可用且足够大，那么就会使用这个chunk。&lt;/p>
 &lt;h2 id="calc_tcache_idx">calc_tcache_idx&lt;/h2>
 &lt;p>tcache(thread local caching)&lt;/p>
@@ -73,7 +73,7 @@
 &lt;/div></description></item><item><title>How2heap--large_bin_attack 0ctf2018--heapstorm2</title><link>https://hhdx.xyz/post/how2heap-large-bin-attack-0ctf2018-heapstorm2/</link><pubDate>Sat, 18 Jul 2020 21:10:54 +0000</pubDate><guid>https://hhdx.xyz/post/how2heap-large-bin-attack-0ctf2018-heapstorm2/</guid><description>&lt;h2 id="large-bin-attack">large bin attack&lt;/h2>
 &lt;p>对已存在于large bin中的chunk的bk、bk_nextsize字段进行更改，在unsorted bin中取出插入该large bin时，会将bk-&amp;gt;fd、bk_nextsize-&amp;gt;fd_nextsize的位置覆盖成chunk的地址。涉及的代码就是unsorted bin遍历取出插入那块。和先前的unsorted bin attack类似，通常为进一步攻击做准备，如修改global_max_fast。&lt;/p>
 &lt;p>这里比较难理解就是large bin的结构，特别是先前我被一个&lt;a href="https://raw.githubusercontent.com/clxsh/pics/master/img/largebin.png">large bin结构图&lt;/a>所误导，下面给出我画的结构图（如果有错误o((⊙﹏⊙))o，请帮忙指出）。&lt;/p>
-&lt;p>&lt;img src="https://raw.githubusercontent.com/clxsh/pics/master/img/large_bin2.png" alt="glibc large bin">&lt;/p>
+&lt;p>&lt;img alt="glibc large bin" loading="lazy" src="https://raw.githubusercontent.com/clxsh/pics/master/img/large_bin2.png">&lt;/p>
 &lt;h2 id="0ctf2018-heapstorm2">0ctf2018 heapstorm2&lt;/h2>
 &lt;div class="highlight">&lt;div class="chroma">
 &lt;table class="lntable">&lt;tr>&lt;td class="lntd">
@@ -140,7 +140,7 @@
 &lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
 &lt;/div>
 &lt;/div>&lt;p>关键数据结构&lt;/p>
-&lt;p>&lt;img src="https://raw.githubusercontent.com/clxsh/pics/master/img/image-20200712102723178.png" alt="image-20200712102723178">&lt;/p>
+&lt;p>&lt;img alt="image-20200712102723178" loading="lazy" src="https://raw.githubusercontent.com/clxsh/pics/master/img/image-20200712102723178.png">&lt;/p>
 &lt;p>flag：标识该节点是否存在&lt;/p>
 &lt;p>size：记录大小&lt;/p>
 &lt;p>content：数据块指针&lt;/p>

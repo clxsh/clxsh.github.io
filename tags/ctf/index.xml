@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>CTF on hhdx's blog</title><link>https://hhdx.xyz/tags/ctf/</link><description>Recent content in CTF on hhdx's blog</description><generator>Hugo -- gohugo.io</generator><language>en</language><lastBuildDate>Mon, 30 Nov 2020 12:05:03 +0000</lastBuildDate><atom:link href="https://hhdx.xyz/tags/ctf/index.xml" rel="self" type="application/rss+xml"/><item><title>HITB GSEC 2017：babyqemu</title><link>https://hhdx.xyz/post/babyqemu/</link><pubDate>Mon, 30 Nov 2020 12:05:03 +0000</pubDate><guid>https://hhdx.xyz/post/babyqemu/</guid><description>&lt;p>题目下载地址：&lt;a href="https://github.com/kitctf/writeups/blob/master/hitb-gsec-2017/babyqemu/babyqemu.tar.gz">babyqemu.tar.gz&lt;/a>&lt;/p>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/"><channel><title>CTF on hhdx's blog</title><link>https://hhdx.xyz/tags/ctf/</link><description>Recent content in CTF on hhdx's blog</description><generator>Hugo -- 0.138.0</generator><language>en</language><lastBuildDate>Mon, 30 Nov 2020 12:05:03 +0000</lastBuildDate><atom:link href="https://hhdx.xyz/tags/ctf/index.xml" rel="self" type="application/rss+xml"/><item><title>HITB GSEC 2017：babyqemu</title><link>https://hhdx.xyz/post/babyqemu/</link><pubDate>Mon, 30 Nov 2020 12:05:03 +0000</pubDate><guid>https://hhdx.xyz/post/babyqemu/</guid><description>&lt;p>题目下载地址：&lt;a href="https://github.com/kitctf/writeups/blob/master/hitb-gsec-2017/babyqemu/babyqemu.tar.gz">babyqemu.tar.gz&lt;/a>&lt;/p>
 &lt;h2 id="分析">分析&lt;/h2>
 &lt;p>&lt;code>tar xvzf babyqemu.tar.gz&lt;/code>解压看到启动脚本&lt;code>launch.sh&lt;/code>&lt;/p>
 &lt;div class="highlight">&lt;div class="chroma">
@@ -31,7 +31,7 @@
 &lt;p>本文主要参考raycp师傅的两篇文章。[1] [2]&lt;/p>
 &lt;h2 id="qemu概述">Qemu概述&lt;/h2>
 &lt;p>每个运行的qemu虚拟机对应于host上的一个进程，虚拟机的执行线程（如CPU线程、I/O线程等）对应于qemu进程中的一个线程。&lt;/p>
-&lt;p>&lt;img src="https://raw.githubusercontent.com/clxsh/pics/master/imgqemu-architecture.png" alt="qemu-architecture">&lt;/p>
+&lt;p>&lt;img alt="qemu-architecture" loading="lazy" src="https://raw.githubusercontent.com/clxsh/pics/master/imgqemu-architecture.png">&lt;/p>
 &lt;p>qemu的内存结构，根据&lt;a href="http://www.phrack.org/papers/vm-escape-qemu-case-study.html">QEMU Case Study&lt;/a>，虚拟机对应的内存结构为如下：&lt;/p>
 &lt;div class="highlight">&lt;div class="chroma">
 &lt;table class="lntable">&lt;tr>&lt;td class="lntd">
@@ -398,7 +398,7 @@
 &lt;/div></description></item><item><title>How2heap--large_bin_attack 0ctf2018--heapstorm2</title><link>https://hhdx.xyz/post/how2heap-large-bin-attack-0ctf2018-heapstorm2/</link><pubDate>Sat, 18 Jul 2020 21:10:54 +0000</pubDate><guid>https://hhdx.xyz/post/how2heap-large-bin-attack-0ctf2018-heapstorm2/</guid><description>&lt;h2 id="large-bin-attack">large bin attack&lt;/h2>
 &lt;p>对已存在于large bin中的chunk的bk、bk_nextsize字段进行更改，在unsorted bin中取出插入该large bin时，会将bk-&amp;gt;fd、bk_nextsize-&amp;gt;fd_nextsize的位置覆盖成chunk的地址。涉及的代码就是unsorted bin遍历取出插入那块。和先前的unsorted bin attack类似，通常为进一步攻击做准备，如修改global_max_fast。&lt;/p>
 &lt;p>这里比较难理解就是large bin的结构，特别是先前我被一个&lt;a href="https://raw.githubusercontent.com/clxsh/pics/master/img/largebin.png">large bin结构图&lt;/a>所误导，下面给出我画的结构图（如果有错误o((⊙﹏⊙))o，请帮忙指出）。&lt;/p>
-&lt;p>&lt;img src="https://raw.githubusercontent.com/clxsh/pics/master/img/large_bin2.png" alt="glibc large bin">&lt;/p>
+&lt;p>&lt;img alt="glibc large bin" loading="lazy" src="https://raw.githubusercontent.com/clxsh/pics/master/img/large_bin2.png">&lt;/p>
 &lt;h2 id="0ctf2018-heapstorm2">0ctf2018 heapstorm2&lt;/h2>
 &lt;div class="highlight">&lt;div class="chroma">
 &lt;table class="lntable">&lt;tr>&lt;td class="lntd">
@@ -465,7 +465,7 @@
 &lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
 &lt;/div>
 &lt;/div>&lt;p>关键数据结构&lt;/p>
-&lt;p>&lt;img src="https://raw.githubusercontent.com/clxsh/pics/master/img/image-20200712102723178.png" alt="image-20200712102723178">&lt;/p>
+&lt;p>&lt;img alt="image-20200712102723178" loading="lazy" src="https://raw.githubusercontent.com/clxsh/pics/master/img/image-20200712102723178.png">&lt;/p>
 &lt;p>flag：标识该节点是否存在&lt;/p>
 &lt;p>size：记录大小&lt;/p>
 &lt;p>content：数据块指针&lt;/p>

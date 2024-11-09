@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Posts on hhdx's blog</title><link>https://hhdx.xyz/post/</link><description>Recent content in Posts on hhdx's blog</description><generator>Hugo -- gohugo.io</generator><language>en</language><lastBuildDate>Sat, 12 Dec 2020 10:36:40 +0000</lastBuildDate><atom:link href="https://hhdx.xyz/post/index.xml" rel="self" type="application/rss+xml"/><item><title>QEMU堆溢出漏洞----CVE-2015-7504</title><link>https://hhdx.xyz/post/cve-2015-7504/</link><pubDate>Sat, 12 Dec 2020 10:36:40 +0000</pubDate><guid>https://hhdx.xyz/post/cve-2015-7504/</guid><description>&lt;p>CVE-2015-7504是QEMU在仿真pcnet网卡中出现的一个堆溢出漏洞，可以溢出四个字节，可以劫持程序的执行流，结合前面的CVE-2015-5165可以实现任意代码执行。但有一个很致命的问题，宿主机内核需要使用&lt;code>CONFIG_ARCH_BINFMT_ELF_RANDOMIZE_PIE &lt;/code>标志进行编译，否则在溢出的四个字节没法成功修改地址（总体八个字节的地址，因此需要高四字节与目标地址一致）。这个编译标志在目前最新的Ubuntu16.04中似乎已经没有了，所以就不进行完整的复现了，仅复现至PoC部分。&lt;/p>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/"><channel><title>Posts on hhdx's blog</title><link>https://hhdx.xyz/post/</link><description>Recent content in Posts on hhdx's blog</description><generator>Hugo -- 0.138.0</generator><language>en</language><lastBuildDate>Sun, 13 Aug 2023 14:40:28 +0800</lastBuildDate><atom:link href="https://hhdx.xyz/post/index.xml" rel="self" type="application/rss+xml"/><item><title>RISC-V 汇编概览</title><link>https://hhdx.xyz/post/riscv-assembly-intro/</link><pubDate>Sun, 13 Aug 2023 14:40:28 +0800</pubDate><guid>https://hhdx.xyz/post/riscv-assembly-intro/</guid><description>&lt;p>最近尝试跟着 &lt;a href="http://rcore-os.cn/rCore-Tutorial-Book-v3/index.html">rCore Tutorial&lt;/a> 教程，使用 Rust 实现基于 RISC-V 架构的类 Unix 内核，从而在深化 OS 理解的目标上，同时入门学习 Rust 语言和 RISC-V 基础。虽然说是 RISC-V 比 x86 简单很多，但是直接跟着教程来同时学习 RISC-V 还是有点不够，经常前面记得一点零星的汇编，看到后面的代码就忘了是怎么回事了。所以尝试来整理一下 RISC-V 的汇编，希望能让看到的小伙伴快速的入门一下。本文将以 64 位为例介绍汇编语言。&lt;/p></description></item><item><title>QEMU堆溢出漏洞----CVE-2015-7504</title><link>https://hhdx.xyz/post/cve-2015-7504/</link><pubDate>Sat, 12 Dec 2020 10:36:40 +0000</pubDate><guid>https://hhdx.xyz/post/cve-2015-7504/</guid><description>&lt;p>CVE-2015-7504是QEMU在仿真pcnet网卡中出现的一个堆溢出漏洞，可以溢出四个字节，可以劫持程序的执行流，结合前面的CVE-2015-5165可以实现任意代码执行。但有一个很致命的问题，宿主机内核需要使用&lt;code>CONFIG_ARCH_BINFMT_ELF_RANDOMIZE_PIE &lt;/code>标志进行编译，否则在溢出的四个字节没法成功修改地址（总体八个字节的地址，因此需要高四字节与目标地址一致）。这个编译标志在目前最新的Ubuntu16.04中似乎已经没有了，所以就不进行完整的复现了，仅复现至PoC部分。&lt;/p>
 &lt;h2 id="pcnet网卡">PCNET网卡&lt;/h2>
 &lt;p>AMD 的PCNET系列网卡被许多虚拟机或仿真器支持，如QEMU、VMware和VirtualBox。虽然没有RTL8139简易，但它的支持更加广泛，RTL8139只在QEMU中有支持。&lt;/p>
 &lt;p>网卡有16位和32位两种模式，这取决于DWIO 的值（储存在卡中变量），16位模式是网卡重置之后的默认模式。网卡有两类内部寄存器：CSR（控制和状态寄存器）和BCR（Bus Control Register）。&lt;/p>
@@ -133,7 +133,7 @@
 &lt;p>本文主要参考raycp师傅的两篇文章。[1] [2]&lt;/p>
 &lt;h2 id="qemu概述">Qemu概述&lt;/h2>
 &lt;p>每个运行的qemu虚拟机对应于host上的一个进程，虚拟机的执行线程（如CPU线程、I/O线程等）对应于qemu进程中的一个线程。&lt;/p>
-&lt;p>&lt;img src="https://raw.githubusercontent.com/clxsh/pics/master/imgqemu-architecture.png" alt="qemu-architecture">&lt;/p>
+&lt;p>&lt;img alt="qemu-architecture" loading="lazy" src="https://raw.githubusercontent.com/clxsh/pics/master/imgqemu-architecture.png">&lt;/p>
 &lt;p>qemu的内存结构，根据&lt;a href="http://www.phrack.org/papers/vm-escape-qemu-case-study.html">QEMU Case Study&lt;/a>，虚拟机对应的内存结构为如下：&lt;/p>
 &lt;div class="highlight">&lt;div class="chroma">
 &lt;table class="lntable">&lt;tr>&lt;td class="lntd">
@@ -272,7 +272,8 @@
 &lt;p>程序没有show函数，所以通过修改stdout的方式泄露libc。&lt;/p>
 &lt;p>将一个chunk同时释放到tcache和unsorted bin，partial overwrite fd部分，指向stdout，需要爆破4bit。取得stdout后修改进行泄露。&lt;/p>
 &lt;p>最后修改&lt;code>__realloc_hook&lt;/code>为one_gadget得到shell。&lt;/p>
-&lt;p>主要难点在布局构造。&lt;/p></description></item><item><title>R7000梅林搭建ipv6代理</title><link>https://hhdx.xyz/post/r7000%E6%A2%85%E6%9E%97%E6%90%AD%E5%BB%BAipv6%E4%BB%A3%E7%90%86/</link><pubDate>Tue, 01 Sep 2020 08:55:50 +0000</pubDate><guid>https://hhdx.xyz/post/r7000%E6%A2%85%E6%9E%97%E6%90%AD%E5%BB%BAipv6%E4%BB%A3%E7%90%86/</guid><description>目前宽带基本都支持了ipv6(可能需要自己在光猫开启)，为了在学校省流量，利用家庭宽带的ipv6环境搭一个代理。 R7000固件版本是kool</description></item><item><title>pwnable.tw tcache_tear seethefile</title><link>https://hhdx.xyz/post/pwnable-tw-tcache-tear-seethefile/</link><pubDate>Wed, 19 Aug 2020 17:26:17 +0000</pubDate><guid>https://hhdx.xyz/post/pwnable-tw-tcache-tear-seethefile/</guid><description>&lt;h1 id="tcache_tear">tcache_tear&lt;/h1>
+&lt;p>主要难点在布局构造。&lt;/p></description></item><item><title>R7000梅林搭建ipv6代理</title><link>https://hhdx.xyz/post/r7000%E6%A2%85%E6%9E%97%E6%90%AD%E5%BB%BAipv6%E4%BB%A3%E7%90%86/</link><pubDate>Tue, 01 Sep 2020 08:55:50 +0000</pubDate><guid>https://hhdx.xyz/post/r7000%E6%A2%85%E6%9E%97%E6%90%AD%E5%BB%BAipv6%E4%BB%A3%E7%90%86/</guid><description>&lt;p>目前宽带基本都支持了ipv6(可能需要自己在光猫开启)，为了在学校省流量，利用家庭宽带的ipv6环境搭一个代理。&lt;/p>
+&lt;p>R7000固件版本是koolshare X7.9.1，使用软件中心ss server 3.1。默认情况下，该插件不支持ipv6代理。通过查看该&lt;a href="https://github.com/koolshare/merlin-ssserver">插件的代码&lt;/a>，发现了可以修改启动脚本使其支持ipv6。&lt;/p></description></item><item><title>pwnable.tw tcache_tear seethefile</title><link>https://hhdx.xyz/post/pwnable-tw-tcache-tear-seethefile/</link><pubDate>Wed, 19 Aug 2020 17:26:17 +0000</pubDate><guid>https://hhdx.xyz/post/pwnable-tw-tcache-tear-seethefile/</guid><description>&lt;h1 id="tcache_tear">tcache_tear&lt;/h1>
 &lt;h2 id="分析">分析&lt;/h2>
 &lt;div class="highlight">&lt;div class="chroma">
 &lt;table class="lntable">&lt;tr>&lt;td class="lntd">
@@ -500,7 +501,7 @@
 &lt;/div></description></item><item><title>How2heap--large_bin_attack 0ctf2018--heapstorm2</title><link>https://hhdx.xyz/post/how2heap-large-bin-attack-0ctf2018-heapstorm2/</link><pubDate>Sat, 18 Jul 2020 21:10:54 +0000</pubDate><guid>https://hhdx.xyz/post/how2heap-large-bin-attack-0ctf2018-heapstorm2/</guid><description>&lt;h2 id="large-bin-attack">large bin attack&lt;/h2>
 &lt;p>对已存在于large bin中的chunk的bk、bk_nextsize字段进行更改，在unsorted bin中取出插入该large bin时，会将bk-&amp;gt;fd、bk_nextsize-&amp;gt;fd_nextsize的位置覆盖成chunk的地址。涉及的代码就是unsorted bin遍历取出插入那块。和先前的unsorted bin attack类似，通常为进一步攻击做准备，如修改global_max_fast。&lt;/p>
 &lt;p>这里比较难理解就是large bin的结构，特别是先前我被一个&lt;a href="https://raw.githubusercontent.com/clxsh/pics/master/img/largebin.png">large bin结构图&lt;/a>所误导，下面给出我画的结构图（如果有错误o((⊙﹏⊙))o，请帮忙指出）。&lt;/p>
-&lt;p>&lt;img src="https://raw.githubusercontent.com/clxsh/pics/master/img/large_bin2.png" alt="glibc large bin">&lt;/p>
+&lt;p>&lt;img alt="glibc large bin" loading="lazy" src="https://raw.githubusercontent.com/clxsh/pics/master/img/large_bin2.png">&lt;/p>
 &lt;h2 id="0ctf2018-heapstorm2">0ctf2018 heapstorm2&lt;/h2>
 &lt;div class="highlight">&lt;div class="chroma">
 &lt;table class="lntable">&lt;tr>&lt;td class="lntd">
@@ -567,7 +568,7 @@
 &lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
 &lt;/div>
 &lt;/div>&lt;p>关键数据结构&lt;/p>
-&lt;p>&lt;img src="https://raw.githubusercontent.com/clxsh/pics/master/img/image-20200712102723178.png" alt="image-20200712102723178">&lt;/p>
+&lt;p>&lt;img alt="image-20200712102723178" loading="lazy" src="https://raw.githubusercontent.com/clxsh/pics/master/img/image-20200712102723178.png">&lt;/p>
 &lt;p>flag：标识该节点是否存在&lt;/p>
 &lt;p>size：记录大小&lt;/p>
 &lt;p>content：数据块指针&lt;/p>

@@ -42,7 +42,7 @@ glibc2.26中，在unlink宏中加入了size==prev_size(next_chunk)的检查，�
 这个实验分为两部分，第一部分是代码注入实验，主要是通过Gets()函数的堆栈溢出传入指令，然后跳转到指定位置执行的方式来实现执行指定指令；第二部分是ROP实验，因为这里采用栈随机化和堆栈不可执行所以代码注入失效了。ROP利用截取已知某指令序列来创建目的指令的方法来实现的，其中在实验中可利用的指令序列限制为farm.c生成的部分，通过Gets()函数的堆栈溢出传入一系列指令地址和数据实现。
 Code injection attacks Phase 1 实验目的是test()函数调用getbuf()后执行touch1()函数而不返回test()，所以这里用touch1()的地址覆盖掉test()的地址就可以。getbuf()里面分配了0x28个字节栈空间，所以这里把栈顶的0x28个字节覆盖掉，在末尾添加touch1()的地址就可以了。需要注意字节顺序。
 1 2 3 4 5 6 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 c0 17 40 00 00 00 00 00 /* 0x4017c0 即为touch1()起始地址*/ ...</p></div><footer class=entry-footer><span title='2018-03-22 21:20:38 +0000 UTC'>March 22, 2018</span>&nbsp;·&nbsp;hhdx</footer><a class=entry-link aria-label="post link to CSAPP3e:Attacklab" href=https://hhdx.xyz/post/csapp3e-attacklab/></a></article><footer class=page-footer><nav class=pagination><a class=prev href=https://hhdx.xyz/post/page/2/>«&nbsp;&nbsp;
-</a><a class=next href=https://hhdx.xyz/post/page/4/>&nbsp;&nbsp;»</a></nav></footer></main><footer class=footer><span>&copy; 2024 <a href=https://hhdx.xyz/>hhdx's blog</a></span> ·
+</a><a class=next href=https://hhdx.xyz/post/page/4/>&nbsp;&nbsp;»</a></nav></footer></main><footer class=footer><span>&copy; 2025 <a href=https://hhdx.xyz/>hhdx's blog</a></span> ·
 <span>Powered by
 <a href=https://gohugo.io/ rel="noopener noreferrer" target=_blank>Hugo</a> &
         <a href=https://github.com/adityatelange/hugo-PaperMod/ rel=noopener target=_blank>PaperMod</a></span></footer><a href=#top aria-label="go to top" title="Go to Top (Alt + G)" class=top-link id=top-link accesskey=g><svg viewBox="0 0 12 6" fill="currentcolor"><path d="M12 6H0l6-6z"/></svg>

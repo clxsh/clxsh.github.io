@@ -8,7 +8,7 @@ Linux是hypervisor的“游乐场”。正如我在文章使用Linux作为hyperv
 全虚拟化 vs. 半虚拟化 我们先来讨论两种完全不同的虚拟化方案：全虚拟化和半虚拟化。在全虚拟化中，客户操作系统在hypervisor上运行，相当于运行于裸机一般。客户机不知道它在虚拟机还是物理机中运行，不需要修改操作系统就可以直接运行。与此相反的是，在半虚拟化中，客户机操作系统不仅能够知道其运行于虚拟机之上，也必须包含与hypervisor进行交互的代码。但是能够在客户机和hypervisor的切换中，带来更高的效率（图1）。
 译注：客户机与hypervisor的切换举例：客户机请求I/O，需要hypervisor中所虚拟的设备来响应请求，此时就会发生切换。
 在全虚拟化中，hypervisor必须仿真设备硬件，也就是说模仿硬件最底层的会话（如：网卡驱动）。尽管这种仿真看起来方便，但代价是极低的效率和高度的复杂性。在半虚拟化中，客户机与hypervisor可以共同合作让这种仿真具有更高的效率。半虚拟化不足就是客户机操作系统会意识到它运行于虚拟机之中，而且需要对客户机操作系统做出一定的修改。
-...</p></div><footer class=entry-footer><span title='2020-11-27 14:43:05 +0000 UTC'>November 27, 2020</span>&nbsp;·&nbsp;hhdx</footer><a class=entry-link aria-label="post link to 【翻译】Virtio：一种Linux I/O虚拟化框架" href=https://hhdx.xyz/post/virtio-intro/></a></article></main><footer class=footer><span>&copy; 2024 <a href=https://hhdx.xyz/>hhdx's blog</a></span> ·
+...</p></div><footer class=entry-footer><span title='2020-11-27 14:43:05 +0000 UTC'>November 27, 2020</span>&nbsp;·&nbsp;hhdx</footer><a class=entry-link aria-label="post link to 【翻译】Virtio：一种Linux I/O虚拟化框架" href=https://hhdx.xyz/post/virtio-intro/></a></article></main><footer class=footer><span>&copy; 2025 <a href=https://hhdx.xyz/>hhdx's blog</a></span> ·
 <span>Powered by
 <a href=https://gohugo.io/ rel="noopener noreferrer" target=_blank>Hugo</a> &
         <a href=https://github.com/adityatelange/hugo-PaperMod/ rel=noopener target=_blank>PaperMod</a></span></footer><a href=#top aria-label="go to top" title="Go to Top (Alt + G)" class=top-link id=top-link accesskey=g><svg viewBox="0 0 12 6" fill="currentcolor"><path d="M12 6H0l6-6z"/></svg>

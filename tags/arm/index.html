@@ -3,7 +3,7 @@
 动态链接程序 对于动态链接的程序，还需要安装跨平台的lib。
 1 $ apt-cache search "libc" | grep arm 安装类似libc6-ARCH-cross。
 动态链接库被安装在类似/usr/arm-linux-gnueabihf/的路径。qemu不知道动态链接的位置，它预期在类似/etc/qemu-binfmt/arm的路径，所以可以设置软链接来避免用-L来指定链接库位置。
-1 2 3 $ sudo mkdir /etc/qemu-binfmt $ sudo ln -s /usr/arm-linux-gnueabihf /etc/qemu-binfmt/arm $ sudo ln -s /usr/aarch64-linux-gnu/ /etc/qemu-binfmt/aarch64 # 对于aarch64 ...</p></div><footer class=entry-footer><span title='2020-10-17 17:35:26 +0000 UTC'>October 17, 2020</span>&nbsp;·&nbsp;hhdx</footer><a class=entry-link aria-label="post link to Arm Pwn" href=https://hhdx.xyz/post/arm-pwn/></a></article></main><footer class=footer><span>&copy; 2024 <a href=https://hhdx.xyz/>hhdx's blog</a></span> ·
+1 2 3 $ sudo mkdir /etc/qemu-binfmt $ sudo ln -s /usr/arm-linux-gnueabihf /etc/qemu-binfmt/arm $ sudo ln -s /usr/aarch64-linux-gnu/ /etc/qemu-binfmt/aarch64 # 对于aarch64 ...</p></div><footer class=entry-footer><span title='2020-10-17 17:35:26 +0000 UTC'>October 17, 2020</span>&nbsp;·&nbsp;hhdx</footer><a class=entry-link aria-label="post link to Arm Pwn" href=https://hhdx.xyz/post/arm-pwn/></a></article></main><footer class=footer><span>&copy; 2025 <a href=https://hhdx.xyz/>hhdx's blog</a></span> ·
 <span>Powered by
 <a href=https://gohugo.io/ rel="noopener noreferrer" target=_blank>Hugo</a> &
         <a href=https://github.com/adityatelange/hugo-PaperMod/ rel=noopener target=_blank>PaperMod</a></span></footer><a href=#top aria-label="go to top" title="Go to Top (Alt + G)" class=top-link id=top-link accesskey=g><svg viewBox="0 0 12 6" fill="currentcolor"><path d="M12 6H0l6-6z"/></svg>
